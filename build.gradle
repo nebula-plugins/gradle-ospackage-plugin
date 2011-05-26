@@ -1,0 +1,21 @@
+apply plugin: 'groovy'
+apply plugin: 'eclipse'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+
+    groovy 'org.codehaus.groovy:groovy:1.7.10'
+
+    testCompile 'junit:junit:4.+'
+
+    testRuntime 'org.slf4j:slf4j-simple:1.6.1'
+}
+
+task createWrapper(type: Wrapper) {
+    gradleVersion = '1.0-milestone-3'
+}
+
