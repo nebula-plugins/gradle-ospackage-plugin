@@ -20,6 +20,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
 
         dependencies {
             classpath ':gradle-rpm-plugin:0.7'
+            classpath 'org.freecompany.redline:redline:1.1.2'
         }
     }
 
