@@ -40,10 +40,16 @@ class RpmPluginTest {
 		project.apply plugin: 'rpm'
 		
 		project.task([type: Rpm], 'buildRpm', {
-			baseName = 'bleah'
+			destinationDir = project.file('build/tmp/RpmPluginTest')
+			destinationDir.mkdirs()
+			
+			packageName = 'bleah'
 			version = '1.0'
 			release = '1'
-			architecture = 'i386'
+			arch = I386
+			os = LINUX
+			
+			into '/opt/bleah'
 			from(srcDir)
 		})
 		

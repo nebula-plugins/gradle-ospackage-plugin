@@ -17,6 +17,7 @@
 package com.trigonic.gradle.plugins.rpm
 
 import org.freecompany.redline.Builder;
+import org.freecompany.redline.payload.Directive;
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
@@ -29,16 +30,16 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 	
 	Builder builder
 	File destinationDir
-	String prefix = "" // TODO
-	String directive = null // TODO
 	ReadableCopySpec spec
-	boolean didWork = false
+	boolean didWork
 	
 	@Override
 	void startVisit(CopyAction action) {
 		destinationDir = action.destinationDir
 		builder = new Builder()
 		builder.setPackage action.packageName, action.version, action.release
+		builder.setPlatform action.arch, action.os
+		didWork = false
 	}
 	
 	@Override
@@ -48,12 +49,12 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 	
 	@Override
 	void visitFile(FileVisitDetails fileDetails) {
-		builder.addFile fileDetails.relativePath.pathString, fileDetails.file
+		builder.addFile fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode // TODO: directive, user, group
 	}
 	
 	@Override
 	void visitDir(FileVisitDetails dirDetails) {
-		builder.addDirectory dirDetails.relativePath.pathString
+		builder.addDirectory dirDetails.relativePath.pathString, spec.dirMode, null, null, null  // TODO: directive, user, group
 	}
 	
 	@Override
