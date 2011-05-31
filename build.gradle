@@ -1,4 +1,5 @@
 apply plugin: 'groovy'
+apply plugin: 'maven'
 apply plugin: 'eclipse'
 
 repositories {
@@ -7,12 +8,21 @@ repositories {
 
 dependencies {
     compile gradleApi()
+    compile 'org.freecompany.redline:redline:1.1.2'
 
     groovy 'org.codehaus.groovy:groovy:1.7.10'
 
     testCompile 'junit:junit:4.+'
 
     testRuntime 'org.slf4j:slf4j-simple:1.6.1'
+}
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        groupId 'com.trigonic'
+        artifactId 'gradle-rpm-plugin'
+        version '0.1'
+    }
 }
 
 task createWrapper(type: Wrapper) {

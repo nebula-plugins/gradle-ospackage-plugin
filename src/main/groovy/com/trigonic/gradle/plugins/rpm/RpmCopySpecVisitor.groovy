@@ -16,14 +16,55 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import org.freecompany.redline.Builder;
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
 import org.gradle.api.internal.file.copy.ReadableCopySpec
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
+	static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
+	
+	Builder builder
+	File destinationDir
+	String prefix = "" // TODO
+	String directive = null // TODO
+	ReadableCopySpec spec
+	boolean didWork = false
+	
+	@Override
+	void startVisit(CopyAction action) {
+		destinationDir = action.destinationDir
+		builder = new Builder()
+		builder.setPackage action.packageName, action.version, action.release
+	}
+	
 	@Override
 	void visitSpec(ReadableCopySpec spec) {
-		println 'Hello, world!'
+		this.spec = spec
+	}
+	
+	@Override
+	void visitFile(FileVisitDetails fileDetails) {
+		builder.addFile fileDetails.relativePath.pathString, fileDetails.file
+	}
+	
+	@Override
+	void visitDir(FileVisitDetails dirDetails) {
+		builder.addDirectory dirDetails.relativePath.pathString
+	}
+	
+	@Override
+	void endVisit() {
+		String rpmFile = builder.build(destinationDir)
+		didWork = true
+		logger.info('Created rpm {}', rpmFile)
+	}
+	
+	@Override
+	boolean getDidWork() {
+		didWork
 	}
 }

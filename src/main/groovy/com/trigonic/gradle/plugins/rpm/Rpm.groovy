@@ -18,32 +18,66 @@ package com.trigonic.gradle.plugins.rpm
 
 import java.io.File
 
+import org.apache.commons.lang.StringUtils;
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
-import org.gradle.api.internal.file.copy.CopySpecVisitor;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.util.GUtil
+import org.slf4j.helpers.MessageFormatter;
 
 class Rpm extends AbstractArchiveTask {
-	public static final String RPM_EXTENSION = "rpm";
+	static final String RPM_EXTENSION = "rpm";
 
-	private final CopyActionImpl action;
-
-	public Rpm() {
-		setExtension(RPM_EXTENSION)
+	final CopyActionImpl action;
+	
+	Rpm() {
 		action = new RpmCopyAction(getServices().get(FileResolver.class))
+		extension = RPM_EXTENSION
 	}
 
-	protected CopyActionImpl getCopyAction() {
+	CopyActionImpl getCopyAction() {
 		action
 	}
 	
-	protected class RpmCopyAction extends CopyActionImpl {
+	String getPackageName() {
+		baseName
+	}
+	
+	void setPackageName(String packageName) {
+		baseName = packageName
+	}
+	
+	String getRelease() {
+		classifier
+	}
+	
+	void setRelease(String release) {
+		classifier = release
+	}
+	
+	String getArchiveName() {
+		String.format("%s-%s-%s.noarch.%s", packageName, version, release, extension) 
+	}
+	
+	class RpmCopyAction extends CopyActionImpl {
 		public RpmCopyAction(FileResolver resolver) {
 			super(resolver, new RpmCopySpecVisitor());
 		}
 		
-		String getArchivePath() {
-			Rpm.this.getArchivePath();
+		File getDestinationDir() {
+			Rpm.this.destinationDir
+		}
+		
+		String getPackageName() {
+			Rpm.this.packageName
+		}
+		
+		String getVersion() {
+			Rpm.this.version
+		}
+		
+		String getRelease() {
+			Rpm.this.release
 		}
 	}
 }

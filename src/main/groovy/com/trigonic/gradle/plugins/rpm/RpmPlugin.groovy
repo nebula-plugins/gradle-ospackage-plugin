@@ -22,5 +22,6 @@ import org.gradle.api.Project
 class RpmPlugin implements Plugin<Project> {
 	@Override
 	void apply(Project project) {
+		project.Rpm = Rpm.class
 	}
 }
