@@ -16,12 +16,23 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import java.lang.reflect.Field
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.file.copy.CopySpecImpl
 
 class RpmPlugin implements Plugin<Project> {
-	@Override
-	void apply(Project project) {
-		project.Rpm = Rpm.class
-	}
+    @Override
+    void apply(Project project) {
+        project.Rpm = Rpm.class
+
+        CopySpecImpl.metaClass.user = null
+        CopySpecImpl.metaClass.group = null
+        CopySpecImpl.metaClass.directive = null
+
+        Field.metaClass.hasModifier = { modifier ->
+            (modifiers & modifier) == modifier 
+        }
+    }
 }

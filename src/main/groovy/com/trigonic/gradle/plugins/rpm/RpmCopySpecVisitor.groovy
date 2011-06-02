@@ -16,8 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
-import org.freecompany.redline.Builder;
-import org.freecompany.redline.payload.Directive;
+import org.freecompany.redline.Builder
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
@@ -26,46 +25,51 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
-	static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
-	
-	Builder builder
-	File destinationDir
-	ReadableCopySpec spec
-	boolean didWork
-	
-	@Override
-	void startVisit(CopyAction action) {
-		destinationDir = action.destinationDir
-		builder = new Builder()
-		builder.setPackage action.packageName, action.version, action.release
-		builder.setPlatform action.arch, action.os
-		didWork = false
-	}
-	
-	@Override
-	void visitSpec(ReadableCopySpec spec) {
-		this.spec = spec
-	}
-	
-	@Override
-	void visitFile(FileVisitDetails fileDetails) {
-		builder.addFile fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode // TODO: directive, user, group
-	}
-	
-	@Override
-	void visitDir(FileVisitDetails dirDetails) {
-		builder.addDirectory dirDetails.relativePath.pathString, spec.dirMode, null, null, null  // TODO: directive, user, group
-	}
-	
-	@Override
-	void endVisit() {
-		String rpmFile = builder.build(destinationDir)
-		didWork = true
-		logger.info('Created rpm {}', rpmFile)
-	}
-	
-	@Override
-	boolean getDidWork() {
-		didWork
-	}
+    static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
+    
+    Builder builder
+    File destinationDir
+    ReadableCopySpec spec
+    boolean didWork
+    
+    RpmCopySpecVisitor() {
+    }
+    
+    @Override
+    void startVisit(CopyAction action) {
+        destinationDir = action.destinationDir
+        builder = new Builder()
+        builder.setPackage action.packageName, action.version, action.release
+        builder.setPlatform action.arch, action.os
+        didWork = false
+
+        builder.addDirectory '.'
+    }
+    
+    @Override
+    void visitSpec(ReadableCopySpec spec) {
+        this.spec = spec
+    }
+    
+    @Override
+    void visitFile(FileVisitDetails fileDetails) {
+        builder.addFile './' + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user, spec.group
+    }
+    
+    @Override
+    void visitDir(FileVisitDetails dirDetails) {
+        builder.addDirectory './' + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user, spec.group
+    }
+    
+    @Override
+    void endVisit() {
+        String rpmFile = builder.build(destinationDir)
+        didWork = true
+        logger.info 'Created rpm {}', rpmFile
+    }
+    
+    @Override
+    boolean getDidWork() {
+        didWork
+    }
 }

@@ -17,102 +17,110 @@
 package com.trigonic.gradle.plugins.rpm
 
 import java.io.File
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Os
+import org.freecompany.redline.payload.Directive
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
+import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
-import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry;
-
 class Rpm extends AbstractArchiveTask {
-	static final String RPM_EXTENSION = "rpm";
+    static final String RPM_EXTENSION = "rpm";
 
-	final CopyActionImpl action;
-	Architecture arch = Architecture.NOARCH;
-	Os os = Os.UNKNOWN;
-	
-	Rpm() {
-		action = new RpmCopyAction(getServices().get(FileResolver.class))
-		extension = RPM_EXTENSION
-		
-		for (Architecture arch : Architecture.values()) {
-			setProperty arch.name(), arch
-		}
-		
-		for (Os os : Os.values()) {
-			setProperty os.name(), os
-		}
-	}
+    final CopyActionImpl action;
+    Architecture arch = Architecture.NOARCH;
+    Os os = Os.UNKNOWN;
 
-	CopyActionImpl getCopyAction() {
-		action
-	}
-	
-	String getPackageName() {
-		baseName
-	}
-	
-	void setPackageName(String packageName) {
-		baseName = packageName
-	}
-	
-	String getRelease() {
-		classifier
-	}
-	
-	void setRelease(String release) {
-		classifier = release
-	}
-	
-	Architecture getArch() {
-		arch
-	}
-	
-	void setArch(Architecture arch) {
-		this.arch = arch
-	}
-	
-	Os getOs() {
-		os
-	}
-	
-	void setOs(Os os) {
-		this.os = os
-	}
-	
-	String getArchiveName() {
-		String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension) 
-	}
-	
-	class RpmCopyAction extends CopyActionImpl {
-		public RpmCopyAction(FileResolver resolver) {
-			super(resolver, new RpmCopySpecVisitor());
-		}
-		
-		File getDestinationDir() {
-			Rpm.this.destinationDir
-		}
-		
-		String getPackageName() {
-			Rpm.this.packageName
-		}
-		
-		String getVersion() {
-			Rpm.this.version
-		}
-		
-		String getRelease() {
-			Rpm.this.release
-		}
-		
-		Architecture getArch() {
-			Rpm.this.arch
-		}
-		
-		Os getOs() {
-			Rpm.this.os
-		}
-	}
+    Rpm() {
+        action = new RpmCopyAction(getServices().get(FileResolver.class))
+        extension = RPM_EXTENSION
+
+        for (Architecture arch : Architecture.values()) {
+            setProperty arch.name(), arch
+        }
+
+        for (Os os : Os.values()) {
+            setProperty os.name(), os
+        }
+
+        for (Field field : Directive.class.fields) {
+            if (field.type == Directive.class && field.hasModifier(Modifier.STATIC)) {
+                setProperty field.name, field.get(null)
+            }
+        }
+    }
+
+    CopyActionImpl getCopyAction() {
+        action
+    }
+
+    String getPackageName() {
+        baseName
+    }
+
+    void setPackageName(String packageName) {
+        baseName = packageName
+    }
+
+    String getRelease() {
+        classifier
+    }
+
+    void setRelease(String release) {
+        classifier = release
+    }
+
+    Architecture getArch() {
+        arch
+    }
+
+    void setArch(Architecture arch) {
+        this.arch = arch
+    }
+
+    Os getOs() {
+        os
+    }
+
+    void setOs(Os os) {
+        this.os = os
+    }
+
+    String getArchiveName() {
+        String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension)
+    }
+
+    class RpmCopyAction extends CopyActionImpl {
+        public RpmCopyAction(FileResolver resolver) {
+            super(resolver, new RpmCopySpecVisitor());
+        }
+
+        File getDestinationDir() {
+            Rpm.this.destinationDir
+        }
+
+        String getPackageName() {
+            Rpm.this.packageName
+        }
+
+        String getVersion() {
+            Rpm.this.version
+        }
+
+        String getRelease() {
+            Rpm.this.release
+        }
+
+        Architecture getArch() {
+            Rpm.this.arch
+        }
+
+        Os getOs() {
+            Rpm.this.os
+        }
+    }
 }

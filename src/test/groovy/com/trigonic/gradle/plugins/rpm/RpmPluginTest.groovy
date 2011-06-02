@@ -20,39 +20,36 @@ import static org.junit.Assert.assertTrue
 
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-import org.gradle.api.tasks.bundling.Zip
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
 
-import com.trigonic.gradle.plugins.rpm.Rpm;
-
 class RpmPluginTest {
-	@Test
-	public void files() {
-		Project project = ProjectBuilder.builder().build()
+    @Test
+    public void files() {
+        Project project = ProjectBuilder.builder().build()
 
-		File buildDir = project.buildDir
-		println "Extracting to $buildDir"
-		File srcDir = new File(buildDir, 'src')
-		srcDir.mkdirs()
-		FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-		
-		project.apply plugin: 'rpm'
-		
-		project.task([type: Rpm], 'buildRpm', {
-			destinationDir = project.file('build/tmp/RpmPluginTest')
-			destinationDir.mkdirs()
-			
-			packageName = 'bleah'
-			version = '1.0'
-			release = '1'
-			arch = I386
-			os = LINUX
-			
-			into '/opt/bleah'
-			from(srcDir)
-		})
-		
-		project.tasks.buildRpm.execute()
-	}
+        File buildDir = project.buildDir
+        println "Extracting to $buildDir"
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+        
+        project.apply plugin: 'rpm'
+        
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+            
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+            os = LINUX
+            
+            into '/opt/bleah'
+            from(srcDir)
+        })
+        
+        project.tasks.buildRpm.execute()
+    }
 }
