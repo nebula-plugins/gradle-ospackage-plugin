@@ -2,6 +2,17 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 
+group = 'com.trigonic'
+artifact = 'gradle-rpm-plugin'
+version = '0.2'
+
+def props = new Properties();
+new File("local.properties").withInputStream { props.load(it) }
+
+configurations {
+    deployerJars
+}
+
 repositories {
     mavenCentral()
 }
@@ -15,13 +26,31 @@ dependencies {
     testCompile 'junit:junit:4.+'
 
     testRuntime 'org.slf4j:slf4j-simple:1.6.1'
+
+    deployerJars 'org.apache.maven.wagon:wagon-http:1.0-beta-7'
 }
 
-configure(install.repositories.mavenInstaller) {
-    pom.project {
-        groupId 'com.trigonic'
-        artifactId 'gradle-rpm-plugin'
-        version '0.1'
+task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task packageSources(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives packageJavadoc
+    archives packageSources
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        configuration = configurations.deployerJars
+        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+            authentication(userName: props.get('maven.repository.user'), password: props.get('maven.repository.password'))
+        }
     }
 }
 
