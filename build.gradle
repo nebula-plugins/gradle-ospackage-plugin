@@ -8,7 +8,8 @@ artifact = 'gradle-rpm-plugin'
 version = '0.2'
 
 def props = new Properties();
-new File("local.properties").withInputStream { props.load(it) }
+def localProperties = new File("local.properties")
+if (localProperties.exists()) localProperties.withInputStream { props.load(it) }
 
 configurations {
     deployerJars
