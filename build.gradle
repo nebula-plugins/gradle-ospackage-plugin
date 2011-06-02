@@ -1,5 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'sign'
 apply plugin: 'eclipse'
 
 group = 'com.trigonic'
@@ -11,6 +12,16 @@ new File("local.properties").withInputStream { props.load(it) }
 
 configurations {
     deployerJars
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'de.huxhorn.gradle:de.huxhorn.gradle.pgp-plugin:0.0.3'
+    }
 }
 
 repositories {
@@ -45,11 +56,50 @@ artifacts {
     archives packageSources
 }
 
+pgp {
+    secretKeyRingFile = new File("${System.properties['user.home']}/.gnupg/secring.gpg")
+    keyId = props.get('sign.key.id')
+    password = props.get('sign.key.password')
+}
+
 uploadArchives {
     repositories.mavenDeployer {
         configuration = configurations.deployerJars
         repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
             authentication(userName: props.get('maven.repository.user'), password: props.get('maven.repository.password'))
+        }
+
+        pom.project {
+            name 'gradle-rpm-plugin - Gradle plugin for constructing RPM packages'
+            packaging 'jar'
+            description 'Provides a task similar to Tar and Zip for constructing RPM package files.'
+            url 'https://github.com/AlanKrueger/gradle-rpm-plugin'
+            inceptionYear '2011'
+     
+            scm {
+                url 'scm:git://github.com/AlanKrueger/gradle-rpm-plugin.git'
+                connection 'scm:git://github.com/AlanKrueger/gradle-rpm-plugin.git'
+            }
+     
+            licenses {
+                license {
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    distribution 'repo'
+                }
+            }
+     
+            developers {
+                developer {
+                    id 'akrueger'
+                    name 'Alan Krueger'
+                    email 'alan@trigonic.com'
+                    roles{
+                        role 'Developer'
+                    }
+                    timezone '-6'
+                }
+            }
         }
     }
 }
