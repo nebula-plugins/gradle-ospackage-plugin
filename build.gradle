@@ -8,7 +8,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'org.freecompany.redline:redline:1.1.2'
+    compile 'org.redline-rpm:redline:1.1.8'
 
     groovy 'org.codehaus.groovy:groovy:1.7.10'
 
