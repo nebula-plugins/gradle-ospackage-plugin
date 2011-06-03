@@ -42,8 +42,6 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
         builder.setPackage action.packageName, action.version, action.release
         builder.setPlatform action.arch, action.os
         didWork = false
-
-        builder.addDirectory '.'
     }
     
     @Override
@@ -53,12 +51,12 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     
     @Override
     void visitFile(FileVisitDetails fileDetails) {
-        builder.addFile './' + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user, spec.group
+        builder.addFile '/' + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user, spec.group
     }
     
     @Override
     void visitDir(FileVisitDetails dirDetails) {
-        builder.addDirectory './' + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user, spec.group
+        builder.addDirectory '/' + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user, spec.group
     }
     
     @Override
