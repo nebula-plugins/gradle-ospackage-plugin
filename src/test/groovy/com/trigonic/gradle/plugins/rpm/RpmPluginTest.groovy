@@ -56,6 +56,8 @@ class RpmPluginTest {
 
             into '/opt/bleah'
             from(srcDir)
+            
+            link('/opt/bleah/banana', '/opt/bleah/apple')
         })
 
         project.tasks.buildRpm.execute()

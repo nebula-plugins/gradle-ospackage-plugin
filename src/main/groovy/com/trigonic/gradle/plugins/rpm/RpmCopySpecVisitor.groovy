@@ -86,6 +86,10 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 
     @Override
     void endVisit() {
+        for (Link link : task.links) {
+            builder.addLink link.path, link.target, link.permissions
+        }
+        
         String rpmFile = builder.build(destinationDir)
         didWork = true
         logger.info 'Created rpm {}', rpmFile

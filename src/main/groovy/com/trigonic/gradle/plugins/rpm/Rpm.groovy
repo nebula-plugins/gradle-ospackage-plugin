@@ -26,7 +26,6 @@ import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
-import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 class Rpm extends AbstractArchiveTask {
@@ -53,6 +52,7 @@ class Rpm extends AbstractArchiveTask {
     File postInstall
     File preUninstall
     File postUninstall
+    List<Link> links = new ArrayList<Link>()
 
     Rpm() {
         action = new RpmCopyAction(getServices().get(FileResolver.class))
@@ -102,6 +102,23 @@ class Rpm extends AbstractArchiveTask {
 
     String getArchiveName() {
         String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension)
+    }
+    
+    Link link(String path, String target) {
+        link(path, target, -1)
+    }
+    
+    Link link(String path, String target, int permissions) {
+        Link link = new Link()
+        link.path = path
+        link.target = target
+        link.permissions = permissions
+        links.add(link)
+        link
+    }
+    
+    List<Link> getLinks() {
+        links
     }
 
     class RpmCopyAction extends CopyActionImpl {
