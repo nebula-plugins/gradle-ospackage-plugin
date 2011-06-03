@@ -17,6 +17,7 @@
 package com.trigonic.gradle.plugins.rpm
 
 import org.freecompany.redline.Builder
+import org.freecompany.redline.header.Header.HeaderTag
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
@@ -26,46 +27,69 @@ import org.slf4j.LoggerFactory
 
 class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
-    
+
     Builder builder
     File destinationDir
     ReadableCopySpec spec
     boolean didWork
-    
+
     RpmCopySpecVisitor() {
     }
-    
+
     @Override
     void startVisit(CopyAction action) {
-        destinationDir = action.destinationDir
-        builder = new Builder()
-        builder.setPackage action.packageName, action.version, action.release
-        builder.setPlatform action.arch, action.os
+        Rpm task = action.task
+
+        destinationDir = task.destinationDir
         didWork = false
+
+        builder = new Builder()
+        builder.setPackage task.packageName, task.version, task.release
+        builder.setType task.type
+        builder.setPlatform task.arch, task.os
+        builder.setGroup task.group
+        builder.setBuildHost task.buildHost
+        builder.setSummary task.summary
+        builder.setDescription task.description
+        builder.setLicense task.license
+        builder.setPackager task.packager
+        builder.setDistribution task.distribution
+        builder.setVendor task.vendor
+        builder.setUrl task.url
+        builder.setProvides task.provides ?: task.packageName
+
+        if (task.sourcePackage) {
+            builder.addHeaderEntry HeaderTag.SOURCERPM, task.sourcePackage
+        }
+
+        builder.setPreInstallScript task.preInstall
+        builder.setPostInstallScript task.postInstall
+        builder.setPreUninstallScript task.preUninstall
+        builder.setPostUninstallScript task.postUninstall
     }
-    
+
     @Override
     void visitSpec(ReadableCopySpec spec) {
         this.spec = spec
     }
-    
+
     @Override
     void visitFile(FileVisitDetails fileDetails) {
-        builder.addFile '/' + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user, spec.group
+        builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user, spec.group
     }
-    
+
     @Override
     void visitDir(FileVisitDetails dirDetails) {
-        builder.addDirectory '/' + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user, spec.group
+        builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user, spec.group
     }
-    
+
     @Override
     void endVisit() {
         String rpmFile = builder.build(destinationDir)
         didWork = true
         logger.info 'Created rpm {}', rpmFile
     }
-    
+
     @Override
     boolean getDidWork() {
         didWork

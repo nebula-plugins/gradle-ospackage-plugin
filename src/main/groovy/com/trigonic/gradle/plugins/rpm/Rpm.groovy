@@ -22,6 +22,7 @@ import java.lang.reflect.Modifier
 
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Os
+import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
@@ -31,24 +32,47 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 class Rpm extends AbstractArchiveTask {
     static final String RPM_EXTENSION = "rpm";
 
-    final CopyActionImpl action;
-    Architecture arch = Architecture.NOARCH;
-    Os os = Os.UNKNOWN;
+    final CopyActionImpl action
+    Architecture arch = Architecture.NOARCH
+    Os os = Os.UNKNOWN
+    RpmType type = RpmType.BINARY
+    String group = ''
+    String buildHost = InetAddress.localHost.hostName
+    String summary = ''
+    String description = ''
+    String license = ''
+    String packager = System.getProperty('user.name', '')
+    String distribution = ''
+    String vendor = ''
+    String url = ''
+    String sourcePackage
+    String provides
+    File preInstall
+    File postInstall
+    File preUninstall
+    File postUninstall
 
     Rpm() {
         action = new RpmCopyAction(getServices().get(FileResolver.class))
         extension = RPM_EXTENSION
 
-        for (Architecture arch : Architecture.values()) {
-            setProperty arch.name(), arch
-        }
+        aliasEnumValues(Architecture.values())
+        aliasEnumValues(Os.values())
+        aliasEnumValues(RpmType.values())
+        aliasStaticInstances(Directive.class)
+    }
 
-        for (Os os : Os.values()) {
-            setProperty os.name(), os
+    private <T extends Enum<T>> void aliasEnumValues(T[] values) {
+        for (T value : values) {
+            assert !hasProperty(value.name())
+            setProperty value.name(), value
         }
+    }
 
-        for (Field field : Directive.class.fields) {
-            if (field.type == Directive.class && field.hasModifier(Modifier.STATIC)) {
+    private <T> void aliasStaticInstances(Class<T> forClass) {
+        for (Field field : forClass.fields) {
+            if (field.type == forClass && field.hasModifier(Modifier.STATIC)) {
+                assert !hasProperty(field.name)
                 setProperty field.name, field.get(null)
             }
         }
@@ -74,22 +98,6 @@ class Rpm extends AbstractArchiveTask {
         classifier = release
     }
 
-    Architecture getArch() {
-        arch
-    }
-
-    void setArch(Architecture arch) {
-        this.arch = arch
-    }
-
-    Os getOs() {
-        os
-    }
-
-    void setOs(Os os) {
-        this.os = os
-    }
-
     String getArchiveName() {
         String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension)
     }
@@ -99,28 +107,8 @@ class Rpm extends AbstractArchiveTask {
             super(resolver, new RpmCopySpecVisitor());
         }
 
-        File getDestinationDir() {
-            Rpm.this.destinationDir
-        }
-
-        String getPackageName() {
-            Rpm.this.packageName
-        }
-
-        String getVersion() {
-            Rpm.this.version
-        }
-
-        String getRelease() {
-            Rpm.this.release
-        }
-
-        Architecture getArch() {
-            Rpm.this.arch
-        }
-
-        Os getOs() {
-            Rpm.this.os
+        Rpm getTask() {
+            Rpm.this
         }
     }
 }

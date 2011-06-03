@@ -33,23 +33,31 @@ class RpmPluginTest {
         File srcDir = new File(buildDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-        
+
         project.apply plugin: 'rpm'
-        
+
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
             destinationDir.mkdirs()
-            
+
             packageName = 'bleah'
             version = '1.0'
             release = '1'
+            type = BINARY
             arch = I386
             os = LINUX
-            
+            group = 'Development/Libraries'
+            summary = 'Bleah blarg'
+            description = 'Not a very interesting library.'
+            license = 'Free'
+            distribution = 'SuperSystem'
+            vendor = 'Super Associates, LLC'
+            url = 'http://www.example.com/'
+
             into '/opt/bleah'
             from(srcDir)
         })
-        
+
         project.tasks.buildRpm.execute()
     }
 }
