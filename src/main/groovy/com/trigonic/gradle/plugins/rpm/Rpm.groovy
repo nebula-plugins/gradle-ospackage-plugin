@@ -36,7 +36,9 @@ class Rpm extends AbstractArchiveTask {
     Architecture arch = Architecture.NOARCH
     Os os = Os.UNKNOWN
     RpmType type = RpmType.BINARY
-    String group = ''
+    String user
+    String group
+    String packageGroup = ''
     String buildHost = InetAddress.localHost.hostName
     String summary = ''
     String description = ''

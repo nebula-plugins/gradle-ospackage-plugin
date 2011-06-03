@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory
 class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
 
+    Rpm task
     Builder builder
     File destinationDir
     ReadableCopySpec spec
@@ -38,7 +39,7 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 
     @Override
     void startVisit(CopyAction action) {
-        Rpm task = action.task
+        task = action.task
 
         destinationDir = task.destinationDir
         didWork = false
@@ -47,7 +48,7 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
         builder.setPackage task.packageName, task.version, task.release
         builder.setType task.type
         builder.setPlatform task.arch, task.os
-        builder.setGroup task.group
+        builder.setGroup task.packageGroup
         builder.setBuildHost task.buildHost
         builder.setSummary task.summary
         builder.setDescription task.description
@@ -75,12 +76,12 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 
     @Override
     void visitFile(FileVisitDetails fileDetails) {
-        builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user, spec.group
+        builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user ?: task.user, spec.group ?: task.group
     }
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
-        builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user, spec.group
+        builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user ?: task.user, spec.group ?: task.group
     }
 
     @Override
