@@ -5,7 +5,7 @@ apply plugin: 'eclipse'
 
 group = 'com.trigonic'
 artifact = 'gradle-rpm-plugin'
-version = '0.3'
+version = '0.4'
 
 def props = new Properties();
 def localProperties = new File("local.properties")
@@ -76,6 +76,12 @@ uploadArchives {
             description 'Provides a task similar to Tar and Zip for constructing RPM package files.'
             url 'https://github.com/AlanKrueger/gradle-rpm-plugin'
             inceptionYear '2011'
+
+            parent {
+                groupId 'org.sonatype.oss'
+                artifactId 'oss-parent'
+                version '7'
+            }
      
             scm {
                 url 'scm:git://github.com/AlanKrueger/gradle-rpm-plugin.git'
