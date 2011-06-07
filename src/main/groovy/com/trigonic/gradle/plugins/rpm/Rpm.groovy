@@ -58,6 +58,8 @@ class Rpm extends AbstractArchiveTask {
         action = new RpmCopyAction(getServices().get(FileResolver.class))
         extension = RPM_EXTENSION
 
+        packageName = project.name
+
         aliasEnumValues(Architecture.values())
         aliasEnumValues(Os.values())
         aliasEnumValues(RpmType.values())

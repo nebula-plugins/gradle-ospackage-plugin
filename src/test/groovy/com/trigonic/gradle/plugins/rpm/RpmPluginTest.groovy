@@ -16,6 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertTrue
 
 import org.apache.commons.io.FileUtils
@@ -59,6 +60,24 @@ class RpmPluginTest {
             
             link('/opt/bleah/banana', '/opt/bleah/apple')
         })
+
+        project.tasks.buildRpm.execute()
+    }
+
+    @Test
+    public void projectNameDefault() {
+        Project project = ProjectBuilder.builder().build()
+
+        File buildDir = project.buildDir
+        println "Extracting to $buildDir"
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {})
+        assertEquals 'test', project.buildRpm.packageName
 
         project.tasks.buildRpm.execute()
     }
