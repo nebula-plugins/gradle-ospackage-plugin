@@ -29,7 +29,25 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         os = LINUX
     
         into '/opt/foo'
-        from jar.outputs.files
+
+        from(jar.outputs.files) {
+            into 'lib'
+        }
+        from(configurations.runtime) {
+            into 'lib'
+        }
+        from('lib') {
+            into 'lib'
+        }
+        from('scripts') {
+            into 'bin'
+            exclude 'database'
+            fileMode = 0550
+        }
+        from('src/main/resources') {
+            directive = CONFIG
+            into 'conf'
+        }
     }
 
 ## Task
