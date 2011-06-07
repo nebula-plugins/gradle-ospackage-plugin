@@ -11,15 +11,11 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
 
     buildscript {
         repositories {
-            add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-                name = 'GitHub Gradle RPM Plugin'
-                addArtifactPattern 'http://cloud.github.com/downloads/AlanKrueger/gradle-rpm-plugin/[module]-[revision].[ext]'
-            }
             mavenCentral()
         }
 
         dependencies {
-            classpath ':gradle-rpm-plugin:0.7'
+            classpath 'com.trigonic:gradle-rpm-plugin:0.4'
             classpath 'org.freecompany.redline:redline:1.1.2'
         }
     }
