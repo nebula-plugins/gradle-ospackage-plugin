@@ -18,6 +18,8 @@ package com.trigonic.gradle.plugins.rpm
 
 import java.lang.reflect.Field
 
+import org.freecompany.redline.Builder;
+import org.freecompany.redline.header.Architecture;
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.copy.CopySpecImpl
@@ -33,6 +35,10 @@ class RpmPlugin implements Plugin<Project> {
 
         Field.metaClass.hasModifier = { modifier ->
             (modifiers & modifier) == modifier 
+        }
+        
+        Builder.metaClass.getDefaultSourcePackage() {
+            format.getLead().getName() + "-src.rpm"
         }
     }
 }

@@ -5,7 +5,7 @@ apply plugin: 'eclipse'
 
 group = 'com.trigonic'
 artifact = 'gradle-rpm-plugin'
-version = '0.4'
+version = '0.5'
 
 def props = new Properties();
 def localProperties = new File("local.properties")

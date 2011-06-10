@@ -59,10 +59,13 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
         builder.setUrl task.url
         builder.setProvides task.provides ?: task.packageName
 
-        if (task.sourcePackage) {
-            builder.addHeaderEntry HeaderTag.SOURCERPM, task.sourcePackage
+        String sourcePackage = task.sourcePackage
+        if (!sourcePackage) {
+            // need a source package because createrepo will assume your package is a source package without it
+            sourcePackage = builder.defaultSourcePackage
         }
-
+        builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
+        
         builder.setPreInstallScript task.preInstall
         builder.setPostInstallScript task.postInstall
         builder.setPreUninstallScript task.preUninstall
