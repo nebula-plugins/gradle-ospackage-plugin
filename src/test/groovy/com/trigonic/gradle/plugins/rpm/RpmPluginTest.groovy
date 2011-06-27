@@ -54,6 +54,8 @@ class RpmPluginTest {
             distribution = 'SuperSystem'
             vendor = 'Super Associates, LLC'
             url = 'http://www.example.com/'
+            
+            requires('blarg', '1.0', GREATER | EQUAL)
 
             into '/opt/bleah'
             from(srcDir)

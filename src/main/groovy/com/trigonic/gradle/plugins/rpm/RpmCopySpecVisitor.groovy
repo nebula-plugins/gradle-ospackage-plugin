@@ -79,18 +79,26 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 
     @Override
     void visitFile(FileVisitDetails fileDetails) {
+        logger.debug "adding file {}", fileDetails.relativePath.pathString
         builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file, spec.fileMode, spec.directive, spec.user ?: task.user, spec.group ?: task.group
     }
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
+        logger.debug "adding directory {}", dirDetails.relativePath.pathString
         builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user ?: task.user, spec.group ?: task.group
     }
 
     @Override
     void endVisit() {
         for (Link link : task.links) {
+            logger.debug "adding link {} -> {}", link.path, link.target
             builder.addLink link.path, link.target, link.permissions
+        }
+        
+        for (Dependency dep : task.dependencies) {
+            logger.debug "adding dependency on {} {}", dep.packageName, dep.version
+            builder.addDependency dep.packageName, dep.version, dep.flag
         }
         
         String rpmFile = builder.build(destinationDir)

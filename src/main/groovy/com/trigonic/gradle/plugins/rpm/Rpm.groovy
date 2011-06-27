@@ -21,6 +21,7 @@ import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
 import org.freecompany.redline.header.Architecture
+import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
@@ -53,6 +54,7 @@ class Rpm extends AbstractArchiveTask {
     File preUninstall
     File postUninstall
     List<Link> links = new ArrayList<Link>()
+    List<Dependency> dependencies = new ArrayList<Dependency>();
 
     Rpm() {
         action = new RpmCopyAction(getServices().get(FileResolver.class))
@@ -64,6 +66,7 @@ class Rpm extends AbstractArchiveTask {
         aliasEnumValues(Os.values())
         aliasEnumValues(RpmType.values())
         aliasStaticInstances(Directive.class)
+        aliasStaticInstances(Flags.class, int.class)
     }
 
     private <T extends Enum<T>> void aliasEnumValues(T[] values) {
@@ -74,8 +77,12 @@ class Rpm extends AbstractArchiveTask {
     }
 
     private <T> void aliasStaticInstances(Class<T> forClass) {
+        aliasStaticInstances forClass, forClass
+    }
+
+    private <T, U> void aliasStaticInstances(Class<T> forClass, Class<U> ofClass) {
         for (Field field : forClass.fields) {
-            if (field.type == forClass && field.hasModifier(Modifier.STATIC)) {
+            if (field.type == ofClass && field.hasModifier(Modifier.STATIC)) {
                 assert !hasProperty(field.name)
                 setProperty field.name, field.get(null)
             }
@@ -119,10 +126,15 @@ class Rpm extends AbstractArchiveTask {
         link
     }
     
-    List<Link> getLinks() {
-        links
+    Dependency requires(String packageName, String version, int flag) {
+        Dependency dep = new Dependency()
+        dep.packageName = packageName
+        dep.version = version
+        dep.flag = flag
+        dependencies.add(dep)
+        dep
     }
-
+    
     class RpmCopyAction extends CopyActionImpl {
         public RpmCopyAction(FileResolver resolver) {
             super(resolver, new RpmCopySpecVisitor());
