@@ -27,6 +27,9 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         release = 1
         arch = I386
         os = LINUX
+
+        requires('bar', '2.2', GREATER | EQUAL)
+        requires('baz', '1.0.1', LESS)
     
         into '/opt/foo'
 

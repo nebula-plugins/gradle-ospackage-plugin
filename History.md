@@ -1,3 +1,7 @@
+v0.6 - 2011-06-27
+=================
+  * add specification of required dependencies
+
 v0.5 - 2011-06-10
 =================
   * add default for sourcePackage because Yum's createrepo assumes your rpm is a source package without it
