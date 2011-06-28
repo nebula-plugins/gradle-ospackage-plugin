@@ -1,3 +1,7 @@
+v0.7 - 2011-06-28
+=================
+  * add support for a utilities script that automatically gets included in any pre/post/preun/postun scripts
+
 v0.6 - 2011-06-27
 =================
   * add specification of required dependencies

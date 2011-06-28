@@ -28,6 +28,12 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         arch = I386
         os = LINUX
 
+        installUtils = file('scripts/rpm/utils.sh')
+        preInstall = file('scripts/rpm/preInstall.sh')
+        postInstall = file('scripts/rpm/postInstall.sh')
+        preUninstall = file('scripts/rpm/preUninstall.sh')
+        postUninstall = file('scripts/rpm/postUninstall.sh')
+
         requires('bar', '2.2', GREATER | EQUAL)
         requires('baz', '1.0.1', LESS)
     
