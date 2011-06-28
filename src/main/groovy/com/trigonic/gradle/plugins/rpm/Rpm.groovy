@@ -49,6 +49,7 @@ class Rpm extends AbstractArchiveTask {
     String url = ''
     String sourcePackage
     String provides
+    File installUtils
     File preInstall
     File postInstall
     File preUninstall

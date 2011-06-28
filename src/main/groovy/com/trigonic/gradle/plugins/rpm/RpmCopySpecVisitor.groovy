@@ -34,9 +34,6 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     ReadableCopySpec spec
     boolean didWork
 
-    RpmCopySpecVisitor() {
-    }
-
     @Override
     void startVisit(CopyAction action) {
         task = action.task
@@ -66,10 +63,10 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
         }
         builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
         
-        builder.setPreInstallScript task.preInstall
-        builder.setPostInstallScript task.postInstall
-        builder.setPreUninstallScript task.preUninstall
-        builder.setPostUninstallScript task.postUninstall
+        builder.setPreInstallScript(scriptWithUtils(task.installUtils, task.preInstall))
+        builder.setPostInstallScript(scriptWithUtils(task.installUtils, task.postInstall))
+        builder.setPreUninstallScript(scriptWithUtils(task.installUtils, task.preUninstall))
+        builder.setPostUninstallScript(scriptWithUtils(task.installUtils, task.postUninstall))
     }
 
     @Override
@@ -109,5 +106,21 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     @Override
     boolean getDidWork() {
         didWork
+    }
+    
+    Object scriptWithUtils(File utils, File script) {
+        utils == null ? script : concat(utils, script)
+    }
+    
+    String concat(File... files) {
+        String shebang
+        StringBuilder script = new StringBuilder();        
+        files.each { file ->
+            file?.eachLine { line ->
+                script.append line
+                script.append "\n"
+            }
+        }
+        script.toString()
     }
 }
