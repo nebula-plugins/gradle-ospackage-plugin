@@ -33,6 +33,7 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     File destinationDir
     ReadableCopySpec spec
     boolean didWork
+    boolean includeStandardDefines = true
 
     @Override
     void startVisit(CopyAction action) {
@@ -108,19 +109,36 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
         didWork
     }
     
-    Object scriptWithUtils(File utils, File script) {
-        utils == null ? script : concat(utils, script)
+    String standardScriptDefines() {
+        includeStandardDefines ? 
+            String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
+                task?.arch, task?.os, task?.packageName, task?.version, task?.release) : null 
     }
     
-    String concat(File... files) {
+    Object scriptWithUtils(File utils, File script) {
+        concat(standardScriptDefines(), utils, script)
+    }
+    
+    String concat(Object... scripts) {
         String shebang
-        StringBuilder script = new StringBuilder();        
-        files.each { file ->
-            file?.eachLine { line ->
-                script.append line
-                script.append "\n"
+        StringBuilder result = new StringBuilder();        
+        scripts.each { script ->
+            script?.eachLine { line ->
+                if (line.matches('^#!.*$')) {
+                    if (!shebang) {
+                        shebang = line
+                    } else if (line != shebang) {
+                        throw new IllegalArgumentException("mismatching #! script lines")
+                    }
+                } else {
+                    result.append line
+                    result.append "\n"
+                }
             }
         }
-        script.toString()
+        if (shebang) {
+            result.insert(0, shebang + "\n")
+        }
+        result.toString()
     }
 }

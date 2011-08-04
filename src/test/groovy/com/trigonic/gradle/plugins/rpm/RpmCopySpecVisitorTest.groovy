@@ -19,30 +19,49 @@ package com.trigonic.gradle.plugins.rpm
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertSame
 import static org.junit.Assert.assertTrue
+import groovy.mock.interceptor.MockFor
 
+import java.io.File;
+import java.util.concurrent.Callable
+
+import org.gradle.api.internal.GradleInternal;
+import org.gradle.api.internal.project.DefaultProject;
+import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.api.internal.project.ServiceRegistryFactory;
+import org.gradle.groovy.scripts.ScriptSource;
 import org.junit.Before
 import org.junit.Test
 
 class RpmCopySpecVisitorTest {
-    RpmCopySpecVisitor visitor;
+    RpmCopySpecVisitor visitor
     
     @Before
     public void setup() {
-        visitor = new RpmCopySpecVisitor();
+        visitor = new RpmCopySpecVisitor()
     }
     
     @Test
     public void withoutUtils() {
+        visitor.includeStandardDefines = false
         File script = resourceFile("script.sh")
         Object result = visitor.scriptWithUtils(null, script)
-        assertSame script, result
+        assertTrue result instanceof String
+        assertEquals(
+            "#!/bin/bash\n" +
+            "hello\n", result)
     }
     
     @Test
     public void withUtils() {
+        visitor.includeStandardDefines = false
         Object result = visitor.scriptWithUtils(resourceFile("utils.sh"), resourceFile("script.sh"))
         assertTrue result instanceof String
-        assertEquals "#!/bin/bash\nfunction hello() {\n    echo 'Hello, world.'\n}\n#!/bin/bash\nhello\n", result
+        assertEquals(
+            "#!/bin/bash\n" +
+            "function hello() {\n" +
+            "    echo 'Hello, world.'\n" +
+            "}\n" +
+            "hello\n", result)
     }
     
     File resourceFile(String name) {
