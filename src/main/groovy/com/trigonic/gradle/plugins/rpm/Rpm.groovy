@@ -136,6 +136,10 @@ class Rpm extends AbstractArchiveTask {
         dep
     }
     
+    Dependency requires(String packageName) {
+        requires(packageName, '', 0)
+    }
+
     class RpmCopyAction extends CopyActionImpl {
         public RpmCopyAction(FileResolver resolver) {
             super(resolver, new RpmCopySpecVisitor());
