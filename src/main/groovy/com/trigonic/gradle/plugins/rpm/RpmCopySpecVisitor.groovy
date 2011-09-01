@@ -83,8 +83,10 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
-        logger.debug "adding directory {}", dirDetails.relativePath.pathString
-        builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user ?: task.user, spec.group ?: task.group
+        if (spec.createDirectoryEntry) {
+            logger.debug "adding directory {}", dirDetails.relativePath.pathString
+            builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode, spec.directive, spec.user ?: task.user, spec.group ?: task.group
+        }
     }
 
     @Override
