@@ -57,6 +57,8 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
             directive = CONFIG
             into 'conf'
         }
+
+        link('/opt/foo/bin/foo.init', '/etc/init.d/foo')
     }
 
 ## Task
