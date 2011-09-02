@@ -56,6 +56,7 @@ class RpmPluginTest {
             url = 'http://www.example.com/'
             
             requires('blarg', '1.0', GREATER | EQUAL)
+            requires('blech')
 
             into '/opt/bleah'
             from(srcDir)
