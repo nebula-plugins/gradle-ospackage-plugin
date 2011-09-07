@@ -60,6 +60,10 @@ class RpmPluginTest {
 
             into '/opt/bleah'
             from(srcDir)
+
+            from(srcDir.toString() + '/main/groovy') {
+                createDirectoryEntry = true
+            }
             
             link('/opt/bleah/banana', '/opt/bleah/apple')
         })
