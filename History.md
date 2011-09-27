@@ -1,3 +1,7 @@
+v0.9 - 2011-09-27
+=================
+  * update to use Redline 1.1.9
+
 v0.8 - 2011-08-04
 =================
   * add defines of RPM_ARCH, RPM_OS, RPM_PACKAGE_NAME, RPM_PACKAGE_VERSION,
