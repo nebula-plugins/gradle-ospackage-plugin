@@ -36,6 +36,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
 
         requires('bar', '2.2', GREATER | EQUAL)
         requires('baz', '1.0.1', LESS)
+        requires('qux')
     
         into '/opt/foo'
 
@@ -56,6 +57,13 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         from('src/main/resources') {
             directive = CONFIG
             into 'conf'
+        }
+        from('home') {
+            // Creating directory entries (or not) in the RPM is normally left up to redline-rpm library.
+            // Use this to explicitly create an entry -- for setting directory fileMode on system directories.
+            createDirectoryEntry = true
+            fileMode = 0500
+            into 'home'
         }
 
         link('/opt/foo/bin/foo.init', '/etc/init.d/foo')
