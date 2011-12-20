@@ -74,7 +74,7 @@ uploadArchives {
             name 'gradle-rpm-plugin - Gradle plugin for constructing RPM packages'
             packaging 'jar'
             description 'Provides a task similar to Tar and Zip for constructing RPM package files.'
-            url 'https://github.com/AlanKrueger/gradle-rpm-plugin'
+            url 'https://github.com/TrigonicSolutions/gradle-rpm-plugin'
             inceptionYear '2011'
 
             parent {
@@ -84,8 +84,8 @@ uploadArchives {
             }
      
             scm {
-                url 'scm:git://github.com/AlanKrueger/gradle-rpm-plugin.git'
-                connection 'scm:git://github.com/AlanKrueger/gradle-rpm-plugin.git'
+                url 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
+                connection 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
             }
      
             licenses {
