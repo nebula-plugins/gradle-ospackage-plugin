@@ -24,11 +24,9 @@ dependencies {
     compile gradleApi()
     compile 'org.redline-rpm:redline:1.1.9'
 
-    groovy 'org.codehaus.groovy:groovy:1.7.10'
+    groovy 'org.codehaus.groovy:groovy:1.8.5'
 
     testCompile 'junit:junit:4.+'
-
-    testRuntime 'org.slf4j:slf4j-simple:1.6.1'
 
     deployerJars 'org.apache.maven.wagon:wagon-http:1.0-beta-7'
 }
