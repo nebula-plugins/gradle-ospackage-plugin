@@ -30,7 +30,7 @@ class RpmPlugin implements Plugin<Project> {
 
         CopySpecImpl.metaClass.user = null
         CopySpecImpl.metaClass.group = null
-        CopySpecImpl.metaClass.directive = null
+        CopySpecImpl.metaClass.fileType = null
         CopySpecImpl.metaClass.createDirectoryEntry = null
 
         Field.metaClass.hasModifier = { modifier ->
