@@ -1,3 +1,8 @@
+v1.0 - 2012-01-03
+=================
+  * update to use "fileType" instead of "directive" since the latter
+    is apparently a reserved property on Closures
+
 v0.9 - 2011-09-27
 =================
   * update to use Redline 1.1.9
