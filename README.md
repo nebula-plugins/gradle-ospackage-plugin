@@ -15,7 +15,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:0.7'
+            classpath 'com.trigonic:gradle-rpm-plugin:1.0'
         }
     }
 
@@ -55,7 +55,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
             fileMode = 0550
         }
         from('src/main/resources') {
-            directive = CONFIG
+            fileType = CONFIG
             into 'conf'
         }
         from('home') {
