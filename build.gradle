@@ -4,8 +4,7 @@ apply plugin: 'signing'
 apply plugin: 'eclipse'
 
 group = 'com.trigonic'
-artifact = 'gradle-rpm-plugin'
-version = '1.0'
+version = '1.1'
 
 def props = new Properties();
 def localProperties = new File("local.properties")
