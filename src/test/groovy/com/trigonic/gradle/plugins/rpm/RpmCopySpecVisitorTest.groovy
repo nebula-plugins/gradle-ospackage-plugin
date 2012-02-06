@@ -19,16 +19,9 @@ package com.trigonic.gradle.plugins.rpm
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertSame
 import static org.junit.Assert.assertTrue
-import groovy.mock.interceptor.MockFor
 
 import java.io.File;
-import java.util.concurrent.Callable
 
-import org.gradle.api.internal.GradleInternal;
-import org.gradle.api.internal.project.DefaultProject;
-import org.gradle.api.internal.project.ProjectInternal
-import org.gradle.api.internal.project.ServiceRegistryFactory;
-import org.gradle.groovy.scripts.ScriptSource;
 import org.junit.Before
 import org.junit.Test
 

@@ -100,6 +100,24 @@ class RpmPluginTest {
         project.tasks.buildRpm.execute()
     }
     
+    @Test
+    public void usesArchivesBaseName() {
+        Project project = ProjectBuilder.builder().build()
+        project.archivesBaseName = 'foo'
+
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {})
+        assertEquals 'foo', project.buildRpm.packageName
+
+        project.tasks.buildRpm.execute()
+    }
+    
     def getHeaderEntry = { scan, tag ->
         def header = scan.format.header
         header.getEntry(tag.code)
