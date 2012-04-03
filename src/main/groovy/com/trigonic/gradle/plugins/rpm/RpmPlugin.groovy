@@ -28,7 +28,7 @@ class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BasePlugin.class)
         
-        project.Rpm = Rpm.class
+        project.ext.Rpm = Rpm.class
 
         CopySpecImpl.metaClass.user = null
         CopySpecImpl.metaClass.group = null

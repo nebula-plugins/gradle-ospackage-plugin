@@ -10,7 +10,7 @@ version = '1.0'
 def props = new Properties();
 def localProperties = new File("local.properties")
 if (localProperties.exists()) localProperties.withInputStream { props.load(it) }
-props.each { project.setProperty(it.key, it.value) }
+props.each { project.ext.set it.key, it.value }
 
 configurations {
     deployerJars
