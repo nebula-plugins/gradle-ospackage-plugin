@@ -4,13 +4,12 @@ apply plugin: 'signing'
 apply plugin: 'eclipse'
 
 group = 'com.trigonic'
-artifact = 'gradle-rpm-plugin'
-version = '1.0'
+version = '1.1'
 
 def props = new Properties();
 def localProperties = new File("local.properties")
 if (localProperties.exists()) localProperties.withInputStream { props.load(it) }
-props.each { project.setProperty(it.key, it.value) }
+props.each { project.ext.set it.key, it.value }
 
 configurations {
     deployerJars
@@ -48,6 +47,7 @@ artifacts {
 }
 
 signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
     sign configurations.archives
 }
 
@@ -103,6 +103,6 @@ uploadArchives {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-6'
+    gradleVersion = '1.0-milestone-9'
 }
 

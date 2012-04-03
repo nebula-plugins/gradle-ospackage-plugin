@@ -19,14 +19,16 @@ package com.trigonic.gradle.plugins.rpm
 import java.lang.reflect.Field
 
 import org.freecompany.redline.Builder
-import org.gradle.api.Plugin
+import org.gradle.api.Plugin;
 import org.gradle.api.Project
 import org.gradle.api.internal.file.copy.CopySpecImpl
+import org.gradle.api.plugins.BasePlugin
 
 class RpmPlugin implements Plugin<Project> {
-    @Override
     void apply(Project project) {
-        project.Rpm = Rpm.class
+        project.plugins.apply(BasePlugin.class)
+        
+        project.ext.Rpm = Rpm.class
 
         CopySpecImpl.metaClass.user = null
         CopySpecImpl.metaClass.group = null

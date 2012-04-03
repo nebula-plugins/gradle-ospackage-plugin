@@ -20,6 +20,10 @@ import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertTrue
 
 import org.apache.commons.io.FileUtils
+import static org.freecompany.redline.payload.CpioHeader.*
+import static org.freecompany.redline.header.Header.HeaderTag.*
+
+import org.freecompany.redline.header.Header.HeaderTag
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
@@ -30,7 +34,6 @@ class RpmPluginTest {
         Project project = ProjectBuilder.builder().build()
 
         File buildDir = project.buildDir
-        println "Extracting to $buildDir"
         File srcDir = new File(buildDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
@@ -70,6 +73,14 @@ class RpmPluginTest {
         })
 
         project.tasks.buildRpm.execute()
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        assertEquals('bleah', getHeaderEntryString(scan, NAME))
+        assertEquals('1.0', getHeaderEntryString(scan, VERSION))
+        assertEquals('1', getHeaderEntryString(scan, RELEASE))
+        assertEquals('i386', getHeaderEntryString(scan, ARCH))
+        assertEquals('linux', getHeaderEntryString(scan, OS))
+        assertEquals(['./opt/bleah', './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
+        assertEquals([DIR, FILE, SYMLINK], scan.files*.type)
     }
 
     @Test
@@ -77,7 +88,6 @@ class RpmPluginTest {
         Project project = ProjectBuilder.builder().build()
 
         File buildDir = project.buildDir
-        println "Extracting to $buildDir"
         File srcDir = new File(buildDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
@@ -88,5 +98,32 @@ class RpmPluginTest {
         assertEquals 'test', project.buildRpm.packageName
 
         project.tasks.buildRpm.execute()
+    }
+    
+    @Test
+    public void usesArchivesBaseName() {
+        Project project = ProjectBuilder.builder().build()
+        project.archivesBaseName = 'foo'
+
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {})
+        assertEquals 'foo', project.buildRpm.packageName
+
+        project.tasks.buildRpm.execute()
+    }
+    
+    def getHeaderEntry = { scan, tag ->
+        def header = scan.format.header
+        header.getEntry(tag.code)
+    }
+    
+    def getHeaderEntryString = { scan, tag ->
+        getHeaderEntry(scan, tag).values.join('')
     }
 }

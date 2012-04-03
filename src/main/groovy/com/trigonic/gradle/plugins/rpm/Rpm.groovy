@@ -58,10 +58,10 @@ class Rpm extends AbstractArchiveTask {
     List<Dependency> dependencies = new ArrayList<Dependency>();
 
     Rpm() {
-        action = new RpmCopyAction(getServices().get(FileResolver.class))
+        action = new RpmCopyAction(services.get(FileResolver.class))
         extension = RPM_EXTENSION
 
-        packageName = project.name
+        packageName = project.archivesBaseName
 
         aliasEnumValues(Architecture.values())
         aliasEnumValues(Os.values())
@@ -72,8 +72,8 @@ class Rpm extends AbstractArchiveTask {
 
     private <T extends Enum<T>> void aliasEnumValues(T[] values) {
         for (T value : values) {
-            assert !hasProperty(value.name())
-            setProperty value.name(), value
+            assert !ext.hasProperty(value.name())
+            ext.set value.name(), value
         }
     }
 
@@ -84,8 +84,8 @@ class Rpm extends AbstractArchiveTask {
     private <T, U> void aliasStaticInstances(Class<T> forClass, Class<U> ofClass) {
         for (Field field : forClass.fields) {
             if (field.type == ofClass && field.hasModifier(Modifier.STATIC)) {
-                assert !hasProperty(field.name)
-                setProperty field.name, field.get(null)
+                assert !ext.hasProperty(field.name)
+                ext.set field.name, field.get(null)
             }
         }
     }

@@ -1,3 +1,10 @@
+v1.1 - 2012-04-03
+=================
+  * update to Gradle 1.0-milestone-9
+  * change to use archivesBaseName rather than the project name directly
+  * change to use extension properties rather than dynamic properties
+  * update plugin to apply BasePlugin
+
 v1.0 - 2012-01-03
 =================
   * update to use "fileType" instead of "directive" since the latter
