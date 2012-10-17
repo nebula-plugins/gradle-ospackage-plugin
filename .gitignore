@@ -4,4 +4,4 @@
 .settings
 bin
 build
-local.properties
+gradle.properties
