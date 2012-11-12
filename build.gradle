@@ -27,6 +27,7 @@ dependencies {
     groovy 'org.codehaus.groovy:groovy:1.8.+'
 
     testCompile 'junit:junit:4.+'
+    testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
 }
 
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {

@@ -38,8 +38,10 @@ class Rpm extends AbstractArchiveTask {
     String user
     String group
     String packageGroup = ''
-    String buildHost = InetAddress.localHost.hostName
+    String buildHost = getLocalHostName()
+
     String summary = ''
+
     String description = ''
     String license = ''
     String packager = System.getProperty('user.name', '')
@@ -86,6 +88,14 @@ class Rpm extends AbstractArchiveTask {
                 assert !ext.hasProperty(field.name)
                 ext.set field.name, field.get(null)
             }
+        }
+    }
+
+    private static String getLocalHostName() {
+        try {
+            return InetAddress.localHost.hostName
+        } catch (UnknownHostException ignore) {
+            return "unknown"
         }
     }
 
