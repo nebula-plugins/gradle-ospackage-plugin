@@ -27,6 +27,7 @@ import org.freecompany.redline.header.Header.HeaderTag
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
+import org.gmock.GMockController
 
 class RpmPluginTest {
     @Test
@@ -99,7 +100,32 @@ class RpmPluginTest {
 
         project.tasks.buildRpm.execute()
     }
-    
+
+    @Test
+    void buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails() {
+        GMockController mock = new GMockController()
+        InetAddress mockInetAddress = (InetAddress) mock.mock(InetAddress)
+
+        mockInetAddress.static.getLocalHost().raises(new UnknownHostException())
+
+        mock.play {
+            Project project = ProjectBuilder.builder().build()
+
+            File buildDir = project.buildDir
+            File srcDir = new File(buildDir, 'src')
+            srcDir.mkdirs()
+            FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+            project.apply plugin: 'rpm'
+
+            project.task([type: Rpm], 'buildRpm', {})
+            assertEquals 'unknown', project.buildRpm.buildHost
+
+            project.tasks.buildRpm.execute()
+        }
+
+    }
+
     @Test
     public void usesArchivesBaseName() {
         Project project = ProjectBuilder.builder().build()

@@ -5,3 +5,8 @@
 bin
 build
 gradle.properties
+
+out
+*.ipr
+*.iml
+*.iws

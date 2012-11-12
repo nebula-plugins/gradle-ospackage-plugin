@@ -1,6 +1,7 @@
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'nexus'
+apply plugin: 'idea'
 
 group = 'com.trigonic'
 version = '1.2-SNAPSHOT'
@@ -26,6 +27,7 @@ dependencies {
     groovy 'org.codehaus.groovy:groovy:1.8.+'
 
     testCompile 'junit:junit:4.+'
+    testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
 }
 
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
