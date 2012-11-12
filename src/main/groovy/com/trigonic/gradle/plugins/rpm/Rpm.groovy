@@ -16,7 +16,6 @@
 
 package com.trigonic.gradle.plugins.rpm
 
-import java.io.File
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
