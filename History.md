@@ -1,3 +1,11 @@
+v1.2 - 2012-11-13
+=================
+  * bugfix: Use a default value when InetAddress.getLocalHost() throws
+    an UnknownHostException
+  * internal: Configure gradle to also generate IntelliJ project files.
+  * internal: convert to using nexus plugin for Sonatype OSS deployment
+  * internal: upgrade to gradle 1.2
+
 v1.1 - 2012-04-03
 =================
   * update to Gradle 1.0-milestone-9
