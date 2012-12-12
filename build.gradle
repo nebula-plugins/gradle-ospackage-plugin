@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'org.redline-rpm:redline:1.1.+'
+    compile 'org.redline-rpm:redline:1.1.10+'
 
     groovy 'org.codehaus.groovy:groovy:1.8.+'
 
