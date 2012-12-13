@@ -39,6 +39,10 @@ class RpmPluginTest {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
+        File noParentsDir = new File(buildDir, 'noParentsDir')
+        noParentsDir.mkdirs()
+        FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
+
         project.apply plugin: 'rpm'
 
         project.task([type: Rpm], 'buildRpm', {
@@ -70,6 +74,11 @@ class RpmPluginTest {
                 fileType = CONFIG
             }
             
+            from(noParentsDir) {
+                addParentDirs = false
+                into '/a/path/not/to/create'
+            }
+
             link('/opt/bleah/banana', '/opt/bleah/apple')
         })
 
@@ -80,8 +89,9 @@ class RpmPluginTest {
         assertEquals('1', getHeaderEntryString(scan, RELEASE))
         assertEquals('i386', getHeaderEntryString(scan, ARCH))
         assertEquals('linux', getHeaderEntryString(scan, OS))
-        assertEquals(['./opt/bleah', './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
-        assertEquals([DIR, FILE, SYMLINK], scan.files*.type)
+        assertEquals(['./a/path/not/to/create/alone', './opt/bleah',
+                      './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
+        assertEquals([FILE, DIR, FILE, SYMLINK], scan.files*.type)
     }
 
     @Test

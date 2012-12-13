@@ -34,6 +34,7 @@ class RpmPlugin implements Plugin<Project> {
         CopySpecImpl.metaClass.group = null
         CopySpecImpl.metaClass.fileType = null
         CopySpecImpl.metaClass.createDirectoryEntry = null
+        CopySpecImpl.metaClass.addParentDirs = true
 
         Field.metaClass.hasModifier = { modifier ->
             (modifiers & modifier) == modifier 
