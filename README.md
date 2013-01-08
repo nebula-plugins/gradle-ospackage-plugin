@@ -15,7 +15,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:1.2'
+            classpath 'com.trigonic:gradle-rpm-plugin:1.3'
         }
     }
 
