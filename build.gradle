@@ -4,7 +4,7 @@ apply plugin: 'nexus'
 apply plugin: 'idea'
 
 group = 'com.trigonic'
-version = '1.3-SNAPSHOT'
+version = '1.4-SNAPSHOT'
 
 buildscript {
     repositories {

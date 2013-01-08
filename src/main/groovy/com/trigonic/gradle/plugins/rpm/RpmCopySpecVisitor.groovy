@@ -117,7 +117,7 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     String standardScriptDefines() {
         includeStandardDefines ? 
             String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
-                task?.arch, task?.os, task?.packageName, task?.version, task?.release) : null 
+                task?.arch?.toString().toLowerCase(), task?.os?.toString()?.toLowerCase(), task?.packageName, task?.version, task?.release) : null 
     }
     
     Object scriptWithUtils(File utils, File script) {

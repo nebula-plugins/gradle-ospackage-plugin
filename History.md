@@ -1,3 +1,8 @@
+v1.3 - 2013-01-08
+=================
+  * bugfix: RPM_ARCH and RPM_OS were being added to the scripts in
+    uppercase, which was inconsistent with rpmbuild
+
 v1.2 - 2012-11-13
 =================
   * bugfix: Use a default value when InetAddress.getLocalHost() throws
@@ -38,7 +43,7 @@ v0.6 - 2011-06-27
 
 v0.5 - 2011-06-10
 =================
-  * add default for sourcePackage because Yum's createrepo assumes your rpm
+  * add default for sourcePackage because yum createrepo assumes your rpm
     is a source package without it
   * default packageName to the project.name
 
