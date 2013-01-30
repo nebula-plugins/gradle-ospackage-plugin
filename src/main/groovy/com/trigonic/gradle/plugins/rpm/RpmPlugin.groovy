@@ -19,7 +19,8 @@ package com.trigonic.gradle.plugins.rpm
 import java.lang.reflect.Field
 
 import org.freecompany.redline.Builder
-import org.gradle.api.Plugin;
+import org.freecompany.redline.payload.Directive
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.plugins.BasePlugin
@@ -42,6 +43,10 @@ class RpmPlugin implements Plugin<Project> {
         
         Builder.metaClass.getDefaultSourcePackage() {
             format.getLead().getName() + "-src.rpm"
+        }
+        
+        Directive.metaClass.or = { Directive other ->
+            new Directive(delegate.flag | other.flag)
         }
     }
 }

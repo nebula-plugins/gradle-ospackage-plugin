@@ -55,7 +55,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
             fileMode = 0550
         }
         from('src/main/resources') {
-            fileType = CONFIG
+            fileType = CONFIG | NOREPLACE
             into 'conf'
         }
         from('home') {
