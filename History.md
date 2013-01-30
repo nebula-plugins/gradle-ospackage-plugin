@@ -1,3 +1,8 @@
+v1.4 -
+=================
+  * issue #18: add syntactic sugar to easily combine file type
+    directives with a logical or (|)
+
 v1.3 - 2013-01-08
 =================
   * bugfix: RPM_ARCH and RPM_OS were being added to the scripts in

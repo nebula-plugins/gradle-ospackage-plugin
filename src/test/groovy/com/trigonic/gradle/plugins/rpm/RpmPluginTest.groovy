@@ -71,7 +71,7 @@ class RpmPluginTest {
 
             from(srcDir.toString() + '/main/groovy') {
                 createDirectoryEntry = true
-                fileType = CONFIG
+                fileType = CONFIG | NOREPLACE
             }
             
             from(noParentsDir) {
