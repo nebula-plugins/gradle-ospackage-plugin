@@ -7,6 +7,9 @@ v1.3 - 2013-01-08
 =================
   * bugfix: RPM_ARCH and RPM_OS were being added to the scripts in
     uppercase, which was inconsistent with rpmbuild
+  * update to use Redline 1.1.10
+  * add support to configure addParentDirs to not auto create parent
+    directories for files
 
 v1.2 - 2012-11-13
 =================

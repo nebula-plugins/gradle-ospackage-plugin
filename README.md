@@ -65,6 +65,12 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
             fileMode = 0500
             into 'home'
         }
+        from('endorsed') {
+            // Will tell redline-rpm not to auto create directories, which
+            // is sometimes necessary to avoid rpm directory conflicts
+            addParentDirs = false
+            into '/usr/share/tomcat/endorsed'
+        }
 
         link('/opt/foo/bin/foo.init', '/etc/init.d/foo')
     }
