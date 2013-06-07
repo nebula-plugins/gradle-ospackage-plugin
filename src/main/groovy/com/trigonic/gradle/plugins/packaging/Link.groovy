@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.trigonic.gradle.plugins.rpm
+package com.trigonic.gradle.plugins.packaging
 
 class Link {
     String path

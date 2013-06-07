@@ -16,50 +16,23 @@
 
 package com.trigonic.gradle.plugins.rpm
 
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
-
+import com.trigonic.gradle.plugins.packaging.SystemPackagingCopySpecVisitor
+import com.trigonic.gradle.plugins.packaging.SystemPackagingTask
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
-import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.internal.file.copy.CopyActionImpl
-import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
-class Rpm extends AbstractArchiveTask {
+class Rpm extends SystemPackagingTask{
     static final String RPM_EXTENSION = "rpm";
 
-    final CopyActionImpl action
     Architecture arch = Architecture.NOARCH
     Os os = Os.UNKNOWN
     RpmType type = RpmType.BINARY
-    String user
-    String group
-    String packageGroup = ''
-    String buildHost = getLocalHostName()
-
-    String summary = ''
-
-    String description = ''
-    String license = ''
-    String packager = System.getProperty('user.name', '')
-    String distribution = ''
-    String vendor = ''
-    String url = ''
-    String sourcePackage
-    String provides
-    File installUtils
-    File preInstall
-    File postInstall
-    File preUninstall
-    File postUninstall
-    List<Link> links = new ArrayList<Link>()
-    List<Dependency> dependencies = new ArrayList<Dependency>();
 
     Rpm() {
-        action = new RpmCopyAction(services.get(FileResolver.class))
+        super()
         extension = RPM_EXTENSION
 
         packageName = project.archivesBaseName
@@ -69,38 +42,6 @@ class Rpm extends AbstractArchiveTask {
         aliasEnumValues(RpmType.values())
         aliasStaticInstances(Directive.class)
         aliasStaticInstances(Flags.class, int.class)
-    }
-
-    private <T extends Enum<T>> void aliasEnumValues(T[] values) {
-        for (T value : values) {
-            assert !ext.hasProperty(value.name())
-            ext.set value.name(), value
-        }
-    }
-
-    private <T> void aliasStaticInstances(Class<T> forClass) {
-        aliasStaticInstances forClass, forClass
-    }
-
-    private <T, U> void aliasStaticInstances(Class<T> forClass, Class<U> ofClass) {
-        for (Field field : forClass.fields) {
-            if (field.type == ofClass && field.hasModifier(Modifier.STATIC)) {
-                assert !ext.hasProperty(field.name)
-                ext.set field.name, field.get(null)
-            }
-        }
-    }
-
-    private static String getLocalHostName() {
-        try {
-            return InetAddress.localHost.hostName
-        } catch (UnknownHostException ignore) {
-            return "unknown"
-        }
-    }
-
-    CopyActionImpl getCopyAction() {
-        action
     }
 
     String getPackageName() {
@@ -122,40 +63,9 @@ class Rpm extends AbstractArchiveTask {
     String getArchiveName() {
         String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension)
     }
-    
-    Link link(String path, String target) {
-        link(path, target, -1)
-    }
-    
-    Link link(String path, String target, int permissions) {
-        Link link = new Link()
-        link.path = path
-        link.target = target
-        link.permissions = permissions
-        links.add(link)
-        link
-    }
-    
-    Dependency requires(String packageName, String version, int flag) {
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
-        dependencies.add(dep)
-        dep
-    }
-    
-    Dependency requires(String packageName) {
-        requires(packageName, '', 0)
-    }
 
-    class RpmCopyAction extends CopyActionImpl {
-        public RpmCopyAction(FileResolver resolver) {
-            super(resolver, new RpmCopySpecVisitor());
-        }
-
-        Rpm getTask() {
-            Rpm.this
-        }
+    @Override
+    protected SystemPackagingCopySpecVisitor getVisitor() {
+        return new RpmCopySpecVisitor()
     }
 }

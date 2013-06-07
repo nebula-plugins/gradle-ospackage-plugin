@@ -28,23 +28,21 @@ import org.gradle.api.plugins.BasePlugin
 class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BasePlugin.class)
-        
+
         project.ext.Rpm = Rpm.class
 
+        // CopySpec will nest in into() blocks, and Gradle will instaniate CopySpecImpl itself,
+        // we have no ability to inject our own.
         CopySpecImpl.metaClass.user = null
         CopySpecImpl.metaClass.group = null
         CopySpecImpl.metaClass.fileType = null
         CopySpecImpl.metaClass.createDirectoryEntry = null
         CopySpecImpl.metaClass.addParentDirs = true
 
-        Field.metaClass.hasModifier = { modifier ->
-            (modifiers & modifier) == modifier 
-        }
-        
         Builder.metaClass.getDefaultSourcePackage() {
             format.getLead().getName() + "-src.rpm"
         }
-        
+
         Directive.metaClass.or = { Directive other ->
             new Directive(delegate.flag | other.flag)
         }

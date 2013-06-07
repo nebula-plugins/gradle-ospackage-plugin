@@ -16,70 +16,62 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.trigonic.gradle.plugins.packaging.Dependency
+import com.trigonic.gradle.plugins.packaging.Link
+import com.trigonic.gradle.plugins.packaging.SystemPackagingCopySpecVisitor
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
-import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
-import org.gradle.api.internal.file.copy.ReadableCopySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
+class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
     static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
 
-    Rpm task
+    Rpm rpmTask
     Builder builder
-    File destinationDir
-    ReadableCopySpec spec
-    boolean didWork
     boolean includeStandardDefines = true
 
     @Override
     void startVisit(CopyAction action) {
-        task = action.task
+        super.startVisit(action)
 
-        destinationDir = task.destinationDir
-        didWork = false
+        rpmTask = (Rpm) task
 
         builder = new Builder()
-        builder.setPackage task.packageName, task.version, task.release
-        builder.setType task.type
-        builder.setPlatform task.arch, task.os
-        builder.setGroup task.packageGroup
-        builder.setBuildHost task.buildHost
-        builder.setSummary task.summary
-        builder.setDescription task.description
-        builder.setLicense task.license
-        builder.setPackager task.packager
-        builder.setDistribution task.distribution
-        builder.setVendor task.vendor
-        builder.setUrl task.url
-        builder.setProvides task.provides ?: task.packageName
+        builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
+        builder.setType rpmTask.type
+        builder.setPlatform rpmTask.arch, rpmTask.os
+        builder.setGroup rpmTask.packageGroup
+        builder.setBuildHost rpmTask.buildHost
+        builder.setSummary rpmTask.summary
+        builder.setDescription rpmTask.description
+        builder.setLicense rpmTask.license
+        builder.setPackager rpmTask.packager
+        builder.setDistribution rpmTask.distribution
+        builder.setVendor rpmTask.vendor
+        builder.setUrl rpmTask.url
+        builder.setProvides rpmTask.provides ?: rpmTask.packageName
 
-        String sourcePackage = task.sourcePackage
+        String sourcePackage = rpmTask.sourcePackage
         if (!sourcePackage) {
             // need a source package because createrepo will assume your package is a source package without it
             sourcePackage = builder.defaultSourcePackage
         }
         builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
-        
-        builder.setPreInstallScript(scriptWithUtils(task.installUtils, task.preInstall))
-        builder.setPostInstallScript(scriptWithUtils(task.installUtils, task.postInstall))
-        builder.setPreUninstallScript(scriptWithUtils(task.installUtils, task.preUninstall))
-        builder.setPostUninstallScript(scriptWithUtils(task.installUtils, task.postUninstall))
-    }
 
-    @Override
-    void visitSpec(ReadableCopySpec spec) {
-        this.spec = spec
+        builder.setPreInstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.preInstall))
+        builder.setPostInstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.postInstall))
+        builder.setPreUninstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.preUninstall))
+        builder.setPostUninstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.postUninstall))
     }
 
     @Override
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file,
-            spec.fileMode == null ? -1 : spec.fileMode, -1, spec.fileType, spec.user ?: task.user, spec.group ?: task.group,
+            spec.fileMode == null ? -1 : spec.fileMode, -1, spec.fileType, spec.user ?: rpmTask.user, spec.group ?: rpmTask.group,
                 spec.addParentDirs
     }
 
@@ -88,62 +80,33 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
         if (spec.createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode == null ? -1 : spec.dirMode,
-                spec.fileType, spec.user ?: task.user, spec.group ?: task.group, spec.addParentDirs
+                spec.fileType, spec.user ?: rpmTask.user, spec.group ?: rpmTask.group, spec.addParentDirs
         }
     }
 
     @Override
-    void endVisit() {
-        for (Link link : task.links) {
-            logger.debug "adding link {} -> {}", link.path, link.target
-            builder.addLink link.path, link.target, link.permissions
-        }
-        
-        for (Dependency dep : task.dependencies) {
-            logger.debug "adding dependency on {} {}", dep.packageName, dep.version
-            builder.addDependency dep.packageName, dep.version, dep.flag
-        }
-        
+    protected void addLink(Link link) {
+        builder.addLink link.path, link.target, link.permissions
+    }
+
+    @Override
+    protected void addDependency(Dependency dep) {
+        builder.addDependency dep.packageName, dep.version, dep.flag
+    }
+
+    @Override
+    protected void end() {
         String rpmFile = builder.build(destinationDir)
-        didWork = true
         logger.info 'Created rpm {}', rpmFile
     }
 
-    @Override
-    boolean getDidWork() {
-        didWork
-    }
-    
     String standardScriptDefines() {
-        includeStandardDefines ? 
+        includeStandardDefines ?
             String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
-                task?.arch?.toString().toLowerCase(), task?.os?.toString()?.toLowerCase(), task?.packageName, task?.version, task?.release) : null 
+                rpmTask?.arch?.toString().toLowerCase(), rpmTask?.os?.toString()?.toLowerCase(), rpmTask?.packageName, rpmTask?.version, rpmTask?.release) : null
     }
-    
+
     Object scriptWithUtils(File utils, File script) {
         concat(standardScriptDefines(), utils, script)
-    }
-    
-    String concat(Object... scripts) {
-        String shebang
-        StringBuilder result = new StringBuilder();        
-        scripts.each { script ->
-            script?.eachLine { line ->
-                if (line.matches('^#!.*$')) {
-                    if (!shebang) {
-                        shebang = line
-                    } else if (line != shebang) {
-                        throw new IllegalArgumentException("mismatching #! script lines")
-                    }
-                } else {
-                    result.append line
-                    result.append "\n"
-                }
-            }
-        }
-        if (shebang) {
-            result.insert(0, shebang + "\n")
-        }
-        result.toString()
     }
 }
