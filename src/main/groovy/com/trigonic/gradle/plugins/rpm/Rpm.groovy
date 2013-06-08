@@ -16,7 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
-import com.trigonic.gradle.plugins.packaging.SystemPackagingCopySpecVisitor
+import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
 import com.trigonic.gradle.plugins.packaging.SystemPackagingTask
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Flags
@@ -49,7 +49,7 @@ class Rpm extends SystemPackagingTask {
     }
 
     @Override
-    protected SystemPackagingCopySpecVisitor getVisitor() {
+    protected AbstractPackagingCopySpecVisitor getVisitor() {
         return new RpmCopySpecVisitor(this)
     }
 }

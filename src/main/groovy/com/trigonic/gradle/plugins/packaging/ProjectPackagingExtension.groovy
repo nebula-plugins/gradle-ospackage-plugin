@@ -1,11 +1,8 @@
 package com.trigonic.gradle.plugins.packaging
 
 import org.gradle.api.Project
-import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.internal.project.ProjectInternal
-
-import javax.inject.Inject
 
 /**
  * An extension which can be attached to the project. This is a superset of SystemPackagingExtension because we don't

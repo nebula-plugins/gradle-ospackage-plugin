@@ -152,10 +152,10 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     protected abstract String getArchString();
 
-    protected abstract SystemPackagingCopySpecVisitor getVisitor();
+    protected abstract AbstractPackagingCopySpecVisitor getVisitor();
 
     class SystemPackagingCopyAction extends CopyActionImpl {
-        public SystemPackagingCopyAction(FileResolver resolver, SystemPackagingCopySpecVisitor visitor) {
+        public SystemPackagingCopyAction(FileResolver resolver, AbstractPackagingCopySpecVisitor visitor) {
             super(resolver, visitor);
         }
     }

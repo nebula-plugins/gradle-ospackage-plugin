@@ -16,9 +16,9 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
 import com.trigonic.gradle.plugins.packaging.Dependency
 import com.trigonic.gradle.plugins.packaging.Link
-import com.trigonic.gradle.plugins.packaging.SystemPackagingCopySpecVisitor
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
 import org.freecompany.redline.payload.Directive
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory
 
 import java.nio.channels.FileChannel
 
-class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
+class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
 
     Rpm rpmTask
@@ -77,15 +77,16 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
     @Override
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
+        def specToLookAt = (spec instanceof CopySpecImpl)?:spec.spec // WrapperCopySpec has a nested spec
         builder.addFile(
                 "/" + fileDetails.relativePath.pathString,
                 fileDetails.file,
-                (int) (spec.fileMode == null ? -1 : spec.fileMode),
+                (int) (specToLookAt.fileMode == null ? -1 : spec.fileMode),
                 -1,
-                (Directive) (spec.fileType),
-                (String) spec.user ?: rpmTask.user,
-                (String) (spec.group ?: rpmTask.group),
-                (boolean) (spec.addParentDirs)
+                (Directive) (specToLookAt.fileType),
+                (String) specToLookAt.user ?: rpmTask.user,
+                (String) (specToLookAt.group ?: rpmTask.group),
+                (boolean) (specToLookAt.addParentDirs)
         )
     }
 
@@ -97,11 +98,11 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory(
                     "/" + dirDetails.relativePath.pathString,
-                    (int) (spec.dirMode == null ? -1 : spec.dirMode),
-                    (Directive) (spec.fileType),
-                    (String) (spec.user ?: rpmTask.user),
-                    (String) (spec.group ?: rpmTask.group),
-                    (boolean) (spec.addParentDirs)
+                    (int) (specToLookAt.dirMode == null ? -1 : specToLookAt.dirMode),
+                    (Directive) (specToLookAt.fileType),
+                    (String) (specToLookAt.user ?: rpmTask.user),
+                    (String) (specToLookAt.group ?: rpmTask.group),
+                    (boolean) (specToLookAt.addParentDirs)
             )
         }
     }

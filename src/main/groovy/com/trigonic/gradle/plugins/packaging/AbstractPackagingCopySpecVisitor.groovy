@@ -16,26 +16,21 @@
 
 package com.trigonic.gradle.plugins.packaging
 
-import com.trigonic.gradle.plugins.rpm.Rpm
-import org.freecompany.redline.Builder
-import org.freecompany.redline.header.Header.HeaderTag
-import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecVisitor
-import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
 import org.gradle.api.internal.file.copy.ReadableCopySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-public abstract class SystemPackagingCopySpecVisitor implements CopySpecVisitor {
-    static final Logger logger = LoggerFactory.getLogger(SystemPackagingCopySpecVisitor.class)
+public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisitor {
+    static final Logger logger = LoggerFactory.getLogger(AbstractPackagingCopySpecVisitor.class)
 
     SystemPackagingTask task
     File destinationDir
     ReadableCopySpec spec
     boolean didWork
 
-    protected SystemPackagingCopySpecVisitor(SystemPackagingTask task) {
+    protected AbstractPackagingCopySpecVisitor(SystemPackagingTask task) {
         this.task = task
     }
 
