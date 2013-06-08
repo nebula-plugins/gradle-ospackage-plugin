@@ -30,7 +30,10 @@ class CommonPackagingPlugin implements Plugin<Project> {
         // When appending another copy spec to the task, it'll be created a WrapperCopySpec
         [CopySpecImpl, CopySpecImpl.WrapperCopySpec].each {
             it.metaClass.user = null
+            it.metaClass.uid = null // DEB Only
             it.metaClass.group = null
+            it.metaClass.gid = null // DEB Only
+            it.metaClass.fileMode = null
             it.metaClass.fileType = null
             it.metaClass.createDirectoryEntry = null
             it.metaClass.addParentDirs = true

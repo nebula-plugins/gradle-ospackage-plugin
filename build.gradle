@@ -23,6 +23,7 @@ repositories {
 dependencies {
     compile gradleApi()
     compile 'org.redline-rpm:redline:1.1.10+'
+    compile 'org.vafer:jdeb:1.0.1'
 
     groovy 'org.codehaus.groovy:groovy:1.8.+'
 
@@ -59,12 +60,12 @@ modifyPom {
             artifactId 'oss-parent'
             version '7'
         }
- 
+
         scm {
             url 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
             connection 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
         }
- 
+
         licenses {
             license {
                 name 'The Apache Software License, Version 2.0'
@@ -72,7 +73,7 @@ modifyPom {
                 distribution 'repo'
             }
         }
- 
+
         developers {
             developer {
                 id 'akrueger'
@@ -82,6 +83,15 @@ modifyPom {
                     role 'Developer'
                 }
                 timezone '-6'
+            }
+            developer {
+                id 'quidryan'
+                name 'Justin Ryan'
+                email 'jryan@netflix.com'
+                roles{
+                    role 'Developer'
+                }
+                timezone '+8'
             }
         }
     }

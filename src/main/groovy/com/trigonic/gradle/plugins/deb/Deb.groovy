@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.trigonic.gradle.plugins.rpm
+package com.trigonic.gradle.plugins.deb
 
 import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
 import com.trigonic.gradle.plugins.packaging.SystemPackagingTask
@@ -24,42 +24,41 @@ import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 
-class Rpm extends SystemPackagingTask {
-    static final String RPM_EXTENSION = "rpm";
+class Deb extends SystemPackagingTask {
+    static final String DEB_EXTENSION = "deb";
 
-    Architecture arch = Architecture.NOARCH
-    Os os = Os.UNKNOWN
-    RpmType type = RpmType.BINARY
+    int uid = 0
+    int gid = 0
 
-    Rpm() {
+    Deb() {
         super()
-        extension = RPM_EXTENSION
+        extension = DEB_EXTENSION
 
         // TODO Expose in parent extension, which might conflict with other formats
-        aliasEnumValues(Architecture.values())
-        aliasEnumValues(Os.values())
-        aliasEnumValues(RpmType.values())
-        aliasStaticInstances(Directive.class)
-        aliasStaticInstances(Flags.class, int.class)
+//        aliasEnumValues(Architecture.values())
+//        aliasEnumValues(Os.values())
+//        aliasEnumValues(RpmType.values())
+//        aliasStaticInstances(Directive.class)
+//        aliasStaticInstances(Flags.class, int.class)
     }
 
     @Override
     String assembleArchiveName() {
         String name = getPackageName();
-        name += getVersion() ? "-${getVersion()}" : ''
+        name += getVersion() ? "_${getVersion()}" : ''
         name += getRelease() ? "-${getRelease()}" : ''
-        name += getArchString() ? ".${getArchString()}" : ''
+        name += getArchString() ? "_${getArchString()}" : ''
         name += getExtension() ? ".${getExtension()}" : ''
         return name;
     }
 
     @Override
     protected String getArchString() {
-        return arch?.name().toLowerCase();
+        return 'all';
     }
 
     @Override
     protected AbstractPackagingCopySpecVisitor getVisitor() {
-        return new RpmCopySpecVisitor(this)
+        return new DebCopySpecVisitor(this)
     }
 }

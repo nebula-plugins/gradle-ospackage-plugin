@@ -66,11 +66,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             parentExten?.getPackageName()?:getBaseName()
         })
         mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
-        mapping.map('user', { parentExten?.getUser() })
+        mapping.map('user', { parentExten?.getUser()?:getPackager() })
         mapping.map('group', { parentExten?.getGroup() })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() })
         mapping.map('buildHost', { parentExten?.getBuildHost()?:getLocalHostName() })
-        mapping.map('summary', { parentExten?.getSummary() })
+        mapping.map('summary', { parentExten?.getSummary()?:getPackageName() })
         mapping.map('packageDescription', { parentExten?.getPackageDescription()?:project.getDescription() })
         mapping.map('license', { parentExten?.getLicense() })
         mapping.map('packager', { parentExten?.getPackager()?:System.getProperty('user.name', '')  })
@@ -78,7 +78,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('vendor', { parentExten?.getVendor() })
         mapping.map('url', { parentExten?.getUrl() })
         mapping.map('sourcePackage', { parentExten?.getSourcePackage() })
-        mapping.map('provides', { parentExten?.getProvides() })
+        mapping.map('provides', { parentExten?.getProvides()?:getPackageName() })
         mapping.map('installUtils', { parentExten?.getInstallUtils() })
         mapping.map('preInstall', { parentExten?.getPreInstall() })
         mapping.map('postInstall', { parentExten?.getPostInstall() })
@@ -89,14 +89,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('archiveName', { assembleArchiveName() })
     }
 
-    String assembleArchiveName() {
-        String name = getPackageName();
-        name += getVersion() ? "-${getVersion()}" : ''
-        name += getRelease() ? "-${getRelease()}" : ''
-        name += getArchString() ? ".${getArchString()}" : ''
-        name += getExtension() ? ".${getExtension()}" : ''
-        return name;
-    }
+    abstract String assembleArchiveName();
 
     protected static String getLocalHostName() {
         try {

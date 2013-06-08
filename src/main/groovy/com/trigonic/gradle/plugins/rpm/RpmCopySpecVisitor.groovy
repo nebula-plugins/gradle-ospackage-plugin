@@ -59,7 +59,7 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         builder.setDistribution rpmTask.distribution
         builder.setVendor rpmTask.vendor
         builder.setUrl rpmTask.url
-        builder.setProvides rpmTask.provides ?: rpmTask.packageName
+        builder.setProvides rpmTask.provides
 
         String sourcePackage = rpmTask.sourcePackage
         if (!sourcePackage) {
@@ -77,11 +77,11 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     @Override
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
-        def specToLookAt = (spec instanceof CopySpecImpl)?:spec.spec // WrapperCopySpec has a nested spec
+        def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
         builder.addFile(
                 "/" + fileDetails.relativePath.pathString,
                 fileDetails.file,
-                (int) (specToLookAt.fileMode == null ? -1 : spec.fileMode),
+                (int) (specToLookAt.fileMode?: -1),
                 -1,
                 (Directive) (specToLookAt.fileType),
                 (String) specToLookAt.user ?: rpmTask.user,
@@ -92,13 +92,13 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
-        def specToLookAt = (spec instanceof CopySpecImpl)?:spec.spec // WrapperCopySpec has a nested spec
+        def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
         boolean createDirectoryEntry = specToLookAt.hasProperty('createDirectoryEntry') && specToLookAt.createDirectoryEntry
         if (createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory(
                     "/" + dirDetails.relativePath.pathString,
-                    (int) (specToLookAt.dirMode == null ? -1 : specToLookAt.dirMode),
+                    (int) (specToLookAt.dirMode?: -1),
                     (Directive) (specToLookAt.fileType),
                     (String) (specToLookAt.user ?: rpmTask.user),
                     (String) (specToLookAt.group ?: rpmTask.group),
