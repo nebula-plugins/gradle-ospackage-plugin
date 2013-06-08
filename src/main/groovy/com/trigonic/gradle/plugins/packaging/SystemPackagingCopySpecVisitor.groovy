@@ -53,12 +53,12 @@ public abstract class SystemPackagingCopySpecVisitor implements CopySpecVisitor 
 
     @Override
     void endVisit() {
-        for (Link link : task.links) {
+        for (Link link : task.getAllLinks()) {
             logger.debug "adding link {} -> {}", link.path, link.target
             addLink link
         }
 
-        for (Dependency dep : task.dependencies) {
+        for (Dependency dep : task.getAllDependencies()) {
             logger.debug "adding dependency on {} {}", dep.packageName, dep.version
             addDependency dep
         }

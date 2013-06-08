@@ -16,6 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.trigonic.gradle.plugins.packaging.SystemPackagingExtension
 import org.gradle.api.plugins.BasePlugin
 
 import static org.junit.Assert.assertEquals
@@ -156,6 +157,37 @@ class RpmPluginTest {
         assertEquals 'foo', project.buildRpm.packageName
 
         project.tasks.buildRpm.execute()
+    }
+
+    @Test
+    public void verifyValuesCanComeFromExtension() {
+        Project project = ProjectBuilder.builder().build()
+
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        Rpm rpmTask = project.task([type: Rpm], 'buildRpm')
+        rpmTask.group = 'GROUP'
+        rpmTask.requires('openjdk')
+        rpmTask.link('/dev/null', '/dev/random')
+
+        SystemPackagingExtension parentExten = rpmTask.parentExten
+        parentExten.user = 'USER'
+        parentExten.group = 'GROUP2'
+        parentExten.requires('java')
+        parentExten.link('/tmp', '/var/tmp')
+
+        project.description = 'DESCRIPTION'
+
+        assertEquals 'USER', rpmTask.user // From Extension
+        assertEquals 'GROUP', rpmTask.group // From task, overriding extension
+        assertEquals 'DESCRIPTION', rpmTask.packageDescription // From Project, even though extension could have a value
+        assertEquals 2, rpmTask.getAllLinks().size()
+        assertEquals 2, rpmTask.getAllDependencies().size()
     }
 
     def getHeaderEntry = { scan, tag ->

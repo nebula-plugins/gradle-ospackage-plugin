@@ -50,7 +50,7 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
         builder.setGroup rpmTask.packageGroup
         builder.setBuildHost rpmTask.buildHost
         builder.setSummary rpmTask.summary
-        builder.setDescription rpmTask.description
+        builder.setDescription rpmTask.packageDescription
         builder.setLicense rpmTask.license
         builder.setPackager rpmTask.packager
         builder.setDistribution rpmTask.distribution

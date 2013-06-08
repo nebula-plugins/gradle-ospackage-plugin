@@ -20,71 +20,88 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
+    private static Logger logger = Logging.getLogger(SystemPackagingTask);
+
     def fileType = null
     def createDirectoryEntry = null
     boolean addParentDirs = true
 
     final SystemPackagingCopyAction action
 
-    // File name components
-    String packageName
-    String release
+    @Delegate
+    SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
 
-    // Metadata
-    String user
-    String group
-    String packageGroup = ''
-    String buildHost // Convention below
-    String summary = ''
-    String description // Convention below
-    String license = ''
-    String packager // Convention below
-    String distribution = ''
-    String vendor = ''
-    String url = ''
-    String sourcePackage
-    String provides
-
-    // Scripts
-    File installUtils
-    File preInstall
-    File postInstall
-    File preUninstall
-    File postUninstall
+    SystemPackagingExtension parentExten
 
     // TODO Add conventions to pull from extension
 
-    List<Link> links = new ArrayList<Link>()
-    List<Dependency> dependencies = new ArrayList<Dependency>();
-
     SystemPackagingTask() {
+        super()
         action = new SystemPackagingCopyAction(services.get(FileResolver.class), getVisitor())
+        exten = new SystemPackagingExtension()
+
+        // I have no idea where Project came from
+        parentExten = project.extensions.findByType(SystemPackagingExtension)
+        if(!parentExten) {
+            // For example, SystemPackagingPlugin was not applied. In which case, we'll initialize to something to make
+            // null checks later so much easier. We expect every value in the extension to be unset.
+            parentExten = new SystemPackagingExtension();
+        }
     }
 
     def applyConventions() {
-        // TODO These are not RPM specific, hence they might need to be called in SystemPackagingPlugin
+        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
+        // to pull from the parentExten. And only then would we fallback on some other value.
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+
+        // Could come from extension
         mapping.map('packageName', {
             // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
-            getBaseName()
+            parentExten.getPackageName()?:getBaseName()
         })
-        mapping.map('release', { getClassifier() })
-        mapping.map('archiveName', { String.format("%s-%s-%s.%s.%s",
+        mapping.map('release', { parentExten.getRelease()?:getClassifier() })
+        mapping.map('user', { parentExten.getUser() })
+        mapping.map('group', { parentExten.getGroup() })
+        mapping.map('packageGroup', { parentExten.getPackageGroup() })
+        mapping.map('buildHost', { parentExten.getBuildHost()?:getLocalHostName() })
+        mapping.map('summary', { parentExten.getSummary() })
+        mapping.map('packageDescription', {
+            def possible = parentExten.getPackageDescription()
+            def progDesc = project.getDescription()
+            parentExten.getPackageDescription()?:project.getDescription()
+        })
+        mapping.map('license', { parentExten.getLicense() })
+        mapping.map('packager', { parentExten.getPackager()?:System.getProperty('user.name', '')  })
+        mapping.map('distribution', { parentExten.getDistribution() })
+        mapping.map('vendor', { parentExten.getVendor() })
+        mapping.map('url', { parentExten.getUrl() })
+        mapping.map('sourcePackage', { parentExten.getSourcePackage() })
+        mapping.map('provides', { parentExten.getProvides() })
+        mapping.map('installUtils', { parentExten.getInstallUtils() })
+        mapping.map('preInstall', { parentExten.getPreInstall() })
+        mapping.map('postInstall', { parentExten.getPostInstall() })
+        mapping.map('preUninstall', { parentExten.getPreUninstall() })
+        mapping.map('postUninstall', { parentExten.getPostUninstall() })
+
+        // Task specific
+        mapping.map('archiveName', { assembleArchiveName() })
+    }
+
+    protected String assembleArchiveName() {
+        String.format("%s-%s-%s.%s.%s",
                 getPackageName(),
                 getVersion(),
                 getRelease(),
                 getArchString(),
                 getExtension())
-        })
-        mapping.map('description', { project.getDescription() })
-        mapping.map('buildHost', { getLocalHostName() })
-        mapping.map('packager', { System.getProperty('user.name', '') })
     }
 
     protected static String getLocalHostName() {
@@ -93,6 +110,14 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         } catch (UnknownHostException ignore) {
             return "unknown"
         }
+    }
+
+    List<Link> getAllLinks() {
+        return getLinks() + parentExten.getLinks()
+    }
+
+    List<Dependency> getAllDependencies() {
+        return getDependencies() + parentExten.getDependencies()
     }
 
     protected <T extends Enum<T>> void aliasEnumValues(T[] values) {
@@ -124,32 +149,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     protected abstract String getArchString();
-
-    Link link(String path, String target) {
-        link(path, target, -1)
-    }
-
-    Link link(String path, String target, int permissions) {
-        Link link = new Link()
-        link.path = path
-        link.target = target
-        link.permissions = permissions
-        links.add(link)
-        link
-    }
-
-    Dependency requires(String packageName, String version, int flag) {
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
-        dependencies.add(dep)
-        dep
-    }
-
-    Dependency requires(String packageName) {
-        requires(packageName, '', 0)
-    }
 
     protected abstract SystemPackagingCopySpecVisitor getVisitor();
 
