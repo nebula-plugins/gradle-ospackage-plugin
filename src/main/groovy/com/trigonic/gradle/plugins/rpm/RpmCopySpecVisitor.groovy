@@ -21,6 +21,7 @@ import com.trigonic.gradle.plugins.packaging.Link
 import com.trigonic.gradle.plugins.packaging.SystemPackagingCopySpecVisitor
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
+import org.freecompany.redline.payload.Directive
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.slf4j.Logger
@@ -33,11 +34,14 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
     Builder builder
     boolean includeStandardDefines = true
 
+    RpmCopySpecVisitor(Rpm rpmTask) {
+        super(rpmTask)
+        this.rpmTask = rpmTask
+    }
+
     @Override
     void startVisit(CopyAction action) {
         super.startVisit(action)
-
-        rpmTask = (Rpm) task
 
         builder = new Builder()
         builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
@@ -70,17 +74,30 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
     @Override
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
-        builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file,
-            spec.fileMode == null ? -1 : spec.fileMode, -1, spec.fileType, spec.user ?: rpmTask.user, spec.group ?: rpmTask.group,
-                spec.addParentDirs
+        builder.addFile(
+                "/" + fileDetails.relativePath.pathString,
+                fileDetails.file,
+                (int) (spec.fileMode == null ? -1 : spec.fileMode),
+                -1,
+                (Directive) (spec.fileType),
+                (String) spec.user ?: rpmTask.user,
+                (String) (spec.group ?: rpmTask.group),
+                (boolean) (spec.addParentDirs)
+        )
     }
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
         if (spec.createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
-            builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode == null ? -1 : spec.dirMode,
-                spec.fileType, spec.user ?: rpmTask.user, spec.group ?: rpmTask.group, spec.addParentDirs
+            builder.addDirectory(
+                    "/" + dirDetails.relativePath.pathString,
+                    (int) (spec.dirMode == null ? -1 : spec.dirMode),
+                    (Directive) (spec.fileType),
+                    (String) (spec.user ?: rpmTask.user),
+                    (String) (spec.group ?: rpmTask.group),
+                    (boolean) (spec.addParentDirs)
+            )
         }
     }
 
@@ -103,7 +120,11 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
     String standardScriptDefines() {
         includeStandardDefines ?
             String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
-                rpmTask?.arch?.toString().toLowerCase(), rpmTask?.os?.toString()?.toLowerCase(), rpmTask?.packageName, rpmTask?.version, rpmTask?.release) : null
+                rpmTask.getArchString(),
+                rpmTask.os?.toString().toLowerCase(),
+                rpmTask.getPackageName(),
+                rpmTask.getVersion(),
+                rpmTask.getRelease()) : null
     }
 
     Object scriptWithUtils(File utils, File script) {

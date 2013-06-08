@@ -16,6 +16,8 @@
 
 package com.trigonic.gradle.plugins.packaging
 
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
@@ -29,20 +31,27 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     boolean addParentDirs = true
 
     final SystemPackagingCopyAction action
+
+    // File name components
+    String packageName
+    String release
+
+    // Metadata
     String user
     String group
     String packageGroup = ''
-    String buildHost = getLocalHostName()
+    String buildHost // Convention below
     String summary = ''
-    String description = ''
+    String description // Convention below
     String license = ''
-    String packager = System.getProperty('user.name', '')
+    String packager // Convention below
     String distribution = ''
     String vendor = ''
     String url = ''
     String sourcePackage
     String provides
 
+    // Scripts
     File installUtils
     File preInstall
     File postInstall
@@ -56,9 +65,34 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     SystemPackagingTask() {
         action = new SystemPackagingCopyAction(services.get(FileResolver.class), getVisitor())
+    }
 
-        packageName = project.archivesBaseName
+    def applyConventions() {
+        // TODO These are not RPM specific, hence they might need to be called in SystemPackagingPlugin
+        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+        mapping.map('packageName', {
+            // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
+            getBaseName()
+        })
+        mapping.map('release', { getClassifier() })
+        mapping.map('archiveName', { String.format("%s-%s-%s.%s.%s",
+                getPackageName(),
+                getVersion(),
+                getRelease(),
+                getArchString(),
+                getExtension())
+        })
+        mapping.map('description', { project.getDescription() })
+        mapping.map('buildHost', { getLocalHostName() })
+        mapping.map('packager', { System.getProperty('user.name', '') })
+    }
 
+    protected static String getLocalHostName() {
+        try {
+            return InetAddress.localHost.hostName
+        } catch (UnknownHostException ignore) {
+            return "unknown"
+        }
     }
 
     protected <T extends Enum<T>> void aliasEnumValues(T[] values) {
@@ -85,38 +119,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    protected static String getLocalHostName() {
-        try {
-            return InetAddress.localHost.hostName
-        } catch (UnknownHostException ignore) {
-            return "unknown"
-        }
-    }
-
     CopyActionImpl getCopyAction() {
         action
     }
 
-    String getPackageName() {
-        // TODO This looks wrong.
-        baseName
-    }
-
-    void setPackageName(String packageName) {
-        baseName = packageName
-    }
-
-    String getRelease() {
-        classifier
-    }
-
-    void setRelease(String release) {
-        classifier = release
-    }
-
-    String getArchiveName() {
-        String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension)
-    }
+    protected abstract String getArchString();
 
     Link link(String path, String target) {
         link(path, target, -1)
@@ -150,11 +157,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         public SystemPackagingCopyAction(FileResolver resolver, SystemPackagingCopySpecVisitor visitor) {
             super(resolver, visitor);
         }
-
-        SystemPackagingTask getTask() {
-            SystemPackagingTask.this
-        }
-
     }
 
 }

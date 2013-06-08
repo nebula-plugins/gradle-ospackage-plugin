@@ -24,7 +24,7 @@ import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 
-class Rpm extends SystemPackagingTask{
+class Rpm extends SystemPackagingTask {
     static final String RPM_EXTENSION = "rpm";
 
     Architecture arch = Architecture.NOARCH
@@ -35,8 +35,7 @@ class Rpm extends SystemPackagingTask{
         super()
         extension = RPM_EXTENSION
 
-        packageName = project.archivesBaseName
-
+        // TODO Expose in parent extension, which might conflict with other formats
         aliasEnumValues(Architecture.values())
         aliasEnumValues(Os.values())
         aliasEnumValues(RpmType.values())
@@ -44,28 +43,13 @@ class Rpm extends SystemPackagingTask{
         aliasStaticInstances(Flags.class, int.class)
     }
 
-    String getPackageName() {
-        baseName
-    }
-
-    void setPackageName(String packageName) {
-        baseName = packageName
-    }
-
-    String getRelease() {
-        classifier
-    }
-
-    void setRelease(String release) {
-        classifier = release
-    }
-
-    String getArchiveName() {
-        String.format("%s-%s-%s.%s.%s", packageName, version, release, arch.name().toLowerCase(), extension)
+    @Override
+    protected String getArchString() {
+        return arch?.name().toLowerCase();
     }
 
     @Override
     protected SystemPackagingCopySpecVisitor getVisitor() {
-        return new RpmCopySpecVisitor()
+        return new RpmCopySpecVisitor(this)
     }
 }

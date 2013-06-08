@@ -16,6 +16,8 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import org.gradle.api.plugins.BasePlugin
+
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertTrue
 
@@ -62,7 +64,7 @@ class RpmPluginTest {
             distribution = 'SuperSystem'
             vendor = 'Super Associates, LLC'
             url = 'http://www.example.com/'
-            
+
             requires('blarg', '1.0', GREATER | EQUAL)
             requires('blech')
 
@@ -73,7 +75,7 @@ class RpmPluginTest {
                 createDirectoryEntry = true
                 fileType = CONFIG | NOREPLACE
             }
-            
+
             from(noParentsDir) {
                 addParentDirs = false
                 into '/a/path/not/to/create'
@@ -139,6 +141,8 @@ class RpmPluginTest {
     @Test
     public void usesArchivesBaseName() {
         Project project = ProjectBuilder.builder().build()
+        // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
+        project.apply plugin: BasePlugin
         project.archivesBaseName = 'foo'
 
         File buildDir = project.buildDir
@@ -153,12 +157,12 @@ class RpmPluginTest {
 
         project.tasks.buildRpm.execute()
     }
-    
+
     def getHeaderEntry = { scan, tag ->
         def header = scan.format.header
         header.getEntry(tag.code)
     }
-    
+
     def getHeaderEntryString = { scan, tag ->
         getHeaderEntry(scan, tag).values.join('')
     }

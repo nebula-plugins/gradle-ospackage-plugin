@@ -35,9 +35,13 @@ public abstract class SystemPackagingCopySpecVisitor implements CopySpecVisitor 
     ReadableCopySpec spec
     boolean didWork
 
+    protected SystemPackagingCopySpecVisitor(SystemPackagingTask task) {
+        this.task = task
+    }
+
     @Override
     void startVisit(CopyAction action) {
-        task = ((SystemPackagingTask.SystemPackagingCopyAction) action).task
+        // Delay reading destinationDir until we start executing
         destinationDir = task.destinationDir
         didWork = false
     }

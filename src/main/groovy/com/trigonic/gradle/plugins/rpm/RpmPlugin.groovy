@@ -16,6 +16,9 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.IConventionAware
+
 import java.lang.reflect.Field
 
 import org.freecompany.redline.Builder
@@ -29,10 +32,8 @@ class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BasePlugin.class)
 
-        project.ext.Rpm = Rpm.class
-
         // CopySpec will nest in into() blocks, and Gradle will instaniate CopySpecImpl itself,
-        // we have no ability to inject our own.
+        // we have no ability to inject our own. Putting items here mean we won't have type safety.
         CopySpecImpl.metaClass.user = null
         CopySpecImpl.metaClass.group = null
         CopySpecImpl.metaClass.fileType = null
@@ -46,5 +47,11 @@ class RpmPlugin implements Plugin<Project> {
         Directive.metaClass.or = { Directive other ->
             new Directive(delegate.flag | other.flag)
         }
+
+        // Some defaults, if not set by the user
+        project.tasks.withType(Rpm) { Rpm task ->
+            task.applyConventions()
+        }
+
     }
 }
