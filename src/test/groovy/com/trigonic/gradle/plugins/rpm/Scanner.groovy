@@ -20,7 +20,7 @@ import org.freecompany.redline.payload.CpioHeader
 import org.junit.Assert
 
 /**
- * Based on {@link org.freecompany.redline.Scanner}, but modified to return scanned nformation for
+ * Based on {@link org.freecompany.redline.Scanner}, but modified to return scanned information for
  * programmatic verification.
  */
 class Scanner {
@@ -32,15 +32,15 @@ class Scanner {
             fileInputStream.close()
         }
     }
-    
+
     static Map scan(InputStream inputStream) {
         ReadableChannelWrapper wrapper = new ReadableChannelWrapper(Channels.newChannel(inputStream))
         Format format = scanHeader(wrapper)
-        
+
         InputStream uncompressed = new GZIPInputStream(inputStream)
         wrapper = new ReadableChannelWrapper(Channels.newChannel(uncompressed))
         CpioHeader header = null
-        
+
         def files = []
         int total = 0
         while (header == null || !header.isLast()) {
@@ -53,7 +53,7 @@ class Scanner {
             assertEquals(skip, uncompressed.skip(skip))
             total += header.getFileSize()
         }
-        
+
         return [format: format, files: files]
     }
 

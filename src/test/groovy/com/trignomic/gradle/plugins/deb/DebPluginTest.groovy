@@ -17,22 +17,17 @@
 package com.trignomic.gradle.plugins.deb
 
 import com.trigonic.gradle.plugins.packaging.ProjectPackagingExtension
-import com.trigonic.gradle.plugins.packaging.SystemPackagingExtension
 import com.trigonic.gradle.plugins.rpm.Rpm
-import org.gradle.api.plugins.BasePlugin
-
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
-
 import org.apache.commons.io.FileUtils
-import static org.freecompany.redline.payload.CpioHeader.*
-import static org.freecompany.redline.header.Header.HeaderTag.*
-
-import org.freecompany.redline.header.Header.HeaderTag
+import org.gmock.GMockController
 import org.gradle.api.Project
+import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
-import org.gmock.GMockController
+
+import static org.freecompany.redline.header.Header.HeaderTag.*
+import static org.freecompany.redline.payload.CpioHeader.*
+import static org.junit.Assert.assertEquals
 
 class DebPluginTest {
     @Test
@@ -48,18 +43,15 @@ class DebPluginTest {
         noParentsDir.mkdirs()
         FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'deb'
 
-        project.task([type: Rpm], 'buildRpm', {
-            destinationDir = project.file('build/tmp/RpmPluginTest')
+        project.task([type: Rpm], 'buildDeb', {
+            destinationDir = project.file('build/tmp/DebPluginTest')
             destinationDir.mkdirs()
 
             packageName = 'bleah'
             version = '1.0'
             release = '1'
-            type = BINARY
-            arch = I386
-            os = LINUX
             group = 'Development/Libraries'
             summary = 'Bleah blarg'
             packageDescription = 'Not a very interesting library.'
@@ -87,8 +79,8 @@ class DebPluginTest {
             link('/opt/bleah/banana', '/opt/bleah/apple')
         })
 
-        project.tasks.buildRpm.execute()
-        def scan = com.trigonic.gradle.plugins.rpm.Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        project.tasks.buildDeb.execute()
+        def scan = com.trigonic.gradle.plugins.rpm.Scanner.scan(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'))
         assertEquals('bleah', getHeaderEntryString(scan, NAME))
         assertEquals('1.0', getHeaderEntryString(scan, VERSION))
         assertEquals('1', getHeaderEntryString(scan, RELEASE))
@@ -114,31 +106,6 @@ class DebPluginTest {
         assertEquals 'test', project.buildRpm.packageName
 
         project.tasks.buildRpm.execute()
-    }
-
-    @Test
-    void buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails() {
-        GMockController mock = new GMockController()
-        InetAddress mockInetAddress = (InetAddress) mock.mock(InetAddress)
-
-        mockInetAddress.static.getLocalHost().raises(new UnknownHostException())
-
-        mock.play {
-            Project project = ProjectBuilder.builder().build()
-
-            File buildDir = project.buildDir
-            File srcDir = new File(buildDir, 'src')
-            srcDir.mkdirs()
-            FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-            project.apply plugin: 'rpm'
-
-            project.task([type: Rpm], 'buildRpm', {})
-            assertEquals 'unknown', project.buildRpm.buildHost
-
-            project.tasks.buildRpm.execute()
-        }
-
     }
 
     @Test
