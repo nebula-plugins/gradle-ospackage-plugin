@@ -39,7 +39,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Delegate
     SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
 
-    SystemPackagingExtension parentExten
+    ProjectPackagingExtension parentExten
 
     // TODO Add conventions to pull from extension
 
@@ -49,11 +49,9 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         exten = new SystemPackagingExtension()
 
         // I have no idea where Project came from
-        parentExten = project.extensions.findByType(SystemPackagingExtension)
-        if(!parentExten) {
-            // For example, SystemPackagingPlugin was not applied. In which case, we'll initialize to something to make
-            // null checks later so much easier. We expect every value in the extension to be unset.
-            parentExten = new SystemPackagingExtension();
+        parentExten = project.extensions.findByType(ProjectPackagingExtension)
+        if(parentExten) {
+            getCopyAction().with(parentExten)
         }
     }
 
@@ -65,43 +63,39 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         // Could come from extension
         mapping.map('packageName', {
             // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
-            parentExten.getPackageName()?:getBaseName()
+            parentExten?.getPackageName()?:getBaseName()
         })
-        mapping.map('release', { parentExten.getRelease()?:getClassifier() })
-        mapping.map('user', { parentExten.getUser() })
-        mapping.map('group', { parentExten.getGroup() })
-        mapping.map('packageGroup', { parentExten.getPackageGroup() })
-        mapping.map('buildHost', { parentExten.getBuildHost()?:getLocalHostName() })
-        mapping.map('summary', { parentExten.getSummary() })
-        mapping.map('packageDescription', {
-            def possible = parentExten.getPackageDescription()
-            def progDesc = project.getDescription()
-            parentExten.getPackageDescription()?:project.getDescription()
-        })
-        mapping.map('license', { parentExten.getLicense() })
-        mapping.map('packager', { parentExten.getPackager()?:System.getProperty('user.name', '')  })
-        mapping.map('distribution', { parentExten.getDistribution() })
-        mapping.map('vendor', { parentExten.getVendor() })
-        mapping.map('url', { parentExten.getUrl() })
-        mapping.map('sourcePackage', { parentExten.getSourcePackage() })
-        mapping.map('provides', { parentExten.getProvides() })
-        mapping.map('installUtils', { parentExten.getInstallUtils() })
-        mapping.map('preInstall', { parentExten.getPreInstall() })
-        mapping.map('postInstall', { parentExten.getPostInstall() })
-        mapping.map('preUninstall', { parentExten.getPreUninstall() })
-        mapping.map('postUninstall', { parentExten.getPostUninstall() })
+        mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
+        mapping.map('user', { parentExten?.getUser() })
+        mapping.map('group', { parentExten?.getGroup() })
+        mapping.map('packageGroup', { parentExten?.getPackageGroup() })
+        mapping.map('buildHost', { parentExten?.getBuildHost()?:getLocalHostName() })
+        mapping.map('summary', { parentExten?.getSummary() })
+        mapping.map('packageDescription', { parentExten?.getPackageDescription()?:project.getDescription() })
+        mapping.map('license', { parentExten?.getLicense() })
+        mapping.map('packager', { parentExten?.getPackager()?:System.getProperty('user.name', '')  })
+        mapping.map('distribution', { parentExten?.getDistribution() })
+        mapping.map('vendor', { parentExten?.getVendor() })
+        mapping.map('url', { parentExten?.getUrl() })
+        mapping.map('sourcePackage', { parentExten?.getSourcePackage() })
+        mapping.map('provides', { parentExten?.getProvides() })
+        mapping.map('installUtils', { parentExten?.getInstallUtils() })
+        mapping.map('preInstall', { parentExten?.getPreInstall() })
+        mapping.map('postInstall', { parentExten?.getPostInstall() })
+        mapping.map('preUninstall', { parentExten?.getPreUninstall() })
+        mapping.map('postUninstall', { parentExten?.getPostUninstall() })
 
-        // Task specific
+        // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
     }
 
-    protected String assembleArchiveName() {
-        String.format("%s-%s-%s.%s.%s",
-                getPackageName(),
-                getVersion(),
-                getRelease(),
-                getArchString(),
-                getExtension())
+    String assembleArchiveName() {
+        String name = getPackageName();
+        name += getVersion() ? "-${getVersion()}" : ''
+        name += getRelease() ? "-${getRelease()}" : ''
+        name += getArchString() ? ".${getArchString()}" : ''
+        name += getExtension() ? ".${getExtension()}" : ''
+        return name;
     }
 
     protected static String getLocalHostName() {
@@ -113,11 +107,19 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     List<Link> getAllLinks() {
-        return getLinks() + parentExten.getLinks()
+        if(parentExten) {
+            return getLinks() + parentExten.getLinks()
+        } else {
+            return getLinks()
+        }
     }
 
     List<Dependency> getAllDependencies() {
-        return getDependencies() + parentExten.getDependencies()
+        if(parentExten) {
+            return getDependencies() + parentExten.getDependencies()
+        } else {
+            return getDependencies()
+        }
     }
 
     protected <T extends Enum<T>> void aliasEnumValues(T[] values) {

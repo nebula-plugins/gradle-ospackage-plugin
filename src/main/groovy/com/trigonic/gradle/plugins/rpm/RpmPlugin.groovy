@@ -34,11 +34,14 @@ class RpmPlugin implements Plugin<Project> {
 
         // CopySpec will nest in into() blocks, and Gradle will instaniate CopySpecImpl itself,
         // we have no ability to inject our own. Putting items here mean we won't have type safety.
-        CopySpecImpl.metaClass.user = null
-        CopySpecImpl.metaClass.group = null
-        CopySpecImpl.metaClass.fileType = null
-        CopySpecImpl.metaClass.createDirectoryEntry = null
-        CopySpecImpl.metaClass.addParentDirs = true
+        // When appending another copy spec to the task, it'll be created a WrapperCopySpec
+        [CopySpecImpl, CopySpecImpl.WrapperCopySpec].each {
+            it.metaClass.user = null
+            it.metaClass.group = null
+            it.metaClass.fileType = null
+            it.metaClass.createDirectoryEntry = null
+            it.metaClass.addParentDirs = true
+        }
 
         Builder.metaClass.getDefaultSourcePackage() {
             format.getLead().getName() + "-src.rpm"

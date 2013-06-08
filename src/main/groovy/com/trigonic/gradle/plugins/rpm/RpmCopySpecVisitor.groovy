@@ -24,8 +24,11 @@ import org.freecompany.redline.header.Header.HeaderTag
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
+import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import java.nio.channels.FileChannel
 
 class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
     static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
@@ -88,7 +91,9 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
-        if (spec.createDirectoryEntry) {
+        def specToLookAt = (spec instanceof CopySpecImpl)?:spec.spec // WrapperCopySpec has a nested spec
+        boolean createDirectoryEntry = specToLookAt.hasProperty('createDirectoryEntry') && specToLookAt.createDirectoryEntry
+        if (createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory(
                     "/" + dirDetails.relativePath.pathString,
@@ -113,7 +118,9 @@ class RpmCopySpecVisitor extends SystemPackagingCopySpecVisitor {
 
     @Override
     protected void end() {
-        String rpmFile = builder.build(destinationDir)
+        File rpmFile = rpmTask.getArchivePath()
+        FileChannel fc = new RandomAccessFile( rpmFile, "rw").getChannel()
+        builder.build(fc)
         logger.info 'Created rpm {}', rpmFile
     }
 

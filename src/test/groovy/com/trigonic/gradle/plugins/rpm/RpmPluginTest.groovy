@@ -16,6 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.trigonic.gradle.plugins.packaging.ProjectPackagingExtension
 import com.trigonic.gradle.plugins.packaging.SystemPackagingExtension
 import org.gradle.api.plugins.BasePlugin
 
@@ -60,7 +61,7 @@ class RpmPluginTest {
             os = LINUX
             group = 'Development/Libraries'
             summary = 'Bleah blarg'
-            description = 'Not a very interesting library.'
+            packageDescription = 'Not a very interesting library.'
             license = 'Free'
             distribution = 'SuperSystem'
             vendor = 'Super Associates, LLC'
@@ -169,13 +170,13 @@ class RpmPluginTest {
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
         project.apply plugin: 'rpm'
+        def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm')
         rpmTask.group = 'GROUP'
         rpmTask.requires('openjdk')
         rpmTask.link('/dev/null', '/dev/random')
 
-        SystemPackagingExtension parentExten = rpmTask.parentExten
         parentExten.user = 'USER'
         parentExten.group = 'GROUP2'
         parentExten.requires('java')
@@ -188,6 +189,48 @@ class RpmPluginTest {
         assertEquals 'DESCRIPTION', rpmTask.packageDescription // From Project, even though extension could have a value
         assertEquals 2, rpmTask.getAllLinks().size()
         assertEquals 2, rpmTask.getAllDependencies().size()
+    }
+
+    @Test
+    public void verifyCopySpecCanComeFromExtension() {
+        Project project = ProjectBuilder.builder().build()
+
+        // Setup files
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        new File(srcDir, 'apple').text = 'apple'
+
+        File etcDir = new File(buildDir, 'etc')
+        etcDir.mkdirs()
+        new File(etcDir, 'banana.conf').text = 'banana=true'
+
+        // Simulate SystemPackagingPlugin
+        project.apply plugin: 'rpm'
+        def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
+
+        // Configure
+        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
+            release = 3
+        })
+        project.version = '1.0'
+
+        rpmTask.from(srcDir) {
+            into('/usr/local/src')
+        }
+        parentExten.from(etcDir) {
+            createDirectoryEntry = true
+            into('/conf/defaults')
+        }
+
+        // Execute
+        rpmTask.execute()
+
+        // Evaluate response
+        def scan = Scanner.scan(rpmTask.getArchivePath())
+        // Parent will come first
+        assertEquals(['./conf', './conf/defaults', './conf/defaults/banana.conf', './usr/local/src', './usr/local/src/apple',], scan.files*.name)
+        assertEquals([DIR, DIR, FILE, DIR, FILE], scan.files*.type)
     }
 
     def getHeaderEntry = { scan, tag ->
