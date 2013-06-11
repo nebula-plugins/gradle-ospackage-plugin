@@ -34,13 +34,6 @@ class Rpm extends SystemPackagingTask {
     Rpm() {
         super()
         extension = RPM_EXTENSION
-
-        // TODO Expose in parent extension, which might conflict with other formats
-        aliasEnumValues(Architecture.values())
-        aliasEnumValues(Os.values())
-        aliasEnumValues(RpmType.values())
-        aliasStaticInstances(Directive.class)
-        aliasStaticInstances(Flags.class, int.class)
     }
 
     @Override

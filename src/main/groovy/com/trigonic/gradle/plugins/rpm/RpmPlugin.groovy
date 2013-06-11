@@ -18,6 +18,10 @@ package com.trigonic.gradle.plugins.rpm
 
 import com.trigonic.gradle.plugins.packaging.CommonPackagingPlugin
 import org.freecompany.redline.Builder
+import org.freecompany.redline.header.Architecture
+import org.freecompany.redline.header.Flags
+import org.freecompany.redline.header.Os
+import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -36,6 +40,13 @@ class RpmPlugin implements Plugin<Project> {
 
         // Some defaults, if not set by the user
         project.tasks.withType(Rpm) { Rpm task ->
+            // TODO Expose in parent extension, which might conflict with other formats
+            task.aliasEnumValues(Architecture.values())
+            task.aliasEnumValues(Os.values())
+            task.aliasEnumValues(RpmType.values())
+            task.aliasStaticInstances(Directive.class)
+            task.aliasStaticInstances(Flags.class, int.class)
+
             task.applyConventions()
         }
 
