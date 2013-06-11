@@ -16,18 +16,13 @@
 
 package com.trignomic.gradle.plugins.deb
 
-import com.trigonic.gradle.plugins.packaging.ProjectPackagingExtension
-import com.trigonic.gradle.plugins.rpm.Rpm
+import com.trigonic.gradle.plugins.deb.Deb
 import org.apache.commons.io.FileUtils
-import org.gmock.GMockController
 import org.gradle.api.Project
-import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
-
-import static org.freecompany.redline.header.Header.HeaderTag.*
-import static org.freecompany.redline.payload.CpioHeader.*
 import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertTrue
 
 class DebPluginTest {
     @Test
@@ -45,7 +40,7 @@ class DebPluginTest {
 
         project.apply plugin: 'deb'
 
-        project.task([type: Rpm], 'buildDeb', {
+        project.task([type: Deb], 'buildDeb', {
             destinationDir = project.file('build/tmp/DebPluginTest')
             destinationDir.mkdirs()
 
@@ -60,7 +55,7 @@ class DebPluginTest {
             vendor = 'Super Associates, LLC'
             url = 'http://www.example.com/'
 
-            requires('blarg', '1.0', GREATER | EQUAL)
+            //requires('blarg', '1.0', GREATER | EQUAL)
             requires('blech')
 
             into '/opt/bleah'
@@ -68,7 +63,7 @@ class DebPluginTest {
 
             from(srcDir.toString() + '/main/groovy') {
                 createDirectoryEntry = true
-                fileType = CONFIG | NOREPLACE
+                //fileType = CONFIG | NOREPLACE
             }
 
             from(noParentsDir) {
@@ -80,15 +75,25 @@ class DebPluginTest {
         })
 
         project.tasks.buildDeb.execute()
-        def scan = com.trigonic.gradle.plugins.rpm.Scanner.scan(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'))
-        assertEquals('bleah', getHeaderEntryString(scan, NAME))
-        assertEquals('1.0', getHeaderEntryString(scan, VERSION))
-        assertEquals('1', getHeaderEntryString(scan, RELEASE))
-        assertEquals('i386', getHeaderEntryString(scan, ARCH))
-        assertEquals('linux', getHeaderEntryString(scan, OS))
-        assertEquals(['./a/path/not/to/create/alone', './opt/bleah',
-                      './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
-        assertEquals([FILE, DIR, FILE, SYMLINK], scan.files*.type)
+
+        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/deboutput'))
+        assertEquals('bleah', scan.getHeaderEntry('Package'))
+        assertEquals('blech', scan.getHeaderEntry('Depends'))
+        assertEquals('bleah', scan.getHeaderEntry('Provides'))
+        assertEquals('Bleah blarg\n Not a very interesting library.', scan.getHeaderEntry('Description'))
+        assertEquals('http://www.example.com/', scan.getHeaderEntry('Homepage'))
+
+        def file = scan.getEntry('./a/path/not/to/create/alone')
+        assertTrue(file.isFile())
+
+        def dir = scan.getEntry('./opt/bleah/')
+        assertTrue(dir.isDirectory())
+
+        def file2 = scan.getEntry('./opt/bleah/apple')
+        assertTrue(file2.isFile())
+
+        def symlink = scan.getEntry('./opt/bleah/banana')
+        assertTrue(symlink.isSymbolicLink())
     }
 
     @Test
@@ -102,111 +107,12 @@ class DebPluginTest {
 
         project.apply plugin: 'rpm'
 
-        project.task([type: Rpm], 'buildRpm', {})
-        assertEquals 'test', project.buildRpm.packageName
+        Deb debTask = project.task([type: Deb], 'buildDeb', {})
+        debTask.from(srcDir)
 
-        project.tasks.buildRpm.execute()
+        debTask.execute()
+
+        File debFile = debTask.getArchivePath()
     }
 
-    @Test
-    public void usesArchivesBaseName() {
-        Project project = ProjectBuilder.builder().build()
-        // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
-        project.apply plugin: BasePlugin
-        project.archivesBaseName = 'foo'
-
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        project.apply plugin: 'rpm'
-
-        project.task([type: Rpm], 'buildRpm', {})
-        assertEquals 'foo', project.buildRpm.packageName
-
-        project.tasks.buildRpm.execute()
-    }
-
-    @Test
-    public void verifyValuesCanComeFromExtension() {
-        Project project = ProjectBuilder.builder().build()
-
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        project.apply plugin: 'rpm'
-        def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
-
-        Rpm rpmTask = project.task([type: Rpm], 'buildRpm')
-        rpmTask.group = 'GROUP'
-        rpmTask.requires('openjdk')
-        rpmTask.link('/dev/null', '/dev/random')
-
-        parentExten.user = 'USER'
-        parentExten.group = 'GROUP2'
-        parentExten.requires('java')
-        parentExten.link('/tmp', '/var/tmp')
-
-        project.description = 'DESCRIPTION'
-
-        assertEquals 'USER', rpmTask.user // From Extension
-        assertEquals 'GROUP', rpmTask.group // From task, overriding extension
-        assertEquals 'DESCRIPTION', rpmTask.packageDescription // From Project, even though extension could have a value
-        assertEquals 2, rpmTask.getAllLinks().size()
-        assertEquals 2, rpmTask.getAllDependencies().size()
-    }
-
-    @Test
-    public void verifyCopySpecCanComeFromExtension() {
-        Project project = ProjectBuilder.builder().build()
-
-        // Setup files
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
-        srcDir.mkdirs()
-        new File(srcDir, 'apple').text = 'apple'
-
-        File etcDir = new File(buildDir, 'etc')
-        etcDir.mkdirs()
-        new File(etcDir, 'banana.conf').text = 'banana=true'
-
-        // Simulate SystemPackagingPlugin
-        project.apply plugin: 'rpm'
-        def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
-
-        // Configure
-        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            release = 3
-        })
-        project.version = '1.0'
-
-        rpmTask.from(srcDir) {
-            into('/usr/local/src')
-        }
-        parentExten.from(etcDir) {
-            createDirectoryEntry = true
-            into('/conf/defaults')
-        }
-
-        // Execute
-        rpmTask.execute()
-
-        // Evaluate response
-        def scan = com.trigonic.gradle.plugins.rpm.Scanner.scan(rpmTask.getArchivePath())
-        // Parent will come first
-        assertEquals(['./conf', './conf/defaults', './conf/defaults/banana.conf', './usr/local/src', './usr/local/src/apple',], scan.files*.name)
-        assertEquals([DIR, DIR, FILE, DIR, FILE], scan.files*.type)
-    }
-
-    def getHeaderEntry = { scan, tag ->
-        def header = scan.format.header
-        header.getEntry(tag.code)
-    }
-
-    def getHeaderEntryString = { scan, tag ->
-        getHeaderEntry(scan, tag).values.join('')
-    }
 }
