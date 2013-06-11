@@ -19,5 +19,5 @@ package com.trigonic.gradle.plugins.packaging
 class Dependency {
     String packageName
     String version
-    int flag
+    int flag = 0
 }

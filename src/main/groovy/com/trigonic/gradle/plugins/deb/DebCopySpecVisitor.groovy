@@ -85,13 +85,13 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
         dataProducers << new DataProducerFileSimple(
-                filename: "/" + fileDetails.relativePath.pathString,
-                file: fileDetails.file,
-                user: specToLookAt.user ?: debTask.user,
-                uid: specToLookAt.uid ?: debTask.user,
-                group: specToLookAt.group ?: debTask.group,
-                gid: specToLookAt.gid ?: debTask.gid,
-                mode: (specToLookAt.fileMode == null ? -1 : specToLookAt.fileMode) // TODO see if -1 works for mode
+                "/" + fileDetails.relativePath.pathString,
+                fileDetails.file,
+                specToLookAt.user ?: debTask.user ?: "",
+                (int) (specToLookAt.uid ?: debTask.uid),
+                specToLookAt.group ?: debTask.group ?: "",
+                (int) (specToLookAt.gid ?: debTask.gid),
+                (specToLookAt.fileMode == null ? 0 : specToLookAt.fileMode) // TODO see if -1 works for mode
         )
     }
 
@@ -103,11 +103,11 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         logger.debug "adding directory {}", dirDetails.relativePath.pathString
         dataProducers << new DataProducerDirectorySimple(
                 dirname: "/" + dirDetails.relativePath.pathString,
-                user: specToLookAt.user ?: debTask.user,
+                user: specToLookAt.user ?: debTask.user ?: "",
                 uid: specToLookAt.uid ?: debTask.uid,
-                group: specToLookAt.group ?: debTask.group,
+                group: specToLookAt.group ?: debTask.group ?: "",
                 gid: specToLookAt.gid ?: debTask.gid,
-                mode: (specToLookAt.dirMode == null ? -1 : specToLookAt.dirMode) // TODO see if -1 works for mode
+                mode: (specToLookAt.dirMode == null ? 0 : specToLookAt.dirMode) // TODO see if -1 works for mode
         )
         installDirs << new InstallDir(
                 name: "/" + dirDetails.relativePath.pathString,
@@ -118,10 +118,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
 
     @Override
     protected void addLink(Link link) {
-        def lastSlash = link.path.lastIndexOf('/')
-        def path = link.path.substring(0, lastSlash)
-        def linkName = link.path.substring(lastSlash)
-        dataProducers << new DataProducerLink(path, linkName, link.target, null, null, null);
+        dataProducers << new DataProducerLink(link.path, link.target, true, null, null, null);
     }
 
     @Override
@@ -138,10 +135,10 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
 
         debianFiles << generateFile(debianDir, "control", context)
         // TODO Allow individual lines to be provided for any of the scripts, like he way pkg4j does it
-        debianFiles << generateFile(debianDir, "preinst", context + [commands: [debTask.preInstall.text]])
-        debianFiles << generateFile(debianDir, "postinst", context + [commands:  [debTask.postInstall.text]])
-        debianFiles << generateFile(debianDir, "prerm", context + [commands:  [debTask.preUninstall.text]])
-        debianFiles << generateFile(debianDir, "postrm", context + [commands:  [debTask.postUninstall.text]])
+        debianFiles << generateFile(debianDir, "preinst", context + [commands: [debTask.preInstall?.text]])
+        debianFiles << generateFile(debianDir, "postinst", context + [commands:  [debTask.postInstall?.text]])
+        debianFiles << generateFile(debianDir, "prerm", context + [commands:  [debTask.preUninstall?.text]])
+        debianFiles << generateFile(debianDir, "postrm", context + [commands:  [debTask.postUninstall?.text]])
         File[] debianFileArray = debianFiles.toArray() as File[]
 
         def producers = dataProducers.toArray() as DataProducer[]
@@ -178,8 +175,8 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
                 url: debTask.getUrl(),
 
                 // Uses install command for directory
-                dirs: installDirs.collectEntries { InstallDir dir ->
-                    def map =[name: dir.name]
+                dirs: installDirs.collect { InstallDir dir ->
+                    def map = [name: dir.name]
                     if(dir.user) {
                         if (dir.group) {
                             map['owner'] = "${dir.user}:${dir.group}"
@@ -187,6 +184,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
                             map['owner'] = dir.user
                         }
                     }
+                    return map
                 }
         ]
     }
