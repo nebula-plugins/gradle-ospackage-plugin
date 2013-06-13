@@ -1,4 +1,4 @@
-package com.trignomic.gradle.plugins.deb
+package com.trigonic.gradle.plugins.deb
 
 import com.google.common.base.Preconditions
 import com.google.common.io.Files
@@ -10,7 +10,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.io.IOUtils
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 
-class Scanner {
+public class Scanner {
     static final String CONTROL_GZ_FILE = 'control.tar.gz'
     static final String CONTROL_FILE = './control'
     static final String DATA_FILE = 'data.tar.gz'
@@ -20,7 +20,12 @@ class Scanner {
     Map<TarArchiveEntry, File> dataContents
     Map<String, String> headerFields
 
-    Scanner(File debFile, File tmpOutput) {
+    /**
+     *
+     * @param debFile
+     * @param tmpOutput If not null, files will get extracted
+     */
+    Scanner(File debFile, File tmpOutput = null) {
         this.debFile
         unpack(debFile, tmpOutput)
         headerFields = parseControl(getControl())
@@ -116,18 +121,21 @@ class Scanner {
         while ((entry = tarIn.getNextTarEntry()) != null) {
             println "Data Tar Entry: ${entry.name}"
 
-            final File outputFile = new File(outputDir, entry.getName()).getCanonicalFile()
-            Files.createParentDirs(outputFile);
+            File outputFile = null
+            if(outputDir != null) {
+                outputFile = new File(outputDir, entry.getName()).getCanonicalFile()
+                Files.createParentDirs(outputFile);
 
-            if(entry.isFile()) {
-                final OutputStream outputFileStream = new FileOutputStream(outputFile);
-                IOUtils.copy(tarIn, outputFileStream);
-                outputFileStream.close();
-            } else if(entry.isDirectory()) {
-                outputFile.mkdir();
-            } else {
-                throw new RuntimeException("Unknown type of tar entry " + entry.get)
-                // outputFile might not exist, e.g. a symlink. The TarArchiveEntry can be used to learn more about the file.
+                if(entry.isFile()) {
+                    final OutputStream outputFileStream = new FileOutputStream(outputFile);
+                    IOUtils.copy(tarIn, outputFileStream);
+                    outputFileStream.close();
+                } else if(entry.isDirectory()) {
+                    outputFile.mkdir();
+                } else {
+                    throw new RuntimeException("Unknown type of tar entry " + entry.get)
+                    // outputFile might not exist, e.g. a symlink. The TarArchiveEntry can be used to learn more about the file.
+                }
             }
             contents[entry] = outputFile
         }

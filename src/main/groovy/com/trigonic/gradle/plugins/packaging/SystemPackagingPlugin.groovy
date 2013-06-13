@@ -16,6 +16,7 @@
 
 package com.trigonic.gradle.plugins.packaging
 
+import com.trigonic.gradle.plugins.deb.DebPlugin
 import com.trigonic.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -29,22 +30,25 @@ class SystemPackagingPlugin implements Plugin<Project> {
     private static Logger logger = Logging.getLogger(SystemPackagingPlugin);
 
     Project project
-    SystemPackagingExtension extension
+    ProjectPackagingExtension extension
 
     public static final String taskBaseName = 'ospackage'
 
     void apply(Project project) {
 
         this.project = project
+
+        // Extension is created before plugins are, so tasks
         extension = createExtension()
 
         project.plugins.apply(BasePlugin.class)
         project.plugins.apply(RpmPlugin.class)
+        project.plugins.apply(DebPlugin.class)
 
     }
 
-    SystemPackagingExtension createExtension() {
-        SystemPackagingExtension extension = project.extensions.create(taskBaseName, SystemPackagingExtension, project)
+    ProjectPackagingExtension createExtension() {
+        ProjectPackagingExtension extension = project.extensions.create(taskBaseName, ProjectPackagingExtension, project)
         // Set value ahead of time
 
         // Postpone value until later

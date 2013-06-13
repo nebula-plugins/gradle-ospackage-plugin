@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.trignomic.gradle.plugins.deb
+package com.trigonic.gradle.plugins.deb
 
-import com.trigonic.gradle.plugins.deb.Deb
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -76,7 +75,7 @@ class DebPluginTest {
 
         project.tasks.buildDeb.execute()
 
-        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/deboutput'))
+        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb')) // , project.file('build/tmp/deboutput')
         assertEquals('bleah', scan.getHeaderEntry('Package'))
         assertEquals('blech', scan.getHeaderEntry('Depends'))
         assertEquals('bleah', scan.getHeaderEntry('Provides'))

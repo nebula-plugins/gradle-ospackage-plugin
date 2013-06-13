@@ -16,22 +16,19 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.google.common.io.Files
 import com.trigonic.gradle.plugins.packaging.ProjectPackagingExtension
-import com.trigonic.gradle.plugins.packaging.SystemPackagingExtension
-import org.gradle.api.plugins.BasePlugin
-
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
-
 import org.apache.commons.io.FileUtils
-import static org.freecompany.redline.payload.CpioHeader.*
-import static org.freecompany.redline.header.Header.HeaderTag.*
-
-import org.freecompany.redline.header.Header.HeaderTag
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Test
 import org.gmock.GMockController
+import org.gradle.api.Project
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Ignore
+import org.junit.Test
+
+import static org.freecompany.redline.header.Header.HeaderTag.*
+import static org.freecompany.redline.payload.CpioHeader.*
+import static org.junit.Assert.assertEquals
 
 class RpmPluginTest {
     @Test
@@ -88,11 +85,11 @@ class RpmPluginTest {
 
         project.tasks.buildRpm.execute()
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
-        assertEquals('bleah', getHeaderEntryString(scan, NAME))
-        assertEquals('1.0', getHeaderEntryString(scan, VERSION))
-        assertEquals('1', getHeaderEntryString(scan, RELEASE))
-        assertEquals('i386', getHeaderEntryString(scan, ARCH))
-        assertEquals('linux', getHeaderEntryString(scan, OS))
+        assertEquals('bleah', Scanner.getHeaderEntryString(scan, NAME))
+        assertEquals('1.0', Scanner.getHeaderEntryString(scan, VERSION))
+        assertEquals('1', Scanner.getHeaderEntryString(scan, RELEASE))
+        assertEquals('i386', Scanner.getHeaderEntryString(scan, ARCH))
+        assertEquals('linux', Scanner.getHeaderEntryString(scan, OS))
         assertEquals(['./a/path/not/to/create/alone', './opt/bleah',
                       './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
         assertEquals([FILE, DIR, FILE, SYMLINK], scan.files*.type)
@@ -113,6 +110,28 @@ class RpmPluginTest {
         assertEquals 'test', project.buildRpm.packageName
 
         project.tasks.buildRpm.execute()
+    }
+
+    @Test
+    @Ignore
+    void filter_expression() {
+        Project project = ProjectBuilder.builder().build()
+        project.version = '1.0.0'
+        File appleFile = new File(project.buildDir, 'src/apple')
+        Files.createParentDirs(appleFile)
+        appleFile.text = 'apple'
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            from(appleFile.getParentFile()) {
+                into '/usr/local/myproduct/bin'
+                filter({ line ->
+                    return line //line.replaceAll('{{BASE}}', '/usr/local/myproduct')
+                })
+            }
+        })
+        rpmTask.execute()
     }
 
     @Test
@@ -233,12 +252,4 @@ class RpmPluginTest {
         assertEquals([DIR, DIR, FILE, DIR, FILE], scan.files*.type)
     }
 
-    def getHeaderEntry = { scan, tag ->
-        def header = scan.format.header
-        header.getEntry(tag.code)
-    }
-
-    def getHeaderEntryString = { scan, tag ->
-        getHeaderEntry(scan, tag).values.join('')
-    }
 }

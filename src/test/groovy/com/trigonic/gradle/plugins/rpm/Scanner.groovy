@@ -1,23 +1,16 @@
 package com.trigonic.gradle.plugins.rpm
 
-import static org.freecompany.redline.header.Header.HeaderTag.HEADERIMMUTABLE
-import static org.freecompany.redline.header.Signature.SignatureTag.SIGNATURES
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.fail
-
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStream
-import java.nio.ByteBuffer
-import java.nio.channels.Channels
-import java.util.List
-import java.util.zip.GZIPInputStream
-
-import org.freecompany.redline.ChannelWrapper.Key
 import org.freecompany.redline.ReadableChannelWrapper
 import org.freecompany.redline.header.Format
 import org.freecompany.redline.payload.CpioHeader
-import org.junit.Assert
+
+import java.nio.ByteBuffer
+import java.nio.channels.Channels
+import java.util.zip.GZIPInputStream
+
+import static org.freecompany.redline.header.Header.HeaderTag.HEADERIMMUTABLE
+import static org.freecompany.redline.header.Signature.SignatureTag.SIGNATURES
+import static org.junit.Assert.assertEquals
 
 /**
  * Based on {@link org.freecompany.redline.Scanner}, but modified to return scanned information for
@@ -70,5 +63,15 @@ class Scanner {
         assertEquals(expected, count)
 
         return format
+    }
+
+
+    def static getHeaderEntry(HashMap<String, Object> scan, tag) {
+        def header = scan.format.header
+        header.getEntry(tag.code)
+    }
+
+    def static getHeaderEntryString(HashMap<String, Object> scan, tag) {
+        getHeaderEntry(scan, tag).values.join('')
     }
 }
