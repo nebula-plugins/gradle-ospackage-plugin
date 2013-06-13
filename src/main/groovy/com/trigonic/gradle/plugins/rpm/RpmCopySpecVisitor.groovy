@@ -16,6 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.google.common.base.Preconditions
 import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
 import com.trigonic.gradle.plugins.packaging.Dependency
 import com.trigonic.gradle.plugins.packaging.Link
@@ -25,6 +26,7 @@ import org.freecompany.redline.payload.Directive
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecImpl
+import org.gradle.api.internal.file.copy.MappingCopySpecVisitor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -45,6 +47,8 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     @Override
     void startVisit(CopyAction action) {
         super.startVisit(action)
+
+        Preconditions.checkNotNull(rpmTask.getVersion(), "RPM require a version string" )
 
         builder = new Builder()
         builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
@@ -78,6 +82,9 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
+        //if (fileDetails instanceof MappingCopySpecVisitor.FileVisitDetailsImpl && fileDetails.filterChain.hasFilters()) {
+        // TODO Issue #30, we need to pass in a URL instead a File, so that we can provide openConnection and avoid FileInputStream
+        //}
         builder.addFile(
                 "/" + fileDetails.relativePath.pathString,
                 fileDetails.file,

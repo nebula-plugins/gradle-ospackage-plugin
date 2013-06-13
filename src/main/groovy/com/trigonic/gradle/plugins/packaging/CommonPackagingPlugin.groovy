@@ -25,7 +25,7 @@ class CommonPackagingPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BasePlugin.class)
 
-        // CopySpec will nest in into() blocks, and Gradle will instaniate CopySpecImpl itself,
+        // CopySpec will nest in into() blocks, and Gradle will instantiate CopySpecImpl itself,
         // we have no ability to inject our own. Putting items here mean we won't have type safety.
         // When appending another copy spec to the task, it'll be created a WrapperCopySpec
         [CopySpecImpl, CopySpecImpl.WrapperCopySpec].each {
