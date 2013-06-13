@@ -1,5 +1,8 @@
 package com.trigonic.gradle.plugins.packaging
 
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+
 /**
  * Extension that can be used to configure both DEB and RPM.
  *
@@ -29,11 +32,11 @@ class SystemPackagingExtension {
     String provides
 
     // Scripts
-    File installUtils
-    File preInstall
-    File postInstall
-    File preUninstall
-    File postUninstall
+    @InputFile @Optional File installUtils
+    @InputFile @Optional File preInstall
+    @InputFile @Optional File postInstall
+    @InputFile @Optional File preUninstall
+    @InputFile @Optional File postUninstall
 
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
     List<Link> links = new ArrayList<Link>()

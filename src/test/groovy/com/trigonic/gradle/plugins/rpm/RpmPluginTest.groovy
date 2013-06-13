@@ -224,7 +224,7 @@ class RpmPluginTest {
         etcDir.mkdirs()
         new File(etcDir, 'banana.conf').text = 'banana=true'
 
-        // Simulate SystemPackagingPlugin
+        // Simulate SystemPackagingBasePlugin
         project.apply plugin: 'rpm'
         def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 

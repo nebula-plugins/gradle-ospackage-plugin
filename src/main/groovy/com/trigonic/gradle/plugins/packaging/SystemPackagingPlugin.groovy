@@ -16,45 +16,31 @@
 
 package com.trigonic.gradle.plugins.packaging
 
-import com.trigonic.gradle.plugins.deb.DebPlugin
-import com.trigonic.gradle.plugins.rpm.RpmPlugin
+import com.trigonic.gradle.plugins.deb.Deb
+import com.trigonic.gradle.plugins.rpm.Rpm
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.BasePlugin
 
-class SystemPackagingPlugin implements Plugin<Project> {
+/**
+ * Create implicit tasks, which will inherit from the ospackage extension.
+ */
+public class SystemPackagingPlugin implements Plugin<Project> {
     private static Logger logger = Logging.getLogger(SystemPackagingPlugin);
 
     Project project
-    ProjectPackagingExtension extension
-
-    public static final String taskBaseName = 'ospackage'
+    Deb debTask
+    Rpm rpmTask
 
     void apply(Project project) {
 
         this.project = project
 
-        // Extension is created before plugins are, so tasks
-        extension = createExtension()
-
-        project.plugins.apply(BasePlugin.class)
-        project.plugins.apply(RpmPlugin.class)
-        project.plugins.apply(DebPlugin.class)
+        project.plugins.apply(SystemPackagingBasePlugin.class)
+        debTask = project.task([type: Deb], 'buildDeb')
+        rpmTask = project.task([type: Rpm], 'buildRpm')
 
     }
 
-    ProjectPackagingExtension createExtension() {
-        ProjectPackagingExtension extension = project.extensions.create(taskBaseName, ProjectPackagingExtension, project)
-        // Set value ahead of time
-
-        // Postpone value until later
-        // TODO Have the extension mimic the tasks
-        ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
-
-        return extension
-    }
 }

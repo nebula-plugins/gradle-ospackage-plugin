@@ -16,14 +16,58 @@
 
 package com.trigonic.gradle.plugins.deb
 
+import com.google.common.io.Files
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
+
+import static org.junit.Assert.*
 
 class DebPluginTest {
+    @Test
+    public void minimalConfig() {
+        Project project = ProjectBuilder.builder().build()
+        project.version = 1.0
+
+        File appleFile = new File(project.buildDir, 'src/apple')
+        Files.createParentDirs(appleFile)
+        appleFile.text = 'apple'
+
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            release = '1'
+            from(appleFile.getParentFile())
+        })
+
+        debTask.execute()
+
+        File debFile = debTask.getArchivePath()
+        assertNotNull(debFile)
+        assertTrue(debFile.exists())
+    }
+
+//    public void alwaysRun(DefaultTask task ) {
+//        assertTrue(this instanceof GroovyObject)
+//        assertTrue(task.inputs instanceof GroovyObject)
+//        task.inputs.metaClass.getHasSourceFiles = { true }
+//
+//        task.getMetaClass().setMetaMethod('getHasSourceFiles').
+//        def emc = new ExpandoMetaClass(task.getClass(), false)
+//        emc.say = { message -> message == "bad" ? false : sayClosure(message) }
+//        emc.initialize()
+//
+//        specialClient.metaClass = emc
+//        ExpandoMetaClass emc = new ExpandoMetaClass( Object, false )
+//        emc.getHasSourceFiles = { true }
+//        emc.initialize()
+//
+//        def obj = new groovy.util.Proxy().wrap( task.inputs )
+//        obj.setMetaClass( emc )
+//        task.inputs = obj
+//    }
+
     @Test
     public void files() {
         Project project = ProjectBuilder.builder().build()
@@ -114,4 +158,81 @@ class DebPluginTest {
         File debFile = debTask.getArchivePath()
     }
 
+    @Test
+    public void generateScripts() {
+        Project project = ProjectBuilder.builder().build()
+        project.version = 1.0
+
+        File scriptDir = new File(project.buildDir, 'src')
+        Files.createParentDirs(scriptDir)
+        scriptDir.mkdir()
+
+        File preinstallScript = new File(scriptDir, 'preinstall')
+        preinstallScript.text = "#!/bin/bash\necho Preinstall"
+
+        File postinstallScript = new File(scriptDir, 'postinstall')
+        postinstallScript.text = "#!/bin/bash\necho Postinstall"
+
+        File appleFile = new File(project.buildDir, 'src/apple')
+        Files.createParentDirs(appleFile)
+        appleFile.text = 'apple'
+
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            release = '1'
+            preinstall = preinstallScript
+            postinstall = postinstallScript
+
+            // SkipEmptySourceFilesTaskExecuter will prevent our task from running without a source
+            from(appleFile.getParentFile())
+        })
+
+        debTask.execute()
+
+        def scan = new Scanner(debTask.getArchivePath())
+        scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall"
+        scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall"
+    }
+
+    @Test
+    public void generateScriptsThatAppendInstallUtil() {
+        Project project = ProjectBuilder.builder().build()
+        project.version = 1.0
+
+        File scriptDir = new File(project.buildDir, 'src')
+        Files.createParentDirs(scriptDir)
+        scriptDir.mkdir()
+
+        File installScript = new File(scriptDir, 'install')
+        installScript.text = "#!/bin/bash\n"
+
+        File preinstallScript = new File(scriptDir, 'preinstall')
+        preinstallScript.text = "echo Preinstall"
+
+        File postinstallScript = new File(scriptDir, 'postinstall')
+        postinstallScript.text = "echo Postinstall"
+
+        File appleFile = new File(project.buildDir, 'src/apple')
+        Files.createParentDirs(appleFile)
+        appleFile.text = 'apple'
+
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            release = '1'
+            installUtils = installScript
+            preinstall = preinstallScript
+            postinstall = postinstallScript
+
+            // SkipEmptySourceFilesTaskExecuter will prevent our task from running without a source
+            from(appleFile.getParentFile())
+        })
+
+        debTask.execute()
+
+        def scan = new Scanner(debTask.getArchivePath())
+        scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall"
+        scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall"
+    }
 }

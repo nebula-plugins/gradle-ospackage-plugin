@@ -88,9 +88,9 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
                 "/" + fileDetails.relativePath.pathString,
                 fileDetails.file,
                 specToLookAt.user ?: debTask.user ?: "",
-                (int) (specToLookAt.uid ?: debTask.uid),
+                (int) (debTask.uid),
                 specToLookAt.group ?: debTask.group ?: "",
-                (int) (specToLookAt.gid ?: debTask.gid),
+                (int) (debTask.gid),
                 (specToLookAt.fileMode == null ? 0 : specToLookAt.fileMode) // TODO see if -1 works for mode
         )
     }
@@ -104,9 +104,9 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         dataProducers << new DataProducerDirectorySimple(
                 dirname: "/" + dirDetails.relativePath.pathString,
                 user: specToLookAt.user ?: debTask.user ?: "",
-                uid: specToLookAt.uid ?: debTask.uid,
+                uid: debTask.uid,
                 group: specToLookAt.group ?: debTask.group ?: "",
-                gid: specToLookAt.gid ?: debTask.gid,
+                gid: debTask.gid,
                 mode: (specToLookAt.dirMode == null ? 0 : specToLookAt.dirMode) // TODO see if -1 works for mode
         )
         installDirs << new InstallDir(
@@ -135,10 +135,11 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
 
         debianFiles << generateFile(debianDir, "control", context)
         // TODO Allow individual lines to be provided for any of the scripts, like he way pkg4j does it
-        debianFiles << generateFile(debianDir, "preinst", context + [commands: [debTask.preInstall?.text]])
-        debianFiles << generateFile(debianDir, "postinst", context + [commands:  [debTask.postInstall?.text]])
-        debianFiles << generateFile(debianDir, "prerm", context + [commands:  [debTask.preUninstall?.text]])
-        debianFiles << generateFile(debianDir, "postrm", context + [commands:  [debTask.postUninstall?.text]])
+        def installUtils = (debTask.installUtils?.text)?:""
+        debianFiles << generateFile(debianDir, "preinst", context + [commands: [installUtils + debTask.preInstall?.text]])
+        debianFiles << generateFile(debianDir, "postinst", context + [commands:  [installUtils + debTask.postInstall?.text]])
+        debianFiles << generateFile(debianDir, "prerm", context + [commands:  [installUtils + debTask.preUninstall?.text]])
+        debianFiles << generateFile(debianDir, "postrm", context + [commands:  [installUtils + debTask.postUninstall?.text]])
         File[] debianFileArray = debianFiles.toArray() as File[]
 
         def producers = dataProducers.toArray() as DataProducer[]
