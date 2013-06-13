@@ -30,6 +30,8 @@ class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(CommonPackagingPlugin.class)
 
+        project.ext.Rpm = Rpm.class
+
         Builder.metaClass.getDefaultSourcePackage() {
             format.getLead().getName() + "-src.rpm"
         }

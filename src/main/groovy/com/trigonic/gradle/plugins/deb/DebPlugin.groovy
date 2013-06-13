@@ -26,6 +26,9 @@ class DebPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(CommonPackagingPlugin.class)
 
+        // Register class, so users don't have to add imports
+        project.ext.Deb = Deb.class
+
         // Some defaults, if not set by the user
         project.tasks.withType(Deb) { Deb task ->
             task.applyConventions()
