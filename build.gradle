@@ -4,7 +4,6 @@ apply plugin: 'nexus'
 apply plugin: 'idea'
 
 group = 'com.trigonic'
-version = '1.4-SNAPSHOT'
 
 buildscript {
     repositories {
@@ -22,10 +21,10 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'org.redline-rpm:redline:1.1.10+'
+    compile 'org.redline-rpm:redline:1.1.+'
     compile 'org.vafer:jdeb:1.0.1'
 
-    groovy 'org.codehaus.groovy:groovy:1.8.+'
+    compile 'org.codehaus.groovy:groovy:1.8.+'
 
     testCompile 'junit:junit:4.+'
     testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
@@ -98,6 +97,6 @@ modifyPom {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.2'
+    gradleVersion = '1.6'
 }
 

@@ -4,7 +4,6 @@
 .settings
 bin
 build
-gradle.properties
 
 out
 *.ipr
