@@ -113,6 +113,41 @@ class RpmPluginTest {
     }
 
     @Test
+    void category_on_spec() {
+        Project project = ProjectBuilder.builder().build()
+        project.version = '1.0.0'
+
+        File bananaFile = new File(project.buildDir, 'test/banana')
+        Files.createParentDirs(bananaFile)
+        bananaFile.text = 'banana'
+
+        File appleFile = new File(project.buildDir, 'src/apple')
+        Files.createParentDirs(appleFile)
+        appleFile.text = 'apple'
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            from(bananaFile.getParentFile()) {
+                into '/usr/local/myproduct/etc'
+                createDirectoryEntry false
+            }
+            from(appleFile.getParentFile()) {
+                into '/usr/local/myproduct/bin'
+                createDirectoryEntry true
+            }
+        })
+        rpmTask.execute()
+
+        // Evaluate response
+        def scan = Scanner.scan(rpmTask.getArchivePath())
+
+        assertEquals(['./usr/local/myproduct/bin/etc/banana', './usr/local/myproduct/bin', './usr/local/myproduct/bin/src/apple'], scan.files*.name)
+        assertEquals([DIR, FILE], scan.files*.type)
+
+    }
+
+    @Test
     @Ignore
     void filter_expression() {
         Project project = ProjectBuilder.builder().build()
@@ -226,7 +261,7 @@ class RpmPluginTest {
 
         // Simulate SystemPackagingBasePlugin
         project.apply plugin: 'rpm'
-        def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
+        ProjectPackagingExtension parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 
         // Configure
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {

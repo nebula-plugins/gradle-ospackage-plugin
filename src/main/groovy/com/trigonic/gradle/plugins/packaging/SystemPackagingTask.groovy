@@ -16,12 +16,17 @@
 
 package com.trigonic.gradle.plugins.packaging
 
+import org.gradle.api.file.CopySourceSpec
+import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
+import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 import java.lang.reflect.Field
@@ -31,7 +36,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static Logger logger = Logging.getLogger(SystemPackagingTask);
 
     def fileType = null
-    def createDirectoryEntry = null
+    boolean createDirectoryEntry = true
     boolean addParentDirs = true
 
     final SystemPackagingCopyAction action
@@ -152,5 +157,40 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             super(resolver, visitor);
         }
     }
+
+//    @Override
+//    public AbstractCopyTask from(Object sourcePath, Closure c) {
+//        use(CopySpecEnhancement) {
+//            super.from(sourcePath, c)
+//        }
+//    }
+//
+//    @Override
+//    def AbstractArchiveTask into(Object destPath, Closure configureClosure) {
+//        use(CopySpecEnhancement) {
+//            super.into(destPath, configureClosure)
+//        }
+//    }
+//
+//    @Override
+//    public AbstractCopyTask exclude(Closure excludeSpec) {
+//        use(CopySpecEnhancement) {
+//            super.exclude(excludeSpec)
+//        }
+//    }
+//
+//    @Override
+//    public AbstractCopyTask filter(Closure closure) {
+//        use(CopySpecEnhancement) {
+//            super.filter(closure)
+//        }
+//    }
+//
+//    @Override
+//    public AbstractCopyTask rename(Closure closure) {
+//        use(CopySpecEnhancement) {
+//            super.rename(closure)
+//        }
+//    }
 
 }
