@@ -1,8 +1,4 @@
 package com.trigonic.gradle.plugins.packaging
-
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
-
 /**
  * Extension that can be used to configure both DEB and RPM.
  *
@@ -32,11 +28,104 @@ class SystemPackagingExtension {
     String provides
 
     // Scripts
-    @InputFile @Optional File installUtils
-    @InputFile @Optional File preInstall
-    @InputFile @Optional File postInstall
-    @InputFile @Optional File preUninstall
-    @InputFile @Optional File postUninstall
+    final List<Object> installUtilCommands = []
+    final List<Object> preInstallCommands = []
+    final List<Object> postInstallCommands = []
+    final List<Object> preUninstallCommands = []
+    final List<Object> postUninstallCommands = []
+
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setInstallUtils(File script) {
+        installUtils(script)
+    }
+
+    def installUtils(String script) {
+        installUtilCommands << script
+        return this
+    }
+
+    def installUtils(File script) {
+        installUtilCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setPreInstall(File script) {
+        preInstall(script)
+    }
+
+    def preInstall(String script) {
+        preInstallCommands << script
+        return this
+    }
+
+    def preInstall(File script) {
+        preInstallCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setPostInstall(File script) {
+        preInstall(script)
+    }
+
+    def postInstall(String script) {
+        postInstallCommands << script
+        return this
+    }
+
+    def postInstall(File script) {
+        postInstallCommands << script
+        return this
+    }
+
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setPreUninstall(File script) {
+        preUninstall(script)
+    }
+
+    def preUninstall(String script) {
+        preUninstallCommands << script
+        return this
+    }
+
+    def preUninstall(File script) {
+        preUninstallCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setPostUninstall(File script) {
+        preUninstall(script)
+    }
+
+    def postUninstall(String script) {
+        postUninstallCommands << script
+        return this
+    }
+
+    def postUninstall(File script) {
+        postUninstallCommands << script
+        return this
+    }
+
 
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
     List<Link> links = new ArrayList<Link>()
@@ -67,4 +156,5 @@ class SystemPackagingExtension {
     Dependency requires(String packageName) {
         requires(packageName, '', 0)
     }
+
 }

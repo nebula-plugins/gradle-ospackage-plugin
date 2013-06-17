@@ -72,7 +72,7 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
         didWork
     }
 
-    String concat(Object... scripts) {
+    String concat(Collection<Object> scripts) {
         String shebang
         StringBuilder result = new StringBuilder();
         scripts.each { script ->
@@ -93,5 +93,23 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
             result.insert(0, shebang + "\n")
         }
         result.toString()
+    }
+
+    /**
+     * Works with nulls, Strings and Files.
+     *
+     * @param script
+     * @return
+     */
+    String stripShebang(Object script) {
+        StringBuilder result = new StringBuilder();
+        script?.eachLine { line ->
+            if (!line.matches('^#!.*$')) {
+                result.append line
+                result.append "\n"
+            }
+        }
+        result.toString()
+
     }
 }

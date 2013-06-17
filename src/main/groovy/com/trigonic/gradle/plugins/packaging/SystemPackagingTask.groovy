@@ -84,11 +84,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('url', { parentExten?.getUrl() })
         mapping.map('sourcePackage', { parentExten?.getSourcePackage() })
         mapping.map('provides', { parentExten?.getProvides()?:getPackageName() })
-        mapping.map('installUtils', { parentExten?.getInstallUtils() })
-        mapping.map('preInstall', { parentExten?.getPreInstall() })
-        mapping.map('postInstall', { parentExten?.getPostInstall() })
-        mapping.map('preUninstall', { parentExten?.getPreUninstall() })
-        mapping.map('postUninstall', { parentExten?.getPostUninstall() })
 
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
@@ -102,6 +97,34 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         } catch (UnknownHostException ignore) {
             return "unknown"
         }
+    }
+
+    @Override
+    @TaskAction
+    protected void copy() {
+        use(CopySpecEnhancement) {
+            super.copy()
+        }
+    }
+
+    def getAllInstallUtils() {
+        return getInstallUtils() + parentExten?.getInstallUtils()
+    }
+
+    def getAllPreInstallCommands() {
+        return getPreInstallCommands() + parentExten?.getPreInstallCommands()
+    }
+
+    def getAllPostInstallCommands() {
+        return getPostInstallCommands() + parentExten?.getPostInstallCommands()
+    }
+
+    def getAllPreUninstallCommands() {
+        return getPreUninstallCommands() + parentExten?.getPreUninstallCommands()
+    }
+
+    def getAllPostUninstallCommands() {
+        return getPostUninstallCommands() + parentExten?.getPostUninstallCommands()
     }
 
     List<Link> getAllLinks() {

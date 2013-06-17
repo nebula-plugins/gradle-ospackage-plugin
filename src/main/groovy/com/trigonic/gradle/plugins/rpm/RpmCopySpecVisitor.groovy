@@ -72,10 +72,10 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         }
         builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-        builder.setPreInstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.preInstall))
-        builder.setPostInstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.postInstall))
-        builder.setPreUninstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.preUninstall))
-        builder.setPostUninstallScript(scriptWithUtils(rpmTask.installUtils, rpmTask.postUninstall))
+        builder.setPreInstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPreInstallCommands))
+        builder.setPostInstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPostInstallCommands))
+        builder.setPreUninstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPreUninstallCommands))
+        builder.setPostUninstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPostUninstallCommands))
     }
 
     @Override
@@ -100,7 +100,9 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     @Override
     void visitDir(FileVisitDetails dirDetails) {
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-        boolean createDirectoryEntry = specToLookAt.hasProperty('createDirectoryEntry') && specToLookAt.createDirectoryEntry
+        boolean createDirectoryEntry = (specToLookAt.hasProperty('createDirectoryEntry') &&  specToLookAt.createDirectoryEntry != null) ?
+            specToLookAt.createDirectoryEntry as Boolean :
+            rpmTask.createDirectoryEntry
         if (createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory(
@@ -142,7 +144,13 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
                 rpmTask.getRelease()) : null
     }
 
-    Object scriptWithUtils(File utils, File script) {
-        concat(standardScriptDefines(), utils, script)
+    Object scriptWithUtils(List utils, List scripts) {
+        def l = []
+        def stdDefines = standardScriptDefines()
+        if(stdDefines) l.add(stdDefines)
+        l.addAll(utils)
+        l.addAll(scripts)
+
+        concat(l)
     }
 }

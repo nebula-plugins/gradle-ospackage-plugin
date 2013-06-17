@@ -111,7 +111,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         )
         installDirs << new InstallDir(
                 name: "/" + dirDetails.relativePath.pathString,
-                user: specToLookAt.user ?: debTask.user,
+                user: specToLookAt.user ?: debTask.user ?: "",
                 group: specToLookAt.group ?: debTask.group,
         )
     }
@@ -134,12 +134,17 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         List<File> debianFiles = new ArrayList<String>();
 
         debianFiles << generateFile(debianDir, "control", context)
-        // TODO Allow individual lines to be provided for any of the scripts, like he way pkg4j does it
-        def installUtils = (debTask.installUtils?.text)?:""
-        debianFiles << generateFile(debianDir, "preinst", context + [commands: [installUtils + debTask.preInstall?.text]])
-        debianFiles << generateFile(debianDir, "postinst", context + [commands:  [installUtils + debTask.postInstall?.text]])
-        debianFiles << generateFile(debianDir, "prerm", context + [commands:  [installUtils + debTask.preUninstall?.text]])
-        debianFiles << generateFile(debianDir, "postrm", context + [commands:  [installUtils + debTask.postUninstall?.text]])
+
+        def installUtils = debTask.allInstallUtils.collect { stripShebang(it) }
+        def preInstall = installUtils + debTask.allPreInstallCommands.collect { stripShebang(it) }
+        def postInstall = installUtils + debTask.allPostInstallCommands.collect { stripShebang(it) }
+        def preUninstall = installUtils + debTask.allPreUninstallCommands.collect { stripShebang(it) }
+        def postUninstall = installUtils + debTask.allPostUninstallCommands.collect { stripShebang(it) }
+
+        debianFiles << generateFile(debianDir, "preinst", context + [commands: preInstall] )
+        debianFiles << generateFile(debianDir, "postinst", context + [commands:  postInstall] )
+        debianFiles << generateFile(debianDir, "prerm", context + [commands:  preUninstall] )
+        debianFiles << generateFile(debianDir, "postrm", context + [commands:  postUninstall]  )
         File[] debianFileArray = debianFiles.toArray() as File[]
 
         def producers = dataProducers.toArray() as DataProducer[]

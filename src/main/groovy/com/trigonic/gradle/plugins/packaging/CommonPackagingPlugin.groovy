@@ -33,7 +33,7 @@ class CommonPackagingPlugin implements Plugin<Project> {
             it.metaClass.uid = null // DEB Only
             it.metaClass.group = null
             it.metaClass.gid = null // DEB Only
-            it.metaClass.fileMode = null
+            //it.metaClass.fileMode = null
             it.metaClass.fileType = null
             it.metaClass.createDirectoryEntry = null
             it.metaClass.addParentDirs = true
