@@ -16,6 +16,7 @@
 
 package com.trigonic.gradle.plugins.rpm
 
+import com.trigonic.gradle.plugins.packaging.AliasHelper
 import com.trigonic.gradle.plugins.packaging.CommonPackagingPlugin
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Architecture
@@ -25,8 +26,7 @@ import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
+import org.gradle.api.internal.DynamicObjectAware
 
 class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {
@@ -44,15 +44,18 @@ class RpmPlugin implements Plugin<Project> {
 
         // Some defaults, if not set by the user
         project.tasks.withType(Rpm) { Rpm task ->
-            // TODO Expose in parent extension, which might conflict with other formats
-            task.aliasEnumValues(Architecture.values())
-            task.aliasEnumValues(Os.values())
-            task.aliasEnumValues(RpmType.values())
-            task.aliasStaticInstances(Directive.class)
-            task.aliasStaticInstances(Flags.class, int.class)
+            applyAliases(task)
 
             task.applyConventions()
         }
 
+    }
+
+    def static applyAliases(def dynamicObjectAware) {
+        AliasHelper.aliasEnumValues(Architecture.values(), dynamicObjectAware)
+        AliasHelper.aliasEnumValues(Os.values(), dynamicObjectAware)
+        AliasHelper.aliasEnumValues(RpmType.values(), dynamicObjectAware)
+        AliasHelper.aliasStaticInstances(Directive.class, dynamicObjectAware)
+        AliasHelper.aliasStaticInstances(Flags.class, int.class, dynamicObjectAware)
     }
 }

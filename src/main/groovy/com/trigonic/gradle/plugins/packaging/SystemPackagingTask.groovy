@@ -142,30 +142,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    protected <T extends Enum<T>> void aliasEnumValues(T[] values) {
-        for (T value : values) {
-            assert !ext.hasProperty(value.name())
-            ext.set value.name(), value
-        }
-    }
-
-    protected <T> void aliasStaticInstances(Class<T> forClass) {
-        aliasStaticInstances forClass, forClass
-    }
-
-    private hasModifier(Field field, int modifier) {
-        (field.modifiers & modifier) == modifier
-    }
-
-    protected <T, U> void aliasStaticInstances(Class<T> forClass, Class<U> ofClass) {
-        for (Field field : forClass.fields) {
-            if (field.type == ofClass && hasModifier(field, Modifier.STATIC)) {
-                assert !ext.hasProperty(field.name)
-                ext.set field.name, field.get(null)
-            }
-        }
-    }
-
     CopyActionImpl getCopyAction() {
         action
     }

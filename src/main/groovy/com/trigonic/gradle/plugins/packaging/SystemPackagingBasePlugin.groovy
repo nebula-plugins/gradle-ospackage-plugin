@@ -45,6 +45,7 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
         project.plugins.apply(RpmPlugin.class)
         project.plugins.apply(DebPlugin.class)
 
+        RpmPlugin.applyAliases(extension) // RPM Specific aliases
     }
 
     ProjectPackagingExtension createExtension() {
