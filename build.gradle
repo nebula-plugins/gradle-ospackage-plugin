@@ -15,7 +15,7 @@ dependencies {
     compile 'org.redline-rpm:redline:1.1.10'
     compile 'org.vafer:jdeb:1.0.1'
 
-    compile 'org.codehaus.groovy:groovy:1.8.+'
+    compile localGroovy()
 
     testCompile 'junit:junit:4.+'
     testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
