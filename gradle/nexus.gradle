@@ -1,0 +1,69 @@
+/**
+ * Apply from the command line via the -I argument to apply.
+ *
+ * Nexus plugin will attempt setup signing, which if not configured will cause uploads to fail. It's too opinionated to
+ * always apply, e.g. developers publishing to places which aren't Nexus.
+ */
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
+    }
+}
+
+
+apply plugin: 'nexus'
+
+
+modifyPom {
+    project {
+        name 'gradle-rpm-plugin - Gradle plugin for constructing RPM packages'
+        packaging 'jar'
+        description 'Provides a task similar to Tar and Zip for constructing RPM package files.'
+        url 'https://github.com/TrigonicSolutions/gradle-rpm-plugin'
+        inceptionYear '2011'
+
+        parent {
+            groupId 'org.sonatype.oss'
+            artifactId 'oss-parent'
+            version '7'
+        }
+
+        scm {
+            url 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
+            connection 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'akrueger'
+                name 'Alan Krueger'
+                email 'alan@trigonic.com'
+                roles{
+                    role 'Developer'
+                }
+                timezone '-6'
+            }
+            developer {
+                id 'quidryan'
+                name 'Justin Ryan'
+                email 'jryan@netflix.com'
+                roles{
+                    role 'Developer'
+                }
+                timezone '+8'
+            }
+        }
+    }
+}
