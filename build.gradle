@@ -21,7 +21,7 @@ repositories {
 
 dependencies {
     compile gradleApi()
-    compile 'org.redline-rpm:redline:1.1.+'
+    compile 'org.redline-rpm:redline:1.1.10'
     compile 'org.vafer:jdeb:1.0.1'
 
     compile 'org.codehaus.groovy:groovy:1.8.+'
