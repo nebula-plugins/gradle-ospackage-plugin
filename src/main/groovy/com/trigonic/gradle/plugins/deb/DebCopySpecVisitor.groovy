@@ -179,7 +179,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
                 summary: debTask.getSummary(),
                 section: debTask.getPackageGroup(), // TODO See how similar these fields are
                 time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
-                epoch: new Date().getTime(),
+                epoch: (new Date().getTime() / 1000) as long,
                 provides: debTask.getProvides(),
                 depends: StringUtils.join(dependencies, ", "),
                 url: debTask.getUrl(),
