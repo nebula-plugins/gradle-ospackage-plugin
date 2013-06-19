@@ -16,22 +16,15 @@
 
 package com.trigonic.gradle.plugins.packaging
 
-import org.gradle.api.file.CopySourceSpec
-import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.DynamicObjectAware
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
-import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
-
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static Logger logger = Logging.getLogger(SystemPackagingTask);

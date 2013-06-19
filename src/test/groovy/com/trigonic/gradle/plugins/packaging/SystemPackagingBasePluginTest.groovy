@@ -44,10 +44,9 @@ class SystemPackagingBasePluginTest {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.getPlugins().apply(SystemPackagingBasePlugin.class)
+        project.apply plugin: 'os-package-base'
 
-        ProjectPackagingExtension ext = project.getConvention().getByType(ProjectPackagingExtension)
-        ext.with {
+        project.ospackage {
             release = 3
             into '/opt/bleah'
             os = LINUX

@@ -26,7 +26,6 @@ import org.freecompany.redline.payload.Directive
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecImpl
-import org.gradle.api.internal.file.copy.MappingCopySpecVisitor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

@@ -23,21 +23,18 @@ import groovy.text.GStringTemplateEngine
 import groovy.transform.Canonical
 import org.apache.commons.lang.StringUtils
 import org.apache.commons.lang.time.DateFormatUtils
-import org.bouncycastle.openpgp.PGPException
-import org.bouncycastle.openpgp.PGPPrivateKey
-import org.bouncycastle.openpgp.PGPSecretKey
-import org.bouncycastle.openpgp.PGPUtil
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.vafer.jdeb.*
-import org.vafer.jdeb.changes.TextfileChangesProvider
+import org.vafer.jdeb.Compression
+import org.vafer.jdeb.Console
+import org.vafer.jdeb.DataProducer
+import org.vafer.jdeb.Processor
 import org.vafer.jdeb.descriptors.PackageDescriptor
 import org.vafer.jdeb.producers.DataProducerLink
-
 
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask

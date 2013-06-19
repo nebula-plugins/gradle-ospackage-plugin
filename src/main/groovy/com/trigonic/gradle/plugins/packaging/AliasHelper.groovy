@@ -1,18 +1,20 @@
 package com.trigonic.gradle.plugins.packaging
 
-import org.gradle.api.internal.DynamicObject
-import org.gradle.api.internal.DynamicObjectAware
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.plugins.ExtraPropertiesExtension
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
 class AliasHelper {
+    private static Logger logger = Logging.getLogger(AliasHelper);
+
     static <T extends Enum<T>> void aliasEnumValues(T[] values, dynAware) {
         //ExtraPropertiesExtension ext = dynAware.getExtensions()
         for (T value : values) {
             assert !dynAware.ext.hasProperty(value.name())
+            logger.info("Setting ${value.name()} onto ${dynAware}")
             dynAware.ext.set value.name(), value
         }
     }
@@ -29,6 +31,7 @@ class AliasHelper {
         for (Field field : forClass.fields) {
             if (field.type == ofClass && hasModifier(field, Modifier.STATIC)) {
                 assert !dynAware.ext.hasProperty(field.name)
+                logger.info("Setting ${field.name} to ${field.get(null)} onto ${dynAware}")
                 dynAware.ext.set field.name, field.get(null)
             }
         }

@@ -17,8 +17,6 @@
 package com.trigonic.gradle.plugins.deb
 
 import com.trigonic.gradle.plugins.packaging.CommonPackagingPlugin
-import org.freecompany.redline.Builder
-import org.freecompany.redline.payload.Directive
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

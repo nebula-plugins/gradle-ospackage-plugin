@@ -40,12 +40,11 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
 
         // Extension is created before plugins are, so tasks
         extension = createExtension()
+        RpmPlugin.applyAliases(extension) // RPM Specific aliases
 
         project.plugins.apply(BasePlugin.class)
         project.plugins.apply(RpmPlugin.class)
         project.plugins.apply(DebPlugin.class)
-
-        RpmPlugin.applyAliases(extension) // RPM Specific aliases
     }
 
     ProjectPackagingExtension createExtension() {

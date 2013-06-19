@@ -1,8 +1,6 @@
 package com.trigonic.gradle.plugins.packaging
 
 import org.gradle.api.Project
-import org.gradle.api.file.CopySourceSpec
-import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.internal.project.ProjectInternal
 

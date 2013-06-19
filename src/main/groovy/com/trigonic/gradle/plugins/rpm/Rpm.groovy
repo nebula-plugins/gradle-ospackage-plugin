@@ -19,10 +19,8 @@ package com.trigonic.gradle.plugins.rpm
 import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
 import com.trigonic.gradle.plugins.packaging.SystemPackagingTask
 import org.freecompany.redline.header.Architecture
-import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
-import org.freecompany.redline.payload.Directive
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
