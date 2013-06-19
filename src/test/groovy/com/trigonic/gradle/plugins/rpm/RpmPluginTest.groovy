@@ -28,7 +28,7 @@ import org.junit.Test
 
 import static org.freecompany.redline.header.Header.HeaderTag.*
 import static org.freecompany.redline.payload.CpioHeader.*
-import static org.junit.Assert.assertEquals
+import static org.junit.Assert.*
 
 class RpmPluginTest {
     @Test
@@ -282,6 +282,8 @@ class RpmPluginTest {
         rpmTask.execute()
 
         // Evaluate response
+        assertTrue(rpmTask.getArchivePath().exists())
+        println("Path to RPM: " + rpmTask.getArchivePath().getAbsoluteFile().toString())
         def scan = Scanner.scan(rpmTask.getArchivePath())
         // Parent will come first
         assertEquals(['./conf', './conf/defaults', './conf/defaults/banana.conf', './usr/local/src', './usr/local/src/apple',], scan.files*.name)
