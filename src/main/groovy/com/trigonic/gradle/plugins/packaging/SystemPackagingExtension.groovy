@@ -17,6 +17,7 @@ class SystemPackagingExtension {
     // File name components
     String packageName
     String release
+    String version
 
     // Metadata, some are probably specific to a type
     String user

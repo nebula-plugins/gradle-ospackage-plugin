@@ -69,6 +69,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             parentExten?.getPackageName()?:getBaseName()
         })
         mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
+        mapping.map('version', { parentExten?.getVersion()?:project.getVersion() })
         mapping.map('user', { parentExten?.getUser()?:getPackager()?:"" })
         mapping.map('permissionGroup', { parentExten?.getPermissionGroup()?:"" })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() })
