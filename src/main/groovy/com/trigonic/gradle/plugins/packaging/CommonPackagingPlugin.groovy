@@ -25,19 +25,6 @@ class CommonPackagingPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BasePlugin.class)
 
-        // CopySpec will nest in into() blocks, and Gradle will instantiate CopySpecImpl itself,
-        // we have no ability to inject our own. Putting items here mean we won't have type safety.
-        // When appending another copy spec to the task, it'll be created a WrapperCopySpec
-        [CopySpecImpl, CopySpecImpl.WrapperCopySpec].each {
-            it.metaClass.user = null
-            it.metaClass.uid = null // DEB Only
-            it.metaClass.group = null
-            it.metaClass.gid = null // DEB Only
-            //it.metaClass.fileMode = null
-            it.metaClass.fileType = null
-            it.metaClass.createDirectoryEntry = null
-            it.metaClass.addParentDirs = true
-        }
-
+        // Used to be used to add metaClass properties to CopySpec, but now it's done with CopySpecEnhancement
     }
 }

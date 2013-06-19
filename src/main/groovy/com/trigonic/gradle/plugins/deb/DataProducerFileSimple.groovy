@@ -14,6 +14,7 @@ public class DataProducerFileSimple implements DataProducer {
     String group
     int gid
     int mode
+
     @Override
     void produce(DataConsumer receiver) throws IOException {
         file.withInputStream { InputStream is ->

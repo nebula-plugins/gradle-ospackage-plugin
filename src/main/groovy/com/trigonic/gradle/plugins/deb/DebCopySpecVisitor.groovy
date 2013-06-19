@@ -54,10 +54,10 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     List<InstallDir> installDirs
     boolean includeStandardDefines = true
 
-    DebCopySpecVisitor(Deb rpmTask) {
-        super(rpmTask)
-        this.debTask = rpmTask
-        debianDir = new File(rpmTask.project.buildDir, "debian")
+    DebCopySpecVisitor(Deb debTask) {
+        super(debTask)
+        this.debTask = debTask
+        debianDir = new File(debTask.project.buildDir, "debian")
         dependencies = []
         dataProducers = []
         installDirs = []
@@ -83,37 +83,44 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-
         dataProducers << new DataProducerFileSimple(
                 "/" + fileDetails.relativePath.pathString,
                 fileDetails.file,
-                specToLookAt.user ?: debTask.user ?: "",
-                (int) (debTask.uid),
-                specToLookAt.group ?: debTask.group ?: "",
-                (int) (debTask.gid),
-                (specToLookAt.fileMode == null ? 0 : specToLookAt.fileMode) // TODO see if -1 works for mode
+                lookup(specToLookAt, 'user') ?: debTask.user,
+                (int) (lookup(specToLookAt, 'uid')?: debTask.uid),
+                lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup,
+                (int) (lookup(specToLookAt, 'gid')?: debTask.gid),
+                (lookup(specToLookAt, 'fileMode') ?: 0) // TODO see if -1 works for mode
         )
     }
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-        // TODO Evaluate if createDirectory is option in deb files
-        // addParentDirs is implicit in jdeb
-        logger.debug "adding directory {}", dirDetails.relativePath.pathString
-        dataProducers << new DataProducerDirectorySimple(
-                dirname: "/" + dirDetails.relativePath.pathString,
-                user: specToLookAt.user ?: debTask.user ?: "",
-                uid: debTask.uid,
-                group: specToLookAt.group ?: debTask.group ?: "",
-                gid: debTask.gid,
-                mode: (specToLookAt.dirMode == null ? 0 : specToLookAt.dirMode) // TODO see if -1 works for mode
-        )
-        installDirs << new InstallDir(
-                name: "/" + dirDetails.relativePath.pathString,
-                user: specToLookAt.user ?: debTask.user ?: "",
-                group: specToLookAt.group ?: debTask.group,
-        )
+
+        def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
+        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : debTask.createDirectoryEntry
+        if (createDirectoryEntry) {
+
+            logger.debug "adding directory {}", dirDetails.relativePath.pathString
+            def user = lookup(specToLookAt, 'user') ?: debTask.user
+            def group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
+
+            dataProducers << new DataProducerDirectorySimple(
+                    dirname: "/" + dirDetails.relativePath.pathString,
+                    user: user,
+                    uid: lookup(specToLookAt, 'uid')?:debTask.uid,
+                    group: group,
+                    gid: lookup(specToLookAt, 'gid')?: debTask.gid,
+                    mode: (lookup(specToLookAt, 'dirMode')?:0) // TODO see if -1 works for mode
+            )
+            // addParentDirs is implicit in jdeb, I think.
+            installDirs << new InstallDir(
+                    name: "/" + dirDetails.relativePath.pathString,
+                    user: user,
+                    group: group,
+            )
+        }
     }
 
     @Override
@@ -135,7 +142,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
 
         debianFiles << generateFile(debianDir, "control", context)
 
-        def installUtils = debTask.allInstallUtils.collect { stripShebang(it) }
+        def installUtils = debTask.allCommonCommands.collect { stripShebang(it) }
         def preInstall = installUtils + debTask.allPreInstallCommands.collect { stripShebang(it) }
         def postInstall = installUtils + debTask.allPostInstallCommands.collect { stripShebang(it) }
         def preUninstall = installUtils + debTask.allPreUninstallCommands.collect { stripShebang(it) }

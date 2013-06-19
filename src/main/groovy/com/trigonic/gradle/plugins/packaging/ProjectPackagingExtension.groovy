@@ -20,39 +20,44 @@ class ProjectPackagingExtension extends CopySpecImpl {
         exten = new SystemPackagingExtension()
     }
 
-//    @Override
-//    public CopySpec from(Object sourcePath, Closure c) {
-//        use(CopySpecEnhancement) {
-//            super.from(sourcePath, c)
-//        }
-//    }
-//
-//    @Override
-//    public CopySpecImpl into(Object destPath, Closure configureClosure) {
-//        use(CopySpecEnhancement) {
-//            super.into(destPath, configureClosure)
-//        }
-//    }
-//
-//    @Override
-//    public CopySpec exclude(Closure excludeSpec) {
-//        use(CopySpecEnhancement) {
-//            super.exclude(excludeSpec)
-//        }
-//    }
-//
-//    @Override
-//    public CopySpec filter(Closure closure) {
-//        use(CopySpecEnhancement) {
-//            super.filter(closure)
-//        }
-//    }
-//
-//    @Override
-//    public CopySpec rename(Closure closure) {
-//        use(CopySpecEnhancement) {
-//            super.rename(closure)
-//        }
-//    }
+    @Override
+    public CopySpecImpl from(Object sourcePath, Closure c) {
+        use(CopySpecEnhancement) {
+            super.from(sourcePath, c)
+        }
+        return this
+    }
+
+    @Override
+    public CopySpecImpl into(Object destPath, Closure configureClosure) {
+        use(CopySpecEnhancement) {
+            super.into(destPath, configureClosure)
+        }
+        return this
+    }
+
+    @Override
+    public CopySpecImpl exclude(Closure excludeSpec) {
+        use(CopySpecEnhancement) {
+            super.exclude(excludeSpec)
+        }
+        return this
+    }
+
+    @Override
+    public CopySpecImpl filter(Closure closure) {
+        use(CopySpecEnhancement) {
+            super.filter(closure)
+        }
+        return this
+    }
+
+    @Override
+    public CopySpecImpl rename(Closure closure) {
+        use(CopySpecEnhancement) {
+            super.rename(closure)
+        }
+        return this
+    }
 
 }

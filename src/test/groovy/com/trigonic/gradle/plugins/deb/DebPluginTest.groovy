@@ -90,7 +90,7 @@ class DebPluginTest {
             packageName = 'bleah'
             version = '1.0'
             release = '1'
-            group = 'Development/Libraries'
+            permissionGroup = 'Development/Libraries'
             summary = 'Bleah blarg'
             packageDescription = 'Not a very interesting library.'
             license = 'Free'
@@ -148,7 +148,7 @@ class DebPluginTest {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {})
         debTask.from(srcDir)

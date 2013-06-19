@@ -56,7 +56,7 @@ class RpmPluginTest {
             type = BINARY
             arch = I386
             os = LINUX
-            group = 'Development/Libraries'
+            permissionGroup = 'Development/Libraries'
             summary = 'Bleah blarg'
             packageDescription = 'Not a very interesting library.'
             license = 'Free'
@@ -128,13 +128,14 @@ class RpmPluginTest {
         project.apply plugin: 'rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            addParentDirs = true
             from(bananaFile.getParentFile()) {
-                into '/usr/local/myproduct/etc'
+                into '/usr/share/myproduct/etc'
                 createDirectoryEntry false
             }
             from(appleFile.getParentFile()) {
                 into '/usr/local/myproduct/bin'
-                createDirectoryEntry true
+                createDirectoryEntry = true
             }
         })
         rpmTask.execute()
@@ -142,8 +143,8 @@ class RpmPluginTest {
         // Evaluate response
         def scan = Scanner.scan(rpmTask.getArchivePath())
 
-        assertEquals(['./usr/local/myproduct/bin/etc/banana', './usr/local/myproduct/bin', './usr/local/myproduct/bin/src/apple'], scan.files*.name)
-        assertEquals([DIR, FILE], scan.files*.type)
+        assertEquals(['./usr/local', './usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'], scan.files*.name)
+        assertEquals([DIR, DIR, DIR, FILE, DIR, DIR, FILE], scan.files*.type)
 
     }
 
@@ -227,19 +228,19 @@ class RpmPluginTest {
         def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm')
-        rpmTask.group = 'GROUP'
+        rpmTask.permissionGroup = 'GROUP'
         rpmTask.requires('openjdk')
         rpmTask.link('/dev/null', '/dev/random')
 
         parentExten.user = 'USER'
-        parentExten.group = 'GROUP2'
+        parentExten.permissionGroup = 'GROUP2'
         parentExten.requires('java')
         parentExten.link('/tmp', '/var/tmp')
 
         project.description = 'DESCRIPTION'
 
         assertEquals 'USER', rpmTask.user // From Extension
-        assertEquals 'GROUP', rpmTask.group // From task, overriding extension
+        assertEquals 'GROUP', rpmTask.permissionGroup // From task, overriding extension
         assertEquals 'DESCRIPTION', rpmTask.packageDescription // From Project, even though extension could have a value
         assertEquals 2, rpmTask.getAllLinks().size()
         assertEquals 2, rpmTask.getAllDependencies().size()

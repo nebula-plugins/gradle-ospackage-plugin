@@ -112,4 +112,12 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
         result.toString()
 
     }
+
+    def static lookup(def specToLookAt, String propertyName) {
+        if (specToLookAt.metaClass.hasProperty(specToLookAt, propertyName) != null) {
+            return specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
+        } else {
+            return null
+        }
+    }
 }

@@ -23,23 +23,15 @@ import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.IConventionAware
 
 class Deb extends SystemPackagingTask {
     static final String DEB_EXTENSION = "deb";
 
-    int uid = 0
-    int gid = 0
-
     Deb() {
         super()
         extension = DEB_EXTENSION
-
-        // TODO Expose in parent extension, which might conflict with other formats
-//        aliasEnumValues(Architecture.values())
-//        aliasEnumValues(Os.values())
-//        aliasEnumValues(RpmType.values())
-//        aliasStaticInstances(Directive.class)
-//        aliasStaticInstances(Flags.class, int.class)
     }
 
     @Override
@@ -60,5 +52,19 @@ class Deb extends SystemPackagingTask {
     @Override
     protected AbstractPackagingCopySpecVisitor getVisitor() {
         return new DebCopySpecVisitor(this)
+    }
+
+    @Override
+    protected void applyConventions() {
+        super.applyConventions()
+
+        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
+        // to pull from the parentExten. And only then would we fallback on some other value.
+        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+
+        // Could come from extension
+        mapping.map('uid', { parentExten?.getUid()?:0 })
+        mapping.map('gid', { (parentExten?.getGid())?:0 })
+
     }
 }

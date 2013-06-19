@@ -23,13 +23,11 @@ import org.freecompany.redline.header.Flags
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.IConventionAware
 
 class Rpm extends SystemPackagingTask {
     static final String RPM_EXTENSION = "rpm";
-
-    Architecture arch = Architecture.NOARCH
-    Os os = Os.UNKNOWN
-    RpmType type = RpmType.BINARY
 
     Rpm() {
         super()
@@ -55,4 +53,21 @@ class Rpm extends SystemPackagingTask {
     protected AbstractPackagingCopySpecVisitor getVisitor() {
         return new RpmCopySpecVisitor(this)
     }
+
+    @Override
+    protected void applyConventions() {
+        super.applyConventions()
+
+        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
+        // to pull from the parentExten. And only then would we fallback on some other value.
+        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+
+        // Could come from extension
+        mapping.map('fileType', { parentExten?.getFileType() })
+        mapping.map('addParentDirs', { parentExten?.getAddParentDirs()?:true })
+        mapping.map('arch', { parentExten?.getArch()?:Architecture.NOARCH})
+        mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
+        mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
+    }
+
 }

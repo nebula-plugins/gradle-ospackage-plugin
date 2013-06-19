@@ -27,27 +27,27 @@ import org.junit.Test
 
 class RpmCopySpecVisitorTest {
     RpmCopySpecVisitor visitor
-    
+
     @Before
     public void setup() {
         visitor = new RpmCopySpecVisitor()
     }
-    
+
     @Test
     public void withoutUtils() {
         visitor.includeStandardDefines = false
         File script = resourceFile("script.sh")
-        Object result = visitor.scriptWithUtils(null, script)
+        Object result = visitor.scriptWithUtils([], [script])
         assertTrue result instanceof String
         assertEquals(
             "#!/bin/bash\n" +
             "hello\n", result)
     }
-    
+
     @Test
     public void withUtils() {
         visitor.includeStandardDefines = false
-        Object result = visitor.scriptWithUtils(resourceFile("utils.sh"), resourceFile("script.sh"))
+        Object result = visitor.scriptWithUtils([resourceFile("utils.sh")], [resourceFile("script.sh")])
         assertTrue result instanceof String
         assertEquals(
             "#!/bin/bash\n" +
@@ -56,7 +56,7 @@ class RpmCopySpecVisitorTest {
             "}\n" +
             "hello\n", result)
     }
-    
+
     File resourceFile(String name) {
         new File(getClass().getResource(name).getPath())
     }

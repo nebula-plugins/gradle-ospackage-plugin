@@ -37,7 +37,7 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
 
     Rpm rpmTask
     Builder builder
-    boolean includeStandardDefines = true
+    boolean includeStandardDefines = true // candidate for being pushed up to packaging level
 
     RpmCopySpecVisitor(Rpm rpmTask) {
         super(rpmTask)
@@ -72,10 +72,10 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         }
         builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-        builder.setPreInstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPreInstallCommands))
-        builder.setPostInstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPostInstallCommands))
-        builder.setPreUninstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPreUninstallCommands))
-        builder.setPostUninstallScript(scriptWithUtils(rpmTask.allInstallUtils, rpmTask.allPostUninstallCommands))
+        builder.setPreInstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPreInstallCommands))
+        builder.setPostInstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPostInstallCommands))
+        builder.setPreUninstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPreUninstallCommands))
+        builder.setPostUninstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPostUninstallCommands))
     }
 
     @Override
@@ -85,33 +85,38 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
         //if (fileDetails instanceof MappingCopySpecVisitor.FileVisitDetailsImpl && fileDetails.filterChain.hasFilters()) {
         // TODO Issue #30, we need to pass in a URL instead a File, so that we can provide openConnection and avoid FileInputStream
         //}
+        def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
+        def addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
         builder.addFile(
                 "/" + fileDetails.relativePath.pathString,
                 fileDetails.file,
-                (int) (specToLookAt.fileMode?: -1),
+                (int) (lookup(specToLookAt, 'fileMode')?: -1),
                 -1,
-                (Directive) (specToLookAt.fileType),
-                (String) specToLookAt.user ?: rpmTask.user,
-                (String) (specToLookAt.group ?: rpmTask.group),
-                (boolean) (specToLookAt.addParentDirs)
+                (Directive) lookup(specToLookAt, 'fileType'),
+                (String) lookup(specToLookAt, 'user') ?: rpmTask.user,
+                (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup,
+                (boolean) addParentsDir
         )
     }
 
     @Override
     void visitDir(FileVisitDetails dirDetails) {
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-        boolean createDirectoryEntry = (specToLookAt.hasProperty('createDirectoryEntry') &&  specToLookAt.createDirectoryEntry != null) ?
-            specToLookAt.createDirectoryEntry as Boolean :
-            rpmTask.createDirectoryEntry
+
+        // Have to take booleans specially, since they would fail an elvis operator if set to false
+        def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
+        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : rpmTask.createDirectoryEntry
+        def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
+        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
         if (createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory(
                     "/" + dirDetails.relativePath.pathString,
-                    (int) (specToLookAt.dirMode?: -1),
-                    (Directive) (specToLookAt.fileType),
-                    (String) (specToLookAt.user ?: rpmTask.user),
-                    (String) (specToLookAt.group ?: rpmTask.group),
-                    (boolean) (specToLookAt.addParentDirs)
+                    (int) (lookup(specToLookAt, 'dirMode') ?: -1),
+                    (Directive) lookup(specToLookAt, 'fileType') ?: rpmTask.fileType,
+                    (String) lookup(specToLookAt, 'user') ?: rpmTask.user,
+                    (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup,
+                    (boolean) addParentsDir
             )
         }
     }

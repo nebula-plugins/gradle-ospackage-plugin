@@ -25,6 +25,8 @@ import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.IConventionAware
 
 class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {

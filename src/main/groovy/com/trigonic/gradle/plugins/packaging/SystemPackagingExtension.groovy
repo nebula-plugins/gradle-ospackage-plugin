@@ -1,4 +1,10 @@
 package com.trigonic.gradle.plugins.packaging
+
+import org.freecompany.redline.header.Architecture
+import org.freecompany.redline.header.Os
+import org.freecompany.redline.header.RpmType
+import org.freecompany.redline.payload.Directive
+
 /**
  * Extension that can be used to configure both DEB and RPM.
  *
@@ -12,9 +18,9 @@ class SystemPackagingExtension {
     String packageName
     String release
 
-    // Metadata
+    // Metadata, some are probably specific to a type
     String user
-    String group
+    String permissionGroup // Group is used by Gradle on tasks.
     String packageGroup
     String buildHost
     String summary
@@ -27,13 +33,24 @@ class SystemPackagingExtension {
     String sourcePackage
     String provides
 
+    // RPM Only
+    Directive fileType
+    Boolean createDirectoryEntry
+    Boolean addParentDirs
+    Architecture arch
+    Os os
+    RpmType type
+
+    // DEB Only
+    Integer uid
+    Integer gid
+
     // Scripts
-    final List<Object> installUtilCommands = []
     final List<Object> preInstallCommands = []
     final List<Object> postInstallCommands = []
     final List<Object> preUninstallCommands = []
     final List<Object> postUninstallCommands = []
-
+    final List<Object> commonCommands = []
 
     /**
      * For backwards compatibility
@@ -44,12 +61,12 @@ class SystemPackagingExtension {
     }
 
     def installUtils(String script) {
-        installUtilCommands << script
+        commonCommands << script
         return this
     }
 
     def installUtils(File script) {
-        installUtilCommands << script
+        commonCommands << script
         return this
     }
 

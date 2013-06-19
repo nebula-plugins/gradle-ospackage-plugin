@@ -19,6 +19,7 @@ package com.trigonic.gradle.plugins.packaging
 import org.gradle.api.file.CopySourceSpec
 import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.DynamicObjectAware
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopyActionImpl
@@ -34,10 +35,6 @@ import java.lang.reflect.Modifier
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static Logger logger = Logging.getLogger(SystemPackagingTask);
-
-    def fileType = null
-    boolean createDirectoryEntry = true
-    boolean addParentDirs = true
 
     final SystemPackagingCopyAction action
 
@@ -60,7 +57,8 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    def applyConventions() {
+    // TODO Move outside task, since it's specific to a plugin
+    protected void applyConventions() {
         // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
         // to pull from the parentExten. And only then would we fallback on some other value.
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
@@ -71,8 +69,8 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             parentExten?.getPackageName()?:getBaseName()
         })
         mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
-        mapping.map('user', { parentExten?.getUser()?:getPackager() })
-        mapping.map('group', { parentExten?.getGroup() })
+        mapping.map('user', { parentExten?.getUser()?:getPackager()?:"" })
+        mapping.map('permissionGroup', { parentExten?.getPermissionGroup()?:"" })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() })
         mapping.map('buildHost', { parentExten?.getBuildHost()?:getLocalHostName() })
         mapping.map('summary', { parentExten?.getSummary()?:getPackageName() })
@@ -84,6 +82,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('url', { parentExten?.getUrl() })
         mapping.map('sourcePackage', { parentExten?.getSourcePackage() })
         mapping.map('provides', { parentExten?.getProvides()?:getPackageName() })
+        mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry()?:false })
 
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
@@ -107,10 +106,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    def getAllInstallUtils() {
-        return getInstallUtils() + parentExten?.getInstallUtils()
-    }
-
     def getAllPreInstallCommands() {
         return getPreInstallCommands() + parentExten?.getPreInstallCommands()
     }
@@ -125,6 +120,10 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     def getAllPostUninstallCommands() {
         return getPostUninstallCommands() + parentExten?.getPostUninstallCommands()
+    }
+
+    def getAllCommonCommands() {
+        return getCommonCommands() + parentExten?.getCommonCommands()
     }
 
     List<Link> getAllLinks() {
@@ -181,39 +180,44 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-//    @Override
-//    public AbstractCopyTask from(Object sourcePath, Closure c) {
-//        use(CopySpecEnhancement) {
-//            super.from(sourcePath, c)
-//        }
-//    }
-//
-//    @Override
-//    def AbstractArchiveTask into(Object destPath, Closure configureClosure) {
-//        use(CopySpecEnhancement) {
-//            super.into(destPath, configureClosure)
-//        }
-//    }
-//
-//    @Override
-//    public AbstractCopyTask exclude(Closure excludeSpec) {
-//        use(CopySpecEnhancement) {
-//            super.exclude(excludeSpec)
-//        }
-//    }
-//
-//    @Override
-//    public AbstractCopyTask filter(Closure closure) {
-//        use(CopySpecEnhancement) {
-//            super.filter(closure)
-//        }
-//    }
-//
-//    @Override
-//    public AbstractCopyTask rename(Closure closure) {
-//        use(CopySpecEnhancement) {
-//            super.rename(closure)
-//        }
-//    }
+    @Override
+    public AbstractCopyTask from(Object sourcePath, Closure c) {
+        use(CopySpecEnhancement) {
+            getMainSpec().from(sourcePath, c);
+        }
+        return this
+    }
+
+    @Override
+    def AbstractArchiveTask into(Object destPath, Closure configureClosure) {
+        use(CopySpecEnhancement) {
+            getMainSpec().into(destPath, configureClosure)
+        }
+        return this
+    }
+
+    @Override
+    public AbstractCopyTask exclude(Closure excludeSpec) {
+        use(CopySpecEnhancement) {
+            getMainSpec().exclude(excludeSpec)
+        }
+        return this
+    }
+
+    @Override
+    public AbstractCopyTask filter(Closure closure) {
+        use(CopySpecEnhancement) {
+            getMainSpec().filter(closure)
+        }
+        return this
+    }
+
+    @Override
+    public AbstractCopyTask rename(Closure closure) {
+        use(CopySpecEnhancement) {
+            getMainSpec().rename(closure)
+        }
+        return this
+    }
 
 }
