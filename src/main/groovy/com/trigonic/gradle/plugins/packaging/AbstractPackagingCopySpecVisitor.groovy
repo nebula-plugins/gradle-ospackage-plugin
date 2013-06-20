@@ -16,8 +16,10 @@
 
 package com.trigonic.gradle.plugins.packaging
 
+import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecVisitor
+import org.gradle.api.internal.file.copy.MappingCopySpecVisitor
 import org.gradle.api.internal.file.copy.ReadableCopySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -26,7 +28,8 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
     static final Logger logger = LoggerFactory.getLogger(AbstractPackagingCopySpecVisitor.class)
 
     SystemPackagingTask task
-    File destinationDir
+    File tempDir
+    Collection<File> filteredFiles = []
     ReadableCopySpec spec
     boolean didWork
 
@@ -37,9 +40,11 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
     @Override
     void startVisit(CopyAction action) {
         // Delay reading destinationDir until we start executing
-        destinationDir = task.destinationDir
+        tempDir = task.getTemporaryDir()
         didWork = false
     }
+
+    // Implementation provide visitFile and visitDir directly.
 
     @Override
     void visitSpec(ReadableCopySpec spec) {
@@ -59,6 +64,9 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
         }
 
         end()
+
+        // TODO Clean up filteredFiles
+
         // TODO Investigate, we seem to always set to true.
         didWork = true
     }
@@ -119,5 +127,23 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
         } else {
             return null
         }
+    }
+
+    /**
+     * Look at FileDetails to get a file. If it's filtered file, we need to write it out to the filesystem ourselves.
+     * Issue #30, FileVisitDetailsImpl won't give us file, since it filters on the fly.
+     */
+    File extractFile(FileVisitDetails fileDetails) {
+        File outputFile = null
+        try {
+            outputFile = fileDetails.getFile()
+        } catch (UnsupportedOperationException uoe) {
+            // Can't access MappingCopySpecVisitor.FileVisitDetailsImpl since it's private, so we have to probe. We would test this:
+            // if (fileDetails instanceof MappingCopySpecVisitor.FileVisitDetailsImpl && fileDetails.filterChain.hasFilters())
+            outputFile = new File(tempDir, fileDetails.name)
+            fileDetails.copyTo(outputFile)
+            filteredFiles << outputFile
+        }
+        return outputFile
     }
 }

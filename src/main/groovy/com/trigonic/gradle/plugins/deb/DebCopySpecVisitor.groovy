@@ -80,15 +80,17 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-        dataProducers << new DataProducerFileSimple(
-                "/" + fileDetails.relativePath.pathString,
-                fileDetails.file,
-                lookup(specToLookAt, 'user') ?: debTask.user,
-                (int) (lookup(specToLookAt, 'uid')?: debTask.uid),
-                lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup,
-                (int) (lookup(specToLookAt, 'gid')?: debTask.gid),
-                (lookup(specToLookAt, 'fileMode') ?: 0) // TODO see if -1 works for mode
-        )
+
+        def outputFile = extractFile(fileDetails)
+
+        String path = "/" + fileDetails.relativePath.pathString
+        String user = lookup(specToLookAt, 'user') ?: debTask.user
+        int uid = (int) (lookup(specToLookAt, 'uid') ?: debTask.uid)
+        String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
+        int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
+        int fileMode = (int) (lookup(specToLookAt, 'fileMode') ?: 0)  // TODO see if -1 works for mode
+
+        dataProducers << new DataProducerFileSimple(path, outputFile, user, uid, group, gid, fileMode)
     }
 
     @Override

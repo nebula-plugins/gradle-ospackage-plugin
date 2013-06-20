@@ -149,7 +149,6 @@ class RpmPluginTest {
     }
 
     @Test
-    @Ignore
     void filter_expression() {
         Project project = ProjectBuilder.builder().build()
         project.version = '1.0.0'

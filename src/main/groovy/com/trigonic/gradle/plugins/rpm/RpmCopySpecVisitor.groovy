@@ -26,6 +26,8 @@ import org.freecompany.redline.payload.Directive
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecImpl
+import org.gradle.api.internal.file.copy.MappingCopySpecVisitor
+import org.gradle.api.internal.file.copy.ReadableCopySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -81,21 +83,19 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     void visitFile(FileVisitDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-        //if (fileDetails instanceof MappingCopySpecVisitor.FileVisitDetailsImpl && fileDetails.filterChain.hasFilters()) {
-        // TODO Issue #30, we need to pass in a URL instead a File, so that we can provide openConnection and avoid FileInputStream
-        //}
+
+        def outputFile = extractFile(fileDetails)
+
+        def path = "/" + fileDetails.relativePath.pathString
+        int fileMode = lookup(specToLookAt, 'fileMode') ?: -1
+        Directive fileType = lookup(specToLookAt, 'fileType')
+        String user = lookup(specToLookAt, 'user') ?: rpmTask.user
+        String group = lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
+
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        def addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
-        builder.addFile(
-                "/" + fileDetails.relativePath.pathString,
-                fileDetails.file,
-                (int) (lookup(specToLookAt, 'fileMode')?: -1),
-                -1,
-                (Directive) lookup(specToLookAt, 'fileType'),
-                (String) lookup(specToLookAt, 'user') ?: rpmTask.user,
-                (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup,
-                (boolean) addParentsDir
-        )
+        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
+
+        builder.addFile( path, outputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
 
     @Override
