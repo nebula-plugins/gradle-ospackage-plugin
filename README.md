@@ -31,7 +31,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
 
 # Gradle DEB plugin
 
-[Format Documentation](Plugin-Deb.md)
+[Formal Documentation](Plugin-Deb.md)
 
 This plugin provides Gradle-based assembly of DEB packages, typically for Linux distributions
 derived from Debian, e.g. Ubuntu.  It leverages [JDeb](https://github.com/tcurdt/jdeb) Java library.
