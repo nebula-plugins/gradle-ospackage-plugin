@@ -147,8 +147,6 @@ class SystemPackagingExtension {
 
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
     List<Link> links = new ArrayList<Link>()
-    List<Dependency> dependencies = new ArrayList<Dependency>();
-
     Link link(String path, String target) {
         link(path, target, -1)
     }
@@ -161,6 +159,8 @@ class SystemPackagingExtension {
         links.add(link)
         link
     }
+
+    List<Dependency> dependencies = new ArrayList<Dependency>();
 
     Dependency requires(String packageName, String version, int flag) {
         Dependency dep = new Dependency()
