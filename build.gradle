@@ -14,8 +14,12 @@ dependencies {
     compile gradleApi()
     compile 'org.redline-rpm:redline:1.1.10'
     compile('org.vafer:jdeb:1.0.1') {
-        exclude group: 'org.apache.maven'
-        exclude group: 'org.codehaus.plexus'
+        // Individual listing so that they translate into the pom file
+        exclude group: 'org.apache.maven', module: 'maven-core'
+        exclude group: 'org.apache.maven', module: 'maven-plugin-api'
+        exclude group: 'org.apache.maven', module: 'maven-project'
+        exclude group: 'org.apache.maven', module: 'maven-artifact'
+        exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
     compile localGroovy()
