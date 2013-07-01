@@ -13,7 +13,10 @@ repositories {
 dependencies {
     compile gradleApi()
     compile 'org.redline-rpm:redline:1.1.10'
-    compile 'org.vafer:jdeb:1.0.1'
+    compile('org.vafer:jdeb:1.0.1') {
+        exclude group: 'org.apache.maven'
+        exclude group: 'org.codehaus.plexus'
+    }
 
     compile localGroovy()
 
