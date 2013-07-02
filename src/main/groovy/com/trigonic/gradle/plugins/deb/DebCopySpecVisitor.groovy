@@ -179,12 +179,13 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
                 description: debTask.getPackageDescription(),
                 distribution: debTask.getDistribution(),
                 summary: debTask.getSummary(),
-                section: debTask.getPackageGroup(), // TODO See how similar these fields are
+                section: debTask.getPackageGroup(),
                 time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
                 epoch: (new Date().getTime() / 1000) as long,
                 provides: debTask.getProvides(),
                 depends: StringUtils.join(dependencies, ", "),
                 url: debTask.getUrl(),
+                arch: debTask.getArchString(),
 
                 // Uses install command for directory
                 dirs: installDirs.collect { InstallDir dir ->

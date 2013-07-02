@@ -41,7 +41,7 @@ class Deb extends SystemPackagingTask {
 
     @Override
     protected String getArchString() {
-        return 'all';
+        return 'all'; // TODO Make this configurable
     }
 
     @Override
@@ -60,6 +60,7 @@ class Deb extends SystemPackagingTask {
         // Could come from extension
         mapping.map('uid', { parentExten?.getUid()?:0 })
         mapping.map('gid', { (parentExten?.getGid())?:0 })
+        mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
 
     }
 }

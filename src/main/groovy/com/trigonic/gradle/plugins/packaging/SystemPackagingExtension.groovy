@@ -22,6 +22,15 @@ class SystemPackagingExtension {
     // Metadata, some are probably specific to a type
     String user
     String permissionGroup // Group is used by Gradle on tasks.
+
+    /**
+     * In Debian, this is the Section and has to be provided. Valid values are: admin, cli-mono, comm, database, debug,
+     * devel, doc, editors, education, electronics, embedded, fonts, games, gnome, gnu-r, gnustep, graphics, hamradio,
+     * haskell, httpd, interpreters, introspection, java, kde, kernel, libdevel, libs, lisp, localization, mail, math,
+     * metapackages, misc, net, news, ocaml, oldlibs, otherosfs, perl, php, python, ruby, science, shells, sound, tasks,
+     * tex, text, utils, vcs, video, web, x11, xfce, zope. The section can be prefixed with contrib or non-free, if
+     * not part of main.
+     */
     String packageGroup
     String buildHost
     String summary

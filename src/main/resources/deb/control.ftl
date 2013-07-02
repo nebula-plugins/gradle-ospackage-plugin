@@ -8,7 +8,7 @@ Standards-Version: 3.8.3
 Package: ${name}
 Provides: ${provides}
 Homepage: ${url}
-Architecture: all
+Architecture: ${arch}
 Distribution: unstable
 Depends: ${depends}
 Description: ${summary}
