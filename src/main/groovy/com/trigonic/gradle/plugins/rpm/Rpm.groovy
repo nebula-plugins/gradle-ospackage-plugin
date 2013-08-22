@@ -25,6 +25,7 @@ import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.internal.reflect.Instantiator
 import org.gradle.api.internal.file.copy.CopyActionImpl
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
@@ -59,7 +60,7 @@ class Rpm extends AbstractArchiveTask {
     List<Dependency> dependencies = new ArrayList<Dependency>();
 
     Rpm() {
-        action = new RpmCopyAction(services.get(FileResolver.class))
+        action = new RpmCopyAction(services.get(Instantiator.class), services.get(FileResolver.class))
         extension = RPM_EXTENSION
 
         packageName = project.archivesBaseName
@@ -150,8 +151,8 @@ class Rpm extends AbstractArchiveTask {
     }
 
     class RpmCopyAction extends CopyActionImpl {
-        public RpmCopyAction(FileResolver resolver) {
-            super(resolver, new RpmCopySpecVisitor());
+        public RpmCopyAction(Instantiator instantiator, FileResolver resolver) {
+            super(instantiator, resolver, new RpmCopySpecVisitor());
         }
 
         Rpm getTask() {

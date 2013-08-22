@@ -18,7 +18,7 @@ package com.trigonic.gradle.plugins.rpm
 
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
-import org.gradle.api.file.FileVisitDetails
+import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.EmptyCopySpecVisitor
 import org.gradle.api.internal.file.copy.ReadableCopySpec
@@ -76,7 +76,7 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     }
 
     @Override
-    void visitFile(FileVisitDetails fileDetails) {
+    void visitFile(FileCopyDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         builder.addFile "/" + fileDetails.relativePath.pathString, fileDetails.file,
             spec.fileMode == null ? -1 : spec.fileMode, -1, spec.fileType, spec.user ?: task.user, spec.group ?: task.group,
@@ -84,7 +84,7 @@ class RpmCopySpecVisitor extends EmptyCopySpecVisitor {
     }
 
     @Override
-    void visitDir(FileVisitDetails dirDetails) {
+    void visitDir(FileCopyDetails dirDetails) {
         if (spec.createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             builder.addDirectory "/" + dirDetails.relativePath.pathString, spec.dirMode == null ? -1 : spec.dirMode,
