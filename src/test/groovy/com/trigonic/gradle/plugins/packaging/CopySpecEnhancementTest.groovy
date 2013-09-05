@@ -9,7 +9,7 @@ class CopySpecEnhancementTest {
 
     @Test
     public void addUser() {
-        def spec = new CopySpecImpl(null)
+        def spec = new CopySpecImpl(null, null)
         assertNull( spec.metaClass.hasProperty('user'))
 
         CopySpecEnhancement.user(spec, 'USER')
@@ -19,7 +19,7 @@ class CopySpecEnhancementTest {
 
     @Test
     public void addAddParentDirs() {
-        def spec = new CopySpecImpl(null)
+        def spec = new CopySpecImpl(null, null)
         CopySpecEnhancement.setAddParentDirs(spec, true)
 
         assertEquals(true, spec.addParentDirs )

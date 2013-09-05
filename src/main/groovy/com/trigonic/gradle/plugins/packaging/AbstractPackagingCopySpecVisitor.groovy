@@ -19,7 +19,6 @@ package com.trigonic.gradle.plugins.packaging
 import org.gradle.api.file.FileVisitDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecVisitor
-import org.gradle.api.internal.file.copy.MappingCopySpecVisitor
 import org.gradle.api.internal.file.copy.ReadableCopySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

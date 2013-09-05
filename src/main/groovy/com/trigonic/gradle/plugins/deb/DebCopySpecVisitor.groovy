@@ -24,7 +24,7 @@ import groovy.transform.Canonical
 import org.apache.commons.lang.StringUtils
 import org.apache.commons.lang.time.DateFormatUtils
 import org.gradle.api.GradleException
-import org.gradle.api.file.FileVisitDetails
+import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.slf4j.Logger
@@ -77,7 +77,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitFile(FileVisitDetails fileDetails) {
+    void visitFile(FileCopyDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
@@ -94,7 +94,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitDir(FileVisitDetails dirDetails) {
+    void visitDir(FileCopyDetails dirDetails) {
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')

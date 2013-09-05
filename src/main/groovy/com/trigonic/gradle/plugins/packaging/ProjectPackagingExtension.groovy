@@ -3,6 +3,7 @@ package com.trigonic.gradle.plugins.packaging
 import org.gradle.api.Project
 import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.internal.project.ProjectInternal
+import org.gradle.internal.reflect.Instantiator
 
 /**
  * An extension which can be attached to the project. This is a superset of SystemPackagingExtension because we don't
@@ -14,7 +15,7 @@ class ProjectPackagingExtension extends CopySpecImpl {
 
     // @Inject // Not supported yet.
     public ProjectPackagingExtension(Project project) {
-        super( ((ProjectInternal) project).getFileResolver() )
+        super( ((ProjectInternal) project).getFileResolver(), project.getServices().get(Instantiator.class) )
         exten = new SystemPackagingExtension()
     }
 

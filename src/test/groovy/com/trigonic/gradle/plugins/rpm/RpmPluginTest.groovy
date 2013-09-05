@@ -71,12 +71,12 @@ class RpmPluginTest {
             from(srcDir)
 
             from(srcDir.toString() + '/main/groovy') {
-                createDirectoryEntry = true
+                createDirectoryEntry true
                 fileType = CONFIG | NOREPLACE
             }
 
             from(noParentsDir) {
-                addParentDirs = false
+                addParentDirs false
                 into '/a/path/not/to/create'
             }
 
@@ -273,7 +273,7 @@ class RpmPluginTest {
             into('/usr/local/src')
         }
         parentExten.from(etcDir) {
-            createDirectoryEntry = true
+            createDirectoryEntry true
             into('/conf/defaults')
         }
 

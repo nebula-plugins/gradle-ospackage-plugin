@@ -53,7 +53,7 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
 
         // Postpone value until later
         // TODO Have the extension mimic the tasks
-        ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
+        //ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
 
         return extension
     }

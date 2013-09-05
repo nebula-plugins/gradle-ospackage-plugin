@@ -23,11 +23,9 @@ import com.trigonic.gradle.plugins.packaging.Link
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
 import org.freecompany.redline.payload.Directive
-import org.gradle.api.file.FileVisitDetails
+import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopySpecImpl
-import org.gradle.api.internal.file.copy.MappingCopySpecVisitor
-import org.gradle.api.internal.file.copy.ReadableCopySpec
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -80,7 +78,7 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitFile(FileVisitDetails fileDetails) {
+    void visitFile(FileCopyDetails fileDetails) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
@@ -99,7 +97,7 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitDir(FileVisitDetails dirDetails) {
+    void visitDir(FileCopyDetails dirDetails) {
         def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
         // Have to take booleans specially, since they would fail an elvis operator if set to false
