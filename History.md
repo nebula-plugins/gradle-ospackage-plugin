@@ -1,5 +1,12 @@
-v1.4 -
+v2.0 - TDB
 =================
+  * Add support for debian files
+  * Add extension that can configure all packaging tasks
+
+v1.4 - 2013-08-28
+=================
+  * issue #44: Gradle 1.7 incompatibility
+  * issue #29: optional parents info
   * issue #18: add syntactic sugar to easily combine file type
     directives with a logical or (|)
 

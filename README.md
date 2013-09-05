@@ -101,7 +101,7 @@ buildRpm {
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:1.3'
+            classpath 'com.trigonic:gradle-rpm-plugin:2.0'
         }
     }
 
