@@ -103,7 +103,7 @@ class SystemPackagingExtension {
      * @param script
      */
     def setPostInstall(File script) {
-        preInstall(script)
+        postInstall(script)
     }
 
     def postInstall(String script) {
