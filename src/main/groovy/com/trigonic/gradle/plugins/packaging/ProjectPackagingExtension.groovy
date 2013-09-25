@@ -1,7 +1,7 @@
 package com.trigonic.gradle.plugins.packaging
 
 import org.gradle.api.Project
-import org.gradle.api.internal.file.copy.CopySpecImpl
+import org.gradle.api.internal.file.copy.DefaultCopySpec
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.internal.reflect.Instantiator
 
@@ -9,7 +9,7 @@ import org.gradle.internal.reflect.Instantiator
  * An extension which can be attached to the project. This is a superset of SystemPackagingExtension because we don't
  * want the @Delegate to inherit the copy spec parts.
  */
-class ProjectPackagingExtension extends CopySpecImpl {
+class ProjectPackagingExtension extends DefaultCopySpec {
     @Delegate
     SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
 
@@ -20,7 +20,7 @@ class ProjectPackagingExtension extends CopySpecImpl {
     }
 
     @Override
-    public CopySpecImpl from(Object sourcePath, Closure c) {
+    public DefaultCopySpec from(Object sourcePath, Closure c) {
         use(CopySpecEnhancement) {
             super.from(sourcePath, c)
         }
@@ -28,7 +28,7 @@ class ProjectPackagingExtension extends CopySpecImpl {
     }
 
     @Override
-    public CopySpecImpl into(Object destPath, Closure configureClosure) {
+    public DefaultCopySpec into(Object destPath, Closure configureClosure) {
         use(CopySpecEnhancement) {
             super.into(destPath, configureClosure)
         }
@@ -36,7 +36,7 @@ class ProjectPackagingExtension extends CopySpecImpl {
     }
 
     @Override
-    public CopySpecImpl exclude(Closure excludeSpec) {
+    public DefaultCopySpec exclude(Closure excludeSpec) {
         use(CopySpecEnhancement) {
             super.exclude(excludeSpec)
         }
@@ -44,7 +44,7 @@ class ProjectPackagingExtension extends CopySpecImpl {
     }
 
     @Override
-    public CopySpecImpl filter(Closure closure) {
+    public DefaultCopySpec filter(Closure closure) {
         use(CopySpecEnhancement) {
             super.filter(closure)
         }
@@ -52,7 +52,7 @@ class ProjectPackagingExtension extends CopySpecImpl {
     }
 
     @Override
-    public CopySpecImpl rename(Closure closure) {
+    public DefaultCopySpec rename(Closure closure) {
         use(CopySpecEnhancement) {
             super.rename(closure)
         }

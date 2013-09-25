@@ -17,40 +17,69 @@
 package com.trigonic.gradle.plugins.packaging
 
 import org.gradle.api.file.FileVisitDetails
-import org.gradle.api.internal.file.copy.CopyAction
-import org.gradle.api.internal.file.copy.CopySpecVisitor
-import org.gradle.api.internal.file.copy.ReadableCopySpec
+import org.gradle.api.internal.file.CopyActionProcessingStreamAction
+import org.gradle.api.internal.file.copy.*
+import org.gradle.api.internal.tasks.SimpleWorkResult
+import org.gradle.api.tasks.WorkResult
+import org.gradle.internal.UncheckedException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisitor {
-    static final Logger logger = LoggerFactory.getLogger(AbstractPackagingCopySpecVisitor.class)
+import java.lang.reflect.Field
+
+public abstract class AbstractPackagingCopyAction implements CopyAction {
+    static final Logger logger = LoggerFactory.getLogger(AbstractPackagingCopyAction.class)
 
     SystemPackagingTask task
     File tempDir
     Collection<File> filteredFiles = []
-    ReadableCopySpec spec
-    boolean didWork
 
-    protected AbstractPackagingCopySpecVisitor(SystemPackagingTask task) {
+    protected AbstractPackagingCopyAction(SystemPackagingTask task) {
         this.task = task
     }
 
-    @Override
+    public WorkResult execute(CopyActionProcessingStream stream) {
+
+        try {
+            startVisit(this)
+            stream.process(new StreamAction());
+            endVisit()
+        } catch (Exception e) {
+            UncheckedException.throwAsUncheckedException(e);
+        } finally {
+            visitFinally()
+        }
+
+        return new SimpleWorkResult(true);
+    }
+
+    // Not a static class
+    private class StreamAction implements CopyActionProcessingStreamAction {
+        public void processFile(FileCopyDetailsInternal details) {
+            // While decoupling the spec from the action is nice, it contains some needed info
+            def ourSpec = extractSpec(details) // Can be null
+            if (details.isDirectory()) {
+                visitDir(details, ourSpec);
+            } else {
+                visitFile(details, ourSpec);
+            }
+        }
+    }
+
+    protected abstract void visitDir(FileCopyDetailsInternal dirDetails, def specToLookAt)
+    protected abstract void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt)
+    protected abstract void addLink(Link link);
+    protected abstract void addDependency(Dependency dependency);
+    protected abstract void end();
+
     void startVisit(CopyAction action) {
         // Delay reading destinationDir until we start executing
         tempDir = task.getTemporaryDir()
-        didWork = false
     }
 
-    // Implementation provide visitFile and visitDir directly.
-
-    @Override
-    void visitSpec(ReadableCopySpec spec) {
-        this.spec = spec
+    void visitFinally(Exception e) {
     }
 
-    @Override
     void endVisit() {
         for (Link link : task.getAllLinks()) {
             logger.debug "adding link {} -> {}", link.path, link.target
@@ -67,16 +96,6 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
         // TODO Clean up filteredFiles
 
         // TODO Investigate, we seem to always set to true.
-        didWork = true
-    }
-
-    protected abstract void addLink(Link link);
-    protected abstract void addDependency(Dependency dependency);
-    protected abstract void end();
-
-    @Override
-    boolean getDidWork() {
-        didWork
     }
 
     String concat(Collection<Object> scripts) {
@@ -121,13 +140,27 @@ public abstract class AbstractPackagingCopySpecVisitor implements CopySpecVisito
     }
 
     def static lookup(def specToLookAt, String propertyName) {
-        if (specToLookAt.metaClass.hasProperty(specToLookAt, propertyName) != null) {
+        if (specToLookAt?.metaClass?.hasProperty(specToLookAt, propertyName) != null) {
             return specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
         } else {
             return null
         }
     }
 
+    CopySpecInternal extractSpec(FileCopyDetailsInternal fileDetails) {
+        if (fileDetails instanceof DefaultFileCopyDetails) {
+            def startingClass = fileDetails.getClass() // It's in there somewhere
+            while( startingClass != null && startingClass != DefaultFileCopyDetails) {
+                startingClass = startingClass.superclass
+            }
+            Field specField = startingClass.getDeclaredField('spec')
+            specField.setAccessible(true)
+            CopySpecInternal ret = specField.get(fileDetails)
+            return ret
+        } else {
+            return null
+        }
+    }
     /**
      * Look at FileDetails to get a file. If it's filtered file, we need to write it out to the filesystem ourselves.
      * Issue #30, FileVisitDetailsImpl won't give us file, since it filters on the fly.

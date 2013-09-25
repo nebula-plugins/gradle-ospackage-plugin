@@ -16,23 +16,16 @@
 
 package com.trigonic.gradle.plugins.packaging
 
-import org.codehaus.groovy.runtime.GroovyCategorySupport
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
-import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.internal.file.copy.CopyActionImpl
-import org.gradle.api.internal.file.copy.CopySpecImpl
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.AbstractCopyTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
-import org.gradle.internal.reflect.Instantiator
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static Logger logger = Logging.getLogger(SystemPackagingTask);
-
-    final SystemPackagingCopyAction action
 
     @Delegate
     SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
@@ -43,13 +36,12 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     SystemPackagingTask() {
         super()
-        action = new SystemPackagingCopyAction(services.get(Instantiator.class), services.get(FileResolver.class), getVisitor())
         exten = new SystemPackagingExtension()
 
         // I have no idea where Project came from
         parentExten = project.extensions.findByType(ProjectPackagingExtension)
         if(parentExten) {
-            getCopyAction().with(parentExten)
+            getRootSpec().with(parentExten)
         }
     }
 
@@ -139,19 +131,10 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    CopyActionImpl getCopyAction() {
-        action
-    }
+    @Override
+    abstract AbstractPackagingCopyAction createCopyAction()
 
     protected abstract String getArchString();
-
-    protected abstract AbstractPackagingCopySpecVisitor getVisitor();
-
-    class SystemPackagingCopyAction extends CopyActionImpl {
-        public SystemPackagingCopyAction(Instantiator instantiator, FileResolver resolver, AbstractPackagingCopySpecVisitor visitor) {
-            super(instantiator, resolver, visitor);
-        }
-    }
 
     @Override
     public AbstractCopyTask from(Object sourcePath, Closure c) {

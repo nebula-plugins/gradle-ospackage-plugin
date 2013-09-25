@@ -6,6 +6,8 @@ import com.trigonic.gradle.plugins.rpm.Scanner
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.Copy
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
 
@@ -47,12 +49,15 @@ class SystemPackagingPluginTest {
         File srcDir = new File(buildDir, 'src')
         srcDir.mkdirs()
 
+        // Create some content, or else source will be empty
+        new File(srcDir, 'a.java').text = "public class A { }"
+
         project.apply plugin: 'os-package'
 
         def ext = project.getExtensions().getByType(ProjectPackagingExtension)
         ext.from(srcDir)
 
-        Task debTask = project.tasks.getByName('buildDeb')
+        Deb debTask = project.tasks.getByName('buildDeb')
         assertTrue("Task should have inputs from extension", debTask.inputs.hasInputs)
         assertTrue("Should have sourceFiles from extension", debTask.inputs.hasSourceFiles)
         assertTrue("Should have source from extension", !debTask.getSource().empty)

@@ -16,7 +16,7 @@
 
 package com.trigonic.gradle.plugins.deb
 
-import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
+import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.trigonic.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
@@ -45,8 +45,8 @@ class Deb extends SystemPackagingTask {
     }
 
     @Override
-    protected AbstractPackagingCopySpecVisitor getVisitor() {
-        return new DebCopySpecVisitor(this)
+    AbstractPackagingCopyAction createCopyAction() {
+        return new DebCopyAction(this)
     }
 
     @Override

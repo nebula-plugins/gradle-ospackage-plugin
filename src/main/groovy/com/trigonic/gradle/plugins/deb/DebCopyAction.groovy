@@ -16,7 +16,7 @@
 
 package com.trigonic.gradle.plugins.deb
 
-import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
+import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.trigonic.gradle.plugins.packaging.Dependency
 import com.trigonic.gradle.plugins.packaging.Link
 import groovy.text.GStringTemplateEngine
@@ -24,9 +24,8 @@ import groovy.transform.Canonical
 import org.apache.commons.lang.StringUtils
 import org.apache.commons.lang.time.DateFormatUtils
 import org.gradle.api.GradleException
-import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.internal.file.copy.CopyAction
-import org.gradle.api.internal.file.copy.CopySpecImpl
+import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.vafer.jdeb.Compression
@@ -39,8 +38,8 @@ import org.vafer.jdeb.producers.DataProducerLink
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
  */
-class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
-    static final Logger logger = LoggerFactory.getLogger(DebCopySpecVisitor.class)
+class DebCopyAction extends AbstractPackagingCopyAction {
+    static final Logger logger = LoggerFactory.getLogger(DebCopyAction.class)
 
     private final GStringTemplateEngine engine = new GStringTemplateEngine()
 
@@ -51,7 +50,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     List<InstallDir> installDirs
     boolean includeStandardDefines = true
 
-    DebCopySpecVisitor(Deb debTask) {
+    DebCopyAction(Deb debTask) {
         super(debTask)
         this.debTask = debTask
         debianDir = new File(debTask.project.buildDir, "debian")
@@ -77,9 +76,8 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitFile(FileCopyDetails fileDetails) {
+    void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
-        def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
         def outputFile = extractFile(fileDetails)
 
@@ -94,9 +92,7 @@ class DebCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitDir(FileCopyDetails dirDetails) {
-        def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-
+    void visitDir(FileCopyDetailsInternal dirDetails, def specToLookAt) {
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
         boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : debTask.createDirectoryEntry
         if (createDirectoryEntry) {

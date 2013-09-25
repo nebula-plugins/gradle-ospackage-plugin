@@ -17,20 +17,17 @@
 package com.trigonic.gradle.plugins.rpm
 
 import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertSame
 import static org.junit.Assert.assertTrue
-
-import java.io.File;
 
 import org.junit.Before
 import org.junit.Test
 
 class RpmCopySpecVisitorTest {
-    RpmCopySpecVisitor visitor
+    RpmCopyAction visitor
 
     @Before
     public void setup() {
-        visitor = new RpmCopySpecVisitor()
+        visitor = new RpmCopyAction()
     }
 
     @Test

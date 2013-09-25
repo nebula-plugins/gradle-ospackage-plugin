@@ -98,6 +98,42 @@ pom {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.7'
+    gradleVersion = '1.8'
 }
 
+import org.gradle.plugins.ide.idea.model.ModuleLibrary
+import org.gradle.plugins.ide.idea.model.Path
+
+if (project.hasProperty("gradleSources")) {
+    idea.module {
+        iml {
+            whenMerged { module ->
+                def gradleRegex = /.*gradle-([a-z-]*?)-\d+\.\d+(?:-rc)?(?:-\d+)?\.jar/
+                module.dependencies
+                    .findAll { it instanceof org.gradle.plugins.ide.idea.model.ModuleLibrary }
+                    .findAll { it.classes.any { it.url =~ gradleRegex } }
+                    .each { ModuleLibrary lib ->
+                        // Take the first one
+                        def jarFile = lib.classes.find { it.url.contains("gradle-")}
+                        def m = jarFile =~ gradleRegex
+                        def subprojectName = m[0][1]
+                        def srcDir = new File( "${project.property('gradleSources')}/subprojects/${subprojectName}/src/main")
+                        def dirs = [new File(srcDir, 'groovy'), new File(srcDir, 'java')]
+                        dirs.findAll { it.exists() }.each {
+                            def path = "file://${it.absolutePath}"
+                            lib.sources.add(new Path(path))
+                            println "Adding ${path}"
+                            /**
+                            right:
+                            <root url="file://$MODULE_DIR$/../../gradle/gradle/subprojects/core/src/main/groovy" />
+                            wrong, via absolute path:
+                            <root url="$MODULE_DIR$/../../gradle/gradle/subprojects/core/src/main/groovy" />
+                            wrong, via toURI
+                            <root url="file:$MODULE_DIR$/../../gradle/gradle/subprojects/core/src/main/groovy/" />
+                            */
+                        }
+                }
+            }
+        }
+    }
+}

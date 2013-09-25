@@ -17,28 +17,27 @@
 package com.trigonic.gradle.plugins.rpm
 
 import com.google.common.base.Preconditions
-import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopySpecVisitor
+import com.trigonic.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.trigonic.gradle.plugins.packaging.Dependency
 import com.trigonic.gradle.plugins.packaging.Link
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
 import org.freecompany.redline.payload.Directive
-import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.internal.file.copy.CopyAction
-import org.gradle.api.internal.file.copy.CopySpecImpl
+import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.nio.channels.FileChannel
 
-class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
-    static final Logger logger = LoggerFactory.getLogger(RpmCopySpecVisitor.class)
+class RpmCopyAction extends AbstractPackagingCopyAction {
+    static final Logger logger = LoggerFactory.getLogger(RpmCopyAction.class)
 
     Rpm rpmTask
     Builder builder
     boolean includeStandardDefines = true // candidate for being pushed up to packaging level
 
-    RpmCopySpecVisitor(Rpm rpmTask) {
+    RpmCopyAction(Rpm rpmTask) {
         super(rpmTask)
         this.rpmTask = rpmTask
     }
@@ -78,9 +77,8 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitFile(FileCopyDetails fileDetails) {
+    void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
-        def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
 
         def outputFile = extractFile(fileDetails)
 
@@ -97,9 +95,11 @@ class RpmCopySpecVisitor extends AbstractPackagingCopySpecVisitor {
     }
 
     @Override
-    void visitDir(FileCopyDetails dirDetails) {
-        def specToLookAt = (spec instanceof CopySpecImpl)?spec:spec.spec // WrapperCopySpec has a nested spec
-
+    void visitDir(FileCopyDetailsInternal dirDetails, def specToLookAt) {
+        if (specToLookAt == null) {
+            logger.info("Got an empty spec from ${dirDetails.class.name} for ${dirDetails.path}/${dirDetails.name}")
+            return
+        }
         // Have to take booleans specially, since they would fail an elvis operator if set to false
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
         boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : rpmTask.createDirectoryEntry

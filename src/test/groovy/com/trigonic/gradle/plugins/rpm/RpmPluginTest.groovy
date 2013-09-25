@@ -143,8 +143,8 @@ class RpmPluginTest {
         // Evaluate response
         def scan = Scanner.scan(rpmTask.getArchivePath())
 
-        assertEquals(['./usr/local', './usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'], scan.files*.name)
-        assertEquals([DIR, DIR, DIR, FILE, DIR, DIR, FILE], scan.files*.type)
+        assertEquals(['./usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'], scan.files*.name)
+        assertEquals([ DIR, DIR, FILE, DIR, DIR, FILE], scan.files*.type)
 
     }
 
