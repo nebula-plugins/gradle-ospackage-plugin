@@ -20,6 +20,8 @@ import com.trigonic.gradle.plugins.deb.DebPlugin
 import com.trigonic.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.BasePlugin
@@ -51,7 +53,7 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
 
         // Postpone value until later
         // TODO Have the extension mimic the tasks
-        //ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
+        ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
 
         return extension
     }
