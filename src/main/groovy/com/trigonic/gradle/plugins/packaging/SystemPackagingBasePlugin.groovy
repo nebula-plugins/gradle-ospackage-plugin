@@ -49,10 +49,8 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
 
     ProjectPackagingExtension createExtension() {
         ProjectPackagingExtension extension = project.extensions.create(taskBaseName, ProjectPackagingExtension, project)
-        // Set value ahead of time
 
-        // Postpone value until later
-        // TODO Have the extension mimic the tasks
+        // Ensure extension is IConventionAware
         ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
 
         return extension

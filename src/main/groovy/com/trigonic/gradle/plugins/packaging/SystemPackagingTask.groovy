@@ -41,7 +41,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         // I have no idea where Project came from
         parentExten = project.extensions.findByType(ProjectPackagingExtension)
         if(parentExten) {
-            getRootSpec().with(parentExten)
+            getRootSpec().with(parentExten.delegateCopySpec)
         }
     }
 
