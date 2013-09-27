@@ -1,7 +1,10 @@
-v2.0 - TDB
+v2.8 - TDB
 =================
+  * Add support for Gradle 1.8
   * Add support for debian files
   * Add extension that can configure all packaging tasks
+  * Breaking change: Changed group and description to packageGroup and packageDescription, respectively to
+    avoid conflict with Gradle's similarly named variables.
 
 v1.4 - 2013-08-28
 =================
