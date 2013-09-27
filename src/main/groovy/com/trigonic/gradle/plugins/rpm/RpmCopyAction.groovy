@@ -46,7 +46,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     void startVisit(CopyAction action) {
         super.startVisit(action)
 
-        Preconditions.checkNotNull(rpmTask.getVersion(), "RPM require a version string" )
+        assert rpmTask.getVersion() != null, "RPM requires a version string"
 
         builder = new Builder()
         builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
