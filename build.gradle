@@ -12,6 +12,8 @@ repositories {
 
 dependencies {
     compile gradleApi()
+    //compile 'org.apache.commons:commons-lang3:3.1'
+    compile 'commons-lang:commons-lang:2.6'
     // Do NOT use a dynamic version like 1.1+, since it'll show up exactly like that in the pom, and 1.1+ is a proper maven version
     compile 'org.redline-rpm:redline:1.1.10'
     compile('org.vafer:jdeb:1.0.1') {
