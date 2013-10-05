@@ -21,8 +21,8 @@ import com.trigonic.gradle.plugins.packaging.Dependency
 import com.trigonic.gradle.plugins.packaging.Link
 import groovy.text.GStringTemplateEngine
 import groovy.transform.Canonical
-import org.apache.commons.lang.StringUtils
-import org.apache.commons.lang.time.DateFormatUtils
+import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.time.DateFormatUtils
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
