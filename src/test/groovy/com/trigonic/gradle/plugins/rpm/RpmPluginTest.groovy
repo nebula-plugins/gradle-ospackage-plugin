@@ -289,4 +289,200 @@ class RpmPluginTest {
         assertEquals([DIR, DIR, FILE, DIR, FILE], scan.files*.type)
     }
 
+    @Test
+    public void differentUsersBetweenCopySpecs() {
+        Project project = ProjectBuilder.builder().build()
+
+        File buildDir = project.buildDir
+        File srcDir1 = new File(buildDir, 'src1')
+        File srcDir2 = new File(buildDir, 'src2')
+        File srcDir3 = new File(buildDir, 'src3')
+
+        srcDir1.mkdirs()
+        srcDir2.mkdirs()
+        srcDir3.mkdirs()
+
+        FileUtils.writeStringToFile(new File(srcDir1, 'apple'),  'apple')
+        FileUtils.writeStringToFile(new File(srcDir2, 'banana'), 'banana')
+        FileUtils.writeStringToFile(new File(srcDir3, 'cherry'), 'cherry')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'userTest'
+            version     = '2.0'
+            release     = '2'
+            type        = BINARY
+            arch        = I386
+            os          = LINUX
+
+            into '/tiny'
+            user = 'default'
+
+            from(srcDir1) {
+                user = 'user1'
+            }
+
+            from(srcDir2) {
+                // should be default user
+            }
+
+            from(srcDir3) {
+                user = 'user2'
+            }
+        })
+
+        project.tasks.buildRpm.execute()
+
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
+
+        assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
+        assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+
+        assertEquals(['user1', 'user1', 'default', 'user2'],
+                     scan.format.header.getEntry(FILEUSERNAME).values.toList())
+    }
+
+    @Test
+    public void differentGroupsBetweenCopySpecs() {
+        Project project = ProjectBuilder.builder().build()
+
+        File buildDir = project.buildDir
+        File srcDir1 = new File(buildDir, 'src1')
+        File srcDir2 = new File(buildDir, 'src2')
+        File srcDir3 = new File(buildDir, 'src3')
+
+        srcDir1.mkdirs()
+        srcDir2.mkdirs()
+        srcDir3.mkdirs()
+
+        FileUtils.writeStringToFile(new File(srcDir1, 'apple'),  'apple')
+        FileUtils.writeStringToFile(new File(srcDir2, 'banana'), 'banana')
+        FileUtils.writeStringToFile(new File(srcDir3, 'cherry'), 'cherry')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'userTest'
+            version     = '2.0'
+            release     = '2'
+            type        = BINARY
+            arch        = I386
+            os          = LINUX
+
+            into '/tiny'
+            permissionGroup = 'default'
+
+            from(srcDir1) {
+                // should be default group
+            }
+
+            from(srcDir2) {
+                permissionGroup = 'group2'
+            }
+
+            from(srcDir3) {
+                // should be default group
+            }
+        })
+
+        project.tasks.buildRpm.execute()
+
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
+
+        assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
+        assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+
+        assertEquals(['default', 'default', 'group2', 'default'],
+                     scan.format.header.getEntry(FILEGROUPNAME).values.toList())
+    }
+
+    @Test
+    public void differentPermissionsBetweenCopySpecs() {
+        Project project = ProjectBuilder.builder().build()
+
+        File buildDir = project.buildDir
+        File srcDir1 = new File(buildDir, 'src1')
+        File srcDir2 = new File(buildDir, 'src2')
+        File srcDir3 = new File(buildDir, 'src3')
+
+        srcDir1.mkdirs()
+        srcDir2.mkdirs()
+        srcDir3.mkdirs()
+
+        FileUtils.writeStringToFile(new File(srcDir1, 'apple'),  'apple')
+        FileUtils.writeStringToFile(new File(srcDir2, 'banana'), 'banana')
+        FileUtils.writeStringToFile(new File(srcDir3, 'cherry'), 'cherry')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'userTest'
+            version     = '2.0'
+            release     = '2'
+            type        = BINARY
+            arch        = I386
+            os          = LINUX
+
+            into '/tiny'
+            fileMode = 0555
+
+            from(srcDir1) {
+                // should be default group
+            }
+
+            from(srcDir2) {
+                fileMode = 0666
+            }
+
+	    from(srcDir3) {
+		fileMode = 0555
+            }
+	})
+
+        project.tasks.buildRpm.execute()
+
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
+
+        assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
+        assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+
+        // #define S_IFIFO  0010000  /* named pipe (fifo) */
+        // #define S_IFCHR  0020000  /* character special */
+        // #define S_IFDIR  0040000  /* directory */
+        // #define S_IFBLK  0060000  /* block special */
+        // #define S_IFREG  0100000  /* regular */
+        // #define S_IFLNK  0120000  /* symbolic link */
+        // #define S_IFSOCK 0140000  /* socket */
+        // #define S_ISUID  0004000 /* set user id on execution */
+        // #define S_ISGID  0002000 /* set group id on execution */
+        // #define S_ISTXT  0001000 /* sticky bit */
+        // #define S_IRWXU  0000700 /* RWX mask for owner */
+        // #define S_IRUSR  0000400 /* R for owner */
+        // #define S_IWUSR  0000200 /* W for owner */
+        // #define S_IXUSR  0000100 /* X for owner */
+        // #define S_IRWXG  0000070 /* RWX mask for group */
+        // #define S_IRGRP  0000040 /* R for group */
+        // #define S_IWGRP  0000020 /* W for group */
+        // #define S_IXGRP  0000010 /* X for group */
+        // #define S_IRWXO  0000007 /* RWX mask for other */
+        // #define S_IROTH  0000004 /* R for other */
+        // #define S_IWOTH  0000002 /* W for other */
+        // #define S_IXOTH  0000001 /* X for other */
+        // #define S_ISVTX  0001000 /* save swapped text even after use */
+
+	// drwxr-xr-x is 0040755
+        // NOTE: Not sure why directory is getting user write permission
+	assertEquals([(short)0040755, (short)0100555, (short)0100666, (short)0100555],
+                     scan.format.header.getEntry(FILEMODES).values.toList())
+    }
 }
