@@ -444,10 +444,10 @@ class RpmPluginTest {
                 fileMode = 0666
             }
 
-	    from(srcDir3) {
-		fileMode = 0555
+            from(srcDir3) {
+                fileMode = 0555
             }
-	})
+        })
 
         project.tasks.buildRpm.execute()
 
