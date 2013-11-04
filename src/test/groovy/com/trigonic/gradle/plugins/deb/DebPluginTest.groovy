@@ -158,6 +158,45 @@ class DebPluginTest {
         File debFile = debTask.getArchivePath()
     }
 
+
+    @Test
+    public void permissionsDefaultToFileSystem() {
+        Project project = ProjectBuilder.builder().build()
+
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        def appleFile = new File(srcDir, 'apple.sh')
+        FileUtils.writeStringToFile(appleFile, '#!/bin/bash\necho "Apples are yummy"')
+        appleFile.setExecutable(true, false)
+        appleFile.setReadable(true, false)
+        appleFile.setWritable(false, false)
+        appleFile.setWritable(true, true)
+
+        def pearFile = new File(srcDir, 'pear')
+        FileUtils.writeStringToFile(pearFile, 'pears are not apples')
+        pearFile.setExecutable(false, false)
+        pearFile.setReadable(true, false)
+        pearFile.setWritable(false, false)
+        pearFile.setWritable(true, true)
+
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {})
+        debTask.from(srcDir)
+
+        debTask.execute()
+
+        File debFile = debTask.getArchivePath()
+
+        def scan = new Scanner(debFile)
+
+        // FYI, rwxrwxrwx is 0777, i.e. 511 in decimal
+        assertEquals(0755, scan.getEntry('./apple.sh').mode)
+        assertEquals(0644, scan.getEntry('./pear').mode)
+
+    }
+
     @Test
     public void generateScripts() {
         Project project = ProjectBuilder.builder().build()
@@ -191,8 +230,8 @@ class DebPluginTest {
         debTask.execute()
 
         def scan = new Scanner(debTask.getArchivePath())
-        scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall"
-        scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall"
+        assertTrue(scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall")
+        assertTrue(scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall")
     }
 
     @Test
@@ -232,7 +271,7 @@ class DebPluginTest {
         debTask.execute()
 
         def scan = new Scanner(debTask.getArchivePath())
-        scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall"
-        scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall"
+        assertTrue(scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall")
+        assertTrue(scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall")
     }
 }

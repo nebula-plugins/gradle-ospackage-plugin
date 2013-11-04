@@ -35,6 +35,11 @@ import org.vafer.jdeb.Processor
 import org.vafer.jdeb.descriptors.PackageDescriptor
 import org.vafer.jdeb.producers.DataProducerLink
 
+import java.nio.file.Files
+import sun.nio.fs.UnixFileModeAttribute
+import java.nio.file.attribute.PosixFilePermission
+import java.nio.file.attribute.PosixFilePermissions
+
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
  */
@@ -75,20 +80,54 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     }
 
+    boolean useJavaNioForMask() {
+        try {
+            Class.forName('java.nio.file.attribute.PosixFilePermission')
+            return true
+        } catch(Exception e) {
+            // Java 7 Classes weren't available
+            return false
+        }
+
+    }
+
+    int fileModeFromFile(File file) {
+        if (useJavaNioForMask()) {
+            return fileModeUsingPosix(file)
+        } else {
+            return fileModeUsingShell(file)
+        }
+    }
+
+    int fileModuUsingShell(File file) {
+        throw new IllegalStateException("Unable to determine permission mask")
+    }
+
+    int fileModeUsingPosix(File file) {
+        try {
+            Set<PosixFilePermission> filePerm = Files.getPosixFilePermissions(file.toPath());
+            UnixFileModeAttribute.toUnixMode(filePerm)
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
 
-        def outputFile = extractFile(fileDetails)
+        def inputFile = extractFile(fileDetails)
 
         String path = "/" + fileDetails.relativePath.pathString
         String user = lookup(specToLookAt, 'user') ?: debTask.user
         int uid = (int) (lookup(specToLookAt, 'uid') ?: debTask.uid)
         String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
         int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
-        int fileMode = (int) (lookup(specToLookAt, 'fileMode') ?: 0)  // TODO see if -1 works for mode
 
-        dataProducers << new DataProducerFileSimple(path, outputFile, user, uid, group, gid, fileMode)
+        Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
+        int fileMode = (int) (specFileMode?:fileModeFromFile(inputFile))
+
+        dataProducers << new DataProducerFileSimple(path, inputFile, user, uid, group, gid, fileMode)
     }
 
     @Override
@@ -107,7 +146,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                     uid: lookup(specToLookAt, 'uid')?:debTask.uid,
                     group: group,
                     gid: lookup(specToLookAt, 'gid')?: debTask.gid,
-                    mode: (lookup(specToLookAt, 'dirMode')?:0) // TODO see if -1 works for mode
+                    mode: (lookup(specToLookAt, 'dirMode')?:-1) // TODO see if -1 works for mode
             )
             // addParentDirs is implicit in jdeb, I think.
             installDirs << new InstallDir(
