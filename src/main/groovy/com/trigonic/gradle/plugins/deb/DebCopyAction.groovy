@@ -38,7 +38,6 @@ import org.vafer.jdeb.producers.DataProducerLink
 import java.nio.file.Files
 import sun.nio.fs.UnixFileModeAttribute
 import java.nio.file.attribute.PosixFilePermission
-import java.nio.file.attribute.PosixFilePermissions
 
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
@@ -99,8 +98,8 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         }
     }
 
-    int fileModuUsingShell(File file) {
-        throw new IllegalStateException("Unable to determine permission mask")
+    int fileModeUsingShell(File file) {
+        throw new IllegalStateException("Unable to determine permission mask, try using Java 7")
     }
 
     int fileModeUsingPosix(File file) {

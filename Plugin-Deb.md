@@ -19,7 +19,7 @@ derived from Debian, e.g. Ubuntu.  It leverages [JDeb](https://github.com/tcurdt
     apply plugin: 'deb'
 
     task fooRpm(type: Deb) {
-        release = 1
+        release 1
     }
 
 ```
@@ -98,11 +98,11 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         version = '1.2.3'
         release = 1
 
-        installUtils = file('scripts/rpm/utils.sh')
-        preInstall = file('scripts/rpm/preInstall.sh')
-        postInstall = file('scripts/rpm/postInstall.sh')
-        preUninstall = file('scripts/rpm/preUninstall.sh')
-        postUninstall = file('scripts/rpm/postUninstall.sh')
+        installUtils file('scripts/rpm/utils.sh')
+        preInstall file('scripts/rpm/preInstall.sh')
+        postInstall file('scripts/rpm/postInstall.sh')
+        preUninstall file('scripts/rpm/preUninstall.sh')
+        postUninstall file('scripts/rpm/postUninstall.sh')
 
         requires('bar', '2.2')
         requires('baz', '1.0.1')
@@ -122,15 +122,15 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         from('scripts') {
             into 'bin'
             exclude 'database'
-            fileMode = 0550
+            fileMode 0550
         }
         from('src/main/resources') {
-            fileType = CONFIG | NOREPLACE
+            fileType CONFIG | NOREPLACE
             into 'conf'
         }
         from('home') {
             createDirectoryEntry = true
-            fileMode = 0500
+            fileMode 0500
             into 'home'
         }
         from('endorsed') {

@@ -170,7 +170,7 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
      * Issue #30, FileVisitDetailsImpl won't give us file, since it filters on the fly.
      */
     File extractFile(FileVisitDetails fileDetails) {
-        File outputFile = null
+        File outputFile
         try {
             outputFile = fileDetails.getFile()
         } catch (UnsupportedOperationException uoe) {

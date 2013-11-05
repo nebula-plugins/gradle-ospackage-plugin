@@ -80,7 +80,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
 
-        def outputFile = extractFile(fileDetails)
+        def inputFile = extractFile(fileDetails)
 
         def path = "/" + fileDetails.relativePath.pathString
         int fileMode = lookup(specToLookAt, 'fileMode') ?: -1
@@ -91,7 +91,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
 
-        builder.addFile( path, outputFile, fileMode, -1, fileType, user, group, addParentsDir)
+        builder.addFile( path, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
 
     @Override

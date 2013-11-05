@@ -19,7 +19,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
     apply plugin: 'rpm'
 
     task fooRpm(type: Rpm) {
-        release = 1
+        release 1
     }
 
 ```
@@ -105,17 +105,17 @@ The following attributes can be used inside _from_ and _into_ closures to comple
 
 ```
     task fooRpm(type: Rpm) {
-        packageName = 'foo'
-        version = '1.2.3'
-        release = 1
-        arch = I386
-        os = LINUX
+        packageName 'foo'
+        version '1.2.3'
+        release 1
+        arch I386
+        os LINUX
 
         installUtils = file('scripts/rpm/utils.sh')
-        preInstall = file('scripts/rpm/preInstall.sh')
-        postInstall = file('scripts/rpm/postInstall.sh')
-        preUninstall = file('scripts/rpm/preUninstall.sh')
-        postUninstall = file('scripts/rpm/postUninstall.sh')
+        preInstall file('scripts/rpm/preInstall.sh')
+        postInstall file('scripts/rpm/postInstall.sh')
+        preUninstall file('scripts/rpm/preUninstall.sh')
+        postUninstall file('scripts/rpm/postUninstall.sh')
 
         requires('bar', '2.2', GREATER | EQUAL)
         requires('baz', '1.0.1', LESS)
@@ -135,23 +135,23 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         from('scripts') {
             into 'bin'
             exclude 'database'
-            fileMode = 0550
+            fileMode 0550
         }
         from('src/main/resources') {
-            fileType = CONFIG | NOREPLACE
+            fileType CONFIG | NOREPLACE
             into 'conf'
         }
         from('home') {
             // Creating directory entries (or not) in the RPM is normally left up to redline-rpm library.
             // Use this to explicitly create an entry -- for setting directory fileMode on system directories.
             createDirectoryEntry = true
-            fileMode = 0500
+            fileMode 0500
             into 'home'
         }
         from('endorsed') {
             // Will tell redline-rpm not to auto create directories, which
             // is sometimes necessary to avoid rpm directory conflicts
-            addParentDirs = false
+            addParentDirs false
             into '/usr/share/tomcat/endorsed'
         }
 
