@@ -164,6 +164,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     @Override
     protected void addDependency(Dependency dep) {
+        // Depends: e2fsprogs (>= 1.27-2), libc6 (>= 2.2.4-4).
         dependencies << dep.packageName // Losing version and flag info
     }
 
