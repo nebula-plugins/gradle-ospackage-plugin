@@ -377,14 +377,15 @@ class RpmPluginTest {
             os          = LINUX
 
             into '/tiny'
-            permissionGroup = 'default'
+            permissionGroup 'default'
 
             from(srcDir1) {
                 // should be default group
             }
 
             from(srcDir2) {
-                permissionGroup = 'group2'
+                //setPermissionGroup 'group2' // works
+                permissionGroup = 'group2' // Does not work
             }
 
             from(srcDir3) {
@@ -398,6 +399,9 @@ class RpmPluginTest {
 
         assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
         assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+
+        def allFiles = scan.files
+        def groups = scan.format.header.getEntry(FILEGROUPNAME).values
 
         assertEquals(['default', 'default', 'group2', 'default'],
                      scan.format.header.getEntry(FILEGROUPNAME).values.toList())
@@ -434,18 +438,18 @@ class RpmPluginTest {
             os          = LINUX
 
             into '/tiny'
-            fileMode = 0555
+            fileMode 0555
 
             from(srcDir1) {
                 // should be default group
             }
 
             from(srcDir2) {
-                fileMode = 0666
+                fileMode 0666
             }
 
             from(srcDir3) {
-                fileMode = 0555
+                fileMode 0555
             }
         })
 
