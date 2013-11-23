@@ -35,10 +35,6 @@ import org.vafer.jdeb.Processor
 import org.vafer.jdeb.descriptors.PackageDescriptor
 import org.vafer.jdeb.producers.DataProducerLink
 
-import java.nio.file.Files
-import sun.nio.fs.UnixFileModeAttribute
-import java.nio.file.attribute.PosixFilePermission
-
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
  */
@@ -78,7 +74,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         debianDir.mkdirs()
 
     }
-
+/*
     boolean useJavaNioForMask() {
         try {
             Class.forName('java.nio.file.attribute.PosixFilePermission')
@@ -111,7 +107,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
             e.printStackTrace();
         }
     }
-
+*/
     @Override
     void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
@@ -125,7 +121,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
 
         Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
-        int fileMode = (int) (specFileMode?:fileModeFromFile(inputFile))
+        int fileMode = (int) (specFileMode?:fileDetails.mode)
 
         dataProducers << new DataProducerFileSimple(path, inputFile, user, uid, group, gid, fileMode)
     }
@@ -137,17 +133,17 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         if (createDirectoryEntry) {
 
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
-            def user = lookup(specToLookAt, 'user') ?: debTask.user
-            def group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
+            String user = lookup(specToLookAt, 'user') ?: debTask.user
+            int uid = (int) (lookup(specToLookAt, 'uid') ?: debTask.uid)
+            String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
+            int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
 
-            dataProducers << new DataProducerDirectorySimple(
-                    dirname: "/" + dirDetails.relativePath.pathString,
-                    user: user,
-                    uid: lookup(specToLookAt, 'uid')?:debTask.uid,
-                    group: group,
-                    gid: lookup(specToLookAt, 'gid')?: debTask.gid,
-                    mode: (lookup(specToLookAt, 'dirMode')?:-1) // TODO see if -1 works for mode
-            )
+            Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
+            int fileMode = (int) (specFileMode?:dirDetails.mode)
+
+            String dirName =  "/" + dirDetails.relativePath.pathString
+            dataProducers << new DataProducerDirectorySimple(dirName,user,uid,group,gid,fileMode)
+
             // addParentDirs is implicit in jdeb, I think.
             installDirs << new InstallDir(
                     name: "/" + dirDetails.relativePath.pathString,

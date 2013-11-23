@@ -13,6 +13,7 @@ public class DataProducerDirectorySimple implements DataProducer {
     String group
     int gid = 0
     int mode
+
     @Override
     void produce(DataConsumer receiver) throws IOException {
         // TODO Investigate what happens if we don't have a uid/gid

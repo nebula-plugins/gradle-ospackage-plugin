@@ -169,7 +169,23 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
      * Look at FileDetails to get a file. If it's filtered file, we need to write it out to the filesystem ourselves.
      * Issue #30, FileVisitDetailsImpl won't give us file, since it filters on the fly.
      */
-    File extractFile(FileVisitDetails fileDetails) {
+    File extractDir(FileCopyDetailsInternal fileDetails) {
+        File outputDir
+        try {
+            outputDir = fileDetails.getFile()
+        } catch (UnsupportedOperationException uoe) {
+            // Can't access MappingCopySpecVisitor.FileVisitDetailsImpl since it's private, so we have to probe. We would test this:
+            // if (fileDetails instanceof MappingCopySpecVisitor.FileVisitDetailsImpl && fileDetails.filterChain.hasFilters())
+            outputDir = new File(tempDir, fileDetails.name)
+        }
+        return outputDir
+    }
+
+    /**
+     * Look at FileDetails to get a file. If it's filtered file, we need to write it out to the filesystem ourselves.
+     * Issue #30, FileVisitDetailsImpl won't give us file, since it filters on the fly.
+     */
+    File extractFile(FileCopyDetailsInternal fileDetails) {
         File outputFile
         try {
             outputFile = fileDetails.getFile()
