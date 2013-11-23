@@ -323,7 +323,8 @@ class RpmPluginTest {
             user = 'default'
 
             from(srcDir1) {
-                user = 'user1'
+                user 'user1'
+                // user = 'user1' // Won't work, since setter via Categories won't pass hasProperty
             }
 
             from(srcDir2) {
@@ -331,7 +332,7 @@ class RpmPluginTest {
             }
 
             from(srcDir3) {
-                user = 'user2'
+                user 'user2'
             }
         })
 
@@ -385,7 +386,8 @@ class RpmPluginTest {
 
             from(srcDir2) {
                 //setPermissionGroup 'group2' // works
-                permissionGroup = 'group2' // Does not work
+                //permissionGroup = 'group2' // Does not work
+                permissionGroup 'group2' // Does not work
             }
 
             from(srcDir3) {

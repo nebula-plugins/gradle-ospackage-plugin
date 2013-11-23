@@ -218,10 +218,10 @@ class DebPluginTest {
 
         project.apply plugin: 'deb'
 
-        Deb debTask = project.task([type: Deb], 'buildDeb', {
-            release = '1'
-            preinstall = preinstallScript
-            postinstall = postinstallScript
+        Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
+            release '1'
+            preInstall preinstallScript
+            postInstall postinstallScript
 
             // SkipEmptySourceFilesTaskExecuter will prevent our task from running without a source
             from(appleFile.getParentFile())
@@ -230,8 +230,8 @@ class DebPluginTest {
         debTask.execute()
 
         def scan = new Scanner(debTask.getArchivePath())
-        assertTrue(scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall")
-        assertTrue(scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall")
+        assertTrue(scan.controlContents['./preinst'].contains("echo Preinstall"))
+        assertTrue(scan.controlContents['./postinst'].contains("echo Postinstall"))
     }
 
     @Test
@@ -244,7 +244,7 @@ class DebPluginTest {
         scriptDir.mkdir()
 
         File installScript = new File(scriptDir, 'install')
-        installScript.text = "#!/bin/bash\n"
+        installScript.text = "#!/bin/bash\necho Installing"
 
         File preinstallScript = new File(scriptDir, 'preinstall')
         preinstallScript.text = "echo Preinstall"
@@ -258,11 +258,11 @@ class DebPluginTest {
 
         project.apply plugin: 'deb'
 
-        Deb debTask = project.task([type: Deb], 'buildDeb', {
-            release = '1'
-            installUtils = installScript
-            preinstall = preinstallScript
-            postinstall = postinstallScript
+        Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
+            release '1'
+            installUtils installScript
+            preInstall preinstallScript
+            postInstall postinstallScript
 
             // SkipEmptySourceFilesTaskExecuter will prevent our task from running without a source
             from(appleFile.getParentFile())
@@ -271,7 +271,9 @@ class DebPluginTest {
         debTask.execute()
 
         def scan = new Scanner(debTask.getArchivePath())
-        assertTrue(scan.controlContents['preinst'] == "#!/bin/bash\necho preinstall")
-        assertTrue(scan.controlContents['postinst'] == "#!/bin/bash\necho postinstall")
+        assertTrue(scan.controlContents['./preinst'].contains("echo Preinstall"))
+        assertTrue(scan.controlContents['./preinst'].contains("echo Installing"))
+        assertTrue(scan.controlContents['./postinst'].contains("echo Postinstall"))
+        assertTrue(scan.controlContents['./postinst'].contains("echo Installing"))
     }
 }
