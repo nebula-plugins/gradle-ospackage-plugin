@@ -16,6 +16,7 @@ repositories {
     jcenter()
 }
 
+apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
@@ -142,8 +143,10 @@ bintray {
         name = 'gradle-ospackage-plugin'
         licenses = ['Apache-2.0']
     }
-    dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
+    //dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
 }
+//bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').artifacts)
+bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishableFiles)
 
 // Release Process
 
