@@ -150,7 +150,7 @@ bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishab
 import groovyx.net.http.HTTPBuilder
 bintrayUpload.doLast {
     bintrayUpload.with {
-        HTTPBuilder http = createHttpClient()
+        HTTPBuilder http = bintrayUpload.createHttpClient()
         def repoPath = "${userOrg ?: user}/$repoName"
         def uploadUri = "/content/$repoPath/$packageName/$version/publish"
         println "Package path: $uploadUri"
