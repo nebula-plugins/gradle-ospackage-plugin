@@ -123,8 +123,6 @@ publishing {
                 def jdebDep = root.dependencies.dependency.find { it.groupId.text() == 'org.vafer' && it.artifactId.text() == 'jdeb' }
                 def exclusions = jdebDep.appendNode('exclusions')
                 ['maven-core': 'org.apache.maven', 'maven-plugin-api': 'org.apache.maven', 'maven-project':'org.apache.maven', 'maven-artifact':'org.apache.maven', 'plexus-utils': 'org.codehaus.plexus'].each {
-
-                println "Key: ${it.key} ${it.value}"
                     def exclude = exclusions.appendNode('exclusion')
                     exclude.appendNode('groupId', it.value)
                     exclude.appendNode('artifactId', it.key)
@@ -169,6 +167,7 @@ ext.'gradle.release.useAutomaticVersion' = "true"
 release {
     // To ease the testing of release plugin
     failOnUnversionedFiles = false
+    failOnCommitNeeded = false
 
     // We're releasing from different branches, so prevent the check that requires  we release from master
     git.requireBranch = null
