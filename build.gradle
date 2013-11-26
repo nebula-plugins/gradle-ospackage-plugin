@@ -176,7 +176,11 @@ release {
     git.requireBranch = null
 }
 
-createReleaseTag.dependsOn bintrayUpload
+project.task('spawnBintrayUpload', description: 'Create GradleBuild to run BintrayUpload to use a new version', group: 'Release', type: GradleBuild) {
+    startParameter = project.getGradle().startParameter.newInstance()
+    tasks = ['bintrayUpload']
+}
+createReleaseTag.dependsOn spawnBintrayUpload
 
 // Tasks
 
