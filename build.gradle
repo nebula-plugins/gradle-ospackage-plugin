@@ -147,10 +147,11 @@ bintray {
 }
 bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishableFiles)
 
-import groovyx.net.http.HTTPBuilder
+/**
+ * Bintray uploads are not marked published, that has to be manually done.
 bintrayUpload.doLast {
     bintrayUpload.with {
-        HTTPBuilder http = bintrayUpload.createHttpClient()
+        def http = bintrayUpload.createHttpClient()
         def repoPath = "${userOrg ?: user}/$repoName"
         def uploadUri = "/content/$repoPath/$packageName/$version/publish"
         println "Package path: $uploadUri"
@@ -167,6 +168,7 @@ bintrayUpload.doLast {
         }
     }
 }
+*/
 
 // Release Process
 
