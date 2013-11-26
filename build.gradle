@@ -1,19 +1,36 @@
+import org.gradle.api.publish.maven.MavenPublication
+
+group = 'com.netflix.nebula'
+description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
+        classpath 'com.github.townsfolk:gradle-release:1.2'
+    }
+}
+repositories {
+    jcenter()
+}
+
 apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'maven'
+apply plugin: 'bintray'
+apply plugin: 'maven-publish'
 
-group = 'com.trigonic'
-description 'Provides a task similar to Tar and Zip for constructing RPM package files.'
-
-repositories {
-    mavenCentral()
-}
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
 
 dependencies {
     compile gradleApi()
+
+    // For all dependencies, do NOT use a dynamic version like 1.1+, since it'll show up exactly like that in the pom, and 1.1+ is not a proper maven version
+
     compile 'org.apache.commons:commons-lang3:3.1'
-    // Do NOT use a dynamic version like 1.1+, since it'll show up exactly like that in the pom, and 1.1+ is a proper maven version
     compile 'org.redline-rpm:redline:1.1.10'
     compile('org.vafer:jdeb:1.0.1') {
         // Individual listing so that they translate into the pom file
@@ -30,70 +47,139 @@ dependencies {
     testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
 }
 
-task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
+def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
+def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
+tasks.withType(Javadoc) {
+    options.links(javaApiUrl, groovyApiUrl)
+}
+
+task javadocJar(type: Jar, dependsOn: 'javadoc') {
     from javadoc.destinationDir
     classifier = 'javadoc'
 }
 
-task packageSources(type: Jar) {
+task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
     classifier = 'sources'
 }
 
 artifacts {
     archives jar
-    archives packageJavadoc
-    archives packageSources
+    archives sourcesJar 
+    archives javadocJar
 }
 
-pom {
-    project {
-        name 'gradle-rpm-plugin - Gradle plugin for constructing RPM packages'
-        packaging 'jar'
-        description 'Provides a task similar to Tar and Zip for constructing RPM package files.'
-        url 'https://github.com/TrigonicSolutions/gradle-rpm-plugin'
-        inceptionYear '2011'
+def pomConfig = {
+    url 'https://github.com/nebula-plugins/gradle-ospackage-plugin'
+    inceptionYear '2011'
 
-        parent {
-            groupId 'org.sonatype.oss'
-            artifactId 'oss-parent'
-            version '7'
-        }
+    scm {
+        url 'scm:git://github.com/nebula-plugins/gradle-ospackage-plugin.git'
+        connection 'scm:git://github.com/nebula-plugins/gradle-ospackage-plugin.git'
+    }
  
-        scm {
-            url 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
-            connection 'scm:git://github.com/TrigonicSolutions/gradle-rpm-plugin.git'
+    licenses {
+        license {
+            name 'The Apache Software License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            distribution 'repo'
         }
+    }
  
-        licenses {
-            license {
-                name 'The Apache Software License, Version 2.0'
-                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                distribution 'repo'
+    developers {
+        developer {
+            id 'akrueger'
+            name 'Alan Krueger'
+            email 'alan@trigonic.com'
+            roles{
+                role 'Developer'
             }
+            timezone '-6'
         }
- 
-        developers {
-            developer {
-                id 'akrueger'
-                name 'Alan Krueger'
-                email 'alan@trigonic.com'
-                roles{
-                    role 'Developer'
-                }
-                timezone '-6'
+        developer {
+            id 'quidryan'
+            name 'Justin Ryan'
+            email 'justin@halfempty.org'
+            roles{
+                role 'Developer'
             }
-            developer {
-                id 'quidryan'
-                name 'Justin Ryan'
-                email 'justin@halfempty.org'
-                roles{
-                    role 'Developer'
+            timezone '-8'
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', project.description)
+                root.children().last() + pomConfig
+
+                def jdebDep = root.dependencies.dependency.find { it.groupId.text() == 'org.vafer' && it.artifactId.text() == 'jdeb' }
+                def exclusions = jdebDep.appendNode('exclusions')
+                ['maven-core': 'org.apache.maven', 'maven-plugin-api': 'org.apache.maven', 'maven-project':'org.apache.maven', 'maven-artifact':'org.apache.maven', 'plexus-utils': 'org.codehaus.plexus'].each {
+
+                println "Key: ${it.key} ${it.value}"
+                    def exclude = exclusions.appendNode('exclusion')
+                    exclude.appendNode('groupId', it.value)
+                    exclude.appendNode('artifactId', it.key)
                 }
-                timezone '-8'
             }
         }
     }
+}
+
+bintray {
+    user = bintrayUser
+    key = bintrayKey
+    publications = ['mavenJava']
+    pkg {
+        repo = 'gradle-plugins'
+        userOrg = 'nebula'
+        name = 'gradle-ospackage-plugin'
+        licenses = ['Apache-2.0']
+    }
+    dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
+}
+
+// Release Process
+
+// Ensure our versions look like the project status before publishing
+task verifyStatus << {
+    def hasSnapshot = version.contains('-SNAPSHOT')
+    if (project.status == 'snapshot' && !hasSnapshot) {
+        throw new GradleException("Version (${version}) needs -SNAPSHOT if publishing snapshot")
+    }
+    if (project.status == 'release' && hasSnapshot) {
+        throw new GradleException("Version (${version}) can not have -SNAPSHOT if publishing release")
+    }
+}
+bintrayUpload.dependsOn(verifyStatus)
+
+
+// Prevent plugin from asking for a version number interactively
+apply plugin: 'release'
+ext.'gradle.release.useAutomaticVersion' = "true"
+
+release {
+    // To ease the testing of release plugin
+    failOnUnversionedFiles = false
+
+    // We're releasing from different branches, so prevent the check that requires  we release from master
+    git.requireBranch = null
+}
+
+createReleaseTag.dependsOn bintrayUpload
+
+// Tasks
+
+task install(dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
+    logger.info "Installing $project.name"
 }
 
 test {
