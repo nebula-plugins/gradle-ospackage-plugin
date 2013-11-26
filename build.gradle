@@ -145,8 +145,28 @@ bintray {
     }
     //dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
 }
-//bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').artifacts)
 bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishableFiles)
+
+import groovyx.net.http.HTTPBuilder
+bintrayUpload.doLast {
+    bintrayUpload.with {
+        HTTPBuilder http = createHttpClient()
+        def repoPath = "${userOrg ?: user}/$repoName"
+        def uploadUri = "/content/$repoPath/$packageName/$version/publish"
+        println "Package path: $uploadUri"
+        http.request(POST, JSON) {
+            uri.path = uploadUri
+            body = [discard: 'false']
+
+            response.success = { resp ->
+                logger.info("Published package $packageName.")
+            }
+            response.failure = { resp ->
+                throw new GradleException("Could not publish package $packageName")
+            }
+        }
+    }
+}
 
 // Release Process
 
