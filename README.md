@@ -13,11 +13,11 @@ plugin:
 ```
     buildscript {
         repositories {
-            mavenCentral()
+            jcenter()
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:2.0'
+            classpath 'com.netflix.nebula:gradle-rpm-plugin:2.0'
         }
     }
 ```
