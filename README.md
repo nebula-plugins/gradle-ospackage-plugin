@@ -17,7 +17,7 @@ plugin:
         }
 
         dependencies {
-            classpath 'com.netflix.nebula:gradle-rpm-plugin:2.0'
+            classpath 'com.netflix.nebula:gradle-rpm-plugin:1.8.4'
         }
     }
 ```
