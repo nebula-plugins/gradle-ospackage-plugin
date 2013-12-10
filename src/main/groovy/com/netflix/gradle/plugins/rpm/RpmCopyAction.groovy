@@ -82,10 +82,12 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         def inputFile = extractFile(fileDetails)
 
         def path = "/" + fileDetails.relativePath.pathString
-        int fileMode = lookup(specToLookAt, 'fileMode') ?: -1
         Directive fileType = lookup(specToLookAt, 'fileType')
         String user = lookup(specToLookAt, 'user') ?: rpmTask.user
         String group = lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
+
+        Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
+        int fileMode = (int) (specFileMode?:fileDetails.mode)
 
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
@@ -104,16 +106,16 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : rpmTask.createDirectoryEntry
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
+
         if (createDirectoryEntry) {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
-            builder.addDirectory(
-                    "/" + dirDetails.relativePath.pathString,
-                    (int) (lookup(specToLookAt, 'dirMode') ?: -1),
-                    (Directive) lookup(specToLookAt, 'fileType') ?: rpmTask.fileType,
-                    (String) lookup(specToLookAt, 'user') ?: rpmTask.user,
-                    (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup,
-                    (boolean) addParentsDir
-            )
+            Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
+            int dirMode = (int) (specFileMode?:dirDetails.mode)
+            Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: rpmTask.fileType
+            String user = (String) lookup(specToLookAt, 'user') ?: rpmTask.user
+            String group = (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
+
+            builder.addDirectory( "/" + dirDetails.relativePath.pathString, dirMode, directive, user, group, addParentsDir)
         }
     }
 
