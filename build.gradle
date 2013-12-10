@@ -217,6 +217,6 @@ test {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.9'
 }
 
