@@ -44,7 +44,7 @@ class Deb extends SystemPackagingTask {
 
     @Override
     protected String getArchString() {
-        return 'all'; // TODO Make this configurable
+        return arch?.toLowerCase();
     }
 
     @Override
@@ -65,6 +65,10 @@ class Deb extends SystemPackagingTask {
         mapping.map('gid', { (parentExten?.getGid())?:0 })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
         mapping.map('multiArch', { parentExten?.getMultiArch() })
+        mapping.map('arch', { parentExten?.getArch()?:'all'})
+        mapping.map('maintainer', { parentExten?.getMaintainer() ?: parentExten?.getPackager() ?: System.getProperty('user.name', '') })
+        mapping.map('uploaders', { parentExten?.getUploaders() ?: parentExten?.getPackager() ?: System.getProperty('user.name', '') })
+        mapping.map('priority', { parentExten?.getPriority() ?: 'optional' })
     }
 
     @Input @Optional
