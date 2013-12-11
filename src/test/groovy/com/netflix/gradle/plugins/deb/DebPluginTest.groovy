@@ -90,6 +90,9 @@ class DebPluginTest extends ProjectSpec {
             packageName = 'bleah'
             version = '1.0'
             release = '1'
+            arch 'amd64'
+            maintainer = "Superman"
+            uploaders = "Fantastic Four"
             permissionGroup = 'Development/Libraries'
             summary = 'Bleah blarg'
             packageDescription = 'Not a very interesting library.'
@@ -97,6 +100,8 @@ class DebPluginTest extends ProjectSpec {
             distribution = 'SuperSystem'
             vendor = 'Super Associates, LLC'
             url = 'http://www.example.com/'
+
+            configurationFile '/etc/init.d/served'
 
             requires('blarg', '1.0', Flags.GREATER | Flags.EQUAL)
             requires('blech')
@@ -127,7 +132,14 @@ class DebPluginTest extends ProjectSpec {
         'bleah' == scan.getHeaderEntry('Provides')
         'Bleah blarg\n Not a very interesting library.' == scan.getHeaderEntry('Description')
         'http://www.example.com/' == scan.getHeaderEntry('Homepage')
+        'Superman' == scan.getHeaderEntry('Maintainer')
+        'amd64' == scan.getHeaderEntry('Architecture')
+        'optional' == scan.getHeaderEntry('Priority')
 
+        scan.controlContents['./conffiles'].eachLine {
+            '/etc/init.d/served' == it
+        }
+        
         def file = scan.getEntry('./a/path/not/to/create/alone')
         file.isFile()
 
