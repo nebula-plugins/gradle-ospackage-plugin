@@ -75,6 +75,9 @@ class SystemPackagingExtension {
     @Input @Optional
     String provides
 
+    @Input @Optional
+    String arch
+
     // RPM Only
 
     @Input @Optional
@@ -85,9 +88,6 @@ class SystemPackagingExtension {
 
     @Input @Optional
     Boolean addParentDirs
-
-    @Input @Optional
-    Architecture arch
 
     @Input @Optional
     Os os
@@ -110,7 +110,18 @@ class SystemPackagingExtension {
     @Input @Optional
     Integer gid
 
+    @Input @Optional
+    String maintainer
+
+    @Input @Optional
+    String uploaders
+    
+    @Input @Optional
+    String priority
+
     // Scripts
+
+    final List<Object> configurationFiles = []
 
     final List<Object> preInstallCommands = []
 
@@ -137,6 +148,19 @@ class SystemPackagingExtension {
 
     def installUtils(File script) {
         commonCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setConfigurationFile(String script) {
+        configurationFile(script)
+    }
+
+    def configurationFile(String path) {
+        configurationFiles << path
         return this
     }
 

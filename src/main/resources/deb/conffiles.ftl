@@ -1,0 +1,1 @@
+<% files.each {file -> %><%= file %><% } %>
