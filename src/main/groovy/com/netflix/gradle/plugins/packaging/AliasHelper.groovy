@@ -12,7 +12,7 @@ class AliasHelper {
     static <T extends Enum<T>> void aliasEnumValues(T[] values, dynAware) {
         for (T value : values) {
             assert !dynAware.hasProperty(value.name())
-            logger.info("Setting ${value.name()} onto ${dynAware}")
+            logger.debug("Setting ${value.name()} onto ${dynAware}")
             dynAware.metaClass."${value.name()}" = value
         }
     }
@@ -29,7 +29,7 @@ class AliasHelper {
         for (Field field : forClass.fields) {
             if (field.type == ofClass && hasModifier(field, Modifier.STATIC)) {
                 assert !dynAware.hasProperty(field.name)
-                logger.info("Setting ${field.name} to ${field.get(null)} onto ${dynAware}")
+                logger.debug("Setting ${field.name} to ${field.get(null)} onto ${dynAware}")
                 dynAware.metaClass."${field.name}" = field.get(null)
             }
         }
