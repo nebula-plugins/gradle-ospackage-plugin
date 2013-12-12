@@ -66,8 +66,8 @@ class Deb extends SystemPackagingTask {
         mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
         mapping.map('multiArch', { parentExten?.getMultiArch() })
         mapping.map('arch', { parentExten?.getArch()?:'all'})
-        mapping.map('maintainer', { parentExten?.getMaintainer() ?: parentExten?.getPackager() ?: System.getProperty('user.name', '') })
-        mapping.map('uploaders', { parentExten?.getUploaders() ?: parentExten?.getPackager() ?: System.getProperty('user.name', '') })
+        mapping.map('maintainer', { parentExten?.getMaintainer() ?: System.getProperty('user.name', '') })
+        mapping.map('uploaders', { parentExten?.getUploaders() ?: '' })
         mapping.map('priority', { parentExten?.getPriority() ?: 'optional' })
     }
 
