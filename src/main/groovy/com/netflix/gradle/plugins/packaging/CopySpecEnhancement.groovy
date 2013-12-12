@@ -41,16 +41,16 @@ class CopySpecEnhancement {
         appendFieldToCopySpec(spec, 'user', user)
     }
 
-    static void setUser(CopySpec spec, String user) {
-        user(spec, user)
+    static void setUser(CopySpec spec, String userArg) {
+        user(spec, userArg)
     }
 
     static void permissionGroup(CopySpec spec, String permissionGroup) {
         appendFieldToCopySpec(spec, 'permissionGroup', permissionGroup)
     }
 
-    static void setPermissionGroup(CopySpec spec, String permissionGroup) {
-        permissionGroup(spec, permissionGroup)
+    static void setPermissionGroup(CopySpec spec, String permissionGroupArg) {
+        permissionGroup(spec, permissionGroupArg)
     }
 
     /**
@@ -63,8 +63,8 @@ class CopySpecEnhancement {
     /**
      * RPM Only
      */
-    static void setFileType(CopySpec spec, Directive fileType) {
-        fileType(spec, fileType)
+    static void setFileType(CopySpec spec, Directive fileTypeArg) {
+        fileType(spec, fileTypeArg)
     }
 
     /**
@@ -77,8 +77,8 @@ class CopySpecEnhancement {
     /**
      * RPM Only
      */
-    static void setAddParentDirs(CopySpec spec, boolean addParentDirs) {
-        addParentDirs(spec, addParentDirs)
+    static void setAddParentDirs(CopySpec spec, boolean addParentDirsArg) {
+        addParentDirs(spec, addParentDirsArg)
     }
 
     /**
@@ -91,8 +91,8 @@ class CopySpecEnhancement {
     /**
      * RPM Only
      */
-    static void setCreateDirectoryEntry(CopySpec spec, boolean createDirectoryEntry) {
-        createDirectoryEntry(spec, createDirectoryEntry)
+    static void setCreateDirectoryEntry(CopySpec spec, boolean createDirectoryEntryArg) {
+        createDirectoryEntry(spec, createDirectoryEntryArg)
     }
 
     /**
@@ -105,8 +105,8 @@ class CopySpecEnhancement {
     /**
      * DEB Only
      */
-    static void setUid(CopySpec spec, int uid) {
-        uid(spec, uid)
+    static void setUid(CopySpec spec, int uidArg) {
+        uid(spec, uidArg)
     }
 
     /**
@@ -119,7 +119,7 @@ class CopySpecEnhancement {
     /**
      * DEB Only
      */
-    static void setGid(CopySpec spec, int gid) {
-        gid(spec, gid)
+    static void setGid(CopySpec spec, int gidArg) {
+        gid(spec, gidArg)
     }
 }
