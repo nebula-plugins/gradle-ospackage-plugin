@@ -71,7 +71,7 @@ class RpmPluginTest {
 
             from(srcDir.toString() + '/main/groovy') {
                 createDirectoryEntry true
-                fileType = CONFIG | NOREPLACE
+                fileType CONFIG | NOREPLACE
             }
 
             from(noParentsDir) {
@@ -134,7 +134,7 @@ class RpmPluginTest {
             }
             from(appleFile.getParentFile()) {
                 into '/usr/local/myproduct/bin'
-                createDirectoryEntry = true
+                createDirectoryEntry true
             }
         })
         rpmTask.execute()
