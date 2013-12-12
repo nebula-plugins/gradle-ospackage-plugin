@@ -24,4 +24,34 @@ class CopySpecEnhancementTest {
 
         assertEquals(true, spec.addParentDirs )
     }
+
+    @Test
+    public void addCreateDirectoryEntry() {
+        def spec = new DefaultCopySpec(null, null)
+
+        use(CopySpecEnhancement) {
+            spec.createDirectoryEntry false
+        }
+
+        assertEquals(false, spec.createDirectoryEntry )
+
+        use(CopySpecEnhancement) {
+            spec.createDirectoryEntry true
+        }
+
+        assertEquals(true, spec.createDirectoryEntry )
+
+        use(CopySpecEnhancement) {
+            spec.setCreateDirectoryEntry(false)
+        }
+
+        assertEquals(false, spec.createDirectoryEntry )
+
+        use(CopySpecEnhancement) {
+            spec.setCreateDirectoryEntry(true)
+        }
+
+        assertEquals(true, spec.createDirectoryEntry )
+
+    }
 }

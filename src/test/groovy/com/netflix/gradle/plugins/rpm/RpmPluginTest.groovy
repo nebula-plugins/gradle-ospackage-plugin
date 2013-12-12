@@ -157,14 +157,14 @@ class RpmPluginTest {
 
         project.apply plugin: 'rpm'
 
-        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+        def rpmTask = (Rpm) project.task([type: Rpm, name:'buildRpm']) {
             from(appleFile.getParentFile()) {
                 into '/usr/local/myproduct/bin'
                 filter({ line ->
                     return line //line.replaceAll('{{BASE}}', '/usr/local/myproduct')
                 })
             }
-        })
+        }
         rpmTask.execute()
     }
 
@@ -263,9 +263,9 @@ class RpmPluginTest {
         ProjectPackagingExtension parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 
         // Configure
-        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            release = 3
-        })
+        Rpm rpmTask = (Rpm) project.task([type: Rpm, name:'buildRpm']) {
+            release 3
+        }
         project.version = '1.0'
 
         rpmTask.from(srcDir) {
