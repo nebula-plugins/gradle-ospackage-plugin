@@ -3,7 +3,7 @@ Section: ${section}
 Priority: optional
 Maintainer: ${author}
 Uploaders: ${author}
-Version: ${epoch}:${version}-${release}
+Version: ${version}-${release}
 Standards-Version: 3.8.3
 Package: ${name}
 Provides: ${provides}
