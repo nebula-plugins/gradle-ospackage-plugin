@@ -105,7 +105,7 @@ class DebPluginTest {
             from(srcDir)
 
             from(srcDir.toString() + '/main/groovy') {
-                createDirectoryEntry = true
+                createDirectoryEntry true
                 //fileType = CONFIG | NOREPLACE
             }
 
