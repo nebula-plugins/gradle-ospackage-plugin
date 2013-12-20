@@ -19,7 +19,6 @@ package com.netflix.gradle.plugins.deb
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Link
-import groovy.text.GStringTemplateEngine
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
@@ -42,22 +41,22 @@ import org.vafer.jdeb.producers.DataProducerLink
 class DebCopyAction extends AbstractPackagingCopyAction {
     static final Logger logger = LoggerFactory.getLogger(DebCopyAction.class)
 
-    private final GStringTemplateEngine engine = new GStringTemplateEngine()
-
     Deb debTask
     def debianDir
     List<String> dependencies
     List<DataProducer> dataProducers
     List<InstallDir> installDirs
     boolean includeStandardDefines = true
+    TemplateHelper templateHelper
 
     DebCopyAction(Deb debTask) {
         super(debTask)
         this.debTask = debTask
-        debianDir = new File(debTask.project.buildDir, "debian")
         dependencies = []
         dataProducers = []
         installDirs = []
+        debianDir = new File(debTask.project.buildDir, "debian")
+        templateHelper = new TemplateHelper(debianDir, '/deb')
     }
 
     @Canonical
@@ -187,9 +186,9 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         File debFile = debTask.getArchivePath()
 
         def context = toContext()
-        List<File> debianFiles = new ArrayList<String>();
+        List<File> debianFiles = new ArrayList<File>();
 
-        debianFiles << generateFile(debianDir, "control", context)
+        debianFiles << templateHelper.generateFile("control", context)
 
         def installUtils = debTask.allCommonCommands.collect { stripShebang(it) }
         def preInstall = installUtils + debTask.allPreInstallCommands.collect { stripShebang(it) }
@@ -197,10 +196,11 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         def preUninstall = installUtils + debTask.allPreUninstallCommands.collect { stripShebang(it) }
         def postUninstall = installUtils + debTask.allPostUninstallCommands.collect { stripShebang(it) }
 
-        debianFiles << generateFile(debianDir, "preinst", context + [commands: preInstall] )
-        debianFiles << generateFile(debianDir, "postinst", context + [commands:  postInstall] )
-        debianFiles << generateFile(debianDir, "prerm", context + [commands:  preUninstall] )
-        debianFiles << generateFile(debianDir, "postrm", context + [commands:  postUninstall]  )
+        def addlFiles = [preinst: preInstall, postinst: postInstall, prerm: preUninstall, postrm:postUninstall]
+                .collect {
+                    templateHelper.generateFile(it.key, context + [commands: it.value] )
+                }
+        debianFiles.addAll(addlFiles)
         File[] debianFileArray = debianFiles.toArray() as File[]
 
         def producers = dataProducers.toArray() as DataProducer[]
@@ -249,15 +249,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                     return map
                 }
         ]
-    }
-
-    File generateFile(File debianDir, String fileName, Map context) {
-        logger.info("Generating ${fileName} file...")
-        def template = getClass().getResourceAsStream("/deb/${fileName}.ftl").newReader()
-        def content = engine.createTemplate(template).make(context).toString()
-        def contentFile = new File(debianDir, fileName)
-        contentFile.text = content
-        return contentFile
     }
 
     private PackageDescriptor createDeb(File[] controlFiles, File debFile, Processor processor, DataProducer[] data) {
