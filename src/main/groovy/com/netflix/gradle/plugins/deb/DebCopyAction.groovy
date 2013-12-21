@@ -120,8 +120,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
         int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
 
-        Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
-        int fileMode = (int) (specFileMode?:fileDetails.mode)
+        int fileMode = fileDetails.mode
 
         dataProducers << new DataProducerFileSimple(path, inputFile, user, uid, group, gid, fileMode)
     }
@@ -138,8 +137,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
             String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
             int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
 
-            Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
-            int fileMode = (int) (specFileMode?:dirDetails.mode)
+            int fileMode = dirDetails.mode
 
             String dirName =  "/" + dirDetails.relativePath.pathString
             dataProducers << new DataProducerDirectorySimple(dirName,user,uid,group,gid,fileMode)
