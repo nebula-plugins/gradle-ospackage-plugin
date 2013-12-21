@@ -140,7 +140,8 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
 
     def static lookup(def specToLookAt, String propertyName) {
         if (specToLookAt?.metaClass?.hasProperty(specToLookAt, propertyName) != null) {
-            return specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
+            MetaBeanProperty prop = specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
+            return prop.getProperty(specToLookAt)
         } else {
             return null
         }
