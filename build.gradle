@@ -219,6 +219,6 @@ test {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.10-rc-2'
+    gradleVersion = '1.10'
 }
 
