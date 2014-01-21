@@ -42,7 +42,6 @@ test {
 }
 
 def pomConfig = {
-    url 'https://github.com/nebula-plugins/gradle-ospackage-plugin'
     inceptionYear '2011' // as gradle-rpm-plugin
 
     developers {
