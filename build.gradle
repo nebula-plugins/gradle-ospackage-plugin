@@ -35,6 +35,12 @@ tasks.withType(Javadoc) {
     options.links(javaApiUrl, groovyApiUrl)
 }
 
+test {
+  testLogging {
+    exceptionFormat "full"
+  }
+}
+
 def pomConfig = {
     url 'https://github.com/nebula-plugins/gradle-ospackage-plugin'
     inceptionYear '2011' // as gradle-rpm-plugin
@@ -70,12 +76,3 @@ plugins.withType(NebulaBaseMavenPublishingPlugin) {
     }
 }
 
-test {
-  testLogging {
-    exceptionFormat "full"
-  }
-}
-
-task createWrapper(type: Wrapper) {
-    gradleVersion = '1.9'
-}
