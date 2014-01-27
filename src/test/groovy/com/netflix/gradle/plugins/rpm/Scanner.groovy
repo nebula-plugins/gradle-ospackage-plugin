@@ -75,7 +75,8 @@ class Scanner {
                 ByteBuffer descriptor = includingContents?Util.fill(wrapper, fileSize):null
                 files += new ScannerFile(header, descriptor)
             }
-            if (!includeContents) {
+
+            if(!includingContents) {
                 assertEquals(fileSize, uncompressed.skip(fileSize))
             }
             total += fileSize

@@ -77,7 +77,7 @@ class RpmPluginTest extends ProjectSpec {
                 into '/a/path/not/to/create'
             }
 
-            link('/opt/cbleah/banana', '/opt/cbleah/apple')
+            link('/opt/bleah/banana', '/opt/bleah/apple')
         })
 
         when:
