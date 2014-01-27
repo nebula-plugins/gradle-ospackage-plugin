@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.deb
 
 import com.google.common.io.Files
+import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -24,16 +25,15 @@ import org.junit.Test
 
 import static org.junit.Assert.*
 
-class DebPluginTest {
-    @Test
-    public void minimalConfig() {
-        Project project = ProjectBuilder.builder().build()
+class DebPluginTest extends ProjectSpec {
+    def 'minimal config'() {
         project.version = 1.0
 
         File appleFile = new File(project.buildDir, 'src/apple')
         Files.createParentDirs(appleFile)
         appleFile.text = 'apple'
 
+        when:
         project.apply plugin: 'deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -43,9 +43,10 @@ class DebPluginTest {
 
         debTask.execute()
 
+        then:
         File debFile = debTask.getArchivePath()
-        assertNotNull(debFile)
-        assertTrue(debFile.exists())
+        debFile != null
+        debFile.exists()
     }
 
 //    public void alwaysRun(DefaultTask task ) {
@@ -68,16 +69,13 @@ class DebPluginTest {
 //        task.inputs = obj
 //    }
 
-    @Test
-    public void files() {
-        Project project = ProjectBuilder.builder().build()
+    def 'files'() {
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        File noParentsDir = new File(buildDir, 'noParentsDir')
+        File noParentsDir = new File(projectDir, 'noParentsDir')
         noParentsDir.mkdirs()
         FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
 
@@ -117,8 +115,10 @@ class DebPluginTest {
             link('/opt/bleah/banana', '/opt/bleah/apple')
         })
 
+        when:
         project.tasks.buildDeb.execute()
 
+        then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb')) // , project.file('build/tmp/deboutput')
         assertEquals('bleah', scan.getHeaderEntry('Package'))
         assertEquals('blech', scan.getHeaderEntry('Depends'))
@@ -139,12 +139,9 @@ class DebPluginTest {
         assertTrue(symlink.isSymbolicLink())
     }
 
-    @Test
-    public void projectNameDefault() {
-        Project project = ProjectBuilder.builder().build()
+    def 'projectNameDefault'() {
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
@@ -153,18 +150,18 @@ class DebPluginTest {
         Deb debTask = project.task([type: Deb], 'buildDeb', {})
         debTask.from(srcDir)
 
+        when:
         debTask.execute()
 
+        then:
         File debFile = debTask.getArchivePath()
+        debFile != null
+
     }
 
+    def 'permissionsDefaultToFileSystem'() {
 
-    @Test
-    public void permissionsDefaultToFileSystem() {
-        Project project = ProjectBuilder.builder().build()
-
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         def appleFile = new File(srcDir, 'apple.sh')
         FileUtils.writeStringToFile(appleFile, '#!/bin/bash\necho "Apples are yummy"')
@@ -185,24 +182,24 @@ class DebPluginTest {
         Deb debTask = project.task([type: Deb], 'buildDeb', {})
         debTask.from(srcDir)
 
+        when:
         debTask.execute()
 
+        then:
         File debFile = debTask.getArchivePath()
 
         def scan = new Scanner(debFile)
 
         // FYI, rwxrwxrwx is 0777, i.e. 511 in decimal
-        assertEquals(0755, scan.getEntry('./apple.sh').mode)
-        assertEquals(0644, scan.getEntry('./pear').mode)
+        0755 == scan.getEntry('./apple.sh').mode
+        0644 == scan.getEntry('./pear').mode
 
     }
 
-    @Test
-    public void generateScripts() {
-        Project project = ProjectBuilder.builder().build()
+    def 'generateScripts'() {
         project.version = 1.0
 
-        File scriptDir = new File(project.buildDir, 'src')
+        File scriptDir = new File(projectDir, 'src')
         Files.createParentDirs(scriptDir)
         scriptDir.mkdir()
 
@@ -227,16 +224,16 @@ class DebPluginTest {
             from(appleFile.getParentFile())
         })
 
+        when:
         debTask.execute()
 
+        then:
         def scan = new Scanner(debTask.getArchivePath())
-        assertTrue(scan.controlContents['./preinst'].contains("echo Preinstall"))
-        assertTrue(scan.controlContents['./postinst'].contains("echo Postinstall"))
+        scan.controlContents['./preinst'].contains("echo Preinstall")
+        scan.controlContents['./postinst'].contains("echo Postinstall")
     }
 
-    @Test
-    public void generateScriptsThatAppendInstallUtil() {
-        Project project = ProjectBuilder.builder().build()
+    def 'generateScriptsThatAppendInstallUtil'() {
         project.version = 1.0
 
         File scriptDir = new File(project.buildDir, 'src')
@@ -268,12 +265,14 @@ class DebPluginTest {
             from(appleFile.getParentFile())
         })
 
+        when:
         debTask.execute()
 
+        then:
         def scan = new Scanner(debTask.getArchivePath())
-        assertTrue(scan.controlContents['./preinst'].contains("echo Preinstall"))
-        assertTrue(scan.controlContents['./preinst'].contains("echo Installing"))
-        assertTrue(scan.controlContents['./postinst'].contains("echo Postinstall"))
-        assertTrue(scan.controlContents['./postinst'].contains("echo Installing"))
+        scan.controlContents['./preinst'].contains("echo Preinstall")
+        scan.controlContents['./preinst'].contains("echo Installing")
+        scan.controlContents['./postinst'].contains("echo Postinstall")
+        scan.controlContents['./postinst'].contains("echo Installing")
     }
 }

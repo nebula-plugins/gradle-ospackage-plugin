@@ -2,6 +2,7 @@ package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.rpm.Rpm
+import nebula.test.ProjectSpec
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Test
@@ -9,52 +10,59 @@ import org.junit.Test
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertTrue
 
-class SystemPackagingPluginTest {
-    @Test
-    public void tasksCreated() {
-        Project project = ProjectBuilder.builder().build()
+class SystemPackagingPluginTest extends ProjectSpec {
+    def 'tasks created'() {
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
 
+        when:
         project.apply plugin: 'os-package'
 
-        assertNotNull( project.getPlugins().getPlugin(SystemPackagingPlugin) )
-        assertNotNull( project.getPlugins().getPlugin(SystemPackagingBasePlugin) )
+        then:
+        project.getPlugins().getPlugin(SystemPackagingPlugin) != null
+        project.getPlugins().getPlugin(SystemPackagingBasePlugin) != null
 
         def ext = project.getExtensions().getByType(ProjectPackagingExtension)
-        assertNotNull(ext)
+        ext != null
 
         def debTask = project.tasks.getByName('buildDeb')
-        assertTrue( debTask instanceof Deb )
+        debTask instanceof Deb
 
         def rpmTask = project.tasks.getByName('buildRpm')
-        assertTrue( rpmTask instanceof Rpm )
+        rpmTask instanceof Rpm
 
     }
 
-    @Test
-    public void inputsSetFromExtension() {
+    def 'inputsSetFromExtension'() {
         Project project = ProjectBuilder.builder().build()
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
 
         // Create some content, or else source will be empty
         new File(srcDir, 'a.java').text = "public class A { }"
 
+        when:
         project.apply plugin: 'os-package'
 
         def ext = project.getExtensions().getByType(ProjectPackagingExtension)
         ext.from(srcDir)
 
+        then:
         Deb debTask = project.tasks.getByName('buildDeb')
-        assertTrue("Task should have inputs from extension", debTask.inputs.hasInputs)
-        assertTrue("Should have sourceFiles from extension", debTask.inputs.hasSourceFiles)
-        assertTrue("Should have source from extension", !debTask.getSource().empty)
-        assertTrue("Task should have output",debTask.outputs.hasOutput)
+
+        then: "Task should have inputs from extension"
+        debTask.inputs.hasInputs
+
+        then: "Should have sourceFiles from extension"
+        debTask.inputs.hasSourceFiles
+
+        then: "Should have source from extension"
+        !debTask.getSource().empty
+
+        then: "Task should have output"
+        debTask.outputs.hasOutput
 
     }
 }

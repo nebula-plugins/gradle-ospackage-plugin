@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.3' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.6' }
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -25,8 +25,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile 'junit:junit:4.11'
-    testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
+    testCompile 'com.netflix.nebula:nebula-test:1.9.3'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'

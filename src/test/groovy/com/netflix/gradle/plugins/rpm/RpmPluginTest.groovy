@@ -18,28 +18,26 @@ package com.netflix.gradle.plugins.rpm
 
 import com.google.common.io.Files
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
+import com.netflix.gradle.plugins.packaging.SystemPackagingTask
+import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-import org.gmock.GMockController
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Test
+
 
 import static org.freecompany.redline.header.Header.HeaderTag.*
 import static org.freecompany.redline.payload.CpioHeader.*
-import static org.junit.Assert.*
 
-class RpmPluginTest {
-    @Test
-    public void files() {
+class RpmPluginTest extends ProjectSpec {
+    def 'files'() {
         Project project = ProjectBuilder.builder().build()
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        File noParentsDir = new File(buildDir, 'noParentsDir')
+        File noParentsDir = new File(projectDir, 'noParentsDir')
         noParentsDir.mkdirs()
         FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
 
@@ -79,48 +77,52 @@ class RpmPluginTest {
                 into '/a/path/not/to/create'
             }
 
-            link('/opt/bleah/banana', '/opt/bleah/apple')
+            link('/opt/cbleah/banana', '/opt/cbleah/apple')
         })
 
+        when:
         project.tasks.buildRpm.execute()
+
+        then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
-        assertEquals('bleah', Scanner.getHeaderEntryString(scan, NAME))
-        assertEquals('1.0', Scanner.getHeaderEntryString(scan, VERSION))
-        assertEquals('1', Scanner.getHeaderEntryString(scan, RELEASE))
-        assertEquals('i386', Scanner.getHeaderEntryString(scan, ARCH))
-        assertEquals('linux', Scanner.getHeaderEntryString(scan, OS))
-        assertEquals(['./a/path/not/to/create/alone', './opt/bleah',
-                      './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
-        assertEquals([FILE, DIR, FILE, SYMLINK], scan.files*.type)
+        'bleah' == Scanner.getHeaderEntryString(scan, NAME)
+        '1.0' == Scanner.getHeaderEntryString(scan, VERSION)
+        '1' == Scanner.getHeaderEntryString(scan, RELEASE)
+        'i386' == Scanner.getHeaderEntryString(scan, ARCH)
+        'linux' == Scanner.getHeaderEntryString(scan, OS)
+        ['./a/path/not/to/create/alone', './opt/bleah',
+                      './opt/bleah/apple', './opt/bleah/banana'] == scan.files*.name
+        [FILE, DIR, FILE, SYMLINK] == scan.files*.type
     }
 
-    @Test
-    public void projectNameDefault() {
-        Project project = ProjectBuilder.builder().build()
-
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+    def 'projectNameDefault'() {
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
+        when:
         project.apply plugin: 'rpm'
 
         project.task([type: Rpm], 'buildRpm', {})
-        assertEquals 'test', project.buildRpm.packageName
 
+        then:
+        'projectNameDefault' == project.buildRpm.packageName
+
+        when:
         project.tasks.buildRpm.execute()
+
+        then:
+        noExceptionThrown()
     }
 
-    @Test
-    void category_on_spec() {
-        Project project = ProjectBuilder.builder().build()
+    def 'category_on_spec'() {
         project.version = '1.0.0'
 
-        File bananaFile = new File(project.buildDir, 'test/banana')
+        File bananaFile = new File(projectDir, 'test/banana')
         Files.createParentDirs(bananaFile)
         bananaFile.text = 'banana'
 
-        File appleFile = new File(project.buildDir, 'src/apple')
+        File appleFile = new File(projectDir, 'src/apple')
         Files.createParentDirs(appleFile)
         appleFile.text = 'apple'
 
@@ -137,88 +139,99 @@ class RpmPluginTest {
                 createDirectoryEntry true
             }
         })
+
+        when:
         rpmTask.execute()
 
+        then:
         // Evaluate response
-        def scan = Scanner.scan(rpmTask.getArchivePath())
+        def scanFiles = Scanner.scan(rpmTask.getArchivePath()).files
 
-        assertEquals(['./usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'], scan.files*.name)
-        assertEquals([ DIR, DIR, FILE, DIR, DIR, FILE], scan.files*.type)
+        ['./usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'] == scanFiles*.name
+        [ DIR, DIR, FILE, DIR, DIR, FILE] == scanFiles*.type
 
     }
 
-    @Test
-    void filter_expression() {
-        Project project = ProjectBuilder.builder().build()
+    def 'filter_expression'() {
+
         project.version = '1.0.0'
-        File appleFile = new File(project.buildDir, 'src/apple')
+        File appleFile = new File(projectDir, 'src/apple')
         Files.createParentDirs(appleFile)
-        appleFile.text = 'apple'
+        appleFile.text = '{{BASE}}/apple'
 
         project.apply plugin: 'rpm'
 
-        def rpmTask = (Rpm) project.task([type: Rpm, name:'buildRpm']) {
+        def rpmTask = (Rpm) project.task([type: Rpm], 'buildRpm') {
             from(appleFile.getParentFile()) {
                 into '/usr/local/myproduct/bin'
                 filter({ line ->
-                    return line //line.replaceAll('{{BASE}}', '/usr/local/myproduct')
+                    return line.replaceAll(/\{\{BASE\}\}/, '/usr/local/myproduct')
                 })
             }
         }
+
+        when:
         rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(rpmTask.getArchivePath())
+        def scannerApple = scan.files.find { it.name =='./usr/local/myproduct/bin/apple'}
+        scannerApple.asString() == '/usr/local/myproduct/apple'
     }
 
-    @Test
-    void buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails() {
-        GMockController mock = new GMockController()
-        InetAddress mockInetAddress = (InetAddress) mock.mock(InetAddress)
+    def 'buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails'() {
+        InetAddress mockInetAddress = Mock()
+        mockInetAddress.hostAddress >> { throw new UnknownHostException() }
 
-        mockInetAddress.static.getLocalHost().raises(new UnknownHostException())
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        mock.play {
-            Project project = ProjectBuilder.builder().build()
+        when:
+        project.apply plugin: 'rpm'
 
-            File buildDir = project.buildDir
-            File srcDir = new File(buildDir, 'src')
-            srcDir.mkdirs()
-            FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+        Rpm rpmTask = (Rpm) project.task([type: Rpm], 'buildRpm', {})
+        SystemPackagingTask.machineAddress = mockInetAddress
 
-            project.apply plugin: 'rpm'
+        then:
+        'unknown' == rpmTask.getBuildHost()
 
-            project.task([type: Rpm], 'buildRpm', {})
-            assertEquals 'unknown', project.buildRpm.buildHost
+        when:
+        rpmTask.execute()
 
-            project.tasks.buildRpm.execute()
-        }
+        then:
+        noExceptionThrown()
 
     }
 
-    @Test
-    public void usesArchivesBaseName() {
-        Project project = ProjectBuilder.builder().build()
+    def 'usesArchivesBaseName'() {
+
         // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
         project.apply plugin: BasePlugin
         project.archivesBaseName = 'foo'
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
         project.apply plugin: 'rpm'
 
+        when:
         project.task([type: Rpm], 'buildRpm', {})
-        assertEquals 'foo', project.buildRpm.packageName
 
+        then:
+        'foo' == project.buildRpm.packageName
+
+        when:
         project.tasks.buildRpm.execute()
+
+        then:
+        noExceptionThrown()
     }
 
-    @Test
-    public void verifyValuesCanComeFromExtension() {
-        Project project = ProjectBuilder.builder().build()
+    def 'verifyValuesCanComeFromExtension'() {
 
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
@@ -230,6 +243,7 @@ class RpmPluginTest {
         rpmTask.requires('openjdk')
         rpmTask.link('/dev/null', '/dev/random')
 
+        when:
         parentExten.user = 'USER'
         parentExten.permissionGroup = 'GROUP2'
         parentExten.requires('java')
@@ -237,24 +251,21 @@ class RpmPluginTest {
 
         project.description = 'DESCRIPTION'
 
-        assertEquals 'USER', rpmTask.user // From Extension
-        assertEquals 'GROUP', rpmTask.permissionGroup // From task, overriding extension
-        assertEquals 'DESCRIPTION', rpmTask.packageDescription // From Project, even though extension could have a value
-        assertEquals 2, rpmTask.getAllLinks().size()
-        assertEquals 2, rpmTask.getAllDependencies().size()
+        then:
+        'USER' == rpmTask.user // From Extension
+        'GROUP' == rpmTask.permissionGroup // From task, overriding extension
+        'DESCRIPTION' == rpmTask.packageDescription // From Project, even though extension could have a value
+        2 == rpmTask.getAllLinks().size()
+        2 == rpmTask.getAllDependencies().size()
     }
 
-    @Test
-    public void verifyCopySpecCanComeFromExtension() {
-        Project project = ProjectBuilder.builder().build()
-
-        // Setup files
-        File buildDir = project.buildDir
-        File srcDir = new File(buildDir, 'src')
+    def 'verifyCopySpecCanComeFromExtension'() {
+        setup:
+        File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         new File(srcDir, 'apple').text = 'apple'
 
-        File etcDir = new File(buildDir, 'etc')
+        File etcDir = new File(projectDir, 'etc')
         etcDir.mkdirs()
         new File(etcDir, 'banana.conf').text = 'banana=true'
 
@@ -277,25 +288,24 @@ class RpmPluginTest {
         }
 
         // Execute
+        when:
         rpmTask.execute()
 
+        then:
         // Evaluate response
-        assertTrue(rpmTask.getArchivePath().exists())
+        rpmTask.getArchivePath().exists()
         println("Path to RPM: " + rpmTask.getArchivePath().getAbsoluteFile().toString())
         def scan = Scanner.scan(rpmTask.getArchivePath())
         // Parent will come first
-        assertEquals(['./conf', './conf/defaults', './conf/defaults/banana.conf', './usr/local/src', './usr/local/src/apple',], scan.files*.name)
-        assertEquals([DIR, DIR, FILE, DIR, FILE], scan.files*.type)
+        ['./conf', './conf/defaults', './conf/defaults/banana.conf', './usr/local/src', './usr/local/src/apple'] == scan.files*.name
+        [DIR, DIR, FILE, DIR, FILE] == scan.files*.type
     }
 
-    @Test
-    public void differentUsersBetweenCopySpecs() {
-        Project project = ProjectBuilder.builder().build()
+    def 'differentUsersBetweenCopySpecs'() {
 
-        File buildDir = project.buildDir
-        File srcDir1 = new File(buildDir, 'src1')
-        File srcDir2 = new File(buildDir, 'src2')
-        File srcDir3 = new File(buildDir, 'src3')
+        File srcDir1 = new File(projectDir, 'src1')
+        File srcDir2 = new File(projectDir, 'src2')
+        File srcDir3 = new File(projectDir, 'src3')
 
         srcDir1.mkdirs()
         srcDir2.mkdirs()
@@ -335,19 +345,19 @@ class RpmPluginTest {
             }
         })
 
+        when:
         project.tasks.buildRpm.execute()
 
+        then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
 
-        assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
-        assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+        [DIR, FILE, FILE, FILE] == scan.files*.type
+        ['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'] == scan.files*.name
 
-        assertEquals(['user1', 'user1', 'default', 'user2'],
-                     scan.format.header.getEntry(FILEUSERNAME).values.toList())
+        ['user1', 'user1', 'default', 'user2'] == scan.format.header.getEntry(FILEUSERNAME).values.toList()
     }
 
-    @Test
-    public void differentGroupsBetweenCopySpecs() {
+    def 'differentGroupsBetweenCopySpecs'() {
         Project project = ProjectBuilder.builder().build()
 
         File buildDir = project.buildDir
@@ -394,28 +404,25 @@ class RpmPluginTest {
             }
         })
 
+        when:
         project.tasks.buildRpm.execute()
 
+        then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
 
-        assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
-        assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+        [DIR, FILE, FILE, FILE] == scan.files*.type
+        ['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'] == scan.files*.name
 
         def allFiles = scan.files
         def groups = scan.format.header.getEntry(FILEGROUPNAME).values
 
-        assertEquals(['default', 'default', 'group2', 'default'],
-                     scan.format.header.getEntry(FILEGROUPNAME).values.toList())
+        ['default', 'default', 'group2', 'default'] == scan.format.header.getEntry(FILEGROUPNAME).values.toList()
     }
 
-    @Test
-    public void differentPermissionsBetweenCopySpecs() {
-        Project project = ProjectBuilder.builder().build()
-
-        File buildDir = project.buildDir
-        File srcDir1 = new File(buildDir, 'src1')
-        File srcDir2 = new File(buildDir, 'src2')
-        File srcDir3 = new File(buildDir, 'src3')
+    def 'differentPermissionsBetweenCopySpecs'() {
+        File srcDir1 = new File(projectDir, 'src1')
+        File srcDir2 = new File(projectDir, 'src2')
+        File srcDir3 = new File(projectDir, 'src3')
 
         srcDir1.mkdirs()
         srcDir2.mkdirs()
@@ -454,12 +461,14 @@ class RpmPluginTest {
             }
         })
 
+        when:
         project.tasks.buildRpm.execute()
 
+        then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
 
-        assertEquals([DIR, FILE, FILE, FILE], scan.files*.type)
-        assertEquals(['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'], scan.files*.name)
+        [DIR, FILE, FILE, FILE] == scan.files*.type
+        ['./tiny', './tiny/apple', './tiny/banana', './tiny/cherry'] == scan.files*.name
 
         // #define S_IFIFO  0010000  /* named pipe (fifo) */
         // #define S_IFCHR  0020000  /* character special */
@@ -487,7 +496,6 @@ class RpmPluginTest {
 
 	// drwxr-xr-x is 0040755
         // NOTE: Not sure why directory is getting user write permission
-	assertEquals([(short)0040755, (short)0100555, (short)0100666, (short)0100555],
-                     scan.format.header.getEntry(FILEMODES).values.toList())
+	[(short)0040755, (short)0100555, (short)0100666, (short)0100555] == scan.format.header.getEntry(FILEMODES).values.toList()
     }
 }
