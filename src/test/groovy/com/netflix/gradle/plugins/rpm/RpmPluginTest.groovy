@@ -180,8 +180,9 @@ class RpmPluginTest extends ProjectSpec {
     }
 
     def 'buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails'() {
+        setup:
         InetAddress mockInetAddress = Mock()
-        mockInetAddress.hostAddress >> { throw new UnknownHostException() }
+        mockInetAddress.hostName >> { throw new UnknownHostException() }
 
         File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
