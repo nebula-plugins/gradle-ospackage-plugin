@@ -19,11 +19,9 @@ package com.netflix.gradle.plugins.deb
 import com.google.common.io.Files
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Test
 
-import static org.junit.Assert.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertTrue
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {

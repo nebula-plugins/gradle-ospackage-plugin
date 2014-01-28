@@ -5,10 +5,6 @@ import com.netflix.gradle.plugins.rpm.Rpm
 import nebula.test.ProjectSpec
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Test
-
-import static org.junit.Assert.assertNotNull
-import static org.junit.Assert.assertTrue
 
 class SystemPackagingPluginTest extends ProjectSpec {
     def 'tasks created'() {

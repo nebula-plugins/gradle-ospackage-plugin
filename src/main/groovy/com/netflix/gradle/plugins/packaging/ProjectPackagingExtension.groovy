@@ -2,14 +2,7 @@ package com.netflix.gradle.plugins.packaging
 
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.CopyProcessingSpec
-import org.gradle.api.file.CopySourceSpec
-import org.gradle.api.file.CopySpec
-import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.api.file.FileCopyDetails
-import org.gradle.api.file.FileTree
-import org.gradle.api.file.FileTreeElement
-import org.gradle.api.file.RelativePath
+import org.gradle.api.file.*
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopySpecInternal
 import org.gradle.api.internal.file.copy.DefaultCopySpec

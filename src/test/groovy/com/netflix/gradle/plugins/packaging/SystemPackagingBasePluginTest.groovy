@@ -2,17 +2,12 @@ package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.rpm.Rpm
+import com.netflix.gradle.plugins.rpm.Scanner
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Os
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
-import org.junit.Test
 
-import com.netflix.gradle.plugins.rpm.Scanner
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
 import static org.freecompany.redline.header.Header.HeaderTag.*
 
 class SystemPackagingBasePluginTest extends ProjectSpec {

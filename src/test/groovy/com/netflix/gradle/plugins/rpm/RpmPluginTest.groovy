@@ -25,7 +25,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 
-
 import static org.freecompany.redline.header.Header.HeaderTag.*
 import static org.freecompany.redline.payload.CpioHeader.*
 

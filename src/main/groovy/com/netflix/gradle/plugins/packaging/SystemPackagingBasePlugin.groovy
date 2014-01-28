@@ -24,7 +24,6 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.BasePlugin
 
 class SystemPackagingBasePlugin implements Plugin<Project> {
     private static Logger logger = Logging.getLogger(SystemPackagingBasePlugin);
