@@ -24,7 +24,6 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.plugins.BasePlugin
 
 class SystemPackagingBasePlugin implements Plugin<Project> {
     private static Logger logger = Logging.getLogger(SystemPackagingBasePlugin);
@@ -42,7 +41,6 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
         extension = createExtension()
         RpmPlugin.applyAliases(extension) // RPM Specific aliases
 
-        project.plugins.apply(BasePlugin.class)
         project.plugins.apply(RpmPlugin.class)
         project.plugins.apply(DebPlugin.class)
     }

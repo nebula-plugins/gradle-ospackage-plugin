@@ -16,11 +16,11 @@
 
 package com.netflix.gradle.plugins.rpm
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
-
 import org.junit.Before
 import org.junit.Test
+
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertTrue
 
 class RpmCopySpecVisitorTest {
     RpmCopyAction visitor

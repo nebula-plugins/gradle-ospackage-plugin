@@ -1,36 +1,23 @@
-import org.gradle.api.publish.maven.MavenPublication
-
-group = 'com.netflix.nebula'
-description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
-
 buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3'
-        classpath 'com.github.townsfolk:gradle-release:1.2'
-    }
-}
-repositories {
-    jcenter()
+    repositories { jcenter() }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.6' }
 }
 
-apply plugin: 'java'
-apply plugin: 'groovy'
+description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
+apply plugin: 'nebula-plugin'
+
 apply plugin: 'eclipse'
 apply plugin: 'idea'
-apply plugin: 'bintray'
-apply plugin: 'maven-publish'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+release {
+    git.requireBranch = 'gradle-1.10'
+}
+
 dependencies {
-    compile gradleApi()
-
-    // For all dependencies, do NOT use a dynamic version like 1.1+, since it'll show up exactly like that in the pom, and 1.1+ is not a proper maven version
-
+    // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
     compile 'org.apache.commons:commons-lang3:3.1'
     compile 'org.redline-rpm:redline:1.1.10'
     compile('org.vafer:jdeb:1.0.1') {
@@ -42,10 +29,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    compile localGroovy()
-
-    testCompile 'junit:junit:4.11'
-    testCompile([group: 'org.gmock', name: 'gmock', version: '0.8.2', transitive: false])
+    testCompile 'com.netflix.nebula:nebula-test:1.9.3'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
@@ -54,39 +38,15 @@ tasks.withType(Javadoc) {
     options.links(javaApiUrl, groovyApiUrl)
 }
 
-task javadocJar(type: Jar, dependsOn: 'javadoc') {
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-}
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-artifacts {
-    archives jar
-    archives sourcesJar 
-    archives javadocJar
+test {
+  testLogging {
+    exceptionFormat "full"
+  }
 }
 
 def pomConfig = {
-    url 'https://github.com/nebula-plugins/gradle-ospackage-plugin'
-    inceptionYear '2011'
+    inceptionYear '2011' // as gradle-rpm-plugin
 
-    scm {
-        url 'scm:git://github.com/nebula-plugins/gradle-ospackage-plugin.git'
-        connection 'scm:git://github.com/nebula-plugins/gradle-ospackage-plugin.git'
-    }
- 
-    licenses {
-        license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            distribution 'repo'
-        }
-    }
- 
     developers {
         developer {
             id 'akrueger'
@@ -109,116 +69,11 @@ def pomConfig = {
     }
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourcesJar
-            artifact javadocJar
-
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', project.description)
-                root.children().last() + pomConfig
-
-                def jdebDep = root.dependencies.dependency.find { it.groupId.text() == 'org.vafer' && it.artifactId.text() == 'jdeb' }
-                def exclusions = jdebDep.appendNode('exclusions')
-                ['maven-core': 'org.apache.maven', 'maven-plugin-api': 'org.apache.maven', 'maven-project':'org.apache.maven', 'maven-artifact':'org.apache.maven', 'plexus-utils': 'org.codehaus.plexus'].each {
-                    def exclude = exclusions.appendNode('exclusion')
-                    exclude.appendNode('groupId', it.value)
-                    exclude.appendNode('artifactId', it.key)
-                }
-            }
+import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
+plugins.withType(NebulaBaseMavenPublishingPlugin) {
+    withMavenPublication {
+        pom.withXml {
+            asNode().children().last() + pomConfig
         }
     }
 }
-
-if (project.hasProperty('bintrayUser')) {
-    bintray {
-        user = bintrayUser
-        key = bintrayKey
-        publications = ['mavenJava']
-        pkg {
-            repo = 'gradle-plugins'
-            userOrg = 'nebula'
-            name = 'gradle-ospackage-plugin'
-            licenses = ['Apache-2.0']
-        }
-        //dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
-    }
-    bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishableFiles)
-
-/**
- * Bintray uploads are not marked published, that has to be manually done.
-bintrayUpload.doLast {
-    bintrayUpload.with {
-        def http = bintrayUpload.createHttpClient()
-        def repoPath = "${userOrg ?: user}/$repoName"
-        def uploadUri = "/content/$repoPath/$packageName/$version/publish"
-        println "Package path: $uploadUri"
-        http.request(POST, JSON) {
-            uri.path = uploadUri
-            body = [discard: 'false']
-
-            response.success = { resp ->
-                logger.info("Published package $packageName.")
-            }
-            response.failure = { resp ->
-                throw new GradleException("Could not publish package $packageName")
-            }
-        }
-    }
-}
-*/
-}
-
-// Release Process
-
-// Ensure our versions look like the project status before publishing
-task verifyStatus << {
-    def hasSnapshot = version.contains('-SNAPSHOT')
-    if (project.status == 'snapshot' && !hasSnapshot) {
-        throw new GradleException("Version (${version}) needs -SNAPSHOT if publishing snapshot")
-    }
-    if (project.status == 'release' && hasSnapshot) {
-        throw new GradleException("Version (${version}) can not have -SNAPSHOT if publishing release")
-    }
-}
-bintrayUpload.dependsOn(verifyStatus)
-
-
-// Prevent plugin from asking for a version number interactively
-apply plugin: 'release'
-ext.'gradle.release.useAutomaticVersion' = "true"
-
-release {
-    // To ease the testing of release plugin
-    failOnUnversionedFiles = false
-    failOnCommitNeeded = false
-
-    // We're releasing from different branches, so prevent the check that requires  we release from master
-    git.requireBranch = null
-}
-
-project.task('spawnBintrayUpload', description: 'Create GradleBuild to run BintrayUpload to use a new version', group: 'Release', type: GradleBuild) {
-    startParameter = project.getGradle().startParameter.newInstance()
-    tasks = ['bintrayUpload']
-}
-createReleaseTag.dependsOn spawnBintrayUpload
-
-// Tasks
-
-task install(dependsOn: 'publishMavenJavaPublicationToMavenLocal') << {
-    logger.info "Installing $project.name"
-}
-
-test {
-  testLogging {
-    exceptionFormat "full"
-  }
-}
-
-task createWrapper(type: Wrapper) {
-    gradleVersion = '1.10'
-}
-
