@@ -65,6 +65,8 @@ class RpmPluginTest {
 
             requires('blarg', '1.0', GREATER | EQUAL)
             requires('blech')
+            conflicts('packageA', '1.0', LESS)
+            obsoletes('packageB', '2.2', GREATER)
 
             into '/opt/bleah'
             from(srcDir)
