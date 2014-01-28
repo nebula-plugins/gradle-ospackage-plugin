@@ -131,6 +131,22 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    List<Dependency> getAllReplaces() {
+        if (parentExten) {
+            return getReplaces() + parentExten.getReplaces()
+        } else {
+            return getReplaces()
+        }
+    }
+
+    List<Dependency> getAllConflicts() {
+        if (parentExten) {
+            return getConflicts() + parentExten.getConflicts()
+        } else {
+            return getConflicts()
+        }
+    }
+
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
