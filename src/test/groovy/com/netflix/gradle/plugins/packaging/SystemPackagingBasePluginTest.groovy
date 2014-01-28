@@ -98,8 +98,8 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.getArchivePath())
         debScanner.getHeaderEntry('Version').endsWith("-3")
         'awesomesauce' == debScanner.getHeaderEntry('Depends')
-        'test' == debScanner.getHeaderEntry('Provides')
-        'test\n Test Description' == debScanner.getHeaderEntry('Description')
+        'execute-both-tasks' == debScanner.getHeaderEntry('Provides')
+        'execute-both-tasks\n Test Description' == debScanner.getHeaderEntry('Description')
         'http://notawesome.com' == debScanner.getHeaderEntry('Homepage')
 
         def file = debScanner.getEntry('./opt/bleah/apple')
