@@ -12,6 +12,10 @@ apply plugin: 'idea'
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
+release {
+    git.requireBranch = 'gradle-1.9'
+}
+
 dependencies {
     // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
     compile 'org.apache.commons:commons-lang3:3.1'
