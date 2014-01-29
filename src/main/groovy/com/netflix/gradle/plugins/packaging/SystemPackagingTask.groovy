@@ -131,11 +131,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    List<Dependency> getAllReplaces() {
+    List<Dependency> getAllObsoletes() {
         if (parentExten) {
-            return getReplaces() + parentExten.getReplaces()
+            return getObsoletes() + parentExten.getObsoletes()
         } else {
-            return getReplaces()
+            return getObsoletes()
         }
     }
 

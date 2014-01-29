@@ -170,7 +170,7 @@ class SystemPackagingExtension {
     }
 
     List<Dependency> dependencies = new ArrayList<Dependency>();
-    List<Dependency> replaces = new ArrayList<Dependency>();
+    List<Dependency> obsoletes = new ArrayList<Dependency>();
     List<Dependency> conflicts = new ArrayList<Dependency>();
 
     Dependency requires(String packageName, String version, int flag) {
@@ -191,12 +191,12 @@ class SystemPackagingExtension {
         dep.packageName = packageName
         dep.version = version
         dep.flag = flag
-        replaces.add(dep)
+        obsoletes.add(dep)
         dep
     }
 
     Dependency obsoletes(String packageName) {
-        replace(packageName, '', 0)
+        obsoletes(packageName, '', 0)
     }
 
     Dependency conflicts(String packageName, String version, int flag) {
@@ -209,7 +209,7 @@ class SystemPackagingExtension {
     }
 
     Dependency conflicts(String packageName) {
-        breaks(packageName, '', 0)
+        conflicts(packageName, '', 0)
     }
 
 }
