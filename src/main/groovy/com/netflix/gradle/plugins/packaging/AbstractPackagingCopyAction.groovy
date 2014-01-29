@@ -96,7 +96,7 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
             addDependency dep
         }
 
-        for (Dependency obsolete: task.getAllReplaces()) {
+        for (Dependency obsolete: task.getAllObsoletes()) {
             logger.debug "adding obsoletes on {} {}", obsolete.packageName, obsolete.version
             addObsolete obsolete
         } 

@@ -27,6 +27,7 @@ import org.junit.Test
 
 import static org.freecompany.redline.header.Header.HeaderTag.*
 import static org.freecompany.redline.payload.CpioHeader.*
+import static org.freecompany.redline.header.Flags.*
 import static org.junit.Assert.*
 
 class RpmPluginTest {
@@ -85,12 +86,17 @@ class RpmPluginTest {
         })
 
         project.tasks.buildRpm.execute()
+
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
         assertEquals('bleah', Scanner.getHeaderEntryString(scan, NAME))
         assertEquals('1.0', Scanner.getHeaderEntryString(scan, VERSION))
         assertEquals('1', Scanner.getHeaderEntryString(scan, RELEASE))
         assertEquals('i386', Scanner.getHeaderEntryString(scan, ARCH))
         assertEquals('linux', Scanner.getHeaderEntryString(scan, OS))
+        assertEquals('packageB', Scanner.getHeaderEntryString(scan, OBSOLETENAME))
+        assertEquals('2.2', Scanner.getHeaderEntryString(scan, OBSOLETEVERSION))
+        assertEquals('packageA', Scanner.getHeaderEntryString(scan, CONFLICTNAME))
+        assertEquals('1.0', Scanner.getHeaderEntryString(scan, CONFLICTVERSION))
         assertEquals(['./a/path/not/to/create/alone', './opt/bleah',
                       './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
         assertEquals([FILE, DIR, FILE, SYMLINK], scan.files*.type)
