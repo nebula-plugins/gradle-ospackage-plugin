@@ -23,6 +23,7 @@ import groovy.text.GStringTemplateEngine
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
+import org.freecompany.redline.header.Flags
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
@@ -158,10 +159,27 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         dataProducers << new DataProducerLink(link.path, link.target, true, null, null, null);
     }
 
+    def signMap = [
+            (Flags.GREATER|Flags.EQUAL): '>=',
+            (Flags.LESS|Flags.EQUAL):    '<=',
+            (Flags.EQUAL):               '==',
+            (Flags.GREATER):             '>>',
+            (Flags.LESS):                '<<'
+    ]
     @Override
     protected void addDependency(Dependency dep) {
         // Depends: e2fsprogs (>= 1.27-2), libc6 (>= 2.2.4-4).
-        dependencies << dep.packageName // Losing version and flag info
+        def depStr = dep.packageName
+        if (dep.flag && dep.version) {
+            def sign = signMap[dep.flag]
+            if (sign==null) {
+                throw new IllegalArgumentException()
+            }
+            depStr += " (${sign} ${dep.version})"
+        } else if (dep.version) {
+            depStr += " (${dep.version})"
+        }
+        dependencies << depStr
     }
 
     @Override

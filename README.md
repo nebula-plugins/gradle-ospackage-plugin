@@ -114,11 +114,11 @@ buildRpm {
         arch = I386
         os = LINUX
 
-        installUtils = file('scripts/rpm/utils.sh')
-        preInstall = file('scripts/rpm/preInstall.sh')
-        postInstall = file('scripts/rpm/postInstall.sh')
-        preUninstall = file('scripts/rpm/preUninstall.sh')
-        postUninstall = file('scripts/rpm/postUninstall.sh')
+        installUtils file('scripts/rpm/utils.sh')
+        preInstall file('scripts/rpm/preInstall.sh')
+        postInstall file('scripts/rpm/postInstall.sh')
+        preUninstall 'touch /tmp/myfile'
+        postUninstall file('scripts/rpm/postUninstall.sh')
 
         requires('qux')
 
