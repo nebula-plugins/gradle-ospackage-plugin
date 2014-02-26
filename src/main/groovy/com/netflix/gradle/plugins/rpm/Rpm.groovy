@@ -66,6 +66,7 @@ class Rpm extends SystemPackagingTask {
         mapping.map('arch', { parentExten?.getArch()?:Architecture.NOARCH})
         mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
         mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
+	mapping.map('prefixes', { parentExten?.getPrefixes()?:[] })
     }
 
 }

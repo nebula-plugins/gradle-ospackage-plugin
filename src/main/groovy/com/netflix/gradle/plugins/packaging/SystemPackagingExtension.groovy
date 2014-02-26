@@ -50,6 +50,7 @@ class SystemPackagingExtension {
     Architecture arch
     Os os
     RpmType type
+    List<String> prefixes = []
 
     // DEB Only
     Integer uid
