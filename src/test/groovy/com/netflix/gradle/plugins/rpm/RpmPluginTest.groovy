@@ -498,4 +498,203 @@ class RpmPluginTest extends ProjectSpec {
         // NOTE: Not sure why directory is getting user write permission
 	[(short)0040755, (short)0100555, (short)0100666, (short)0100555] == scan.format.header.getEntry(FILEMODES).values.toList()
     }
+
+    def 'no Prefix Value'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'one-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
+	null == Scanner.getHeaderEntry(scan, PREFIXES)
+    }
+
+    def 'one Prefix Value'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'one-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+
+	    prefixes '/opt/myprefix'
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
+	'/opt/myprefix' == Scanner.getHeaderEntryString(scan, PREFIXES)
+    }
+
+    def 'multiple Prefix Values'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'one-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+
+	    prefixes '/opt/myprefix', '/etc/init.d'
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
+	// NOTE: Scanner just jams things together as one string
+	'/opt/myprefix/etc/init.d' == Scanner.getHeaderEntryString(scan, PREFIXES)
+    }
+
+    def 'multiple Added then cleared Prefix Values'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'one-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+
+	    prefixes '/opt/myprefix', '/etc/init.d'
+	    prefixes.clear()
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
+	null == Scanner.getHeaderEntry(scan, PREFIXES)
+    }
+
+    def 'direct assignment of Prefix Values'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'multi-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+
+	    prefixes = ['/opt/myprefix', '/etc/init.d']
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/multi-prefix-1.0-1.i386.rpm'))
+	// NOTE: Scanner just jams things together as one string
+	'/opt/myprefix/etc/init.d' == Scanner.getHeaderEntryString(scan, PREFIXES)
+    }
+
+    def 'ospackage assignment of Prefix Values'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'os-package-base'
+	project.ospackage { prefixes = ['/opt/ospackage', '/etc/maybe'] }
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'multi-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/multi-prefix-1.0-1.i386.rpm'))
+	// NOTE: Scanner just jams things together as one string
+	'/opt/ospackage/etc/maybe' == Scanner.getHeaderEntryString(scan, PREFIXES)
+    }
 }

@@ -66,6 +66,16 @@ class Rpm extends SystemPackagingTask {
         mapping.map('arch', { parentExten?.getArch()?:Architecture.NOARCH})
         mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
         mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
+
+	// NOTE: Believe parentExten is always null
+	mapping.map('prefixes', { parentExten?.getPrefixes()?:[] })
     }
 
+    void prefixes(String... addPrefixes) {
+        exten.prefixes.addAll(addPrefixes)
+    }
+
+    List<String> getPrefixes() {
+        exten.prefixes
+    }
 }

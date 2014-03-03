@@ -19,7 +19,7 @@ release {
 dependencies {
     // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
     compile 'org.apache.commons:commons-lang3:3.1'
-    compile 'org.redline-rpm:redline:1.1.10'
+    compile 'org.redline-rpm:redline:1.1.15'
     compile('org.vafer:jdeb:1.0.1') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'

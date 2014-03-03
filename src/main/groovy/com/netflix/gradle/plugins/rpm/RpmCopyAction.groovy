@@ -61,6 +61,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder.setVendor rpmTask.vendor
         builder.setUrl rpmTask.url
         builder.setProvides rpmTask.provides
+	if (rpmTask.prefixes) {
+	   builder.setPrefixes(rpmTask.prefixes as String[])
+	}
 
         String sourcePackage = rpmTask.sourcePackage
         if (!sourcePackage) {
