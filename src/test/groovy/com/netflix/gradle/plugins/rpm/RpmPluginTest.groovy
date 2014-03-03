@@ -644,7 +644,7 @@ class RpmPluginTest extends ProjectSpec {
             destinationDir = project.file('build/tmp/RpmPluginTest')
             destinationDir.mkdirs()
 
-	    packageName = 'one-prefix'
+	    packageName = 'multi-prefix'
 	    version = '1.0'
 	    release = '1'
 	    arch = I386
@@ -660,8 +660,41 @@ class RpmPluginTest extends ProjectSpec {
         rpmTask.execute()
 
         then:
-        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/multi-prefix-1.0-1.i386.rpm'))
 	// NOTE: Scanner just jams things together as one string
 	'/opt/myprefix/etc/init.d' == Scanner.getHeaderEntryString(scan, PREFIXES)
+    }
+
+    def 'ospackage assignment of Prefix Values'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'os-package-base'
+	project.ospackage { prefixes = ['/opt/ospackage', '/etc/maybe'] }
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+	    packageName = 'multi-prefix'
+	    version = '1.0'
+	    release = '1'
+	    arch = I386
+	    os = LINUX
+
+	    into '/opt/myprefix'
+	    from (srcDir)
+	})
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/multi-prefix-1.0-1.i386.rpm'))
+	// NOTE: Scanner just jams things together as one string
+	'/opt/ospackage/etc/maybe' == Scanner.getHeaderEntryString(scan, PREFIXES)
     }
 }
