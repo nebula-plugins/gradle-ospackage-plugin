@@ -32,7 +32,7 @@ dependencies {
     // For all dependencies, do NOT use a dynamic version like 1.1+, since it'll show up exactly like that in the pom, and 1.1+ is not a proper maven version
 
     compile 'org.apache.commons:commons-lang3:3.1'
-    compile 'org.redline-rpm:redline:1.1.14'
+    compile 'org.redline-rpm:redline:1.1.15'
     compile('org.vafer:jdeb:1.0.1') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'
