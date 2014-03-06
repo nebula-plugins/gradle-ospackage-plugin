@@ -17,7 +17,7 @@ plugin:
         }
 
         dependencies {
-            classpath 'com.netflix.nebula:gradle-rpm-plugin:1.8.4'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.10.0'
         }
     }
 ```
@@ -51,7 +51,7 @@ ospackage {
     release '3'
     os = LINUX // only applied to RPM
     into '/opt/app1'
-    from file('dist') {
+    from ('dist') {
         user 'builds'
         exclude '**/*.rb'
     }
@@ -80,7 +80,7 @@ ospackage {
     release '3'
     os = LINUX // only applied to RPM
     into '/opt/app1'
-    from file('dist') {
+    from ('dist') {
         user 'builds'
         exclude '**/*.rb'
     }
@@ -97,11 +97,11 @@ buildRpm {
 ```
     buildscript {
         repositories {
-            mavenCentral()
+            jcenter()
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:2.0'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.10.0'
         }
     }
 

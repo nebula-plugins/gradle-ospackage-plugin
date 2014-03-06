@@ -133,19 +133,20 @@ publishing {
     }
 }
 
-bintray {
-    user = bintrayUser
-    key = bintrayKey
-    publications = ['mavenJava']
-    pkg {
-        repo = 'gradle-plugins'
-        userOrg = 'nebula'
-        name = 'gradle-ospackage-plugin'
-        licenses = ['Apache-2.0']
+if (project.hasProperty('bintrayUser')) {
+    bintray {
+        user = bintrayUser
+        key = bintrayKey
+        publications = ['mavenJava']
+        pkg {
+            repo = 'gradle-plugins'
+            userOrg = 'nebula'
+            name = 'gradle-ospackage-plugin'
+            licenses = ['Apache-2.0']
+        }
+        //dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
     }
-    //dryRun = project.hasProperty('dry')?project.dry:true // whether to run this as dry-run, without deploying
-}
-bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishableFiles)
+    bintrayUpload.dependsOn(publishing.publications.getByName('mavenJava').publishableFiles)
 
 /**
  * Bintray uploads are not marked published, that has to be manually done.
@@ -169,6 +170,7 @@ bintrayUpload.doLast {
     }
 }
 */
+}
 
 // Release Process
 
@@ -217,6 +219,6 @@ test {
 }
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '1.9'
+    gradleVersion = '1.10'
 }
 
