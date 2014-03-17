@@ -21,6 +21,7 @@ import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
@@ -97,26 +98,32 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input
     def getAllPreInstallCommands() {
         return getPreInstallCommands() + parentExten?.getPreInstallCommands()
     }
 
+    @Input
     def getAllPostInstallCommands() {
         return getPostInstallCommands() + parentExten?.getPostInstallCommands()
     }
 
+    @Input
     def getAllPreUninstallCommands() {
         return getPreUninstallCommands() + parentExten?.getPreUninstallCommands()
     }
 
+    @Input
     def getAllPostUninstallCommands() {
         return getPostUninstallCommands() + parentExten?.getPostUninstallCommands()
     }
 
+    @Input
     def getAllCommonCommands() {
         return getCommonCommands() + parentExten?.getCommonCommands()
     }
 
+    @Input
     List<Link> getAllLinks() {
         if(parentExten) {
             return getLinks() + parentExten.getLinks()
@@ -125,6 +132,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input
     List<Dependency> getAllDependencies() {
         if(parentExten) {
             return getDependencies() + parentExten.getDependencies()

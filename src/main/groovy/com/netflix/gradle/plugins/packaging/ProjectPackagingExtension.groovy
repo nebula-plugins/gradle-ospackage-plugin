@@ -33,7 +33,6 @@ public class ProjectPackagingExtension extends SystemPackagingExtension {
 
     }
 
-
     /*
      * Special Use cases that involve Closure's which we want to wrap:
      */

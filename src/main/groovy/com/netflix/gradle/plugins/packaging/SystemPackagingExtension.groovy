@@ -104,19 +104,14 @@ class SystemPackagingExtension {
 
     // Scripts
 
-    @Input
     final List<Object> preInstallCommands = []
 
-    @Input
     final List<Object> postInstallCommands = []
 
-    @Input
     final List<Object> preUninstallCommands = []
 
-    @Input
     final List<Object> postUninstallCommands = []
 
-    @Input
     final List<Object> commonCommands = []
 
     /**
