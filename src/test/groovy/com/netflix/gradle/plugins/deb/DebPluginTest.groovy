@@ -19,9 +19,7 @@ package com.netflix.gradle.plugins.deb
 import com.google.common.io.Files
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertTrue
+import org.freecompany.redline.header.Flags
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
@@ -94,7 +92,7 @@ class DebPluginTest extends ProjectSpec {
             vendor = 'Super Associates, LLC'
             url = 'http://www.example.com/'
 
-            //requires('blarg', '1.0', GREATER | EQUAL)
+            requires('blarg', '1.0', Flags.GREATER | Flags.EQUAL)
             requires('blech')
 
             into '/opt/bleah'
@@ -118,23 +116,23 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb')) // , project.file('build/tmp/deboutput')
-        assertEquals('bleah', scan.getHeaderEntry('Package'))
-        assertEquals('blech', scan.getHeaderEntry('Depends'))
-        assertEquals('bleah', scan.getHeaderEntry('Provides'))
-        assertEquals('Bleah blarg\n Not a very interesting library.', scan.getHeaderEntry('Description'))
-        assertEquals('http://www.example.com/', scan.getHeaderEntry('Homepage'))
+        'bleah' == scan.getHeaderEntry('Package')
+        'blarg (>= 1.0), blech' ==  scan.getHeaderEntry('Depends')
+        'bleah' == scan.getHeaderEntry('Provides')
+        'Bleah blarg\n Not a very interesting library.' == scan.getHeaderEntry('Description')
+        'http://www.example.com/' == scan.getHeaderEntry('Homepage')
 
         def file = scan.getEntry('./a/path/not/to/create/alone')
-        assertTrue(file.isFile())
+        file.isFile()
 
         def dir = scan.getEntry('./opt/bleah/')
-        assertTrue(dir.isDirectory())
+        dir.isDirectory()
 
         def file2 = scan.getEntry('./opt/bleah/apple')
-        assertTrue(file2.isFile())
+        file2.isFile()
 
         def symlink = scan.getEntry('./opt/bleah/banana')
-        assertTrue(symlink.isSymbolicLink())
+        symlink.isSymbolicLink()
     }
 
     def 'projectNameDefault'() {
