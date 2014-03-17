@@ -140,7 +140,7 @@ class SystemPackagingExtension {
      * @param script
      */
     def setPostUninstall(File script) {
-        preUninstall(script)
+        postUninstall(script)
     }
 
     def postUninstall(String script) {
