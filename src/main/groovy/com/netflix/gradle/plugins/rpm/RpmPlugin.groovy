@@ -43,8 +43,6 @@ class RpmPlugin implements Plugin<Project> {
 
         // Some defaults, if not set by the user
         project.tasks.withType(Rpm) { Rpm task ->
-            applyAliases(task)
-
             task.applyConventions()
         }
 
