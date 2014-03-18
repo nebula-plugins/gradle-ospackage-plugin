@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
+import com.netflix.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -29,6 +30,7 @@ class DebPlugin implements Plugin<Project> {
 
         // Some defaults, if not set by the user
         project.tasks.withType(Deb) { Deb task ->
+            RpmPlugin.applyAliases(task) // RPM Specific aliases
             task.applyConventions()
         }
 
