@@ -5,6 +5,8 @@ import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 /**
  * Extension that can be used to configure both DEB and RPM.
@@ -16,12 +18,20 @@ import org.freecompany.redline.payload.Directive
 
 class SystemPackagingExtension {
     // File name components
+    @Input @Optional
     String packageName
+
+    @Input @Optional
     String release
+
+    @Input @Optional
     String version
 
     // Metadata, some are probably specific to a type
+    @Input @Optional
     String user
+
+    @Input @Optional
     String permissionGroup // Group is used by Gradle on tasks.
 
     /**
@@ -32,35 +42,77 @@ class SystemPackagingExtension {
      * tex, text, utils, vcs, video, web, x11, xfce, zope. The section can be prefixed with contrib or non-free, if
      * not part of main.
      */
+    @Input @Optional
     String packageGroup
+
+    @Input @Optional
     String buildHost
+
+    @Input @Optional
     String summary
+
+    @Input @Optional
     String packageDescription
+
+    @Input @Optional
     String license
+
+    @Input @Optional
     String packager
+
+    @Input @Optional
     String distribution
+
+    @Input @Optional
     String vendor
+
+    @Input @Optional
     String url
+
+    @Input @Optional
     String sourcePackage
+
+    @Input @Optional
     String provides
 
     // RPM Only
+
+    @Input @Optional
     Directive fileType
+
+    @Input @Optional
     Boolean createDirectoryEntry
+
+    @Input @Optional
     Boolean addParentDirs
+
+    @Input @Optional
     Architecture arch
+
+    @Input @Optional
     Os os
+
+    @Input @Optional
     RpmType type
 
     // DEB Only
+
+    @Input @Optional
     Integer uid
+
+    @Input @Optional
     Integer gid
 
     // Scripts
+
     final List<Object> preInstallCommands = []
+
     final List<Object> postInstallCommands = []
+
     final List<Object> preUninstallCommands = []
+
     final List<Object> postUninstallCommands = []
+
     final List<Object> commonCommands = []
 
     /**
@@ -154,8 +206,8 @@ class SystemPackagingExtension {
         return this
     }
 
-
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
+
     List<Link> links = new ArrayList<Link>()
     Link link(String path, String target) {
         link(path, target, -1)

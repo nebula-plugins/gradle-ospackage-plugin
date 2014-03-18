@@ -21,6 +21,9 @@ import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
@@ -28,6 +31,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static Logger logger = Logging.getLogger(SystemPackagingTask);
 
     @Delegate
+    @Nested
     SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
 
     ProjectPackagingExtension parentExten
@@ -97,26 +101,32 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input @Optional
     def getAllPreInstallCommands() {
         return getPreInstallCommands() + parentExten?.getPreInstallCommands()
     }
 
+    @Input @Optional
     def getAllPostInstallCommands() {
         return getPostInstallCommands() + parentExten?.getPostInstallCommands()
     }
 
+    @Input @Optional
     def getAllPreUninstallCommands() {
         return getPreUninstallCommands() + parentExten?.getPreUninstallCommands()
     }
 
+    @Input @Optional
     def getAllPostUninstallCommands() {
         return getPostUninstallCommands() + parentExten?.getPostUninstallCommands()
     }
 
+    @Input @Optional
     def getAllCommonCommands() {
         return getCommonCommands() + parentExten?.getCommonCommands()
     }
 
+    @Input @Optional
     List<Link> getAllLinks() {
         if(parentExten) {
             return getLinks() + parentExten.getLinks()
@@ -125,6 +135,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input @Optional
     List<Dependency> getAllDependencies() {
         if(parentExten) {
             return getDependencies() + parentExten.getDependencies()
