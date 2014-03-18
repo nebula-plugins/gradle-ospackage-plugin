@@ -6,6 +6,7 @@ import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 /**
  * Extension that can be used to configure both DEB and RPM.
@@ -17,20 +18,20 @@ import org.gradle.api.tasks.Input
 
 class SystemPackagingExtension {
     // File name components
-    @Input
+    @Input @Optional
     String packageName
 
-    @Input
+    @Input @Optional
     String release
 
-    @Input
+    @Input @Optional
     String version
 
     // Metadata, some are probably specific to a type
-    @Input
+    @Input @Optional
     String user
 
-    @Input
+    @Input @Optional
     String permissionGroup // Group is used by Gradle on tasks.
 
     /**
@@ -41,65 +42,65 @@ class SystemPackagingExtension {
      * tex, text, utils, vcs, video, web, x11, xfce, zope. The section can be prefixed with contrib or non-free, if
      * not part of main.
      */
-    @Input
+    @Input @Optional
     String packageGroup
 
-    @Input
+    @Input @Optional
     String buildHost
 
-    @Input
+    @Input @Optional
     String summary
 
-    @Input
+    @Input @Optional
     String packageDescription
 
-    @Input
+    @Input @Optional
     String license
 
-    @Input
+    @Input @Optional
     String packager
 
-    @Input
+    @Input @Optional
     String distribution
 
-    @Input
+    @Input @Optional
     String vendor
 
-    @Input
+    @Input @Optional
     String url
 
-    @Input
+    @Input @Optional
     String sourcePackage
 
-    @Input
+    @Input @Optional
     String provides
 
     // RPM Only
 
-    @Input
+    @Input @Optional
     Directive fileType
 
-    @Input
+    @Input @Optional
     Boolean createDirectoryEntry
 
-    @Input
+    @Input @Optional
     Boolean addParentDirs
 
-    @Input
+    @Input @Optional
     Architecture arch
 
-    @Input
+    @Input @Optional
     Os os
 
-    @Input
+    @Input @Optional
     RpmType type
 
     // DEB Only
 
-    @Input
+    @Input @Optional
     Integer uid
 
-    @Input
+    @Input @Optional
     Integer gid
 
     // Scripts
@@ -205,10 +206,8 @@ class SystemPackagingExtension {
         return this
     }
 
-
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
 
-    @Input
     List<Link> links = new ArrayList<Link>()
     Link link(String path, String target) {
         link(path, target, -1)
@@ -223,7 +222,6 @@ class SystemPackagingExtension {
         link
     }
 
-    @Input
     List<Dependency> dependencies = new ArrayList<Dependency>();
 
     Dependency requires(String packageName, String version, int flag) {

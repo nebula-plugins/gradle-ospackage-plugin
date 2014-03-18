@@ -92,6 +92,16 @@ class DebPluginLauncherSpec extends IntegrationSpec {
         !wasUpToDate(':buildDeb') // Need to run once with a file input
 
         when:
+        // Nothing changing
+        buildFile << '''
+            // Adding nothing.
+        '''.stripIndent()
+
+        then:
+        runTasksSuccessfully('buildDeb')
+        wasUpToDate(':buildDeb')
+
+        when:
         // Adding a non-file input
         buildFile << '''
             buildDeb {
