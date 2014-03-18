@@ -16,7 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
-class Dependency {
+class Dependency implements Serializable{
     String packageName
     String version
     int flag = 0

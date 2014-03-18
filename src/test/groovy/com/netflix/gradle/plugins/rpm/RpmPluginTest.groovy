@@ -66,8 +66,6 @@ class RpmPluginTest {
 
             requires('blarg', '1.0', GREATER | EQUAL)
             requires('blech')
-            conflicts('packageA', '1.0', LESS)
-            obsoletes('packageB', '2.2', GREATER)
 
             into '/opt/bleah'
             from(srcDir)
@@ -93,13 +91,71 @@ class RpmPluginTest {
         assertEquals('1', Scanner.getHeaderEntryString(scan, RELEASE))
         assertEquals('i386', Scanner.getHeaderEntryString(scan, ARCH))
         assertEquals('linux', Scanner.getHeaderEntryString(scan, OS))
-        assertEquals('packageB', Scanner.getHeaderEntryString(scan, OBSOLETENAME))
-        assertEquals('2.2', Scanner.getHeaderEntryString(scan, OBSOLETEVERSION))
-        assertEquals('packageA', Scanner.getHeaderEntryString(scan, CONFLICTNAME))
-        assertEquals('1.0', Scanner.getHeaderEntryString(scan, CONFLICTVERSION))
         assertEquals(['./a/path/not/to/create/alone', './opt/bleah',
                       './opt/bleah/apple', './opt/bleah/banana'], scan.files*.name)
         assertEquals([FILE, DIR, FILE, SYMLINK], scan.files*.type)
+    }
+
+    @Test
+    public void obsoletesAndConflicts() {
+
+        Project project = ProjectBuilder.builder().build()
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/ObsoletesConflictsTest')
+            destinationDir.mkdirs()
+
+            packageName = 'testing'
+            version = '1.2'
+            release = '3'
+            type = BINARY
+            arch = I386
+            os = LINUX
+            license = 'Free'
+            distribution = 'SuperSystem'
+            vendor = 'Super Associates, LLC'
+            url = 'http://www.example.com/'
+
+            obsoletes('blarg', '1.0', GREATER | EQUAL)
+            conflicts('blech')
+            conflicts('packageA', '1.0', LESS)
+            obsoletes('packageB', '2.2', GREATER)
+
+            from(srcDir)
+            into '/opt/bleah'
+        })
+
+        project.tasks.buildRpm.execute()
+
+        def scan = Scanner.scan(project.file('build/tmp/ObsoletesConflictsTest/testing-1.2-3.i386.rpm'))
+        def obsoletes = Scanner.getHeaderEntry(scan, OBSOLETENAME)
+        def obsoleteVersions = Scanner.getHeaderEntry(scan, OBSOLETEVERSION)
+        def obsoleteComparisons = Scanner.getHeaderEntry(scan, OBSOLETEFLAGS)
+        def conflicts = Scanner.getHeaderEntry(scan, CONFLICTNAME)
+        def conflictVersions = Scanner.getHeaderEntry(scan, CONFLICTVERSION)
+        def conflictComparisons = Scanner.getHeaderEntry(scan, CONFLICTFLAGS)
+
+        assertEquals('blarg', obsoletes.values[0])
+        assertEquals('1.0', obsoleteVersions.values[0])
+        assertEquals(GREATER | EQUAL, obsoleteComparisons.values[0])
+
+        assertEquals('blech', conflicts.values[0])
+        assertEquals('', conflictVersions.values[0])
+        assertEquals(0, conflictComparisons.values[0])
+
+        assertEquals('packageA', conflicts.values[1])
+        assertEquals('1.0', conflictVersions.values[1])
+        assertEquals(LESS, conflictComparisons.values[1])
+
+        assertEquals('packageB', obsoletes.values[1])
+        assertEquals('2.2', obsoleteVersions.values[1])
+        assertEquals(GREATER, obsoleteComparisons.values[1])
     }
 
     @Test

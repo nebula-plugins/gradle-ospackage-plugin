@@ -21,6 +21,8 @@ import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
@@ -131,6 +133,8 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input
+    @Optional
     List<Dependency> getAllObsoletes() {
         if (parentExten) {
             return getObsoletes() + parentExten.getObsoletes()
@@ -139,6 +143,8 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input
+    @Optional
     List<Dependency> getAllConflicts() {
         if (parentExten) {
             return getConflicts() + parentExten.getConflicts()
