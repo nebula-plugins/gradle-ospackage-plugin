@@ -16,7 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
-class Link {
+class Link implements Serializable {
     String path
     String target
     int permissions = -1
