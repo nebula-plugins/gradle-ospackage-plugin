@@ -50,7 +50,7 @@ apply plugin: 'os-package-base'
 ospackage {
     release '3'
     os = LINUX // only applied to RPM
-    prefixes = ['/opt/local'] // also only applied to RPM
+    prefix '/opt/local' // also only applied to RPM
     into '/opt/app1'
     from ('dist') {
         user 'builds'
