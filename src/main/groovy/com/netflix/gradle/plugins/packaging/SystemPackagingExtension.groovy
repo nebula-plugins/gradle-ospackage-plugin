@@ -95,6 +95,13 @@ class SystemPackagingExtension {
     @Input @Optional
     RpmType type
 
+    List<String> prefixes = new ArrayList<String>()
+
+    def prefix(String prefixStr) {
+        prefixes << prefixStr
+        return this
+    }
+
     // DEB Only
 
     @Input @Optional
