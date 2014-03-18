@@ -144,6 +144,15 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input @Optional
+    def getAllPrefixes() {
+        if(parentExten) {
+            return getPrefixes() + parentExten.getPrefixes()
+        } else {
+            return getPrefixes()
+        }
+    }
+
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
