@@ -3,7 +3,8 @@ package com.netflix.gradle.plugins.packaging
 import org.gradle.api.internal.file.copy.DefaultCopySpec
 import org.junit.Test
 
-import static org.junit.Assert.*
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertNull
 
 class CopySpecEnhancementTest {
 

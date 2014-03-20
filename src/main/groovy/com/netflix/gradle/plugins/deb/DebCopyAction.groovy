@@ -225,7 +225,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 summary: debTask.getSummary(),
                 section: debTask.getPackageGroup(),
                 time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
-                epoch: (new Date().getTime() / 1000) as long,
                 provides: debTask.getProvides(),
                 depends: StringUtils.join(dependencies, ", "),
                 url: debTask.getUrl(),
