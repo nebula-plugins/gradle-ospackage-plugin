@@ -73,6 +73,14 @@ requires(String packageName, String version, int flag)
 Flag is optional and comes from the org.freecompany.redline.header.Flags class. They can be "|" or'd together.
 E.g. GREATER | EQUAL
 
+# Prefix
+
+Register a prefix with this package. Can be called by setting the prefixes variable as a list, or individually.
+
+```
+prefix(String prefixPath)
+```
+
 # Scripts
 
 To provide the scripts traditionally seen in the spec files, they are provided as Strings or as files. Their
