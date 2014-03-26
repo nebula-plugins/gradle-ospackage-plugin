@@ -44,7 +44,7 @@ class Rpm extends SystemPackagingTask {
 
     @Override
     protected String getArchString() {
-        return arch?.name().toLowerCase();
+        return arch?.toLowerCase();
     }
 
     @Override
@@ -63,7 +63,7 @@ class Rpm extends SystemPackagingTask {
         // Could come from extension
         mapping.map('fileType', { parentExten?.getFileType() })
         mapping.map('addParentDirs', { parentExten?.getAddParentDirs()?:true })
-        mapping.map('arch', { parentExten?.getArch()?:Architecture.NOARCH})
+        mapping.map('arch', { parentExten?.getArch()?:Architecture.NOARCH.name()})
         mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
         mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
 

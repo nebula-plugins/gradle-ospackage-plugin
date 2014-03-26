@@ -5,6 +5,12 @@ v2.8 - TDB
   * Add extension that can configure all packaging tasks
   * Breaking change: Changed group and description to packageGroup and packageDescription, respectively to
     avoid conflict with Gradle's similarly named variables.
+  * bugfix: setter syntax for postUninstall was appending to preUninstall
+  * Breaking change: Changed type of arch field to String to allow specifying "amd64" for Deb packages
+  * Deb: Add support to specify Architecture
+  * Deb: Add support to specify Maintainer in the correct format
+  * Deb: Add support to specify Priority
+  * Deb: Add support to specify configuration files in conffiles
 
 v1.4 - 2013-08-28
 =================

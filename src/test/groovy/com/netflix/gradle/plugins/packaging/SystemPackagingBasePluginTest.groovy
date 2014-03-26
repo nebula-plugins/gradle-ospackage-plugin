@@ -49,7 +49,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         }
 
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            arch I386
+            arch I386.name()
         })
 
         then:
@@ -57,7 +57,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         Os.LINUX == os
 
         def arch = rpmTask.getArch()
-        Architecture.I386 == arch
+        Architecture.I386.name() == arch
     }
 
 
@@ -83,7 +83,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {})
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            arch I386
+            arch I386.name()
         })
 
         debTask.execute()

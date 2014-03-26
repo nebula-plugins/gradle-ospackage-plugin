@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Link
 import org.freecompany.redline.Builder
+import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Header.HeaderTag
 import org.freecompany.redline.payload.Directive
 import org.gradle.api.internal.file.copy.CopyAction
@@ -50,7 +51,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder = new Builder()
         builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
         builder.setType rpmTask.type
-        builder.setPlatform rpmTask.arch, rpmTask.os
+        builder.setPlatform Architecture.valueOf(rpmTask.arch), rpmTask.os
         builder.setGroup rpmTask.packageGroup
         builder.setBuildHost rpmTask.buildHost
         builder.setSummary rpmTask.summary

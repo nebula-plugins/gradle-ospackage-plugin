@@ -65,6 +65,8 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
         mapping.map('version', { parentExten?.getVersion()?:project.getVersion().toString() })
         mapping.map('user', { parentExten?.getUser()?:getPackager() })
+        mapping.map('maintainer', { parentExten?.getMaintainer()?:getPackager() })
+        mapping.map('uploaders', { parentExten?.getUploaders()?:getPackager() })
         mapping.map('permissionGroup', { parentExten?.getPermissionGroup()?:'' })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() })
         mapping.map('buildHost', { parentExten?.getBuildHost()?:getLocalHostName() })
@@ -78,6 +80,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('sourcePackage', { parentExten?.getSourcePackage()?:'' })
         mapping.map('provides', { parentExten?.getProvides()?:getPackageName() })
         mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry()?:false })
+        mapping.map('priority', { parentExten?.getPriority()?:'optional' })
 
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
@@ -99,6 +102,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         use(CopySpecEnhancement) {
             super.copy()
         }
+    }
+
+    @Input @Optional
+    def getAllConfigurationFiles() {
+        return getConfigurationFiles() + (parentExten?.getConfigurationFiles()?: [])
     }
 
     @Input @Optional
