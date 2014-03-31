@@ -230,6 +230,8 @@ class SystemPackagingExtension {
     }
 
     List<Dependency> dependencies = new ArrayList<Dependency>();
+    List<Dependency> obsoletes = new ArrayList<Dependency>();
+    List<Dependency> conflicts = new ArrayList<Dependency>();
 
     Dependency requires(String packageName, String version, int flag) {
         Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
@@ -243,6 +245,32 @@ class SystemPackagingExtension {
 
     Dependency requires(String packageName) {
         requires(packageName, '', 0)
+    }
+
+    Dependency obsoletes(String packageName, String version, int flag) {
+        Dependency dep = new Dependency()
+        dep.packageName = packageName
+        dep.version = version
+        dep.flag = flag
+        obsoletes.add(dep)
+        dep
+    }
+
+    Dependency obsoletes(String packageName) {
+        obsoletes(packageName, '', 0)
+    }
+
+    Dependency conflicts(String packageName, String version, int flag) {
+        Dependency dep = new Dependency()
+        dep.packageName = packageName
+        dep.version = version
+        dep.flag = flag
+        conflicts.add(dep)
+        dep
+    }
+
+    Dependency conflicts(String packageName) {
+        conflicts(packageName, '', 0)
     }
 
 }
