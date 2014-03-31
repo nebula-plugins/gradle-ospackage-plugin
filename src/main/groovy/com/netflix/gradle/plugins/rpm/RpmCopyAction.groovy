@@ -132,6 +132,16 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder.addDependency dep.packageName, dep.version, dep.flag
     }
 
+    @Override 
+    protected void addConflict(Dependency dep) {
+        builder.addConflicts dep.packageName, dep.version, dep.flag
+    }
+
+    @Override
+    protected void addObsolete(Dependency dep) {
+        builder.addObsoletes dep.packageName, dep.version, dep.flag
+    }
+
     @Override
     protected void end() {
         File rpmFile = rpmTask.getArchivePath()

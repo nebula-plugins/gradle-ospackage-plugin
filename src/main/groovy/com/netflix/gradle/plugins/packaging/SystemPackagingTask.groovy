@@ -150,6 +150,22 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             return getPrefixes() + parentExten.getPrefixes()
         } else {
             return getPrefixes()
+
+    @Input @Optional
+    List<Dependency> getAllObsoletes() {
+        if (parentExten) {
+            return getObsoletes() + parentExten.getObsoletes()
+        } else {
+            return getObsoletes()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllConflicts() {
+        if (parentExten) {
+            return getConflicts() + parentExten.getConflicts()
+        } else {
+            return getConflicts()
         }
     }
 

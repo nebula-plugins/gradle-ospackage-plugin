@@ -27,6 +27,7 @@ import org.gradle.testfixtures.ProjectBuilder
 
 import static org.freecompany.redline.header.Header.HeaderTag.*
 import static org.freecompany.redline.payload.CpioHeader.*
+import static org.freecompany.redline.header.Flags.*
 
 class RpmPluginTest extends ProjectSpec {
     def 'files'() {
@@ -93,6 +94,70 @@ class RpmPluginTest extends ProjectSpec {
                 './opt/bleah/apple', './opt/bleah/banana'] == scan.files*.name
         [FILE, DIR, FILE, SYMLINK] == scan.files*.type
     }
+
+    def 'obsoletesAndConflicts'() {
+
+        Project project = ProjectBuilder.builder().build()
+        File buildDir = project.buildDir
+        File srcDir = new File(buildDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/ObsoletesConflictsTest')
+            destinationDir.mkdirs()
+
+            packageName = 'testing'
+            version = '1.2'
+            release = '3'
+            type = BINARY
+            arch = I386
+            os = LINUX
+            license = 'Free'
+            distribution = 'SuperSystem'
+            vendor = 'Super Associates, LLC'
+            url = 'http://www.example.com/'
+
+            obsoletes('blarg', '1.0', GREATER | EQUAL)
+            conflicts('blech')
+            conflicts('packageA', '1.0', LESS)
+            obsoletes('packageB', '2.2', GREATER)
+
+            from(srcDir)
+            into '/opt/bleah'
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/ObsoletesConflictsTest/testing-1.2-3.i386.rpm'))
+        def obsoletes = Scanner.getHeaderEntry(scan, OBSOLETENAME)
+        def obsoleteVersions = Scanner.getHeaderEntry(scan, OBSOLETEVERSION)
+        def obsoleteComparisons = Scanner.getHeaderEntry(scan, OBSOLETEFLAGS)
+        def conflicts = Scanner.getHeaderEntry(scan, CONFLICTNAME)
+        def conflictVersions = Scanner.getHeaderEntry(scan, CONFLICTVERSION)
+        def conflictComparisons = Scanner.getHeaderEntry(scan, CONFLICTFLAGS)
+
+        'blarg' == obsoletes.values[0]
+        '1.0' == obsoleteVersions.values[0]
+        (GREATER | EQUAL) == obsoleteComparisons.values[0]
+
+        'blech' == conflicts.values[0]
+        '' == conflictVersions.values[0]
+        0 == conflictComparisons.values[0]
+
+        'packageA' == conflicts.values[1]
+        '1.0' ==conflictVersions.values[1]
+        LESS == conflictComparisons.values[1]
+
+        'packageB' == obsoletes.values[1]
+        '2.2' == obsoleteVersions.values[1]
+        GREATER == obsoleteComparisons.values[1]
+    }
+
 
     def 'projectNameDefault'() {
         File srcDir = new File(projectDir, 'src')
