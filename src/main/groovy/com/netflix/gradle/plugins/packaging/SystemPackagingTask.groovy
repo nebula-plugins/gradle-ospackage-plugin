@@ -150,6 +150,8 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             return getPrefixes() + parentExten.getPrefixes()
         } else {
             return getPrefixes()
+        }
+    }
 
     @Input @Optional
     List<Dependency> getAllObsoletes() {
@@ -183,7 +185,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
-    def AbstractArchiveTask into(Object destPath, Closure configureClosure) {
+    public AbstractArchiveTask into(Object destPath, Closure configureClosure) {
         use(CopySpecEnhancement) {
             getMainSpec().into(destPath, configureClosure)
         }
