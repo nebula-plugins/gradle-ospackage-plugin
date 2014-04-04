@@ -167,7 +167,7 @@ buildRpm {
 
     buildDeb {
         requires('bat', '1.0.1')
-        link('/opt/foo/bin/foo.upstart', '/etc/init.d/foo')
+        link('/etc/init.d/foo', '/opt/foo/bin/foo.upstart')
     }
 
 ```
