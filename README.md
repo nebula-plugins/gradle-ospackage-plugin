@@ -140,7 +140,7 @@ buildRpm {
             fileMode = 0550
         }
         from('src/main/resources') {
-            fileType = CONFIG | NOREPLACE
+            fileType CONFIG | NOREPLACE
             into 'conf'
         }
         from('home') {
