@@ -9,9 +9,7 @@ Package: ${name}
 Provides: ${provides}
 Homepage: ${url}
 Architecture: ${arch}
-Distribution: unstable
-<% if (depends) { %>
-Depends: ${depends}
-<% } %>
+Distribution: unstable<% if (depends) { %>
+Depends: ${depends}<% } %>
 Description: ${summary}
  ${description}

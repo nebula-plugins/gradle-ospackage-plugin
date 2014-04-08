@@ -17,18 +17,19 @@ class TemplateHelperSpec extends Specification {
     }
 
     def defaultContext = [name: 'PackageName',
-    version: 'Version',
-    release: 'Release',
-    author: 'User',
-    description: 'Description',
-    distribution: 'Distribution',
-    summary: 'Summary',
-    section: 'Group',
-    time: '2013-11-11',
-    provides: 'Provides',
-    url: 'URL',
-    arch: 'Arch',
-    dirs: 'dirs']
+        version: 'Version',
+        release: 'Release',
+        author: 'User',
+        description: 'Description',
+        distribution: 'Distribution',
+        summary: 'Summary',
+        section: 'Group',
+        time: '2013-11-11',
+        provides: 'Provides',
+        url: 'URL',
+        depends: '',
+        arch: 'Arch',
+        dirs: 'dirs']
 
     def 'produces template'() {
         when:
