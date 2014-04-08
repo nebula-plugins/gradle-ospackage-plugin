@@ -69,6 +69,8 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
     protected abstract void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt)
     protected abstract void addLink(Link link);
     protected abstract void addDependency(Dependency dependency);
+    protected abstract void addConflict(Dependency dependency);
+    protected abstract void addObsolete(Dependency dependency);
     protected abstract void end();
 
     void startVisit(CopyAction action) {
@@ -88,6 +90,16 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
         for (Dependency dep : task.getAllDependencies()) {
             logger.debug "adding dependency on {} {}", dep.packageName, dep.version
             addDependency dep
+        }
+
+        for (Dependency obsolete: task.getAllObsoletes()) {
+            logger.debug "adding obsoletes on {} {}", obsolete.packageName, obsolete.version
+            addObsolete obsolete
+        } 
+
+        for (Dependency conflict : task.getAllConflicts()) {
+            logger.debug "adding conflicts on {} {}", conflict.packageName, conflict.version
+            addConflict conflict
         }
 
         end()

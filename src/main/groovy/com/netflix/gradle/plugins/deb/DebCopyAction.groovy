@@ -180,6 +180,18 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     }
 
     @Override
+    protected void addConflict(Dependency dependency) {
+        // No functionality implemented in jdeb for this
+        logger.warn "Conflict functionality not implemented for deb files" 
+    }
+
+    @Override
+    protected void addObsolete(Dependency dependency) {
+        // No functionality implemented in jdeb for this
+        logger.warn "Replaces functionality not implemented for deb files"
+    }
+
+    @Override
     protected void end() {
         File debFile = debTask.getArchivePath()
 

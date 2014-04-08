@@ -153,6 +153,24 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input @Optional
+    List<Dependency> getAllObsoletes() {
+        if (parentExten) {
+            return getObsoletes() + parentExten.getObsoletes()
+        } else {
+            return getObsoletes()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllConflicts() {
+        if (parentExten) {
+            return getConflicts() + parentExten.getConflicts()
+        } else {
+            return getConflicts()
+        }
+    }
+
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
@@ -167,7 +185,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
-    def AbstractArchiveTask into(Object destPath, Closure configureClosure) {
+    public AbstractArchiveTask into(Object destPath, Closure configureClosure) {
         use(CopySpecEnhancement) {
             getMainSpec().into(destPath, configureClosure)
         }
