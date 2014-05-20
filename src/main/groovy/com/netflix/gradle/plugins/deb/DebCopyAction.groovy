@@ -159,7 +159,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     def signMap = [
             (Flags.GREATER|Flags.EQUAL): '>=',
             (Flags.LESS|Flags.EQUAL):    '<=',
-            (Flags.EQUAL):               '==',
+            (Flags.EQUAL):               '=',
             (Flags.GREATER):             '>>',
             (Flags.LESS):                '<<'
     ]
