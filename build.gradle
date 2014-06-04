@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.11.+' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.+' }
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -13,9 +13,9 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 release {
-    git.requireBranch = 'gradle-1.11'
+    git.requireBranch = 'gradle-1.12'
 }
-createWrapper.gradleVersion='1.11'
+createWrapper.gradleVersion='1.12'
 
 dependencies {
     // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
@@ -30,7 +30,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile 'com.netflix.nebula:nebula-test:1.11.0-SNAPSHOT'
+    testCompile 'com.netflix.nebula:nebula-test:1.12.0-SNAPSHOT'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
