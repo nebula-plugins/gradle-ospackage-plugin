@@ -140,7 +140,7 @@ buildRpm {
             fileMode = 0550
         }
         from('src/main/resources') {
-            fileType = CONFIG | NOREPLACE
+            fileType CONFIG | NOREPLACE
             into 'conf'
         }
         from('home') {
@@ -167,7 +167,7 @@ buildRpm {
 
     buildDeb {
         requires('bat', '1.0.1')
-        link('/opt/foo/bin/foo.upstart', '/etc/init.d/foo')
+        link('/etc/init.d/foo', '/opt/foo/bin/foo.upstart')
     }
 
 ```

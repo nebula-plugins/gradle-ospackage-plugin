@@ -59,7 +59,7 @@ be set, which are specific to RPMs. Quite of them have defaults which fall back 
 Symbolic links are specified via the links method, where the permissions umask is optional:
 
 ```
-link(String src, String dest, int permissions)
+link(String symLinkPath, String targetPath, int permissions)
 ```
 
 # Requires
@@ -79,6 +79,38 @@ Register a prefix with this package. Can be called by setting the prefixes varia
 
 ```
 prefix(String prefixPath)
+```
+
+# Obsoletes
+
+Specifies packages for which this package obsoletes. 
+
+
+```
+obsoletes(String packageName, String version, int flag)
+```
+
+E.g.
+
+```
+obsoletes('blech')
+obsoletes('blarg', '1.0', GREATER | EQUAL)
+```
+
+# Conflicts 
+
+Specifies packages for which this package conflicts with. 
+
+
+```
+conflicts(String packageName, String version, int flag)
+```
+
+E.g.
+
+```
+conflicts('packageA')
+conflicts('packageB', '2.2', GREATER)
 ```
 
 # Scripts
@@ -163,6 +195,7 @@ The following attributes can be used inside _from_ and _into_ closures to comple
             into '/usr/share/tomcat/endorsed'
         }
 
-        link('/opt/foo/bin/foo.init', '/etc/init.d/foo')
+        link('/etc/init.d/foo', '/opt/foo/bin/foo.init')
+        
     }
 ```
