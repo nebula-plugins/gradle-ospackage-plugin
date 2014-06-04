@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.9.+' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.11.+' }
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -13,8 +13,9 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 release {
-    git.requireBranch = 'gradle-1.10'
+    git.requireBranch = 'gradle-1.11'
 }
+createWrapper.gradleVersion='1.11'
 
 dependencies {
     // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
@@ -29,7 +30,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile 'com.netflix.nebula:nebula-test:1.9.3'
+    testCompile 'com.netflix.nebula:nebula-test:1.11.0-SNAPSHOT'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
@@ -38,42 +39,13 @@ tasks.withType(Javadoc) {
     options.links(javaApiUrl, groovyApiUrl)
 }
 
-test {
-  testLogging {
-    exceptionFormat "full"
-  }
-}
-
-def pomConfig = {
-    inceptionYear '2011' // as gradle-rpm-plugin
-
-    developers {
-        developer {
-            id 'akrueger'
-            name 'Alan Krueger'
-            email 'alan@trigonic.com'
-            roles{
-                role 'Developer'
-            }
-            timezone '-6'
-        }
-        developer {
-            id 'quidryan'
-            name 'Justin Ryan'
-            email 'justin@halfempty.org'
-            roles{
-                role 'Developer'
-            }
-            timezone '-8'
-        }
+contacts {
+    'justin@halfempty.org' {
+        moniker 'Justin Ryan'
+        github 'quidryan'
     }
-}
-
-import nebula.plugin.publishing.maven.NebulaBaseMavenPublishingPlugin
-plugins.withType(NebulaBaseMavenPublishingPlugin) {
-    withMavenPublication {
-        pom.withXml {
-            asNode().children().last() + pomConfig
-        }
+    'alan@trigonic.com' {
+        moniker 'Alan Krueger'
+        github 'AlanKrueger'
     }
 }
