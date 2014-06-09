@@ -20,7 +20,10 @@ createWrapper.gradleVersion='1.12'
 dependencies {
     // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
     compile 'org.apache.commons:commons-lang3:3.1'
-    compile 'org.redline-rpm:redline:1.1.15'
+    compile('org.redline-rpm:redline:1.1.15') {
+        // Where logging foes is a runtime decision
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
     compile('org.vafer:jdeb:1.0.1') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'
@@ -30,7 +33,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile 'com.netflix.nebula:nebula-test:1.12.0-SNAPSHOT'
+    testCompile 'com.netflix.nebula:nebula-test:1.12.+'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
