@@ -169,10 +169,14 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
             while( startingClass != null && startingClass != DefaultFileCopyDetails) {
                 startingClass = startingClass.superclass
             }
-            Field specField = startingClass.getDeclaredField('spec')
+            Field specField = startingClass.getDeclaredField('specResolver')
             specField.setAccessible(true)
-            CopySpecInternal ret = specField.get(fileDetails)
-            return ret
+            CopySpecResolver specResolver = specField.get(fileDetails)
+
+            Field field = DefaultCopySpec.DefaultCopySpecResolver.class.getDeclaredField('this$0')
+            field.setAccessible(true)
+            CopySpecInternal spec = field.get(specResolver)
+            return spec
         } else {
             return null
         }

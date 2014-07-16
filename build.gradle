@@ -33,7 +33,13 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile 'com.netflix.nebula:nebula-test:1.12.+'
+    testCompile('com.netflix.nebula:nebula-test:1.12.+') {
+        exclude module: 'spock-core'
+    }
+
+    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
+        exclude module: 'groovy-all'
+    }
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
