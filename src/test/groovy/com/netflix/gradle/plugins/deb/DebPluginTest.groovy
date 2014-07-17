@@ -271,4 +271,96 @@ class DebPluginTest extends ProjectSpec {
         scan.controlContents['./postinst'].contains("echo Postinstall")
         scan.controlContents['./postinst'].contains("echo Installing")
     }
+
+    def 'Packages correct content'() {
+        given:
+        String abcHtml1Content = 'Subfolder1'
+        String abcHtml2Content = 'Subfolder2'
+
+        File folderDir = new File(projectDir, 'folder')
+        folderDir.mkdirs()
+        File subfolder1Dir = new File(folderDir, 'subfolder1')
+        subfolder1Dir.mkdirs()
+        File subfolder2Dir = new File(folderDir, 'subfolder2')
+        subfolder2Dir.mkdirs()
+        FileUtils.writeStringToFile(new File(subfolder1Dir, 'abc.html'), abcHtml1Content)
+        FileUtils.writeStringToFile(new File(subfolder2Dir, 'abc.html'), abcHtml2Content)
+
+        project.apply plugin: 'deb'
+
+        project.task([type: Deb], 'buildDeb', {
+            destinationDir = project.file('build/tmp/DebPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+
+            from('folder') {
+                include 'subfolder1/abc.html'
+                include 'subfolder2/abc.html'
+                into('folder')
+            }
+        })
+
+        when:
+        project.tasks.buildDeb.execute()
+
+        then:
+        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/extract'))
+        def abcHtml1 = scan.getEntry('./folder/subfolder1/abc.html')
+        abcHtml1.isFile()
+        scan.dataContents[abcHtml1].text == abcHtml1Content
+
+        def abcHtml2 = scan.getEntry('./folder/subfolder2/abc.html')
+        abcHtml2.isFile()
+        scan.dataContents[abcHtml2].text == abcHtml2Content
+    }
+
+    def 'Can apply filter'() {
+        given:
+        String abcHtml1Content = 'Subfolder1 @version@'
+        String abcHtml2Content = 'Subfolder2 @version@'
+
+        File folderDir = new File(projectDir, 'folder')
+        folderDir.mkdirs()
+        File subfolder1Dir = new File(folderDir, 'subfolder1')
+        subfolder1Dir.mkdirs()
+        File subfolder2Dir = new File(folderDir, 'subfolder2')
+        subfolder2Dir.mkdirs()
+        FileUtils.writeStringToFile(new File(subfolder1Dir, 'abc.html'), abcHtml1Content)
+        FileUtils.writeStringToFile(new File(subfolder2Dir, 'abc.html'), abcHtml2Content)
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        project.task([type: Deb], 'buildDeb', {
+            destinationDir = project.file('build/tmp/DebPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+
+            from('folder') {
+                include 'subfolder1/abc.html'
+                include 'subfolder2/abc.html'
+                into('folder')
+                filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [version: project.version])
+            }
+        })
+
+        when:
+        project.tasks.buildDeb.execute()
+
+        then:
+        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/extract'))
+        def abcHtml1 = scan.getEntry('./folder/subfolder1/abc.html')
+        abcHtml1.isFile()
+        scan.dataContents[abcHtml1].text == 'Subfolder1 1.0'
+
+        def abcHtml2 = scan.getEntry('./folder/subfolder2/abc.html')
+        abcHtml2.isFile()
+        scan.dataContents[abcHtml2].text == 'Subfolder2 1.0'
+    }
 }
