@@ -801,9 +801,10 @@ class RpmPluginTest extends ProjectSpec {
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
         scan.files*.name == ['./own/content/myfile.txt']
+        scan.files*.type == [FILE]
     }
 
-    def 'Can include empty directories'() {
+    def 'Can create empty directories'() {
         Project project = ProjectBuilder.builder().build()
 
         File myDir = new File(projectDir, 'my')
@@ -811,7 +812,9 @@ class RpmPluginTest extends ProjectSpec {
         contentDir.mkdirs()
         FileUtils.writeStringToFile(new File(contentDir, 'myfile.txt'), 'test')
 
-        File emptyDir = new File(myDir, 'own/empty')
+        File otherDir = new File(projectDir, 'other')
+        File someDir = new File(otherDir, 'some')
+        File emptyDir = new File(someDir, 'empty')
         emptyDir.mkdirs()
 
         project.apply plugin: 'rpm'
@@ -828,7 +831,12 @@ class RpmPluginTest extends ProjectSpec {
             from(myDir) {
                 addParentDirs false
             }
-            includeEmptyDirs true
+
+            from(someDir) {
+                into '/inside/the/archive'
+                addParentDirs false
+                createDirectoryEntry true
+            }
         })
 
         when:
@@ -836,6 +844,7 @@ class RpmPluginTest extends ProjectSpec {
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
-        scan.files*.name == ['./own/content/myfile.txt', './own/empty']
+        scan.files*.name == ['./inside/the/archive/empty', './own/content/myfile.txt']
+        scan.files*.type == [DIR, FILE]
     }
 }
