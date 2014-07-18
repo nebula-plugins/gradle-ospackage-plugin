@@ -204,7 +204,7 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
         } catch (UnsupportedOperationException uoe) {
             // Can't access MappingCopySpecVisitor.FileVisitDetailsImpl since it's private, so we have to probe. We would test this:
             // if (fileDetails instanceof MappingCopySpecVisitor.FileVisitDetailsImpl && fileDetails.filterChain.hasFilters())
-            outputFile = new File(tempDir, fileDetails.name)
+            outputFile = new File(tempDir, fileDetails.path)
             fileDetails.copyTo(outputFile)
             filteredFiles << outputFile
         }
