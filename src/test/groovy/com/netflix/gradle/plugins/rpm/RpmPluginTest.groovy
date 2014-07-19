@@ -837,6 +837,8 @@ class RpmPluginTest extends ProjectSpec {
                 addParentDirs false
                 createDirectoryEntry true
             }
+
+            directory('/using/the/dsl')
         })
 
         when:
@@ -844,7 +846,7 @@ class RpmPluginTest extends ProjectSpec {
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
-        scan.files*.name == ['./inside/the/archive/empty', './own/content/myfile.txt']
-        scan.files*.type == [DIR, FILE]
+        scan.files*.name == ['./inside/the/archive/empty', './own/content/myfile.txt', './using/the/dsl']
+        scan.files*.type == [DIR, FILE, DIR]
     }
 }

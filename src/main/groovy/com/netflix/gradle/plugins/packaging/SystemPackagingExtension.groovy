@@ -273,4 +273,17 @@ class SystemPackagingExtension {
         conflicts(packageName, '', 0)
     }
 
+    List<Directory> directories = new ArrayList<Directory>()
+
+    Directory directory(String path) {
+        Directory directory = directory(path, -1)
+        directories << directory
+        directory
+    }
+
+    Directory directory(String path, int permissions) {
+        Directory directory = new Directory(path: path, permissions: permissions)
+        directories << directory
+        directory
+    }
 }
