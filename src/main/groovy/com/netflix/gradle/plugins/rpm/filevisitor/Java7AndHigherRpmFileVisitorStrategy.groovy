@@ -7,6 +7,8 @@ import org.gradle.api.file.FileCopyDetails
 
 import java.nio.file.Path
 
+import static com.netflix.gradle.plugins.utils.FileCopyDetailsUtils.getRootPath
+
 class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     private final Builder builder
 
@@ -16,28 +18,31 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
 
     @Override
     void addFile(FileCopyDetails fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
+        String rootPath = getRootPath(fileDetails)
+
         try {
             if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
-                builder.addFile("/" + fileDetails.path, source, mode, dirmode, directive, uname, gname, addParents)
+                builder.addFile(rootPath, source, mode, dirmode, directive, uname, gname, addParents)
             }
         }
         catch(UnsupportedOperationException e) {
             // For file details that have filters, accessing the file throws this exception
-            builder.addFile("/" + fileDetails.path, source, mode, dirmode, directive, uname, gname, addParents)
+            builder.addFile(rootPath, source, mode, dirmode, directive, uname, gname, addParents)
         }
     }
 
     @Override
     void addDirectory(FileCopyDetails dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
+        String rootPath = getRootPath(dirDetails)
         boolean symbolicLink = JavaNIOUtils.isSymbolicLink(dirDetails.file)
 
         if(symbolicLink) {
             Path path = JavaNIOUtils.createPath(dirDetails.file.path)
             Path target = JavaNIOUtils.readSymbolicLink(path)
-            builder.addLink("/" + dirDetails.path, "/" + target.toFile().path)
+            builder.addLink(rootPath, "/" + target.toFile().path)
         }
         else {
-            builder.addDirectory("/" + dirDetails.path, permissions, directive, uname, gname, addParents)
+            builder.addDirectory(rootPath, permissions, directive, uname, gname, addParents)
         }
     }
 }

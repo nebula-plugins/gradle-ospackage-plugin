@@ -6,6 +6,8 @@ import com.netflix.gradle.plugins.deb.DebCopyAction
 import org.gradle.api.file.FileCopyDetails
 import org.vafer.jdeb.DataProducer
 
+import static com.netflix.gradle.plugins.utils.FileCopyDetailsUtils.getRootPath
+
 class PreJava7DebFileVisitorStrategy implements DebFileVisitorStrategy {
     private final List<DataProducer> dataProducers
     private final List<DebCopyAction.InstallDir> installDirs
@@ -17,17 +19,17 @@ class PreJava7DebFileVisitorStrategy implements DebFileVisitorStrategy {
 
     @Override
     void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
-        dataProducers << new DataProducerFileSimple("/" + fileDetails.path, source, user, uid, group, gid, mode)
+        dataProducers << new DataProducerFileSimple(getRootPath(fileDetails), source, user, uid, group, gid, mode)
     }
 
     @Override
     void addDirectory(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
-        String dirName =  "/" + dirDetails.path
-        dataProducers << new DataProducerDirectorySimple(dirName, user, uid, group, gid, mode)
+        String rootPath = getRootPath(dirDetails)
+        dataProducers << new DataProducerDirectorySimple(rootPath, user, uid, group, gid, mode)
 
         // addParentDirs is implicit in jdeb, I think.
         installDirs << new DebCopyAction.InstallDir(
-                name: "/" + dirDetails.path,
+                name: rootPath,
                 user: user,
                 group: group,
         )
