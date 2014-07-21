@@ -39,7 +39,7 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
         if(symbolicLink) {
             Path path = JavaNIOUtils.createPath(dirDetails.file.path)
             Path target = JavaNIOUtils.readSymbolicLink(path)
-            builder.addLink(rootPath, "/" + target.toFile().path)
+            builder.addLink(rootPath, target.toFile().path)
         }
         else {
             builder.addDirectory(rootPath, permissions, directive, uname, gname, addParents)
