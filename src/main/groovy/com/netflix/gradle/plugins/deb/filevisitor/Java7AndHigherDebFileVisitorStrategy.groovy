@@ -23,12 +23,12 @@ class Java7AndHigherDebFileVisitorStrategy implements DebFileVisitorStrategy {
     void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
         try {
             if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
-                dataProducers << new DataProducerFileSimple("/" + fileDetails.relativePath.pathString, source, user, uid, group, gid, mode)
+                dataProducers << new DataProducerFileSimple("/" + fileDetails.path, source, user, uid, group, gid, mode)
             }
         }
         catch(UnsupportedOperationException e) {
             // For file details that have filters, accessing the file throws this exception
-            dataProducers << new DataProducerFileSimple("/" + fileDetails.relativePath.pathString, source, user, uid, group, gid, mode)
+            dataProducers << new DataProducerFileSimple("/" + fileDetails.path, source, user, uid, group, gid, mode)
         }
     }
 
@@ -39,15 +39,15 @@ class Java7AndHigherDebFileVisitorStrategy implements DebFileVisitorStrategy {
         if(symbolicLink) {
             Path path = JavaNIOUtils.createPath(dirDetails.file.path)
             Path target = JavaNIOUtils.readSymbolicLink(path)
-            dataProducers << new DataProducerLink("/" + dirDetails.relativePath.pathString, target.toFile().path, true, null, null, null)
+            dataProducers << new DataProducerLink("/" + dirDetails.path, target.toFile().path, true, null, null, null)
         }
         else {
-            String dirName =  "/" + dirDetails.relativePath.pathString
+            String dirName =  "/" + dirDetails.path
             dataProducers << new DataProducerDirectorySimple(dirName, user, uid, group, gid, mode)
 
             // addParentDirs is implicit in jdeb, I think.
             installDirs << new DebCopyAction.InstallDir(
-                    name: "/" + dirDetails.relativePath.pathString,
+                    name: "/" + dirDetails.path,
                     user: user,
                     group: group,
             )

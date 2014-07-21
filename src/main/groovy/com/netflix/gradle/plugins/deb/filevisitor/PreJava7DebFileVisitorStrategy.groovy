@@ -17,17 +17,17 @@ class PreJava7DebFileVisitorStrategy implements DebFileVisitorStrategy {
 
     @Override
     void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
-        dataProducers << new DataProducerFileSimple("/" + fileDetails.relativePath.pathString, source, user, uid, group, gid, mode)
+        dataProducers << new DataProducerFileSimple("/" + fileDetails.path, source, user, uid, group, gid, mode)
     }
 
     @Override
     void addDirectory(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
-        String dirName =  "/" + dirDetails.relativePath.pathString
+        String dirName =  "/" + dirDetails.path
         dataProducers << new DataProducerDirectorySimple(dirName, user, uid, group, gid, mode)
 
         // addParentDirs is implicit in jdeb, I think.
         installDirs << new DebCopyAction.InstallDir(
-                name: "/" + dirDetails.relativePath.pathString,
+                name: "/" + dirDetails.path,
                 user: user,
                 group: group,
         )

@@ -18,12 +18,12 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     void addFile(FileCopyDetails fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
         try {
             if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
-                builder.addFile("/" + fileDetails.relativePath.pathString, source, mode, dirmode, directive, uname, gname, addParents)
+                builder.addFile("/" + fileDetails.path, source, mode, dirmode, directive, uname, gname, addParents)
             }
         }
         catch(UnsupportedOperationException e) {
             // For file details that have filters, accessing the file throws this exception
-            builder.addFile("/" + fileDetails.relativePath.pathString, source, mode, dirmode, directive, uname, gname, addParents)
+            builder.addFile("/" + fileDetails.path, source, mode, dirmode, directive, uname, gname, addParents)
         }
     }
 
@@ -34,10 +34,10 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
         if(symbolicLink) {
             Path path = JavaNIOUtils.createPath(dirDetails.file.path)
             Path target = JavaNIOUtils.readSymbolicLink(path)
-            builder.addLink("/" + dirDetails.relativePath.pathString, "/" + target.toFile().path)
+            builder.addLink("/" + dirDetails.path, "/" + target.toFile().path)
         }
         else {
-            builder.addDirectory("/" + dirDetails.relativePath.pathString, permissions, directive, uname, gname, addParents)
+            builder.addDirectory("/" + dirDetails.path, permissions, directive, uname, gname, addParents)
         }
     }
 }

@@ -13,11 +13,11 @@ class PreJava7RpmFileVisitorStrategy implements RpmFileVisitorStrategy {
 
     @Override
     void addFile(FileCopyDetails fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
-        builder.addFile("/" + fileDetails.relativePath.pathString, source, mode, dirmode, directive, uname, gname, addParents)
+        builder.addFile("/" + fileDetails.path, source, mode, dirmode, directive, uname, gname, addParents)
     }
 
     @Override
     void addDirectory(FileCopyDetails dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
-        builder.addDirectory("/" + dirDetails.relativePath.pathString, permissions, directive, uname, gname, addParents)
+        builder.addDirectory("/" + dirDetails.path, permissions, directive, uname, gname, addParents)
     }
 }
