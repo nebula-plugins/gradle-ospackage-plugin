@@ -17,9 +17,21 @@
 package com.netflix.gradle.plugins.deb
 
 import com.google.common.io.Files
+import com.netflix.gradle.plugins.rpm.Rpm
+import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.JavaVersion
+import org.apache.commons.lang3.SystemUtils
 import org.freecompany.redline.header.Flags
+import org.gradle.api.Task
+import spock.lang.IgnoreIf
+
+import static org.freecompany.redline.payload.CpioHeader.DIR
+import static org.freecompany.redline.payload.CpioHeader.DIR
+import static org.freecompany.redline.payload.CpioHeader.DIR
+import static org.freecompany.redline.payload.CpioHeader.FILE
+import static org.freecompany.redline.payload.CpioHeader.SYMLINK
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
@@ -270,5 +282,65 @@ class DebPluginTest extends ProjectSpec {
         scan.controlContents['./preinst'].contains("echo Installing")
         scan.controlContents['./postinst'].contains("echo Postinstall")
         scan.controlContents['./postinst'].contains("echo Installing")
+    }
+
+    /**
+     * Verifies that a symlink can be preserved.
+     *
+     * The following directory structure is assumed:
+     *
+     * .
+     * └── usr
+     *     └── bin
+     *         ├── foo -> foo-1.2
+     *         └── foo-1.2
+     *             └── foo.txt
+     */
+    @IgnoreIf({ !SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_7) })
+    def 'Preserves symlinks'() {
+        setup:
+        File symlinkDir = new File(projectDir, 'symlink')
+        File binDir = new File(symlinkDir, 'usr/bin')
+        File fooDir = new File(binDir, 'foo-1.2')
+        binDir.mkdirs()
+        FileUtils.writeStringToFile(new File(fooDir, 'foo.txt'), 'foo')
+        JavaNIOUtils.createSymblicLink(new File(binDir, 'foo'), fooDir)
+
+        when:
+        project.apply plugin: 'deb'
+
+        Task task = project.task('buildDep', type: Deb) {
+            destinationDir = project.file('build/tmp/DebPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+
+            from(symlinkDir) {
+                createDirectoryEntry true
+            }
+        }
+
+        task.execute()
+
+        then:
+        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'))
+        println "CONTENTS: " + scan.dataContents.keySet()*.name
+        scan.dataContents.size() == 5
+        def usrDir = scan.getEntry('./usr/')
+        usrDir.isDirectory()
+
+        def usrBinDir = scan.getEntry('./usr/bin/')
+        usrBinDir.isDirectory()
+
+        def symlink = scan.getEntry('./usr/bin/foo')
+        symlink.isSymbolicLink()
+
+        def foo12Dir = scan.getEntry('./usr/bin/foo-1.2/')
+        foo12Dir.isDirectory()
+
+        def fooTextFile = scan.getEntry('./usr/bin/foo-1.2/foo.txt')
+        fooTextFile.isFile()
     }
 }
