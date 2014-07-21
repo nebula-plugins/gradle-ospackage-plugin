@@ -16,27 +16,27 @@ class Java7AndHigherDebFileVisitorStrategy extends AbstractDebFileVisitorStrateg
     }
 
     @Override
-    void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
+    void addFile(FileCopyDetails details, File source, String user, int uid, String group, int gid, int mode) {
         try {
-            if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
-                addProducerFile(fileDetails, source, user, uid, group, gid, mode)
+            if(!JavaNIOUtils.isSymbolicLink(details.file.parentFile)) {
+                addProducerFile(details, source, user, uid, group, gid, mode)
             }
         }
         catch(UnsupportedOperationException e) {
             // For file details that have filters, accessing the file throws this exception
-            addProducerFile(fileDetails, source, user, uid, group, gid, mode)
+            addProducerFile(details, source, user, uid, group, gid, mode)
         }
     }
 
     @Override
-    void addDirectory(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
-        boolean symbolicLink = JavaNIOUtils.isSymbolicLink(dirDetails.file)
+    void addDirectory(FileCopyDetails details, String user, int uid, String group, int gid, int mode) {
+        boolean symbolicLink = JavaNIOUtils.isSymbolicLink(details.file)
 
         if(symbolicLink) {
-            addProducerLink(dirDetails)
+            addProducerLink(details)
         }
         else {
-            addProducerDirectoryAndInstallDir(dirDetails, user, uid, group, gid, mode)
+            addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
         }
     }
 

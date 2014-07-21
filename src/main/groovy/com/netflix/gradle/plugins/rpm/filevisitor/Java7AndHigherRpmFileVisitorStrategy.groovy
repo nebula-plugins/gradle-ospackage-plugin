@@ -17,11 +17,11 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     }
 
     @Override
-    void addFile(FileCopyDetails fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
-        String rootPath = getRootPath(fileDetails)
+    void addFile(FileCopyDetails details, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
+        String rootPath = getRootPath(details)
 
         try {
-            if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
+            if(!JavaNIOUtils.isSymbolicLink(details.file.parentFile)) {
                 builder.addFile(rootPath, source, mode, dirmode, directive, uname, gname, addParents)
             }
         }
@@ -32,12 +32,12 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     }
 
     @Override
-    void addDirectory(FileCopyDetails dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
-        String rootPath = getRootPath(dirDetails)
-        boolean symbolicLink = JavaNIOUtils.isSymbolicLink(dirDetails.file)
+    void addDirectory(FileCopyDetails details, int permissions, Directive directive, String uname, String gname, boolean addParents) {
+        String rootPath = getRootPath(details)
+        boolean symbolicLink = JavaNIOUtils.isSymbolicLink(details.file)
 
         if(symbolicLink) {
-            Path path = JavaNIOUtils.createPath(dirDetails.file.path)
+            Path path = JavaNIOUtils.createPath(details.file.path)
             Path target = JavaNIOUtils.readSymbolicLink(path)
             builder.addLink(rootPath, target.toFile().path)
         }

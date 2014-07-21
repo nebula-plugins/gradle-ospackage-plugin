@@ -10,12 +10,12 @@ class PreJava7DebFileVisitorStrategy extends AbstractDebFileVisitorStrategy {
     }
 
     @Override
-    void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
-        addProducerFile(fileDetails, source, user, uid, group, gid, mode)
+    void addFile(FileCopyDetails details, File source, String user, int uid, String group, int gid, int mode) {
+        addProducerFile(details, source, user, uid, group, gid, mode)
     }
 
     @Override
-    void addDirectory(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
-        addProducerDirectoryAndInstallDir(dirDetails, user, uid, group, gid, mode)
+    void addDirectory(FileCopyDetails details, String user, int uid, String group, int gid, int mode) {
+        addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
     }
 }
