@@ -3,7 +3,7 @@ package com.netflix.gradle.plugins.deb.filevisitor
 import com.netflix.gradle.plugins.deb.DataProducerDirectorySimple
 import com.netflix.gradle.plugins.deb.DataProducerFileSimple
 import com.netflix.gradle.plugins.deb.DebCopyAction
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.file.FileCopyDetails
 import org.vafer.jdeb.DataProducer
 
 class PreJava7DebFileVisitorStrategy implements DebFileVisitorStrategy {
@@ -16,12 +16,12 @@ class PreJava7DebFileVisitorStrategy implements DebFileVisitorStrategy {
     }
 
     @Override
-    void addFile(FileCopyDetailsInternal fileDetails, File source, String user, int uid, String group, int gid, int mode) {
+    void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
         dataProducers << new DataProducerFileSimple("/" + fileDetails.relativePath.pathString, source, user, uid, group, gid, mode)
     }
 
     @Override
-    void addDirectory(FileCopyDetailsInternal dirDetails, String user, int uid, String group, int gid, int mode) {
+    void addDirectory(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
         String dirName =  "/" + dirDetails.relativePath.pathString
         dataProducers << new DataProducerDirectorySimple(dirName, user, uid, group, gid, mode)
 

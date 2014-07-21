@@ -3,7 +3,7 @@ package com.netflix.gradle.plugins.rpm.filevisitor
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import org.freecompany.redline.Builder
 import org.freecompany.redline.payload.Directive
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.file.FileCopyDetails
 
 import java.nio.file.Path
 
@@ -15,7 +15,7 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     }
 
     @Override
-    void addFile(FileCopyDetailsInternal fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
+    void addFile(FileCopyDetails fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
         try {
             if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
                 builder.addFile("/" + fileDetails.relativePath.pathString, source, mode, dirmode, directive, uname, gname, addParents)
@@ -28,7 +28,7 @@ class Java7AndHigherRpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     }
 
     @Override
-    void addDirectory(FileCopyDetailsInternal dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
+    void addDirectory(FileCopyDetails dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
         boolean symbolicLink = JavaNIOUtils.isSymbolicLink(dirDetails.file)
 
         if(symbolicLink) {

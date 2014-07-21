@@ -4,7 +4,7 @@ import com.netflix.gradle.plugins.deb.DataProducerDirectorySimple
 import com.netflix.gradle.plugins.deb.DataProducerFileSimple
 import com.netflix.gradle.plugins.deb.DebCopyAction
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.file.FileCopyDetails
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.producers.DataProducerLink
 
@@ -20,7 +20,7 @@ class Java7AndHigherDebFileVisitorStrategy implements DebFileVisitorStrategy {
     }
 
     @Override
-    void addFile(FileCopyDetailsInternal fileDetails, File source, String user, int uid, String group, int gid, int mode) {
+    void addFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
         try {
             if(!JavaNIOUtils.isSymbolicLink(fileDetails.file.parentFile)) {
                 dataProducers << new DataProducerFileSimple("/" + fileDetails.relativePath.pathString, source, user, uid, group, gid, mode)
@@ -33,7 +33,7 @@ class Java7AndHigherDebFileVisitorStrategy implements DebFileVisitorStrategy {
     }
 
     @Override
-    void addDirectory(FileCopyDetailsInternal dirDetails, String user, int uid, String group, int gid, int mode) {
+    void addDirectory(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
         boolean symbolicLink = JavaNIOUtils.isSymbolicLink(dirDetails.file)
 
         if(symbolicLink) {

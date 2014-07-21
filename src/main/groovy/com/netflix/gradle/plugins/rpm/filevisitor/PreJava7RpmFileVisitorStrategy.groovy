@@ -2,7 +2,7 @@ package com.netflix.gradle.plugins.rpm.filevisitor
 
 import org.freecompany.redline.Builder
 import org.freecompany.redline.payload.Directive
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.file.FileCopyDetails
 
 class PreJava7RpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     private final Builder builder
@@ -12,12 +12,12 @@ class PreJava7RpmFileVisitorStrategy implements RpmFileVisitorStrategy {
     }
 
     @Override
-    void addFile(FileCopyDetailsInternal fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
+    void addFile(FileCopyDetails fileDetails, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
         builder.addFile("/" + fileDetails.relativePath.pathString, source, mode, dirmode, directive, uname, gname, addParents)
     }
 
     @Override
-    void addDirectory(FileCopyDetailsInternal dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
+    void addDirectory(FileCopyDetails dirDetails, int permissions, Directive directive, String uname, String gname, boolean addParents) {
         builder.addDirectory("/" + dirDetails.relativePath.pathString, permissions, directive, uname, gname, addParents)
     }
 }
