@@ -766,4 +766,87 @@ class RpmPluginTest extends ProjectSpec {
         foundPrefixes.values.contains('/opt/ospackage')
         foundPrefixes.values.contains('/etc/maybe')
     }
+
+    def 'Avoids including empty directories'() {
+        Project project = ProjectBuilder.builder().build()
+
+        File myDir = new File(projectDir, 'my')
+        File contentDir = new File(myDir, 'own/content')
+        contentDir.mkdirs()
+        FileUtils.writeStringToFile(new File(contentDir, 'myfile.txt'), 'test')
+
+        File emptyDir = new File(myDir, 'own/empty')
+        emptyDir.mkdirs()
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            from(myDir) {
+                addParentDirs false
+            }
+            includeEmptyDirs false
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./own/content/myfile.txt']
+        scan.files*.type == [FILE]
+    }
+
+    def 'Can create empty directories'() {
+        Project project = ProjectBuilder.builder().build()
+
+        File myDir = new File(projectDir, 'my')
+        File contentDir = new File(myDir, 'own/content')
+        contentDir.mkdirs()
+        FileUtils.writeStringToFile(new File(contentDir, 'myfile.txt'), 'test')
+
+        File otherDir = new File(projectDir, 'other')
+        File someDir = new File(otherDir, 'some')
+        File emptyDir = new File(someDir, 'empty')
+        emptyDir.mkdirs()
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            from(myDir) {
+                addParentDirs false
+            }
+
+            from(someDir) {
+                into '/inside/the/archive'
+                addParentDirs false
+                createDirectoryEntry true
+            }
+
+            directory('/using/the/dsl')
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./inside/the/archive/empty', './own/content/myfile.txt', './using/the/dsl']
+        scan.files*.type == [DIR, FILE, DIR]
+    }
 }

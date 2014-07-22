@@ -18,6 +18,7 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
+import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
@@ -140,6 +141,11 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     @Override
     protected void addObsolete(Dependency dep) {
         builder.addObsoletes dep.packageName, dep.version, dep.flag
+    }
+
+    @Override
+    protected void addDirectory(Directory directory) {
+        builder.addDirectory(directory.path, directory.permissions, null, null, null, false)
     }
 
     @Override
