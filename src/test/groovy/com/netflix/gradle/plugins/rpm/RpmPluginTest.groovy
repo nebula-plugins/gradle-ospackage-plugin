@@ -243,7 +243,7 @@ class RpmPluginTest extends ProjectSpec {
         scannerApple.asString() == '/usr/local/myproduct/apple'
     }
 
-    def 'buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails'() {
+    def 'buildHost_shouldHaveASensibleDefault'() {
         setup:
         InetAddress mockInetAddress = Mock()
         mockInetAddress.hostName >> { throw new UnknownHostException() }
