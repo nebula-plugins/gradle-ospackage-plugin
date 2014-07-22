@@ -113,6 +113,22 @@ conflicts('packageA')
 conflicts('packageB', '2.2', GREATER)
 ```
 
+# Directories
+ 
+Specifies directory that should be created within package.
+
+
+```
+directory(String path, int permissions)
+```
+
+E.g.
+
+```
+directory('/some/dir')
+directory('/some/dir', 644)
+```
+
 # Scripts
 
 To provide the scripts traditionally seen in the spec files, they are provided as Strings or as files. Their
