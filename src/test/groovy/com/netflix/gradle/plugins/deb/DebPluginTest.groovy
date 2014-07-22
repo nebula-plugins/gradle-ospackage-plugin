@@ -326,7 +326,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'))
-        println "CONTENTS: " + scan.dataContents.keySet()*.name
         scan.dataContents.size() == 5
         def usrDir = scan.getEntry('./usr/')
         usrDir.isDirectory()
