@@ -16,15 +16,12 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.tasks.AbstractCopyTask
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Nested
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
@@ -190,6 +187,21 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             getMainSpec().into(destPath, configureClosure)
         }
         return this
+    }
+
+    /**
+     * Defines input files annotation with @SkipWhenEmpty as a workaround to force building the archive even if no
+     * from clause is declared. Without this method the task would be marked UP-TO-DATE - the actual archive creation
+     * would be skipped. For more information see discussion on <a href="http://gradle.1045684.n5.nabble.com/Allow-subclass-of-AbstractCopyTask-to-execute-task-action-without-declared-sources-td5712928.html">Gradle dev list</a>.
+     *
+     * The provided file collection is not supposed to be used or modified anywhere else in the task.
+     *
+     * @return Collection of files
+     */
+    @InputFiles
+    @SkipWhenEmpty
+    private final FileCollection getFakeFiles() {
+        project.files('fake')
     }
 
     @Override

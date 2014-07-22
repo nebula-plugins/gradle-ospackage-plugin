@@ -2,15 +2,9 @@ package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
 import nebula.test.IntegrationSpec
-import spock.lang.Ignore
 
 class DebPluginLauncherSpec extends IntegrationSpec {
-
-    /**
-     * This is sorta cheating since a Gradle copy task will always be up to date if there's no input files
-     * @return
-     */
-    def 'up-to-date with nothing'() {
+    def 'not up-to-date when specifying any value'() {
         when:
         writeHelloWorld('nebula.test')
         buildFile << applyPlugin(SystemPackagingPlugin)
@@ -19,13 +13,13 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
+        runTasksSuccessfully('buildDeb')
+
         then:
-        runTasksSuccessfully('buildRpm', 'buildRpm')
-        wasUpToDate(':buildRpm')
+        !wasUpToDate(':buildDeb')
     }
 
-    @Ignore('Copy tasks with source files will always be up to date. Suck.')
-    def 'not up to date when specifying a value and not files'() {
+    def 'not up-to-date when specifying a value and not files'() {
         when:
         buildFile << applyPlugin(SystemPackagingPlugin)
         buildFile << '''
@@ -34,12 +28,13 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
+
+        then:
         !wasUpToDate(':buildDeb')
     }
 
-    def 'not up to date when specifying a value on task'() {
+    def 'not up-to-date when specifying a value on task'() {
         when:
         // Run once with a file
         writeHelloWorld('nebula.test')
@@ -50,9 +45,10 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
-        !wasUpToDate(':buildDeb') // Need to run once with a file input
+
+        then:
+        !wasUpToDate(':buildDeb')
 
         when:
         // Nothing changing
@@ -60,8 +56,9 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             // Adding nothing.
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
+
+        then:
         wasUpToDate(':buildDeb')
 
         when:
@@ -72,11 +69,12 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
+
+        then:
         !wasUpToDate(':buildDeb')
     }
-    def 'not up to date when specifying a value on extension'() {
+    def 'not up-to-date when specifying a value on extension'() {
         when:
         // Run once with a file
         writeHelloWorld('nebula.test')
@@ -87,8 +85,9 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
+
+        then:
         !wasUpToDate(':buildDeb') // Need to run once with a file input
 
         when:
@@ -97,8 +96,9 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             // Adding nothing.
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
+
+        then:
         wasUpToDate(':buildDeb')
 
         when:
@@ -109,8 +109,9 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        then:
         runTasksSuccessfully('buildDeb')
+
+        then:
         !wasUpToDate(':buildDeb')
     }
 }
