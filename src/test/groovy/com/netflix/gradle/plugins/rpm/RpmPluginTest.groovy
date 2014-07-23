@@ -878,15 +878,17 @@ class RpmPluginTest extends ProjectSpec {
         JavaNIOUtils.createSymblicLink(new File(binDir, 'foo'), fooDir)
 
         when:
-        project.apply plugin: 'deb'
+        project.apply plugin: 'rpm'
 
-        Task task = project.task('buildDep', type: Deb) {
-            destinationDir = project.file('build/tmp/DebPluginTest')
+        Task task = project.task('buildRpm', type: Rpm) {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
             destinationDir.mkdirs()
 
             packageName = 'bleah'
             version = '1.0'
             release = '1'
+            type = BINARY
+            arch = I386
 
             from(symlinkDir) {
                 createDirectoryEntry true
@@ -896,21 +898,8 @@ class RpmPluginTest extends ProjectSpec {
         task.execute()
 
         then:
-        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'))
-        scan.dataContents.size() == 5
-        def usrDir = scan.getEntry('./usr/')
-        usrDir.isDirectory()
-
-        def usrBinDir = scan.getEntry('./usr/bin/')
-        usrBinDir.isDirectory()
-
-        def symlink = scan.getEntry('./usr/bin/foo')
-        symlink.isSymbolicLink()
-
-        def foo12Dir = scan.getEntry('./usr/bin/foo-1.2/')
-        foo12Dir.isDirectory()
-
-        def fooTextFile = scan.getEntry('./usr/bin/foo-1.2/foo.txt')
-        fooTextFile.isFile()
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./usr', './usr/bin', './usr/bin/foo', './usr/bin/foo-1.2', './usr/bin/foo-1.2/foo.txt']
+        scan.files*.type == [DIR, DIR, SYMLINK, DIR, FILE]
     }
 }
