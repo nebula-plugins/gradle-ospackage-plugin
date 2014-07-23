@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
+import com.netflix.gradle.plugins.rpm.filevisitor.RpmFileVisitorStrategyFactory
 import org.freecompany.redline.Builder
 import org.freecompany.redline.header.Header.HeaderTag
 import org.freecompany.redline.payload.Directive
@@ -36,6 +37,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     Rpm rpmTask
     Builder builder
     boolean includeStandardDefines = true // candidate for being pushed up to packaging level
+    private RpmFileVisitorStrategyFactory rpmFileVisitorStrategyFactory
 
     RpmCopyAction(Rpm rpmTask) {
         super(rpmTask)
@@ -77,6 +79,8 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder.setPostInstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPostInstallCommands))
         builder.setPreUninstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPreUninstallCommands))
         builder.setPostUninstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPostUninstallCommands))
+
+        rpmFileVisitorStrategyFactory = new RpmFileVisitorStrategyFactory(builder)
     }
 
     @Override
@@ -85,7 +89,6 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
 
         def inputFile = extractFile(fileDetails)
 
-        def path = "/" + fileDetails.relativePath.pathString
         Directive fileType = lookup(specToLookAt, 'fileType')
         String user = lookup(specToLookAt, 'user') ?: rpmTask.user
         String group = lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
@@ -96,7 +99,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
 
-        builder.addFile( path, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
+        rpmFileVisitorStrategyFactory.strategy.addFile(fileDetails, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
 
     @Override
@@ -119,7 +122,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
             String user = (String) lookup(specToLookAt, 'user') ?: rpmTask.user
             String group = (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
 
-            builder.addDirectory( "/" + dirDetails.relativePath.pathString, dirMode, directive, user, group, addParentsDir)
+            rpmFileVisitorStrategyFactory.strategy.addDirectory(dirDetails, dirMode, directive, user, group, addParentsDir)
         }
     }
 
