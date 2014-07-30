@@ -162,7 +162,7 @@ buildRpm {
     buildRpm {
         requires('bar', '2.2', GREATER | EQUAL)
         requires('baz', '1.0.1', LESS)
-        link('/opt/foo/bin/foo.init', '/etc/init.d/foo')
+        link('/etc/init.d/foo’, '/opt/foo/bin/foo.init')
     }
 
     buildDeb {
