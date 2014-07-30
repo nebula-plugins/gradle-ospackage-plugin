@@ -19,15 +19,20 @@ package com.netflix.gradle.plugins.rpm
 import com.google.common.io.Files
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
+import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
+import org.apache.commons.lang3.JavaVersion
+import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.IgnoreIf
 
+import static org.freecompany.redline.header.Flags.*
 import static org.freecompany.redline.header.Header.HeaderTag.*
 import static org.freecompany.redline.payload.CpioHeader.*
-import static org.freecompany.redline.header.Flags.*
 
 class RpmPluginTest extends ProjectSpec {
     def 'files'() {
@@ -243,7 +248,7 @@ class RpmPluginTest extends ProjectSpec {
         scannerApple.asString() == '/usr/local/myproduct/apple'
     }
 
-    def 'buildHost_shouldHaveASensibleDefault_whenHostNameResolutionFails'() {
+    def 'buildHost_shouldHaveASensibleDefault'() {
         setup:
         InetAddress mockInetAddress = Mock()
         mockInetAddress.hostName >> { throw new UnknownHostException() }
@@ -765,5 +770,136 @@ class RpmPluginTest extends ProjectSpec {
         foundPrefixes.values.contains('/apps')
         foundPrefixes.values.contains('/opt/ospackage')
         foundPrefixes.values.contains('/etc/maybe')
+    }
+
+    def 'Avoids including empty directories'() {
+        Project project = ProjectBuilder.builder().build()
+
+        File myDir = new File(projectDir, 'my')
+        File contentDir = new File(myDir, 'own/content')
+        contentDir.mkdirs()
+        FileUtils.writeStringToFile(new File(contentDir, 'myfile.txt'), 'test')
+
+        File emptyDir = new File(myDir, 'own/empty')
+        emptyDir.mkdirs()
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            from(myDir) {
+                addParentDirs false
+            }
+            includeEmptyDirs false
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./own/content/myfile.txt']
+        scan.files*.type == [FILE]
+    }
+
+    def 'Can create empty directories'() {
+        Project project = ProjectBuilder.builder().build()
+
+        File myDir = new File(projectDir, 'my')
+        File contentDir = new File(myDir, 'own/content')
+        contentDir.mkdirs()
+        FileUtils.writeStringToFile(new File(contentDir, 'myfile.txt'), 'test')
+
+        File otherDir = new File(projectDir, 'other')
+        File someDir = new File(otherDir, 'some')
+        File emptyDir = new File(someDir, 'empty')
+        emptyDir.mkdirs()
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            from(myDir) {
+                addParentDirs false
+            }
+
+            from(someDir) {
+                into '/inside/the/archive'
+                addParentDirs false
+                createDirectoryEntry true
+            }
+
+            directory('/using/the/dsl')
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./inside/the/archive/empty', './own/content/myfile.txt', './using/the/dsl']
+        scan.files*.type == [DIR, FILE, DIR]
+    }
+
+    /**
+     * Verifies that a symlink can be preserved.
+     *
+     * The following directory structure is assumed:
+     *
+     * .
+     * └── usr
+     *     └── bin
+     *         ├── foo -> foo-1.2
+     *         └── foo-1.2
+     *             └── foo.txt
+     */
+    @IgnoreIf({ !SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_7) })
+    def 'Preserves symlinks'() {
+        setup:
+        File symlinkDir = new File(projectDir, 'symlink')
+        File binDir = new File(symlinkDir, 'usr/bin')
+        File fooDir = new File(binDir, 'foo-1.2')
+        binDir.mkdirs()
+        FileUtils.writeStringToFile(new File(fooDir, 'foo.txt'), 'foo')
+        JavaNIOUtils.createSymblicLink(new File(binDir, 'foo'), fooDir)
+
+        when:
+        project.apply plugin: 'rpm'
+
+        Task task = project.task('buildRpm', type: Rpm) {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            type = BINARY
+            arch = I386
+
+            from(symlinkDir) {
+                createDirectoryEntry true
+            }
+        }
+
+        task.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./usr', './usr/bin', './usr/bin/foo', './usr/bin/foo-1.2', './usr/bin/foo-1.2/foo.txt']
+        scan.files*.type == [DIR, DIR, SYMLINK, DIR, FILE]
     }
 }

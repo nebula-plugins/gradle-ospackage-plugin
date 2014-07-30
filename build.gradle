@@ -1,6 +1,7 @@
 buildscript {
     repositories { jcenter() }
     dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:1.12.+' }
+    dependencies { classpath 'com.google.guava:guava:17.0' }
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'

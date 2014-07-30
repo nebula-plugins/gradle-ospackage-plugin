@@ -71,6 +71,7 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
     protected abstract void addDependency(Dependency dependency);
     protected abstract void addConflict(Dependency dependency);
     protected abstract void addObsolete(Dependency dependency);
+    protected abstract void addDirectory(Directory directory)
     protected abstract void end();
 
     void startVisit(CopyAction action) {
@@ -100,6 +101,11 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
         for (Dependency conflict : task.getAllConflicts()) {
             logger.debug "adding conflicts on {} {}", conflict.packageName, conflict.version
             addConflict conflict
+        }
+
+        task.directories.each { directory ->
+            logger.debug "adding directory {}", directory.path
+            addDirectory(directory)
         }
 
         end()
