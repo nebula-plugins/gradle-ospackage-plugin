@@ -16,8 +16,10 @@
 
 package com.netflix.gradle.plugins.deb
 
+import com.netflix.gradle.plugins.deb.filevisitor.DebFileVisitorStrategyFactory
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
+import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
@@ -48,6 +50,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     List<InstallDir> installDirs
     boolean includeStandardDefines = true
     TemplateHelper templateHelper
+    private DebFileVisitorStrategyFactory debFileVisitorStrategyFactory
 
     DebCopyAction(Deb debTask) {
         super(debTask)
@@ -57,6 +60,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         installDirs = []
         debianDir = new File(debTask.project.buildDir, "debian")
         templateHelper = new TemplateHelper(debianDir, '/deb')
+        debFileVisitorStrategyFactory = new DebFileVisitorStrategyFactory(dataProducers, installDirs)
     }
 
     @Canonical
@@ -114,7 +118,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
         def inputFile = extractFile(fileDetails)
 
-        String path = "/" + fileDetails.relativePath.pathString
         String user = lookup(specToLookAt, 'user') ?: debTask.user
         int uid = (int) (lookup(specToLookAt, 'uid') ?: debTask.uid)
         String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
@@ -122,7 +125,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
         int fileMode = fileDetails.mode
 
-        dataProducers << new DataProducerFileSimple(path, inputFile, user, uid, group, gid, fileMode)
+        debFileVisitorStrategyFactory.strategy.addFile(fileDetails, inputFile, user, uid, group, gid, fileMode)
     }
 
     @Override
@@ -139,15 +142,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
             int fileMode = dirDetails.mode
 
-            String dirName =  "/" + dirDetails.relativePath.pathString
-            dataProducers << new DataProducerDirectorySimple(dirName,user,uid,group,gid,fileMode)
-
-            // addParentDirs is implicit in jdeb, I think.
-            installDirs << new InstallDir(
-                    name: "/" + dirDetails.relativePath.pathString,
-                    user: user,
-                    group: group,
-            )
+            debFileVisitorStrategyFactory.strategy.addDirectory(dirDetails, user, uid, group, gid, fileMode)
         }
     }
 
@@ -189,6 +184,11 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     protected void addObsolete(Dependency dependency) {
         // No functionality implemented in jdeb for this
         logger.warn "Replaces functionality not implemented for deb files"
+    }
+
+    @Override
+    protected void addDirectory(Directory directory) {
+        logger.warn "Directory functionality not implemented for deb files"
     }
 
     @Override
