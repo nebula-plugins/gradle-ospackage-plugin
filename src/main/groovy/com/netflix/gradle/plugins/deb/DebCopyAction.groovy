@@ -35,7 +35,6 @@ import org.vafer.jdeb.Console
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.Processor
 import org.vafer.jdeb.descriptors.PackageDescriptor
-import org.vafer.jdeb.producers.DataProducerDirectory
 import org.vafer.jdeb.producers.DataProducerLink
 
 /**

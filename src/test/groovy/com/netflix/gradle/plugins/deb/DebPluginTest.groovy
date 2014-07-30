@@ -17,21 +17,9 @@
 package com.netflix.gradle.plugins.deb
 
 import com.google.common.io.Files
-import com.netflix.gradle.plugins.rpm.Rpm
-import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-import org.apache.commons.lang3.JavaVersion
-import org.apache.commons.lang3.SystemUtils
 import org.freecompany.redline.header.Flags
-import org.gradle.api.Task
-import spock.lang.IgnoreIf
-
-import static org.freecompany.redline.payload.CpioHeader.DIR
-import static org.freecompany.redline.payload.CpioHeader.DIR
-import static org.freecompany.redline.payload.CpioHeader.DIR
-import static org.freecompany.redline.payload.CpioHeader.FILE
-import static org.freecompany.redline.payload.CpioHeader.SYMLINK
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
