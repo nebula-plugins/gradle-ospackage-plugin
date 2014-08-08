@@ -14,9 +14,9 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 release {
-    git.requireBranch = 'gradle-1.12'
+    git.requireBranch = 'gradle-2.0'
 }
-createWrapper.gradleVersion='1.12'
+createWrapper.gradleVersion='2.0'
 
 dependencies {
     // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
@@ -34,12 +34,8 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile('com.netflix.nebula:nebula-test:1.12.+') {
-        exclude module: 'spock-core'
-    }
-
-    testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
-        exclude module: 'groovy-all'
+    testCompile('com.netflix.nebula:nebula-test:2.0.0-SNAPSHOT') {
+        exclude group: 'org.codehaus.groovy'
     }
 }
 
