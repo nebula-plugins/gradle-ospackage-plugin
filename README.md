@@ -17,7 +17,7 @@ plugin:
         }
 
         dependencies {
-            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.10.0'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
         }
     }
 ```
@@ -102,7 +102,7 @@ buildRpm {
         }
 
         dependencies {
-            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.10.0'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
         }
     }
 
