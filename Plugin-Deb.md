@@ -8,18 +8,18 @@ derived from Debian, e.g. Ubuntu.  It leverages [JDeb](https://github.com/tcurdt
 ```
     buildscript {
         repositories {
-            mavenCentral()
+            jcenter()
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:2.0'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
         }
     }
 
     apply plugin: 'deb'
 
     task fooRpm(type: Deb) {
-        release 1
+        release '1'
     }
 
 ```
