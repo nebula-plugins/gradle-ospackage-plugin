@@ -8,7 +8,8 @@ Standards-Version: 3.8.3
 Package: ${name}
 Provides: ${provides}
 Homepage: ${url}
-Architecture: ${arch}
+Architecture: ${arch}<% if (multiArch) { %>
+Multi-Arch: ${multiArch}<% } %>
 Distribution: unstable<% if (depends) { %>
 Depends: ${depends}<% } %>
 Description: ${summary}

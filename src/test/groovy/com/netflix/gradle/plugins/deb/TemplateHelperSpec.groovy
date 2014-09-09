@@ -29,7 +29,8 @@ class TemplateHelperSpec extends Specification {
         url: 'URL',
         depends: '',
         arch: 'Arch',
-        dirs: 'dirs']
+        dirs: 'dirs',
+        multiArch: '']
 
     def 'produces template'() {
         when:
@@ -39,14 +40,16 @@ class TemplateHelperSpec extends Specification {
         resultFile.exists()
         resultFile.text.contains('Architecture: Arch')
         !resultFile.text.contains('Depends')
+        !resultFile.text.contains('Multi-Arch')
     }
 
     def 'produces template with conditioned block'() {
         when:
-        def resultFile = helper.generateFile('control', defaultContext + [depends: 'Depends1'])
+        def resultFile = helper.generateFile('control', defaultContext + [depends: 'Depends1', multiArch: 'MultiArch1'])
 
         then:
         resultFile.exists()
         resultFile.text.contains('Depends: Depends1')
+        resultFile.text.contains('Multi-Arch: MultiArch1')
     }
 }
