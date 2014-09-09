@@ -50,6 +50,7 @@ be set, which are specific to DEBs. Quite of them have defaults which fall back 
 * _createDirectoryEntry [Boolean]_
 * uid - Default uid of files
 * gid - Default gid of files
+* _multiArch_ - Configure multi-arch behavior: NONE (default), SAME, FOREIGN, ALLOWED (see: https://wiki.ubuntu.com/MultiarchSpec
 
 # Symbolic Links
 

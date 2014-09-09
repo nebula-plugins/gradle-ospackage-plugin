@@ -20,6 +20,7 @@ import com.google.common.io.Files
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
 import org.freecompany.redline.header.Flags
+import org.gradle.api.tasks.TaskExecutionException
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
@@ -408,5 +409,53 @@ class DebPluginTest extends ProjectSpec {
         def abcHtml2 = scan.getEntry('./folder/subfolder2/abc.html')
         abcHtml2.isFile()
         scan.dataContents[abcHtml2].text == 'Subfolder2 1.0'
+    }
+
+    def 'Configures Multi-Arch control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            multiArch = FOREIGN
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foreign' == scan.getHeaderEntry('Multi-Arch')
+    }
+
+    def 'Disallows Multi-Arch: same for Architecture: all'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            multiArch = SAME
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        TaskExecutionException ex = thrown()
+        IllegalArgumentException iex = ex.cause
+        'Deb packages with Architecture: all cannot declare Multi-Arch: same' == iex.message
     }
 }

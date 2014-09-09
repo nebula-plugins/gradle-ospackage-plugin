@@ -16,10 +16,14 @@
 
 package com.netflix.gradle.plugins.deb
 
+import com.netflix.gradle.plugins.deb.control.MultiArch
+import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
+import com.netflix.gradle.plugins.utils.UnsafeHelper
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.vafer.jdeb.descriptors.PackageDescriptor
 
 class DebPlugin implements Plugin<Project> {
     void apply(Project project) {
@@ -31,8 +35,42 @@ class DebPlugin implements Plugin<Project> {
         // Some defaults, if not set by the user
         project.tasks.withType(Deb) { Deb task ->
             RpmPlugin.applyAliases(task) // RPM Specific aliases
+            DebPlugin.applyAliases(task) // DEB-specific aliases
             task.applyConventions()
         }
 
+        monkeyPatchJdeb()
+    }
+
+    def static applyAliases(def dynamicObjectAware) {
+        AliasHelper.aliasEnumValues(MultiArch.values(), dynamicObjectAware)
+    }
+
+    // temp workaround for lack of support for Multi-Arch in jdeb
+    def static monkeyPatchJdeb() {
+        String[] KEYS = [
+            "Package",
+            "Source",
+            "Version",
+            "Section",
+            "Priority",
+            "Architecture",
+            "Essential",
+            "Depends",
+            "Pre-Depends",
+            "Recommends",
+            "Suggests",
+            "Breaks",
+            "Enhances",
+            "Conflicts",
+            "Provides",
+            "Replaces",
+            "Installed-Size",
+            "Maintainer",
+            "Description",
+            "Homepage",
+            "Multi-Arch"
+        ]
+        UnsafeHelper.monkeyPatchField(PackageDescriptor.getDeclaredField('KEYS'), KEYS)
     }
 }
