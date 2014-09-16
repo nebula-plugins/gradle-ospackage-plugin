@@ -34,7 +34,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile('com.netflix.nebula:nebula-test:2.0.0-SNAPSHOT') {
+    testCompile('com.netflix.nebula:nebula-test:2.0.+') {
         exclude group: 'org.codehaus.groovy'
     }
 }
