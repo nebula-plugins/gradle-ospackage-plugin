@@ -1,6 +1,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.google.common.base.Preconditions
+import com.netflix.gradle.plugins.deb.control.MultiArch
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Os
 import org.freecompany.redline.header.RpmType
@@ -109,6 +110,9 @@ class SystemPackagingExtension {
 
     @Input @Optional
     Integer gid
+
+    @Input @Optional
+    MultiArch multiArch
 
     // Scripts
 

@@ -6,7 +6,7 @@ buildscript {
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
 apply plugin: 'nebula-plugin'
-
+apply plugin: 'nebula-test-jar'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
@@ -19,7 +19,7 @@ release {
 createWrapper.gradleVersion='2.0'
 
 dependencies {
-    // Dynamic versions are ok, teh nebula-maven-publishing plugin will take care of them
+    // Dynamic versions are ok, the nebula-maven-publishing plugin will take care of them
     compile 'org.apache.commons:commons-lang3:3.1'
     compile('org.redline-rpm:redline:1.1.15') {
         // Where logging foes is a runtime decision

@@ -16,11 +16,13 @@
 
 package com.netflix.gradle.plugins.deb
 
+import com.netflix.gradle.plugins.deb.control.MultiArch
 import com.netflix.gradle.plugins.deb.filevisitor.DebFileVisitorStrategyFactory
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
+
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
@@ -191,6 +193,16 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         logger.warn "Directory functionality not implemented for deb files"
     }
 
+    protected String getMultiArch() {
+        def archString = debTask.getArchString()
+        def multiArch = debTask.getMultiArch()
+        if (('all' == archString) && (MultiArch.SAME == multiArch)) {
+            throw new IllegalArgumentException('Deb packages with Architecture: all cannot declare Multi-Arch: same')
+        }
+        def multiArchString = multiArch?.name()?.toLowerCase() ?: ''
+        return multiArchString
+    }
+
     @Override
     protected void end() {
         File debFile = debTask.getArchivePath()
@@ -245,6 +257,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 depends: StringUtils.join(dependencies, ", "),
                 url: debTask.getUrl(),
                 arch: debTask.getArchString(),
+                multiArch: getMultiArch(),
 
                 // Uses install command for directory
                 dirs: installDirs.collect { InstallDir dir ->
