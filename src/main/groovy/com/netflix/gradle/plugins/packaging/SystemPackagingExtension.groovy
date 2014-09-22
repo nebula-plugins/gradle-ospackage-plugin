@@ -1,6 +1,5 @@
 package com.netflix.gradle.plugins.packaging
 
-import com.google.common.base.Preconditions
 import com.netflix.gradle.plugins.deb.control.MultiArch
 import org.freecompany.redline.header.Architecture
 import org.freecompany.redline.header.Os
@@ -238,7 +237,7 @@ class SystemPackagingExtension {
     List<Dependency> conflicts = new ArrayList<Dependency>();
 
     Dependency requires(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        assert !packageName.contains(','), "Package name ($packageName) can not include commas"
         Dependency dep = new Dependency()
         dep.packageName = packageName
         dep.version = version

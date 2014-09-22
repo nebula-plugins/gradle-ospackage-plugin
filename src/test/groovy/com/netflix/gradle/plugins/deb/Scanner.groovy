@@ -1,6 +1,5 @@
 package com.netflix.gradle.plugins.deb
 
-import com.google.common.base.Preconditions
 import com.google.common.io.Files
 import org.apache.commons.compress.archivers.ArchiveStreamFactory
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry
@@ -88,8 +87,8 @@ public class Scanner {
         }
         debInputStream.close();
 
-        Preconditions.checkState(controlContents != null)
-        Preconditions.checkState(dataContents != null)
+        assert controlContents != null
+        assert dataContents != null
     }
 
     public static Map<String, String> extractContents(InputStream is) {
