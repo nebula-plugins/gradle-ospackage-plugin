@@ -30,12 +30,16 @@ class Java7AndHigherDebFileVisitorStrategy extends AbstractDebFileVisitorStrateg
 
     @Override
     void addDirectory(FileCopyDetails details, String user, int uid, String group, int gid, int mode) {
-        boolean symbolicLink = JavaNIOUtils.isSymbolicLink(details.file)
-
-        if(symbolicLink) {
-            addProducerLink(details)
+        try {
+            if(JavaNIOUtils.isSymbolicLink(details.file)) {
+                addProducerLink(details)
+            }
+            else {
+                addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
+            }
         }
-        else {
+        catch(UnsupportedOperationException e) {
+            // For file details that have filters, accessing the directory throws this exception
             addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
         }
     }

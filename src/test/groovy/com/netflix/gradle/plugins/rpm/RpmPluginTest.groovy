@@ -21,6 +21,8 @@ import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
+import nebula.test.dependencies.DependencyGraph
+import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
@@ -29,6 +31,7 @@ import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.IgnoreIf
+import spock.lang.Issue
 
 import static org.freecompany.redline.header.Flags.*
 import static org.freecompany.redline.header.Header.HeaderTag.*
@@ -901,5 +904,48 @@ class RpmPluginTest extends ProjectSpec {
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
         scan.files*.name == ['./usr', './usr/bin', './usr/bin/foo', './usr/bin/foo-1.2', './usr/bin/foo-1.2/foo.txt']
         scan.files*.type == [DIR, DIR, SYMLINK, DIR, FILE]
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/48")
+    def "Does not throw UnsupportedOperationException when copying external artifact with createDirectoryEntry option"() {
+        given:
+        String testCoordinates = 'com.netflix.nebula:a:1.0.0'
+        DependencyGraph graph = new DependencyGraph([testCoordinates])
+        File reposRootDir = new File(project.buildDir, 'repos')
+        GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
+        generator.generateTestMavenRepo()
+
+        project.apply plugin: 'rpm'
+
+        project.configurations {
+            myConf
+        }
+
+        project.dependencies {
+            myConf testCoordinates
+        }
+
+        project.repositories {
+            maven {
+                url {
+                    "file://$reposRootDir/mavenrepo"
+                }
+            }
+        }
+
+        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
+            packageName = 'bleah'
+
+            from(project.configurations.myConf) {
+                createDirectoryEntry = true
+                into('root/lib')
+            }
+        }
+
+        when:
+        rpmTask.execute()
+
+        then:
+        noExceptionThrown()
     }
 }

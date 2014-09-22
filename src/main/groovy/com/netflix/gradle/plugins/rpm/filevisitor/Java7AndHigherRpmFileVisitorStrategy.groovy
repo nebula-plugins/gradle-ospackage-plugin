@@ -29,12 +29,16 @@ class Java7AndHigherRpmFileVisitorStrategy extends AbstractRpmFileVisitorStrateg
 
     @Override
     void addDirectory(FileCopyDetails details, int permissions, Directive directive, String uname, String gname, boolean addParents) {
-        boolean symbolicLink = JavaNIOUtils.isSymbolicLink(details.file)
-
-        if(symbolicLink) {
-            addLinkToBuilder(details)
+        try {
+            if(JavaNIOUtils.isSymbolicLink(details.file)) {
+                addLinkToBuilder(details)
+            }
+            else {
+                addDirectoryToBuilder(details, permissions, directive, uname, gname, addParents)
+            }
         }
-        else {
+        catch(UnsupportedOperationException e) {
+            // For file details that have filters, accessing the directory throws this exception
             addDirectoryToBuilder(details, permissions, directive, uname, gname, addParents)
         }
     }
