@@ -1,3 +1,13 @@
+2.0.1
+-----
+
+* Issue #51: Avoid runtime dependency on Google Guava
+
+2.0.0
+-----
+
+* Upgrade to Gradle 2.0
+
 1.9.3
 ------
 * Upgrade of Redline to 1.1.15 (Thanks to @merscwog for tracking down)
