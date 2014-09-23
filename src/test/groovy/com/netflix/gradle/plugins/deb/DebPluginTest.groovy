@@ -18,9 +18,13 @@ package com.netflix.gradle.plugins.deb
 
 import com.google.common.io.Files
 import nebula.test.ProjectSpec
+import nebula.test.dependencies.DependencyGraph
+import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
 import org.freecompany.redline.header.Flags
+import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskExecutionException
+import spock.lang.Issue
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
@@ -457,5 +461,46 @@ class DebPluginTest extends ProjectSpec {
         TaskExecutionException ex = thrown()
         IllegalArgumentException iex = ex.cause
         'Deb packages with Architecture: all cannot declare Multi-Arch: same' == iex.message
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/48")
+    def "Does not throw UnsupportedOperationException when copying external artifact with createDirectoryEntry option"() {
+        given:
+        String testCoordinates = 'com.netflix.nebula:a:1.0.0'
+        DependencyGraph graph = new DependencyGraph([testCoordinates])
+        File reposRootDir = new File(project.buildDir, 'repos')
+        GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
+        generator.generateTestMavenRepo()
+
+        project.apply plugin: 'deb'
+
+        project.configurations {
+            myConf
+        }
+
+        project.dependencies {
+            myConf testCoordinates
+        }
+
+        project.repositories {
+            maven {
+                url {
+                    "file://$reposRootDir/mavenrepo"
+                }
+            }
+        }
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            from(project.configurations.myConf) {
+                createDirectoryEntry = true
+                into('root/lib')
+            }
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        noExceptionThrown()
     }
 }
