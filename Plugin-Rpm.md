@@ -8,18 +8,18 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
 ```
     buildscript {
         repositories {
-            mavenCentral()
+            jcenter()
         }
 
         dependencies {
-            classpath 'com.trigonic:gradle-rpm-plugin:2.0'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
         }
     }
 
     apply plugin: 'rpm'
 
     task fooRpm(type: Rpm) {
-        release 1
+        release '1'
     }
 
 ```
