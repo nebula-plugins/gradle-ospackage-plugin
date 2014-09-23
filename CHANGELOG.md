@@ -1,3 +1,8 @@
+1.12.6
+------
+
+* Issue #48: Fix UnsupportedOperationException in NormalizingCopyActionDecorator$StubbedFileCopyDetails
+
 1.9.3
 ------
 * Upgrade of Redline to 1.1.15 (Thanks to @merscwog for tracking down)
