@@ -70,7 +70,8 @@ Required packages are specified via the required method:
 requires(String packageName, String version, int flag)
 ```
 
-Flag is optional and comes from the org.freecompany.redline.header.Flags class. They can be "|" or'd together.
+Version and flag are together optional.
+Flag comes from the org.freecompany.redline.header.Flags class. Flags can be "|" or'd together.
 E.g. GREATER | EQUAL
 
 # Prefix
