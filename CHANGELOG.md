@@ -1,3 +1,8 @@
+2.0.2
+-----
+
+* Issue #48: Fix UnsupportedOperationException in NormalizingCopyActionDecorator$StubbedFileCopyDetails
+
 2.0.1
 -----
 
@@ -7,6 +12,11 @@
 -----
 
 * Upgrade to Gradle 2.0
+
+1.12.6
+------
+
+* Issue #48: Fix UnsupportedOperationException in NormalizingCopyActionDecorator$StubbedFileCopyDetails
 
 1.9.3
 ------
