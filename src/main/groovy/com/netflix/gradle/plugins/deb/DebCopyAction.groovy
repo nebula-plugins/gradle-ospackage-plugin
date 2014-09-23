@@ -66,7 +66,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     }
 
     @Canonical
-    private static class InstallDir {
+    static class InstallDir {
         String name
         String user
         String group
