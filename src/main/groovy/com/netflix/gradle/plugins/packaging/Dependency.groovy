@@ -17,6 +17,8 @@
 package com.netflix.gradle.plugins.packaging
 
 class Dependency implements Serializable {
+    private static final long serialVersionUID = 5707700441069141432L;
+
     String packageName
     String version
     int flag = 0
