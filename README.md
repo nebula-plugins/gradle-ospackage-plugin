@@ -8,7 +8,7 @@ documentation. All the plugins are pure-java and don't require any local native 
 # Accessing the plugin
 
 Gradle requires that plugins be added to the classpath as part of the classpath, the following can be used to incorporate this
-plugin within your pre-Gradle 2.0 project:
+plugin within your Gradle 1.12.x project:
 
 ```groovy
 buildscript {
