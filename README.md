@@ -22,14 +22,6 @@ buildscript {
 }
 ```
 
-For Gradle 2.0+ projects, you can use the `plugins` notation to bring in this plugin:
-
-```groovy
-plugins {
-  id "nebula.os-package" version "2.0.2"
-}
-```
-
 # Gradle RPM plugin
 
 [Formal Documentation](Plugin-Rpm.md)
