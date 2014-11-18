@@ -26,7 +26,7 @@ For Gradle 2.0+ projects, you can use the `plugins` notation to bring in this pl
 
 ```groovy
 plugins {
-  id "nebula.os-package" version "1.12.7"
+  id "nebula.os-package" version "2.0.2"
 }
 ```
 
