@@ -7,19 +7,19 @@ documentation. All the plugins are pure-java and don't require any local native 
 
 # Accessing the plugin
 
-Gradle requires that plugins be added to the classpath as part of the classpath, the following can be used to use this
-plugin:
+Gradle requires that plugins be added to the classpath as part of the classpath, the following can be used to incorporate this
+plugin within your Gradle 1.12.x project:
 
-```
-    buildscript {
-        repositories {
-            jcenter()
-        }
-
-        dependencies {
-            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
-        }
+```groovy
+buildscript {
+    repositories {
+        jcenter()
     }
+
+    dependencies {
+        classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.7'
+    }
+}
 ```
 
 # Gradle RPM plugin
