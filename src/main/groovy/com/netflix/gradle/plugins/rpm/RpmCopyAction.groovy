@@ -148,7 +148,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
 
     @Override
     protected void addDirectory(Directory directory) {
-        builder.addDirectory(directory.path, directory.permissions, null, null, null, false)
+        builder.addDirectory(directory.path, directory.permissions, null, rpmTask.user, rpmTask.permissionGroup, false)
     }
 
     @Override
