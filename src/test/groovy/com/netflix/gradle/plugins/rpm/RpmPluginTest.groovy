@@ -858,6 +858,36 @@ class RpmPluginTest extends ProjectSpec {
         scan.files*.type == [DIR, FILE, DIR]
     }
 
+    def 'Sets owner and group for directory DSL'() {
+        Project project = ProjectBuilder.builder().build()
+
+        project.apply plugin: 'rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            user 'test'
+            permissionGroup 'test'
+
+            directory('/using/the/dsl')
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.files*.name == ['./using/the/dsl']
+        scan.files*.type == [DIR]
+        scan.format.header.getEntry(FILEGROUPNAME).values.toList() == ['test']
+    }
+
     /**
      * Verifies that a symlink can be preserved.
      *
