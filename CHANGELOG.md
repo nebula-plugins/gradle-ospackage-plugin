@@ -1,3 +1,8 @@
+2.0.3
+-----
+
+* Issue #66: Directory ownership for RPMs are not set correctly
+
 2.0.2
 -----
 
