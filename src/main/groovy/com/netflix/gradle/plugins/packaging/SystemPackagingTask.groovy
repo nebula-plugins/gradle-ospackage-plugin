@@ -26,14 +26,13 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static Logger logger = Logging.getLogger(SystemPackagingTask);
+    private static final String hostName = getLocalHostName()
 
     @Delegate
     @Nested
     SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
 
     ProjectPackagingExtension parentExten
-
-    static InetAddress machineAddress = getLocalHost()
 
     // TODO Add conventions to pull from extension
 
@@ -64,7 +63,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('user', { parentExten?.getUser()?:getPackager() })
         mapping.map('permissionGroup', { parentExten?.getPermissionGroup()?:'' })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() })
-        mapping.map('buildHost', { parentExten?.getBuildHost()?:getLocalHostName() })
+        mapping.map('buildHost', { parentExten?.getBuildHost()?:hostName })
         mapping.map('summary', { parentExten?.getSummary()?:getPackageName() })
         mapping.map('packageDescription', { parentExten?.getPackageDescription()?:project.getDescription() })
         mapping.map('license', { parentExten?.getLicense()?:'' })
@@ -82,18 +81,9 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     abstract String assembleArchiveName();
 
-    private static InetAddress getLocalHost() {
-        try {
-            return InetAddress.localHost
-        } catch (UnknownHostException ignore) {
-            byte[] loopbackAddress = [127, 0, 0, 1]
-            return InetAddress.getByAddress("localhost", loopbackAddress)
-        }
-    }
-    
     protected static String getLocalHostName() {
         try {
-            return machineAddress.hostName
+            return InetAddress.localHost.hostName
         } catch (UnknownHostException ignore) {
             return "unknown"
         }
