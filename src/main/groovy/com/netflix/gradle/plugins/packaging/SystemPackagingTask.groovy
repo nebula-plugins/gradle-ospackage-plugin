@@ -33,7 +33,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     ProjectPackagingExtension parentExten
 
-    static InetAddress machineAddress = InetAddress.localHost
+    static InetAddress machineAddress = getLocalHost()
 
     // TODO Add conventions to pull from extension
 
@@ -82,6 +82,15 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     abstract String assembleArchiveName();
 
+    private static InetAddress getLocalHost() {
+        try {
+            return InetAddress.localHost
+        } catch (UnknownHostException ignore) {
+            byte[] loopbackAddress = [127, 0, 0, 1]
+            return InetAddress.getByAddress("localhost", loopbackAddress)
+        }
+    }
+    
     protected static String getLocalHostName() {
         try {
             return machineAddress.hostName
