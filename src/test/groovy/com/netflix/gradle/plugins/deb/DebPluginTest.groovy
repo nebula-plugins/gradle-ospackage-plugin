@@ -21,7 +21,7 @@ import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
-import org.freecompany.redline.header.Flags
+import org.redline_rpm.header.Flags
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskExecutionException
 import spock.lang.Issue

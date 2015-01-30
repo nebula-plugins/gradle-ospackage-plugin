@@ -2,7 +2,7 @@ package com.netflix.gradle.plugins.rpm.filevisitor
 
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
-import org.freecompany.redline.Builder
+import org.redline_rpm.Builder
 
 class RpmFileVisitorStrategyFactory {
     private final RpmFileVisitorStrategy preJava7RpmFileVisitorStrategy

@@ -53,7 +53,7 @@ dependencies {
     compile localGroovy()
     // Dynamic versions are ok, the nebula-maven-publishing plugin will take care of them
     compile 'org.apache.commons:commons-lang3:3.1'
-    compile('org.redline-rpm:redline:1.1.15') {
+    compile('org.redline-rpm:redline:1.2.1') {
         // Where logging foes is a runtime decision
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }

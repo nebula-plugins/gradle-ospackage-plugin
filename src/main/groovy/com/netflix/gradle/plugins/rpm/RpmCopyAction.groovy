@@ -21,9 +21,9 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.filevisitor.RpmFileVisitorStrategyFactory
-import org.freecompany.redline.Builder
-import org.freecompany.redline.header.Header.HeaderTag
-import org.freecompany.redline.payload.Directive
+import org.redline_rpm.Builder
+import org.redline_rpm.header.Header.HeaderTag
+import org.redline_rpm.payload.Directive
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger

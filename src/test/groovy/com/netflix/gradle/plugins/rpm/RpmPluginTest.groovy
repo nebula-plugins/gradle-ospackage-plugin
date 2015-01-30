@@ -33,9 +33,9 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
-import static org.freecompany.redline.header.Flags.*
-import static org.freecompany.redline.header.Header.HeaderTag.*
-import static org.freecompany.redline.payload.CpioHeader.*
+import static org.redline_rpm.header.Flags.*
+import static org.redline_rpm.header.Header.HeaderTag.*
+import static org.redline_rpm.payload.CpioHeader.*
 
 class RpmPluginTest extends ProjectSpec {
     def 'files'() {
