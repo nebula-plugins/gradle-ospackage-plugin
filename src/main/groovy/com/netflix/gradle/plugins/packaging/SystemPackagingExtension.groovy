@@ -27,6 +27,9 @@ class SystemPackagingExtension {
     @Input @Optional
     String version
 
+    @Input @Optional
+    Integer epoch
+
     // Metadata, some are probably specific to a type
     @Input @Optional
     String user
