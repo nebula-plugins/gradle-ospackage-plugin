@@ -1,5 +1,5 @@
 {
-  "com.netflix.nebula:nebula-test": { "locked": "2.0.0", "requested": "2.0.+" },
+  "com.netflix.nebula:nebula-test": { "locked": "2.2.0", "requested": "2.2.+" },
   "org.apache.commons:commons-lang3": { "locked": "3.1", "requested": "3.1" },
   "org.redline-rpm:redline": { "locked": "1.1.15", "requested": "1.1.15" },
   "org.vafer:jdeb": { "locked": "1.0.1", "requested": "1.0.1" }
