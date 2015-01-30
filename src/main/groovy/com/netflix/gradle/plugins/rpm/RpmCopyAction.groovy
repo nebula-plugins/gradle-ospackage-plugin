@@ -51,7 +51,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         assert rpmTask.getVersion() != null, "RPM requires a version string"
 
         builder = new Builder()
-        builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
+        builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release, rpmTask.epoch
         builder.setType rpmTask.type
         builder.setPlatform rpmTask.arch, rpmTask.os
         builder.setGroup rpmTask.packageGroup
