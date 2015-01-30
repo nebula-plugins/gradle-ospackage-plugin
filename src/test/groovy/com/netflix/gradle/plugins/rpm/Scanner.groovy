@@ -1,10 +1,10 @@
 package com.netflix.gradle.plugins.rpm
 
 import groovy.transform.Canonical
-import org.freecompany.redline.ReadableChannelWrapper
-import org.freecompany.redline.Util
-import org.freecompany.redline.header.Format
-import org.freecompany.redline.payload.CpioHeader
+import org.redline_rpm.ReadableChannelWrapper
+import org.redline_rpm.Util
+import org.redline_rpm.header.Format
+import org.redline_rpm.payload.CpioHeader
 import org.spockframework.util.Nullable
 
 import java.nio.ByteBuffer
@@ -13,12 +13,12 @@ import java.nio.channels.Channels
 import java.nio.charset.Charset
 import java.util.zip.GZIPInputStream
 
-import static org.freecompany.redline.header.Header.HeaderTag.HEADERIMMUTABLE
-import static org.freecompany.redline.header.Signature.SignatureTag.SIGNATURES
+import static org.redline_rpm.header.Header.HeaderTag.HEADERIMMUTABLE
+import static org.redline_rpm.header.Signature.SignatureTag.SIGNATURES
 import static org.junit.Assert.assertEquals
 
 /**
- * Based on {@link org.freecompany.redline.Scanner}, but modified to return scanned information for
+ * Based on {@link org.redline_rpm.Scanner}, but modified to return scanned information for
  * programmatic verification.
  */
 class Scanner {

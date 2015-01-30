@@ -1,8 +1,8 @@
 package com.netflix.gradle.plugins.rpm.filevisitor
 
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
-import org.freecompany.redline.Builder
-import org.freecompany.redline.payload.Directive
+import org.redline_rpm.Builder
+import org.redline_rpm.payload.Directive
 import org.gradle.api.file.FileCopyDetails
 
 import java.nio.file.Path
