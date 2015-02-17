@@ -45,13 +45,14 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 
         then:
         task.archivePath.exists()
-        task.archivePath.text ==
+        String dockerFileText = task.archivePath.text
+        dockerFileText.startsWith(
 """FROM 'ubuntu:14.04'
 MAINTAINER John Doe 'john.doe@netflix.com'
 WORKDIR /tmp
-ADD apple.jar /opt/apple.jar
-ADD banana.zip /opt/banana.zip
-"""
+""")
+        dockerFileText.contains('ADD apple.jar /opt/apple.jar')
+        dockerFileText.contains('ADD banana.zip /opt/banana.zip')
     }
 
     private File createDir(File dir) {
