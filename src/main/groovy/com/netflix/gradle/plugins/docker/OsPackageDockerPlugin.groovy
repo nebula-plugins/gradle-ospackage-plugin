@@ -24,7 +24,7 @@ class OsPackageDockerPlugin implements Plugin<Project> {
 
         DockerBuildImage buildImageTask = project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
             dependsOn createDockerfileTask
-            conventionMapping.inputDir = { createDockerfileTask.archivePath.parentFile }
+            conventionMapping.inputDir = { createDockerfileTask.destinationDir }
         }
 
         project.task(AGGREGATION_TASK_NAME) {
