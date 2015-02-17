@@ -17,7 +17,6 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.Deb
-import com.netflix.gradle.plugins.docker.Docker
 import com.netflix.gradle.plugins.rpm.Rpm
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -41,7 +40,6 @@ public class SystemPackagingPlugin implements Plugin<Project> {
         project.plugins.apply(SystemPackagingBasePlugin.class)
         debTask = project.task([type: Deb], 'buildDeb')
         rpmTask = project.task([type: Rpm], 'buildRpm')
-        project.task('buildDocker', type: Docker)
     }
 
 }

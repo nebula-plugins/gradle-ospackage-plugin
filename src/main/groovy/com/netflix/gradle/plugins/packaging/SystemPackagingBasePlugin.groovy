@@ -17,7 +17,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.DebPlugin
-import com.netflix.gradle.plugins.docker.DockerPlugin
+import com.netflix.gradle.plugins.docker.OsPackageDockerPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -45,7 +45,7 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
 
         project.plugins.apply(RpmPlugin.class)
         project.plugins.apply(DebPlugin.class)
-        project.plugins.apply(DockerPlugin)
+        project.plugins.apply(OsPackageDockerPlugin)
     }
 
     ProjectPackagingExtension createExtension() {

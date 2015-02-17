@@ -9,7 +9,7 @@ import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 class DockerCopyAction extends AbstractPackagingCopyAction {
     private final DockerfileInstructionManager dockerfileInstructionManager
 
-    DockerCopyAction(Docker task, DockerfileInstructionManager dockerfileInstructionManager) {
+    DockerCopyAction(SystemPackageDockerfile task, DockerfileInstructionManager dockerfileInstructionManager) {
         super(task)
         this.dockerfileInstructionManager = dockerfileInstructionManager
     }

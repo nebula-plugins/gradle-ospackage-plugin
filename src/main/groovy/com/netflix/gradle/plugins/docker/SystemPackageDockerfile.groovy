@@ -4,10 +4,10 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.tooling.model.UnsupportedMethodException
 
-class Docker extends SystemPackagingTask {
+class SystemPackageDockerfile extends SystemPackagingTask {
     private final DockerfileInstructionManager dockerfileInstructionManager
 
-    Docker() {
+    SystemPackageDockerfile() {
         archiveName = 'Dockerfile'
         dockerfileInstructionManager = new DockerfileInstructionManager()
     }
