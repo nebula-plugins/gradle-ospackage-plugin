@@ -25,7 +25,7 @@ dependencies {
         // Where logging foes is a runtime decision
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
-    compile('org.vafer:jdeb:1.0.1') {
+    compile('org.vafer:jdeb:1.4') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'
         exclude group: 'org.apache.maven', module: 'maven-plugin-api'
