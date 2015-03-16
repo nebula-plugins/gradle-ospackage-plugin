@@ -463,6 +463,196 @@ class DebPluginTest extends ProjectSpec {
         'Deb packages with Architecture: all cannot declare Multi-Arch: same' == iex.message
     }
 
+    def 'Configures Conflicts control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            conflicts 'foo'
+            conflicts('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            conflicts('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Conflicts')
+    }
+
+    def 'Configures Recommends control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            recommends 'foo'
+            recommends('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            recommends('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Recommends')
+    }
+
+    def 'Configures Suggests control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            suggests 'foo'
+            suggests('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            suggests('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Suggests')
+    }
+
+    def 'Configures Enhances control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            enhances 'foo'
+            enhances('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            enhances('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Enhances')
+    }
+
+    def 'Configures Pre-Depends control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            preDepends 'foo'
+            preDepends('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            preDepends('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Pre-Depends')
+    }
+
+    def 'Configures Breaks control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            breaks 'foo'
+            breaks('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            breaks('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Breaks')
+    }
+
+    def 'Configures Replaces control field'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            replaces 'foo'
+            replaces('bar', '1.0', Flags.GREATER | Flags.EQUAL)
+            replaces('baz', '2.0', Flags.LESS | Flags.EQUAL)
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Replaces')
+    }
+
+
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/48")
     def "Does not throw UnsupportedOperationException when copying external artifact with createDirectoryEntry option"() {
         given:

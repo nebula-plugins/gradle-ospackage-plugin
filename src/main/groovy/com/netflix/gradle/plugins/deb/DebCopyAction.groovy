@@ -26,6 +26,7 @@ import com.netflix.gradle.plugins.packaging.Link
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
+import org.apache.tools.ant.taskdefs.optional.depend.Depend
 import org.freecompany.redline.header.Flags
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
@@ -48,6 +49,13 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     Deb debTask
     def debianDir
     List<String> dependencies
+    List<String> conflicts
+    List<String> recommends
+    List<String> suggests
+    List<String> enhances
+    List<String> preDepends
+    List<String> breaks
+    List<String> replaces
     List<DataProducer> dataProducers
     List<InstallDir> installDirs
     boolean includeStandardDefines = true
@@ -80,6 +88,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         debianDir.mkdirs()
 
     }
+
 /*
     boolean useJavaNioForMask() {
         try {
@@ -153,39 +162,43 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         dataProducers << new DataProducerLink(link.path, link.target, true, null, null, null);
     }
 
-    def signMap = [
-            (Flags.GREATER|Flags.EQUAL): '>=',
-            (Flags.LESS|Flags.EQUAL):    '<=',
-            (Flags.EQUAL):               '=',
-            (Flags.GREATER):             '>>',
-            (Flags.LESS):                '<<'
-    ]
     @Override
     protected void addDependency(Dependency dep) {
-        // Depends: e2fsprogs (>= 1.27-2), libc6 (>= 2.2.4-4).
-        def depStr = dep.packageName
-        if (dep.flag && dep.version) {
-            def sign = signMap[dep.flag]
-            if (sign==null) {
-                throw new IllegalArgumentException()
-            }
-            depStr += " (${sign} ${dep.version})"
-        } else if (dep.version) {
-            depStr += " (${dep.version})"
-        }
-        dependencies << depStr
+        dependencies << dep.toDebString()
     }
 
     @Override
-    protected void addConflict(Dependency dependency) {
-        // No functionality implemented in jdeb for this
-        logger.warn "Conflict functionality not implemented for deb files" 
+    protected void addConflict(Dependency dep) {
+        conflicts << dep.toDebString()
     }
 
     @Override
-    protected void addObsolete(Dependency dependency) {
-        // No functionality implemented in jdeb for this
-        logger.warn "Replaces functionality not implemented for deb files"
+    protected void addObsolete(Dependency dep) {
+        logger.warn "Obsoletes functionality not implemented for deb files"
+    }
+
+    protected void addRecommends(Dependency dep) {
+        recommends << dep.toDebString()
+    }
+
+    protected void addSuggests(Dependency dep) {
+        suggests << dep.toDebString()
+    }
+
+    protected void addEnhances(Dependency dep) {
+        enhances << dep.toDebString()
+    }
+
+    protected void addPreDepends(Dependency dep) {
+        preDepends << dep.toDebString()
+    }
+
+    protected void addBreaks(Dependency dep) {
+        breaks << dep.toDebString()
+    }
+
+    protected void addReplaces(Dependency dep) {
+        replaces << dep.toDebString()
     }
 
     @Override
@@ -205,6 +218,36 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     @Override
     protected void end() {
+        for (Dependency recommends : task.getAllRecommends()) {
+            logger.debug "adding recommends on {} {}", recommends.packageName, recommends.version
+            addRecommends(recommends)
+        }
+
+        for (Dependency suggests : task.getAllSuggests()) {
+            logger.debug "adding suggests on {} {}", suggests.packageName, suggests.version
+            addSuggests(suggests)
+        }
+
+        for (Dependency enhances : task.getAllEnhances()) {
+            logger.debug "adding enhances on {} {}", enhances.packageName, enhances.version
+            addEnhances(enhances)
+        }
+
+        for (Dependency preDepends : task.getAllPreDepends()) {
+            logger.debug "adding preDepends on {} {}", preDepends.packageName, preDepends.version
+            addPreDepends(preDepends)
+        }
+
+        for (Dependency breaks : task.getAllBreaks()) {
+            logger.debug "adding breaks on {} {}", breaks.packageName, breaks.version
+            addBreaks(breaks)
+        }
+
+        for (Dependency replaces : task.getAllReplaces()) {
+            logger.debug "adding replaces on {} {}", replaces.packageName, replaces.version
+            addReplaces(replaces)
+        }
+
         File debFile = debTask.getArchivePath()
 
         def context = toContext()
@@ -258,6 +301,13 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 url: debTask.getUrl(),
                 arch: debTask.getArchString(),
                 multiArch: getMultiArch(),
+                conflicts: StringUtils.join(conflicts, ", "),
+                recommends: StringUtils.join(recommends, ", "),
+                suggests: StringUtils.join(suggests, ", "),
+                enhances: StringUtils.join(enhances, ", " ),
+                preDepends: StringUtils.join(preDepends, ", "),
+                breaks: StringUtils.join(breaks, ", "),
+                replaces: StringUtils.join(replaces, ", "),
 
                 // Uses install command for directory
                 dirs: installDirs.collect { InstallDir dir ->

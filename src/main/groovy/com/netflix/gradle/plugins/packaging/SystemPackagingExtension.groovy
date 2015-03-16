@@ -233,17 +233,20 @@ class SystemPackagingExtension {
         link
     }
 
-    List<Dependency> dependencies = new ArrayList<Dependency>();
-    List<Dependency> obsoletes = new ArrayList<Dependency>();
-    List<Dependency> conflicts = new ArrayList<Dependency>();
+    List<Dependency> dependencies = new ArrayList<Dependency>()
+    List<Dependency> obsoletes = new ArrayList<Dependency>()
+    List<Dependency> conflicts = new ArrayList<Dependency>()
+    // Deb-specific special dependencies
+    List<Dependency> recommends = new ArrayList<Dependency>()
+    List<Dependency> suggests = new ArrayList<Dependency>()
+    List<Dependency> enhances = new ArrayList<Dependency>()
+    List<Dependency> preDepends = new ArrayList<Dependency>()
+    List<Dependency> breaks = new ArrayList<Dependency>()
+    List<Dependency> replaces = new ArrayList<Dependency>()
 
     Dependency requires(String packageName, String version, int flag) {
         Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
-        dependencies.add(dep)
+        dependencies.add(new Dependency(packageName, version, flag))
         dep
     }
 
@@ -252,11 +255,8 @@ class SystemPackagingExtension {
     }
 
     Dependency obsoletes(String packageName, String version, int flag) {
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
-        obsoletes.add(dep)
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        obsoletes.add(new Dependency(packageName, version, flag))
         dep
     }
 
@@ -265,16 +265,73 @@ class SystemPackagingExtension {
     }
 
     Dependency conflicts(String packageName, String version, int flag) {
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
-        conflicts.add(dep)
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        conflicts.add(new Dependency(packageName, version, flag))
         dep
     }
 
     Dependency conflicts(String packageName) {
         conflicts(packageName, '', 0)
+    }
+
+    Dependency recommends(String packageName, String version, int flag) {
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        recommends.add(new Dependency(packageName, version, flag))
+        dep
+    }
+
+    Dependency recommends(String packageName) {
+        recommends(packageName, '', 0)
+    }
+
+    Dependency suggests(String packageName, String version, int flag) {
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        suggests.add(new Dependency(packageName, version, flag))
+        dep
+    }
+
+    Dependency suggests(String packageName) {
+        suggests(packageName, '', 0)
+    }
+
+    Dependency enhances(String packageName, String version, int flag) {
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        enhances.add(new Dependency(packageName, version, flag))
+        dep
+    }
+
+    Dependency enhances(String packageName) {
+        enhances(packageName, '', 0)
+    }
+
+    Dependency preDepends(String packageName, String version, int flag) {
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        preDepends.add(new Dependency(packageName, version, flag))
+        dep
+    }
+
+    Dependency preDepends(String packageName) {
+        preDepends(packageName, '', 0)
+    }
+
+    Dependency breaks(String packageName, String version, int flag) {
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        breaks.add(new Dependency(packageName, version, flag))
+        dep
+    }
+
+    Dependency breaks(String packageName) {
+        breaks(packageName, '', 0)
+    }
+
+    Dependency replaces(String packageName, String version, int flag) {
+        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
+        replaces.add(new Dependency(packageName, version, flag))
+        dep
+    }
+
+    Dependency replaces(String packageName) {
+        replaces(packageName, '', 0)
     }
 
     List<Directory> directories = new ArrayList<Directory>()
