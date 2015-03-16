@@ -66,6 +66,13 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         super(debTask)
         this.debTask = debTask
         dependencies = []
+        conflicts = []
+        recommends = []
+        suggests = []
+        enhances = []
+        preDepends = []
+        breaks = []
+        replaces = []
         dataProducers = []
         installDirs = []
         debianDir = new File(debTask.project.buildDir, "debian")
