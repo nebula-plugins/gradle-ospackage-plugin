@@ -50,7 +50,14 @@ be set, which are specific to DEBs. Quite of them have defaults which fall back 
 * _createDirectoryEntry [Boolean]_
 * uid - Default uid of files
 * gid - Default gid of files
-* _multiArch_ - Configure multi-arch behavior: NONE (default), SAME, FOREIGN, ALLOWED (see: https://wiki.ubuntu.com/MultiarchSpec
+* _multiArch_ - Configure multi-arch behavior: NONE (default), SAME, FOREIGN, ALLOWED (see: https://wiki.ubuntu.com/MultiarchSpec )
+* _conflicts_
+* _recommends_
+* _suggests_
+* _enhances_
+* _preDepends_
+* _breaks_
+* _replaces_
 
 # Symbolic Links
 
@@ -69,6 +76,20 @@ Required packages are specified via the required method:
 ```
 requires(String packageName, String version)
 ```
+
+# Other Relationships
+
+Debian packages support declaration of other relationships. The Deb task supports the following in addition to Requires:
+* _conflicts_
+* _recommends_
+* _suggests_
+* _enhances_
+* _preDepends_ (configures the Pre-Depends field)
+* _breaks_
+* _replaces_
+
+For more information, see the [Debian Policy Manual section on relationships.](https://www.debian.org/doc/debian-policy/ch-relationships.html)
+Syntax is identical to `requires`
 
 # Scripts
 
