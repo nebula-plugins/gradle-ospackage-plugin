@@ -17,9 +17,12 @@
 package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
+import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 
 class Deb extends SystemPackagingTask {
     static final String DEB_EXTENSION = "deb";
@@ -62,5 +65,59 @@ class Deb extends SystemPackagingTask {
         mapping.map('gid', { (parentExten?.getGid())?:0 })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
         mapping.map('multiArch', { parentExten?.getMultiArch() })
+    }
+
+    @Input @Optional
+    List<Dependency> getAllRecommends() {
+        if (parentExten) {
+            return getRecommends() + parentExten.getRecommends()
+        } else {
+            return getRecommends()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllSuggests() {
+        if (parentExten) {
+            return getSuggests() + parentExten.getSuggests()
+        } else {
+            return getSuggests()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllEnhances() {
+        if (parentExten) {
+            return getEnhances() + parentExten.getEnhances()
+        } else {
+            return getEnhances()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllPreDepends() {
+        if (parentExten) {
+            return getPreDepends() + parentExten.getPreDepends()
+        } else {
+            return getPreDepends()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllBreaks() {
+        if (parentExten) {
+            return getBreaks() + parentExten.getBreaks()
+        } else {
+            return getBreaks()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllReplaces() {
+        if (parentExten) {
+            return getReplaces() + parentExten.getReplaces()
+        } else {
+            return getReplaces()
+        }
     }
 }

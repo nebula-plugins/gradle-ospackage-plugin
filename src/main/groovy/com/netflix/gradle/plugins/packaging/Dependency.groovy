@@ -16,10 +16,41 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import org.freecompany.redline.header.Flags
+
 class Dependency implements Serializable {
     private static final long serialVersionUID = 5707700441069141432L;
 
     String packageName
     String version
     int flag = 0
+
+    Dependency(String packageName, String version, int flag=0) {
+        assert !packageName.contains(','), "Package name ($packageName) can not include commas"
+        this.packageName = packageName
+        this.version = version
+        this.flag = flag
+    }
+
+    String toDebString() {
+        def signMap = [
+            (Flags.GREATER|Flags.EQUAL): '>=',
+            (Flags.LESS|Flags.EQUAL):    '<=',
+            (Flags.EQUAL):               '=',
+            (Flags.GREATER):             '>>',
+            (Flags.LESS):                '<<'
+        ]
+
+        def depStr = this.packageName
+        if (this.flag && this.version) {
+            def sign = signMap[this.flag]
+            if (sign==null) {
+                throw new IllegalArgumentException()
+            }
+            depStr += " (${sign} ${this.version})"
+        } else if (this.version) {
+            depStr += " (${this.version})"
+        }
+        depStr
+    }
 }

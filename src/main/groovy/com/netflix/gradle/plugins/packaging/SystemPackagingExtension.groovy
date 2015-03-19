@@ -232,16 +232,19 @@ class SystemPackagingExtension {
         link
     }
 
-    List<Dependency> dependencies = new ArrayList<Dependency>();
-    List<Dependency> obsoletes = new ArrayList<Dependency>();
-    List<Dependency> conflicts = new ArrayList<Dependency>();
+    List<Dependency> dependencies = new ArrayList<Dependency>()
+    List<Dependency> obsoletes = new ArrayList<Dependency>()
+    List<Dependency> conflicts = new ArrayList<Dependency>()
+    // Deb-specific special dependencies
+    List<Dependency> recommends = new ArrayList<Dependency>()
+    List<Dependency> suggests = new ArrayList<Dependency>()
+    List<Dependency> enhances = new ArrayList<Dependency>()
+    List<Dependency> preDepends = new ArrayList<Dependency>()
+    List<Dependency> breaks = new ArrayList<Dependency>()
+    List<Dependency> replaces = new ArrayList<Dependency>()
 
     Dependency requires(String packageName, String version, int flag) {
-        assert !packageName.contains(','), "Package name ($packageName) can not include commas"
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
+        def dep = new Dependency(packageName, version, flag)
         dependencies.add(dep)
         dep
     }
@@ -251,10 +254,7 @@ class SystemPackagingExtension {
     }
 
     Dependency obsoletes(String packageName, String version, int flag) {
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
+        def dep = new Dependency(packageName, version, flag)
         obsoletes.add(dep)
         dep
     }
@@ -264,16 +264,73 @@ class SystemPackagingExtension {
     }
 
     Dependency conflicts(String packageName, String version, int flag) {
-        Dependency dep = new Dependency()
-        dep.packageName = packageName
-        dep.version = version
-        dep.flag = flag
+        def dep = new Dependency(packageName, version, flag)
         conflicts.add(dep)
         dep
     }
 
     Dependency conflicts(String packageName) {
         conflicts(packageName, '', 0)
+    }
+
+    Dependency recommends(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        recommends.add(dep)
+        dep
+    }
+
+    Dependency recommends(String packageName) {
+        recommends(packageName, '', 0)
+    }
+
+    Dependency suggests(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        suggests.add(dep)
+        dep
+    }
+
+    Dependency suggests(String packageName) {
+        suggests(packageName, '', 0)
+    }
+
+    Dependency enhances(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        enhances.add(dep)
+        dep
+    }
+
+    Dependency enhances(String packageName) {
+        enhances(packageName, '', 0)
+    }
+
+    Dependency preDepends(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        preDepends.add(dep)
+        dep
+    }
+
+    Dependency preDepends(String packageName) {
+        preDepends(packageName, '', 0)
+    }
+
+    Dependency breaks(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        breaks.add(dep)
+        dep
+    }
+
+    Dependency breaks(String packageName) {
+        breaks(packageName, '', 0)
+    }
+
+    Dependency replaces(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        replaces.add(dep)
+        dep
+    }
+
+    Dependency replaces(String packageName) {
+        replaces(packageName, '', 0)
     }
 
     List<Directory> directories = new ArrayList<Directory>()

@@ -30,7 +30,14 @@ class TemplateHelperSpec extends Specification {
         depends: '',
         arch: 'Arch',
         dirs: 'dirs',
-        multiArch: '']
+        multiArch: '',
+        conflicts: '',
+        recommends: '',
+        suggests: '',
+        enhances: '',
+        preDepends: '',
+        breaks: '',
+        replaces: '']
 
     def 'produces template'() {
         when:
