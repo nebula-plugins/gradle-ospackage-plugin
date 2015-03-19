@@ -244,7 +244,6 @@ class SystemPackagingExtension {
     List<Dependency> replaces = new ArrayList<Dependency>()
 
     Dependency requires(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         dependencies.add(dep)
         dep
@@ -255,7 +254,6 @@ class SystemPackagingExtension {
     }
 
     Dependency obsoletes(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         obsoletes.add(dep)
         dep
@@ -266,7 +264,6 @@ class SystemPackagingExtension {
     }
 
     Dependency conflicts(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         conflicts.add(dep)
         dep
@@ -277,7 +274,6 @@ class SystemPackagingExtension {
     }
 
     Dependency recommends(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         recommends.add(dep)
         dep
@@ -288,7 +284,6 @@ class SystemPackagingExtension {
     }
 
     Dependency suggests(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         suggests.add(dep)
         dep
@@ -299,7 +294,6 @@ class SystemPackagingExtension {
     }
 
     Dependency enhances(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         enhances.add(dep)
         dep
@@ -310,7 +304,6 @@ class SystemPackagingExtension {
     }
 
     Dependency preDepends(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         preDepends.add(dep)
         dep
@@ -321,7 +314,6 @@ class SystemPackagingExtension {
     }
 
     Dependency breaks(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         breaks.add(dep)
         dep
@@ -332,7 +324,6 @@ class SystemPackagingExtension {
     }
 
     Dependency replaces(String packageName, String version, int flag) {
-        Preconditions.checkArgument(!packageName.contains(','), "Package name (%s) can not include commas", packageName)
         def dep = new Dependency(packageName, version, flag)
         replaces.add(dep)
         dep

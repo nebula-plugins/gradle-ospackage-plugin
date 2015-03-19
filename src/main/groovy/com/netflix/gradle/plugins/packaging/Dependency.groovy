@@ -26,6 +26,7 @@ class Dependency implements Serializable {
     int flag = 0
 
     Dependency(String packageName, String version, int flag=0) {
+        assert !packageName.contains(','), "Package name ($packageName) can not include commas"
         this.packageName = packageName
         this.version = version
         this.flag = flag
