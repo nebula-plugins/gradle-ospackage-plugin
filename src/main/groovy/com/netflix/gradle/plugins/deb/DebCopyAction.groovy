@@ -22,7 +22,6 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
-
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
@@ -35,8 +34,7 @@ import org.slf4j.LoggerFactory
 import org.vafer.jdeb.Compression
 import org.vafer.jdeb.Console
 import org.vafer.jdeb.DataProducer
-import org.vafer.jdeb.Processor
-import org.vafer.jdeb.descriptors.PackageDescriptor
+import org.vafer.jdeb.DebMaker
 import org.vafer.jdeb.producers.DataProducerLink
 
 /**
@@ -223,20 +221,43 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                     templateHelper.generateFile(it.key, context + [commands: it.value] )
                 }
         debianFiles.addAll(addlFiles)
-        File[] debianFileArray = debianFiles.toArray() as File[]
 
-        def producers = dataProducers.toArray() as DataProducer[]
-        def processor = new Processor([
-                info: {msg -> logger.info(msg) },
-                warn: {msg -> logger.warn(msg) }] as Console, null)
+        DebMaker maker = new DebMaker(new GradleLoggerConsole(), dataProducers, null)
+        File contextFile = templateHelper.generateFile("control", context)
+        maker.setControl(contextFile.parentFile)
+        maker.setDeb(debFile)
 
-        PackageDescriptor descriptor = createDeb(debianFileArray, debFile, processor, producers)
+        logger.info("Creating debian package: ${debFile}")
+
+        try {
+            logger.info("Creating debian package: ${debFile}")
+            maker.createDeb(Compression.GZIP)
+        } catch (Exception e) {
+            throw new GradleException("Can't build debian package ${debFile}", e)
+        }
 
         // TODO Put changes file into a separate task
         //def changesFile = new File("${packagePath}_all.changes")
         //createChanges(pkg, changesFile, descriptor, processor)
 
         logger.info 'Created deb {}', debFile
+    }
+
+    private static class GradleLoggerConsole implements Console {
+        @Override
+        void debug(String message) {
+            logger.warn(message)
+        }
+
+        @Override
+        void info(String message) {
+            logger.info(message)
+        }
+
+        @Override
+        void warn(String message) {
+            logger.warn(message)
+        }
     }
 
     /**
@@ -272,15 +293,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                     return map
                 }
         ]
-    }
-
-    private PackageDescriptor createDeb(File[] controlFiles, File debFile, Processor processor, DataProducer[] data) {
-        try {
-            logger.info("Creating debian package: ${debFile}")
-            return processor.createDeb(controlFiles, data, debFile, Compression.GZIP)
-        } catch (Exception e) {
-            throw new GradleException("Can't build debian package ${debFile}", e)
-        }
     }
 
     /*
