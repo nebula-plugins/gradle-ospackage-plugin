@@ -1,3 +1,8 @@
+2.2.1
+-----
+
+* Enabled declaration of Conflicts, Recommends, Suggests, Enhances, Pre-Depends, Breaks, and Replaces on DEB packages
+
 2.2.0
 -----
 
