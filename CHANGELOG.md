@@ -1,3 +1,8 @@
+1.12.8
+------
+
+* Issue #60: Upgrade JDeb library to latest version to avoid having to monkey batch code through reflection.
+
 1.12.6
 ------
 
