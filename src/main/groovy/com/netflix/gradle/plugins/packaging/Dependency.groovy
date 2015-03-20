@@ -16,7 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
-import org.freecompany.redline.header.Flags
+import org.redline_rpm.header.Flags
 
 class Dependency implements Serializable {
     private static final long serialVersionUID = 5707700441069141432L;
