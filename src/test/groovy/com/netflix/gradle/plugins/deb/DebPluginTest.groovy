@@ -21,9 +21,10 @@ import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
-import org.redline_rpm.header.Flags
-import org.gradle.api.GradleException
+import org.apache.commons.lang3.exception.ExceptionUtils
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.TaskExecutionException
+import org.redline_rpm.header.Flags
 import spock.lang.Issue
 
 class DebPluginTest extends ProjectSpec {
@@ -692,5 +693,50 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         noExceptionThrown()
+    }
+
+    def 'can execute Deb task with valid version'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task('buildDeb', type:Deb) {
+            version = '1.0'
+            from(srcDir)
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        noExceptionThrown()
+    }
+
+    def 'executing a Deb task with invalid version throws exception'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task('buildDeb', type:Deb) {
+            version = '-1.0'
+            from(srcDir)
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        Throwable t = thrown(TaskExecutionException)
+        Throwable rootCause = ExceptionUtils.getRootCause(t)
+        rootCause instanceof InvalidUserDataException
+        rootCause.message == "Invalid upstream version '-1.0' - a valid version must start with a digit and only contain [A-Za-z0-9.+:~-]"
     }
 }
