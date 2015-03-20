@@ -82,7 +82,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     }
 
     private void validateUserInput(Deb debTask) {
-        if(!versionValidator.validate(debTask.getVersion())) {
+        if(debTask.getVersion() != 'unspecified' && !versionValidator.validate(debTask.getVersion())) {
             throw new InvalidUserDataException("Invalid upstream version '${debTask.getVersion()}' - a valid version must start with a digit and only contain [A-Za-z0-9.+:~-]")
         }
     }
