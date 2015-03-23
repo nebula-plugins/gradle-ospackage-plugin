@@ -117,7 +117,7 @@ The following attributes can be used inside _from_ and _into_ closures to comple
 # Example
 
 ```
-    task fooRpm(type: Deb) {
+    task fooDeb(type: Deb) {
         packageName = 'foo'
         version = '1.2.3'
         release = 1
