@@ -5,6 +5,8 @@
 * Enabled declaration of Conflicts, Recommends, Suggests, Enhances, Pre-Depends, Breaks, and Replaces on DEB packages
 * Pull request #88: Upgraded Redline library to version 1.2.1 and introduced epoch property to be configured. This is a
 potentially BREAKING change as consumers might rely on the old `org.freecompany` package name
+* Issue #85: Validation of Debian version attribute.
+* Issue #90: Validation of Debian and RPM package name attribute.
 
 2.2.0
 -----
