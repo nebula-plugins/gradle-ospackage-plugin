@@ -34,6 +34,8 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
+    compile 'com.bmuschko:gradle-docker-plugin:0.8.3'
+
     testCompile 'com.netflix.nebula:nebula-test:1.12.+'
 }
 
