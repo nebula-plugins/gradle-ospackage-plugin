@@ -18,7 +18,6 @@ package com.netflix.gradle.plugins.rpm
 
 import com.google.common.io.Files
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
-import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
@@ -250,32 +249,6 @@ class RpmPluginTest extends ProjectSpec {
         def scan = Scanner.scan(rpmTask.getArchivePath())
         def scannerApple = scan.files.find { it.name =='./usr/local/myproduct/bin/apple'}
         scannerApple.asString() == '/usr/local/myproduct/apple'
-    }
-
-    def 'buildHost_shouldHaveASensibleDefault'() {
-        setup:
-        InetAddress mockInetAddress = Mock()
-        mockInetAddress.hostName >> { throw new UnknownHostException() }
-
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        when:
-        project.apply plugin: 'rpm'
-
-        Rpm rpmTask = (Rpm) project.task([type: Rpm], 'buildRpm', {})
-        SystemPackagingTask.machineAddress = mockInetAddress
-
-        then:
-        'unknown' == rpmTask.getBuildHost()
-
-        when:
-        rpmTask.execute()
-
-        then:
-        noExceptionThrown()
-
     }
 
     def 'usesArchivesBaseName'() {
