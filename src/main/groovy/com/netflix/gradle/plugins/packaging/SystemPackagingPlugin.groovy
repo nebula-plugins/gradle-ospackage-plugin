@@ -40,7 +40,6 @@ public class SystemPackagingPlugin implements Plugin<Project> {
         project.plugins.apply(SystemPackagingBasePlugin.class)
         debTask = project.task([type: Deb], 'buildDeb')
         rpmTask = project.task([type: Rpm], 'buildRpm')
-
     }
 
 }
