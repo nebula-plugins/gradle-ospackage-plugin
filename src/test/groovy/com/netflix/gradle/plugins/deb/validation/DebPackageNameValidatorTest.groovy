@@ -18,7 +18,10 @@ class DebPackageNameValidatorTest extends Specification {
 
         where:
         attribute            | result | description
-        'abc-1.0'            | true   | 'valid package name with mixed alphanumeric characters'
+        'a25b'               | true   | 'valid package name with mixed alphanumeric characters'
+        'my.awesome.package' | true   | 'package with dot characters'
+        'my-awesome-package' | true   | 'package with dash characters'
+        'my+awesome+package' | true   | 'package with plus characters'
         'My-Awesome-Package' | false  | 'package with upper case characters'
         'a'                  | false  | 'package name too short'
         '-abc'               | false  | 'package name does not start with alphanumeric character'

@@ -17,9 +17,13 @@ class RpmPackageNameAttributeValidatorTest extends Specification {
         valid == result
 
         where:
-        attribute       | result | description
-        'aBc_hello-1.0' | true   | 'valid package name with mixed alphanumeric characters'
-        'abc^'          | false  | 'package name with an invalid character'
+        attribute            | result | description
+        'a25b'               | true   | 'valid package name with mixed alphanumeric characters'
+        'my.awesome.package' | true   | 'package with dot characters'
+        'my-awesome-package' | true   | 'package with dash characters'
+        'my_awesome_package' | true   | 'package with underscore characters'
+        'My-Awesome-Package' | true   | 'package with upper case characters'
+        'abc^'               | false  | 'package name with an invalid character'
     }
 
     def "provide error message"() {
