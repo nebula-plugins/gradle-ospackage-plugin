@@ -36,6 +36,7 @@ dependencies {
     testCompile('com.netflix.nebula:nebula-test:2.2.+') {
         exclude group: 'org.codehaus.groovy'
     }
+    compile 'com.bmuschko:gradle-docker-plugin:2.0.3'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
