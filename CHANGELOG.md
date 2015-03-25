@@ -5,6 +5,7 @@
 * Enabled declaration of Conflicts, Recommends, Suggests, Enhances, Pre-Depends, Breaks, and Replaces on DEB packages
 * Pull request #88: Upgraded Redline library to version 1.2.1 and introduced epoch property to be configured. This is a
 potentially BREAKING change as consumers might rely on the old `org.freecompany` package name
+* Pull request #92: Fixed rpm task on hosts with incorrect hostname.
 
 2.2.0
 -----
