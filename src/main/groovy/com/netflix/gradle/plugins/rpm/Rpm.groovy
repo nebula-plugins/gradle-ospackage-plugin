@@ -44,7 +44,7 @@ class Rpm extends SystemPackagingTask {
 
     @Override
     protected String getArchString() {
-        return arch?.name().toLowerCase();
+        return arch?.name()?.toLowerCase();
     }
 
     @Override
