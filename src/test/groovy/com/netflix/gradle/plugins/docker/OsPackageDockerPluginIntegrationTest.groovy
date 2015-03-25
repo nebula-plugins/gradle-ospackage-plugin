@@ -6,7 +6,11 @@ import spock.lang.IgnoreIf
 class OsPackageDockerPluginIntegrationTest extends IntegrationSpec {
     static final String SERVER_URL = 'http://localhost:2375'
 
-    @IgnoreIf({ !isDockerServerInfoUrlReachable() })
+    def setup() {
+        fork = true
+    }
+
+    @IgnoreIf({ !OsPackageDockerPluginIntegrationTest.isDockerServerInfoUrlReachable() })
     def "Can create Dockerfile and build image from it"() {
         given:
         buildFile << """
@@ -18,7 +22,7 @@ repositories {
 
 createDockerfile {
     destinationDir = file('build/tmp/DockerPluginTest')
-    instruction "FROM 'ubuntu:14.04'"
+    instruction "FROM ubuntu:14.04"
     instruction "MAINTAINER John Doe 'john.doe@netflix.com'"
 }
 """

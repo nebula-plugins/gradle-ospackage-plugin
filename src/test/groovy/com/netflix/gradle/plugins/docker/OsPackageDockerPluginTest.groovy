@@ -17,6 +17,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         project.tasks.findByName(OsPackageDockerPlugin.BUILD_IMAGE_TASK_NAME)
         project.tasks.findByName(OsPackageDockerPlugin.AGGREGATION_TASK_NAME)
     }
+
     def "creates a Dockerfile based on specifications"() {
         given:
         File destDir = project.file('build/tmp/DockerPluginTest')
@@ -31,7 +32,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 
         SystemPackageDockerfile task = project.tasks.getByName(OsPackageDockerPlugin.CREATE_DOCKERFILE_TASK_NAME) {
             destinationDir = destDir
-            instruction "FROM 'ubuntu:14.04'"
+            instruction "FROM ubuntu:14.04"
             instruction "MAINTAINER John Doe 'john.doe@netflix.com'"
 
             from(srcDir) {
@@ -47,7 +48,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         task.archivePath.exists()
         String dockerFileText = task.archivePath.text
         dockerFileText.startsWith(
-"""FROM 'ubuntu:14.04'
+"""FROM ubuntu:14.04
 MAINTAINER John Doe 'john.doe@netflix.com'
 WORKDIR /tmp
 """)
