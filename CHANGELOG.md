@@ -8,6 +8,7 @@ potentially BREAKING change as consumers might rely on the old `org.freecompany`
 * Pull request #92: Fixed rpm task on hosts with incorrect hostname.
 * Issue #85: Validation of Debian version attribute.
 * Issue #90: Validation of Debian and RPM package name attribute.
+* Add Docker as target artifact.
 
 2.2.0
 -----
