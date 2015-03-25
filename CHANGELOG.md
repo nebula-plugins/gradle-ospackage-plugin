@@ -6,6 +6,8 @@
 * Pull request #88: Upgraded Redline library to version 1.2.1 and introduced epoch property to be configured. This is a
 potentially BREAKING change as consumers might rely on the old `org.freecompany` package name
 * Pull request #92: Fixed rpm task on hosts with incorrect hostname.
+* Issue #85: Validation of Debian version attribute.
+* Issue #90: Validation of Debian and RPM package name attribute.
 
 2.2.0
 -----

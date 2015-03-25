@@ -16,18 +16,25 @@
 
 package com.netflix.gradle.plugins.rpm
 
+import nebula.test.ProjectSpec
 import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertTrue
 
-class RpmCopySpecVisitorTest {
+class RpmCopySpecVisitorTest extends ProjectSpec {
     RpmCopyAction visitor
 
     @Before
     public void setup() {
-        visitor = new RpmCopyAction()
+        project.apply plugin: 'rpm'
+
+        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
+            packageName = 'can-execute-rpm-task-with-valid-version'
+        }
+
+        visitor = new RpmCopyAction(rpmTask)
     }
 
     @Test

@@ -18,8 +18,7 @@ package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
 import com.netflix.gradle.plugins.deb.filevisitor.DebFileVisitorStrategyFactory
-import com.netflix.gradle.plugins.deb.validation.DebVersionValidator
-import com.netflix.gradle.plugins.deb.validation.VersionValidator
+import com.netflix.gradle.plugins.deb.validation.DebTaskPropertiesValidator
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
@@ -28,7 +27,6 @@ import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
 import org.gradle.api.GradleException
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger
@@ -59,13 +57,13 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     List<InstallDir> installDirs
     boolean includeStandardDefines = true
     TemplateHelper templateHelper
-    VersionValidator versionValidator = new DebVersionValidator()
+    private final DebTaskPropertiesValidator debTaskPropertiesValidator = new DebTaskPropertiesValidator()
     private DebFileVisitorStrategyFactory debFileVisitorStrategyFactory
 
     DebCopyAction(Deb debTask) {
         super(debTask)
         this.debTask = debTask
-        validateUserInput(debTask)
+        debTaskPropertiesValidator.validate(debTask)
         dependencies = []
         conflicts = []
         recommends = []
@@ -79,12 +77,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         debianDir = new File(debTask.project.buildDir, "debian")
         templateHelper = new TemplateHelper(debianDir, '/deb')
         debFileVisitorStrategyFactory = new DebFileVisitorStrategyFactory(dataProducers, installDirs)
-    }
-
-    private void validateUserInput(Deb debTask) {
-        if(debTask.getVersion() != 'unspecified' && !versionValidator.validate(debTask.getVersion())) {
-            throw new InvalidUserDataException("Invalid upstream version '${debTask.getVersion()}' - a valid version must start with a digit and only contain [A-Za-z0-9.+:~-]")
-        }
     }
 
     @Canonical

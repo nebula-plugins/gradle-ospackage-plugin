@@ -149,8 +149,10 @@ class DebPluginTest extends ProjectSpec {
 
         project.apply plugin: 'deb'
 
-        Deb debTask = project.task([type: Deb], 'buildDeb', {})
-        debTask.from(srcDir)
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'project-name-default'
+            from(srcDir)
+        }
 
         when:
         debTask.execute()
@@ -181,8 +183,10 @@ class DebPluginTest extends ProjectSpec {
 
         project.apply plugin: 'deb'
 
-        Deb debTask = project.task([type: Deb], 'buildDeb', {})
-        debTask.from(srcDir)
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'permissions-default-to-filesystem'
+            from(srcDir)
+        }
 
         when:
         debTask.execute()
@@ -218,6 +222,7 @@ class DebPluginTest extends ProjectSpec {
         project.apply plugin: 'deb'
 
         Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
+            packageName = 'generate-scripts'
             release '1'
             preInstall preinstallScript
             postInstall postinstallScript
@@ -258,6 +263,7 @@ class DebPluginTest extends ProjectSpec {
         project.apply plugin: 'deb'
 
         Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
+            packageName = 'generate-scripts-that-append-install-util'
             release '1'
             installUtils installScript
             preInstall preinstallScript
@@ -426,6 +432,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-multi-arch-control-field'
             multiArch = FOREIGN
         })
         debTask.from(srcDir)
@@ -451,6 +458,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'disallows-multi-arch-same-for-architecture-all'
             multiArch = SAME
         })
         debTask.from(srcDir)
@@ -474,6 +482,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-conflicts-control-field'
             conflicts 'foo'
             conflicts('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             conflicts('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -501,6 +510,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-recommends-control-field'
             recommends 'foo'
             recommends('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             recommends('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -528,6 +538,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-suggests-control-field'
             suggests 'foo'
             suggests('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             suggests('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -555,6 +566,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-enhances-control-field'
             enhances 'foo'
             enhances('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             enhances('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -582,6 +594,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-pre-depends-control-field'
             preDepends 'foo'
             preDepends('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             preDepends('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -609,6 +622,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-breaks-control-field'
             breaks 'foo'
             breaks('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             breaks('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -636,6 +650,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'configures-replaces-control-field'
             replaces 'foo'
             replaces('bar', '1.0', Flags.GREATER | Flags.EQUAL)
             replaces('baz', '2.0', Flags.LESS | Flags.EQUAL)
@@ -682,6 +697,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'does-not-throw-unsupportedoperationexception-when-copying-external-artifact-with-createdirectoryentry-option'
             from(project.configurations.myConf) {
                 createDirectoryEntry = true
                 into('root/lib')
@@ -693,50 +709,5 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         noExceptionThrown()
-    }
-
-    def 'can execute Deb task with valid version'() {
-        given:
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        project.apply plugin: 'deb'
-        project.version = '1.0'
-
-        Deb debTask = project.task('buildDeb', type:Deb) {
-            version = '1.0'
-            from(srcDir)
-        }
-
-        when:
-        debTask.execute()
-
-        then:
-        noExceptionThrown()
-    }
-
-    def 'executing a Deb task with invalid version throws exception'() {
-        given:
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        project.apply plugin: 'deb'
-        project.version = '1.0'
-
-        Deb debTask = project.task('buildDeb', type:Deb) {
-            version = '-1.0'
-            from(srcDir)
-        }
-
-        when:
-        debTask.execute()
-
-        then:
-        Throwable t = thrown(TaskExecutionException)
-        Throwable rootCause = ExceptionUtils.getRootCause(t)
-        rootCause instanceof InvalidUserDataException
-        rootCause.message == "Invalid upstream version '-1.0' - a valid version must start with a digit and only contain [A-Za-z0-9.+:~-]"
     }
 }

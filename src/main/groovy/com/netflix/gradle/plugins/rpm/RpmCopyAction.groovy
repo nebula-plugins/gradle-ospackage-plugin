@@ -21,11 +21,12 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.filevisitor.RpmFileVisitorStrategyFactory
+import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
+import org.gradle.api.internal.file.copy.CopyAction
+import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.redline_rpm.Builder
 import org.redline_rpm.header.Header.HeaderTag
 import org.redline_rpm.payload.Directive
-import org.gradle.api.internal.file.copy.CopyAction
-import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -37,11 +38,13 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     Rpm rpmTask
     Builder builder
     boolean includeStandardDefines = true // candidate for being pushed up to packaging level
+    private final RpmTaskPropertiesValidator rpmTaskPropertiesValidator = new RpmTaskPropertiesValidator()
     private RpmFileVisitorStrategyFactory rpmFileVisitorStrategyFactory
 
     RpmCopyAction(Rpm rpmTask) {
         super(rpmTask)
         this.rpmTask = rpmTask
+        rpmTaskPropertiesValidator.validate(rpmTask)
     }
 
     @Override
