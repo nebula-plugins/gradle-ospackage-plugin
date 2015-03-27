@@ -1,9 +1,9 @@
 Source: ${name}
 Section: ${section}
-Priority: optional
+Priority: ${priority}
 Maintainer: ${maintainer}
 Uploaders: ${uploaders}
-Version: ${version}-${release}
+Version: ${epoch}:${version}-${release}
 Standards-Version: 3.8.3
 Package: ${name}
 Provides: ${provides}

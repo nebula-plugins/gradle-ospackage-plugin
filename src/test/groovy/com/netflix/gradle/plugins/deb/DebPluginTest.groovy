@@ -126,7 +126,7 @@ class DebPluginTest extends ProjectSpec {
         project.tasks.buildDeb.execute()
 
         then:
-        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb')) // , project.file('build/tmp/deboutput')
+        def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_amd64.deb'))
         'bleah' == scan.getHeaderEntry('Package')
         'blarg (>= 1.0), blech' ==  scan.getHeaderEntry('Depends')
         'bleah' == scan.getHeaderEntry('Provides')
