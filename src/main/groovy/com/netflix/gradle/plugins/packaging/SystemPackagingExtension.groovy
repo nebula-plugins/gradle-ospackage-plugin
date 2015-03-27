@@ -78,6 +78,19 @@ class SystemPackagingExtension {
     @Input @Optional
     String provides
 
+    // For Backward compatibility for those that passed in a Architecture object
+    String archStr // This is what can be convention mapped and then referenced
+
+    @Input @Optional
+    void setArch(Object arch) {
+        archStr = (arch instanceof Architecture)?arch.name():arch.toString()
+    }
+
+    // Type of getter has to match setter
+//    Object getArch() {
+//        return getArchStr();
+//    }
+
     // RPM Only
 
     @Input @Optional
@@ -88,9 +101,6 @@ class SystemPackagingExtension {
 
     @Input @Optional
     Boolean addParentDirs
-
-    @Input @Optional
-    Architecture arch
 
     @Input @Optional
     Os os
@@ -116,7 +126,18 @@ class SystemPackagingExtension {
     @Input @Optional
     MultiArch multiArch
 
+    @Input @Optional
+    String maintainer
+
+    @Input @Optional
+    String uploaders
+    
+    @Input @Optional
+    String priority
+
     // Scripts
+
+    final List<Object> configurationFiles = []
 
     final List<Object> preInstallCommands = []
 
@@ -143,6 +164,19 @@ class SystemPackagingExtension {
 
     def installUtils(File script) {
         commonCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setConfigurationFile(String script) {
+        configurationFile(script)
+    }
+
+    def configurationFile(String path) {
+        configurationFiles << path
         return this
     }
 

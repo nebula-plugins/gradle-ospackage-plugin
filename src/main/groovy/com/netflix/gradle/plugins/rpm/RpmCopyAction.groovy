@@ -25,6 +25,7 @@ import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.redline_rpm.Builder
+import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Header.HeaderTag
 import org.redline_rpm.payload.Directive
 import org.slf4j.Logger
@@ -56,7 +57,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder = new Builder()
         builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release, rpmTask.epoch
         builder.setType rpmTask.type
-        builder.setPlatform rpmTask.arch, rpmTask.os
+        builder.setPlatform Architecture.valueOf(rpmTask.archStr.toUpperCase()), rpmTask.os
         builder.setGroup rpmTask.packageGroup
         builder.setBuildHost rpmTask.buildHost
         builder.setSummary rpmTask.summary

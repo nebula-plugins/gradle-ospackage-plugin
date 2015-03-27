@@ -261,6 +261,11 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
         debianFiles << templateHelper.generateFile("control", context)
 
+        def configurationFiles = debTask.allConfigurationFiles
+        if (configurationFiles.any()) {
+            debianFiles << templateHelper.generateFile("conffiles", [files: configurationFiles] )
+        }
+
         def installUtils = debTask.allCommonCommands.collect { stripShebang(it) }
         def preInstall = installUtils + debTask.allPreInstallCommands.collect { stripShebang(it) }
         def postInstall = installUtils + debTask.allPostInstallCommands.collect { stripShebang(it) }
@@ -319,7 +324,10 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 name: debTask.getPackageName(),
                 version: debTask.getVersion(),
                 release: debTask.getRelease(),
-                author: debTask.getUser(),
+                maintainer: debTask.getMaintainer(),
+                uploaders: debTask.getUploaders(),
+                priority: debTask.getPriority(),
+                epoch: debTask.getEpoch(),
                 description: debTask.getPackageDescription(),
                 distribution: debTask.getDistribution(),
                 summary: debTask.getSummary(),

@@ -43,11 +43,6 @@ class Deb extends SystemPackagingTask {
     }
 
     @Override
-    protected String getArchString() {
-        return 'all'; // TODO Make this configurable
-    }
-
-    @Override
     AbstractPackagingCopyAction createCopyAction() {
         return new DebCopyAction(this)
     }
@@ -65,6 +60,10 @@ class Deb extends SystemPackagingTask {
         mapping.map('gid', { (parentExten?.getGid())?:0 })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
         mapping.map('multiArch', { parentExten?.getMultiArch() })
+        mapping.map('archStr', { parentExten?.getArchStr()?:'all'})
+        mapping.map('maintainer', { parentExten?.getMaintainer() ?: System.getProperty('user.name', '') })
+        mapping.map('uploaders', { parentExten?.getUploaders() ?: '' })
+        mapping.map('priority', { parentExten?.getPriority() ?: 'optional' })
     }
 
     @Input @Optional

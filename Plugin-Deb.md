@@ -34,6 +34,7 @@ be set, which are specific to DEBs. Quite of them have defaults which fall back 
 * _packageName_ - Default to project.name
 * _release_ - DEB Release
 * _version_ - Version field, defaults to project.version
+* _epoch_ - Epoch, defaults to 0
 * _user_ - Default user to permission files to
 * _permissionGroup_ - Default group to permission files to, "group" is used by Gradle for the display of tasks
 * _packageGroup_
@@ -50,6 +51,10 @@ be set, which are specific to DEBs. Quite of them have defaults which fall back 
 * _createDirectoryEntry [Boolean]_
 * uid - Default uid of files
 * gid - Default gid of files
+* _arch_ - Architecture, defaults ot "all". E.g. "amd64", "all"
+* _maintainers_ - Defaults to packager
+* _uploaders_ _ Defaults to packager
+* _priority_
 * _multiArch_ - Configure multi-arch behavior: NONE (default), SAME, FOREIGN, ALLOWED (see: https://wiki.ubuntu.com/MultiarchSpec )
 * _conflicts_
 * _recommends_
@@ -101,6 +106,7 @@ corresponding methods can be called multiple times, and the contents will be app
 * _preUninstall_
 * _postUninstall_
 * _installUtils_ - Scripts which are prefixed to all the other scripts.
+* _configurationFiles_ - Files to be labeled as configuration files
 
 # Copy Spec
 
@@ -122,11 +128,12 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         version = '1.2.3'
         release = 1
 
-        installUtils file('scripts/rpm/utils.sh')
-        preInstall file('scripts/rpm/preInstall.sh')
-        postInstall file('scripts/rpm/postInstall.sh')
-        preUninstall file('scripts/rpm/preUninstall.sh')
-        postUninstall file('scripts/rpm/postUninstall.sh')
+        configurationFile('/etc/defaults/myapp')
+        installUtils file('scripts/deb/utils.sh')
+        preInstall file('scripts/deb/preInstall.sh')
+        postInstall file('scripts/deb/postInstall.sh')
+        preUninstall file('scripts/deb/preUninstall.sh')
+        postUninstall file('scripts/deb/postUninstall.sh')
 
         requires('bar', '2.2')
         requires('baz', '1.0.1')
