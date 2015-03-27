@@ -78,8 +78,18 @@ class SystemPackagingExtension {
     @Input @Optional
     String provides
 
+    // For Backward compatibility for those that passed in a Architecture object
+    String archStr // This is what can be convention mapped and then referenced
+
     @Input @Optional
-    String arch
+    void setArch(Object arch) {
+        archStr = (arch instanceof Architecture)?arch.name():arch.toString()
+    }
+
+    // Type of getter has to match setter
+//    Object getArch() {
+//        return getArchStr();
+//    }
 
     // RPM Only
 

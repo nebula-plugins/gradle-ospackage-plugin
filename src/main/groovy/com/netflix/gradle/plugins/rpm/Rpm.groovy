@@ -18,6 +18,8 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
@@ -43,11 +45,6 @@ class Rpm extends SystemPackagingTask {
     }
 
     @Override
-    protected String getArchString() {
-        return arch?.toLowerCase();
-    }
-
-    @Override
     AbstractPackagingCopyAction createCopyAction() {
         return new RpmCopyAction(this)
     }
@@ -63,7 +60,9 @@ class Rpm extends SystemPackagingTask {
         // Could come from extension
         mapping.map('fileType', { parentExten?.getFileType() })
         mapping.map('addParentDirs', { parentExten?.getAddParentDirs()?:true })
-        mapping.map('arch', { parentExten?.getArch()?:Architecture.NOARCH.name()})
+        mapping.map('archStr', {
+            parentExten?.getArchStr()?:Architecture.NOARCH.name()
+        })
         mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
         mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
 

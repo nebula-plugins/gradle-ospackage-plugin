@@ -21,6 +21,7 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.redline_rpm.header.Architecture
 
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
@@ -42,6 +43,15 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         if(parentExten) {
             getRootSpec().with(parentExten.delegateCopySpec)
         }
+    }
+
+    /**
+     * This should go into SystemPackagingExtension, but if we do, we won't be interacting correctly with the convention mapping.
+     * @param arch
+     */
+    @Input @Optional
+    void setArch(Object arch) {
+        setArchStr( (arch instanceof Architecture)?arch.name():arch.toString())
     }
 
     // TODO Move outside task, since it's specific to a plugin
@@ -176,7 +186,9 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
-    protected abstract String getArchString();
+    protected String getArchString() {
+        return getArchStr()?.toLowerCase();
+    }
 
     @Override
     public AbstractCopyTask from(Object sourcePath, Closure c) {

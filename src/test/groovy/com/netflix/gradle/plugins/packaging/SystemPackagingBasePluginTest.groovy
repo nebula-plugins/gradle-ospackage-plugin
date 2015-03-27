@@ -56,8 +56,8 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         def os = rpmTask.getOs()
         Os.LINUX == os
 
-        def arch = rpmTask.getArch()
-        Architecture.I386.name() == arch
+        def arch = rpmTask.getArchString()
+        'i386' == arch
     }
 
 

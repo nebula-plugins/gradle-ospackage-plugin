@@ -57,7 +57,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder = new Builder()
         builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release, rpmTask.epoch
         builder.setType rpmTask.type
-        builder.setPlatform Architecture.valueOf(rpmTask.arch), rpmTask.os
+        builder.setPlatform Architecture.valueOf(rpmTask.archStr.toUpperCase()), rpmTask.os
         builder.setGroup rpmTask.packageGroup
         builder.setBuildHost rpmTask.buildHost
         builder.setSummary rpmTask.summary

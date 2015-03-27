@@ -34,6 +34,7 @@ be set, which are specific to RPMs. Quite of them have defaults which fall back 
 * _packageName_ - Default to project.name
 * _release_ - RPM Release
 * _version_ - Version field, defaults to project.version
+* _epoch_ - Epoch, defaults to 0
 * _user_ - Default user to permission files to
 * _permissionGroup_ - Default group to permission files to, "group" is used by Gradle for the display of tasks
 * _packageGroup_
@@ -50,9 +51,10 @@ be set, which are specific to RPMs. Quite of them have defaults which fall back 
 * _fileType [org.freecompany.redline.payload.Directive]_ - Default for types, e.g. CONFIG, DOC, NOREPLACE, LICENSE
 * _createDirectoryEntry [Boolean]_
 * _addParentDirs [Boolean]_
-* _arch [org.freecompany.redline.header.Architecture]_ - E.g. NOARCH, I386, ARM, X86_64
+* _arch [org.freecompany.redline.header.Architecture]_ - E.g. NOARCH, I386, ARM, X86_64. Defaults to NOARCH and can be a String.
 * _os [org.freecompany.redline.header.Os]_ - E.g. LINUX
 * _type [org.freecompany.redline.header.RpmType]_ - BINARY, SOURCE
+* _prefix_
 
 # Symbolic Links
 
