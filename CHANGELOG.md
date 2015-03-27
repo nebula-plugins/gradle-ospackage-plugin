@@ -1,6 +1,6 @@
 2.2.2
 -----
-  * Breaking change: Changed type of arch field to String to allow specifying "amd64" for Deb packages
+  * Changed type of arch field to String to allow specifying "amd64" for Deb packages. Still supports old Architecture from freeline syntax.
   * Deb: Add support to specify Architecture
   * Deb: Add support to specify Maintainer in the correct format
   * Deb: Add support to specify Priority
