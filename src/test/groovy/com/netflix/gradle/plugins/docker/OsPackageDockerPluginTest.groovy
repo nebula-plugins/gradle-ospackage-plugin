@@ -8,9 +8,20 @@ import org.gradle.testfixtures.ProjectBuilder
 class OsPackageDockerPluginTest extends ProjectSpec {
     Project project = ProjectBuilder.builder().build()
 
+    def "optionally create required tasks"() {
+        when:
+        project.apply plugin: 'com.netflix.ospackage.docker'
+
+        then:
+        !project.tasks.findByName(OsPackageDockerPlugin.CREATE_DOCKERFILE_TASK_NAME)
+        !project.tasks.findByName(OsPackageDockerPlugin.BUILD_IMAGE_TASK_NAME)
+        !project.tasks.findByName(OsPackageDockerPlugin.AGGREGATION_TASK_NAME)
+    }
+
     def "creates required tasks"() {
         when:
         project.apply plugin: 'com.netflix.ospackage.docker'
+        project.apply plugin: 'com.bmuschko.docker-remote-api'
 
         then:
         project.tasks.findByName(OsPackageDockerPlugin.CREATE_DOCKERFILE_TASK_NAME)
@@ -29,6 +40,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 
         when:
         project.apply plugin: 'com.netflix.ospackage.docker'
+        project.apply plugin: 'com.bmuschko.docker-remote-api'
 
         SystemPackageDockerfile task = project.tasks.getByName(OsPackageDockerPlugin.CREATE_DOCKERFILE_TASK_NAME) {
             destinationDir = destDir

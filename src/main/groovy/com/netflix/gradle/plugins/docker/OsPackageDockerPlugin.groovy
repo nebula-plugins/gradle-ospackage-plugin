@@ -13,10 +13,11 @@ class OsPackageDockerPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.plugins.apply(CommonPackagingPlugin)
-        project.plugins.apply(DockerRemoteApiPlugin)
+        project.plugins.withType(DockerRemoteApiPlugin) {
+            project.plugins.apply(CommonPackagingPlugin)
 
-        createTasks(project)
+            createTasks(project)
+        }
     }
 
     private void createTasks(Project project) {
