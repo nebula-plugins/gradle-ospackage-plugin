@@ -15,6 +15,7 @@ class OsPackageDockerPluginIntegrationTest extends IntegrationSpec {
         given:
         buildFile << """
 apply plugin: 'com.netflix.ospackage.docker'
+apply plugin: 'com.bmuschko.docker-remote-api'
 
 repositories {
     mavenCentral()
