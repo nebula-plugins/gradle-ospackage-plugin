@@ -8,14 +8,14 @@ import org.gradle.testfixtures.ProjectBuilder
 class OsPackageDockerPluginTest extends ProjectSpec {
     Project project = ProjectBuilder.builder().build()
 
-    def "creates required tasks"() {
+    def "creates required tasks on its own"() {
         when:
-        project.apply plugin: 'com.netflix.ospackage.docker'
+        project.apply plugin: 'os-package-docker'
 
         then:
-        project.tasks.findByName(OsPackageDockerPlugin.CREATE_DOCKERFILE_TASK_NAME)
-        project.tasks.findByName(OsPackageDockerPlugin.BUILD_IMAGE_TASK_NAME)
-        project.tasks.findByName(OsPackageDockerPlugin.AGGREGATION_TASK_NAME)
+        project.tasks.findByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME)
+        project.tasks.findByName(OsPackageDockerBasePlugin.BUILD_IMAGE_TASK_NAME)
+        project.tasks.findByName(OsPackageDockerBasePlugin.AGGREGATION_TASK_NAME)
     }
 
     def "creates a Dockerfile based on specifications"() {
@@ -28,9 +28,9 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir, 'banana.zip'), 'banana')
 
         when:
-        project.apply plugin: 'com.netflix.ospackage.docker'
+        project.apply plugin: 'os-package-docker'
 
-        SystemPackageDockerfile task = project.tasks.getByName(OsPackageDockerPlugin.CREATE_DOCKERFILE_TASK_NAME) {
+        SystemPackageDockerfile task = project.tasks.getByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME) {
             destinationDir = destDir
             instruction "FROM ubuntu:14.04"
             instruction "MAINTAINER John Doe 'john.doe@netflix.com'"
