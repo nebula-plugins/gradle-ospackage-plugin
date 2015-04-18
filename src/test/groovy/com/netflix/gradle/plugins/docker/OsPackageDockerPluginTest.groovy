@@ -6,7 +6,6 @@ import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 
 class OsPackageDockerPluginTest extends ProjectSpec {
-    Project project = ProjectBuilder.builder().build()
 
     def "creates required tasks on its own"() {
         when:
@@ -16,6 +15,27 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         project.tasks.findByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME)
         project.tasks.findByName(OsPackageDockerBasePlugin.BUILD_IMAGE_TASK_NAME)
         project.tasks.findByName(OsPackageDockerBasePlugin.AGGREGATION_TASK_NAME)
+    }
+
+    def "docker task inherits from extension"() {
+        when:
+        project.apply plugin: 'os-package-docker'
+        project.ospackage {
+            user 'builder'
+        }
+        def ospackageTask = project.tasks.findByName('createDockerfile')
+
+        then:
+        ospackageTask.user == 'builder'
+    }
+
+    def "docker task as package name"() {
+        when:
+        project.apply plugin: 'os-package-docker'
+        def ospackageTask = project.tasks.findByName('createDockerfile')
+
+        then:
+        ospackageTask.packageName == 'docker-task-as-package-name'
     }
 
     def "creates a Dockerfile based on specifications"() {

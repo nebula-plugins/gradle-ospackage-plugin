@@ -6,8 +6,6 @@ import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 
 class OsPackageDockerBasePluginTest extends ProjectSpec {
-    Project project = ProjectBuilder.builder().build()
-
     def "on its own, creates no tasks"() {
         when:
         project.apply plugin: 'os-package-docker-base'
