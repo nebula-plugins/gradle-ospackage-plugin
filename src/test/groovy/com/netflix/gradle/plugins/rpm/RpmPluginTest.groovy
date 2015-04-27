@@ -31,6 +31,7 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.IgnoreIf
 import spock.lang.Issue
+import spock.lang.Unroll
 
 import static org.redline_rpm.header.Flags.*
 import static org.redline_rpm.header.Header.HeaderTag.*
@@ -983,5 +984,63 @@ class RpmPluginTest extends ProjectSpec {
 
         then:
         noExceptionThrown()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates package description '#description' to header entry"() {
+        given:
+        project.apply plugin: 'rpm'
+
+        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            version = '1.0'
+            packageName = 'bleah'
+            packageDescription = description
+        }
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm'))
+        Scanner.getHeaderEntryString(scan, DESCRIPTION) == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'This is a description'
+        ''                      | ''
+        null                    | ''
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates project description '#description' to header entry"() {
+        given:
+        project.apply plugin: 'rpm'
+        project.description = description
+
+        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            version = '1.0'
+            packageName = 'bleah'
+        }
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm'))
+        Scanner.getHeaderEntryString(scan, DESCRIPTION) == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'This is a description'
+        ''                      | ''
+        null                    | ''
     }
 }

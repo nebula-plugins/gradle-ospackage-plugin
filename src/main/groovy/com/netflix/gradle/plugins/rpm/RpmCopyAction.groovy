@@ -22,6 +22,7 @@ import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.filevisitor.RpmFileVisitorStrategyFactory
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.redline_rpm.Builder
@@ -61,7 +62,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         builder.setGroup rpmTask.packageGroup
         builder.setBuildHost rpmTask.buildHost
         builder.setSummary rpmTask.summary
-        builder.setDescription rpmTask.packageDescription
+        builder.setDescription !StringUtils.isEmpty(rpmTask.packageDescription) ? rpmTask.packageDescription : ''
         builder.setLicense rpmTask.license
         builder.setPackager rpmTask.packager
         builder.setDistribution rpmTask.distribution

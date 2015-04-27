@@ -21,11 +21,10 @@ import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
-import org.apache.commons.lang3.exception.ExceptionUtils
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.TaskExecutionException
 import org.redline_rpm.header.Flags
 import spock.lang.Issue
+import spock.lang.Unroll
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
@@ -721,5 +720,55 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         noExceptionThrown()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates package description '#description' to header entry"() {
+        given:
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'translates-package-description'
+            packageDescription = description
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getHeaderEntry('Description') == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'translates-package-description\n This is a description'
+        ''                      | 'translates-package-description'
+        null                    | 'translates-package-description'
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates project description '#description' to header entry"() {
+        given:
+        project.apply plugin: 'deb'
+        project.description = description
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'translates-package-description'
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getHeaderEntry('Description') == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'translates-package-description\n This is a description'
+        ''                      | 'translates-package-description'
+        null                    | 'translates-package-description'
     }
 }

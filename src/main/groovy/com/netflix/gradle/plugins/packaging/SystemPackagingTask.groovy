@@ -16,6 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
@@ -75,7 +76,10 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('packageGroup', { parentExten?.getPackageGroup() })
         mapping.map('buildHost', { parentExten?.getBuildHost()?: HOST_NAME })
         mapping.map('summary', { parentExten?.getSummary()?:getPackageName() })
-        mapping.map('packageDescription', { parentExten?.getPackageDescription()?:project.getDescription() })
+        mapping.map('packageDescription', {
+            String packageDescription = parentExten?.getPackageDescription()?:project.getDescription()
+            !StringUtils.isEmpty(packageDescription) ? packageDescription : ''
+        })
         mapping.map('license', { parentExten?.getLicense()?:'' })
         mapping.map('packager', { parentExten?.getPackager()?:System.getProperty('user.name', '')  })
         mapping.map('distribution', { parentExten?.getDistribution()?:'' })
