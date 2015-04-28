@@ -345,6 +345,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 preDepends: StringUtils.join(preDepends, ", "),
                 breaks: StringUtils.join(breaks, ", "),
                 replaces: StringUtils.join(replaces, ", "),
+                fullVersion: buildFullVersion(),
 
                 // Uses install command for directory
                 dirs: installDirs.collect { InstallDir dir ->
@@ -359,6 +360,20 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                     return map
                 }
         ]
+    }
+
+    private String buildFullVersion() {
+        StringBuilder fullVersion = new StringBuilder()
+        fullVersion <<= debTask.getEpoch()
+        fullVersion <<= ':'
+        fullVersion <<= debTask.getVersion()
+
+        if(debTask.getRelease()) {
+            fullVersion <<= '-'
+            fullVersion <<= debTask.getRelease()
+        }
+
+        fullVersion.toString()
     }
 
     /*
