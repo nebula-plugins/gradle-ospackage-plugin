@@ -21,11 +21,10 @@ import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
-import org.apache.commons.lang3.exception.ExceptionUtils
-import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.TaskExecutionException
 import org.redline_rpm.header.Flags
 import spock.lang.Issue
+import spock.lang.Unroll
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
@@ -721,5 +720,31 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         noExceptionThrown()
+    }
+
+    @Unroll
+    def "Handles release flag in version header if value '#providedRelease' assigned to release property"() {
+        given:
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'my-package'
+            version = '1.0.0'
+            release = providedRelease
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getHeaderEntry('Version') == versionHeader
+
+        where:
+        providedRelease | versionHeader
+        '0'             | '0:1.0.0-0'
+        '1'             | '0:1.0.0-1'
+        ''              | '0:1.0.0'
+        null            | '0:1.0.0'
     }
 }

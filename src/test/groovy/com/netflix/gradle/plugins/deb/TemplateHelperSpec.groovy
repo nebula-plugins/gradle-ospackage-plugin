@@ -41,7 +41,8 @@ class TemplateHelperSpec extends Specification {
         enhances: '',
         preDepends: '',
         breaks: '',
-        replaces: '']
+        replaces: '',
+        fullVersion: '0:1.0.0-1']
 
     def 'produces template'() {
         when:
