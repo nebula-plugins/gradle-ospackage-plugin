@@ -364,8 +364,10 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     private String buildFullVersion() {
         StringBuilder fullVersion = new StringBuilder()
-        fullVersion <<= debTask.getEpoch()
-        fullVersion <<= ':'
+        if (debTask.getEpoch() != 0) {
+            fullVersion <<= debTask.getEpoch()
+            fullVersion <<= ':'
+        }
         fullVersion <<= debTask.getVersion()
 
         if(debTask.getRelease()) {

@@ -1,3 +1,12 @@
+2.2.4 / 2015-04-30
+------------------
+
+* Omit epoch in debian control files if it is 0
+
+2.2.3
+-----
+
+
 2.2.2
 -----
   * Changed type of arch field to String to allow specifying "amd64" for Deb packages. Still supports old Architecture from freeline syntax.
