@@ -742,9 +742,27 @@ class DebPluginTest extends ProjectSpec {
 
         where:
         providedRelease | versionHeader
-        '0'             | '0:1.0.0-0'
-        '1'             | '0:1.0.0-1'
-        ''              | '0:1.0.0'
-        null            | '0:1.0.0'
+        '0'             | '1.0.0-0'
+        '1'             | '1.0.0-1'
+        ''              | '1.0.0'
+        null            | '1.0.0'
+    }
+
+    def 'Handle version when using epoch'() {
+        given:
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'my-package'
+            version = '42.1.0'
+            epoch = 1
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getHeaderEntry('Version') == '1:42.1.0'
     }
 }
