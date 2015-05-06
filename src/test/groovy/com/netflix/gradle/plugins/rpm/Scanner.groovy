@@ -107,6 +107,6 @@ class Scanner {
     }
 
     def static getHeaderEntryString(ScannerResult scan, tag) {
-        getHeaderEntry(scan, tag).values.join('')
+        getHeaderEntry(scan, tag)?.values?.join('')
     }
 }

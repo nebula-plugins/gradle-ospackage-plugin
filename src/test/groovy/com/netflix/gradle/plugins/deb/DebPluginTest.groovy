@@ -765,4 +765,54 @@ class DebPluginTest extends ProjectSpec {
         def scan = new Scanner(debTask.archivePath)
         scan.getHeaderEntry('Version') == '1:42.1.0'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates package description '#description' to header entry"() {
+        given:
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'translates-package-description'
+            packageDescription = description
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getHeaderEntry('Description') == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'translates-package-description\n This is a description'
+        ''                      | 'translates-package-description'
+        null                    | 'translates-package-description'
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates project description '#description' to header entry"() {
+        given:
+        project.apply plugin: 'deb'
+        project.description = description
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'translates-package-description'
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getHeaderEntry('Description') == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'translates-package-description\n This is a description'
+        ''                      | 'translates-package-description'
+        null                    | 'translates-package-description'
+    }
 }
