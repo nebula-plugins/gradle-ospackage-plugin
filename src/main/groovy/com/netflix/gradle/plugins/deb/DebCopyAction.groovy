@@ -328,7 +328,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 uploaders: debTask.getUploaders(),
                 priority: debTask.getPriority(),
                 epoch: debTask.getEpoch(),
-                description: !StringUtils.isEmpty(debTask.getPackageDescription()) ? debTask.getPackageDescription() : '',
+                description: debTask.getPackageDescription() ?: '',
                 distribution: debTask.getDistribution(),
                 summary: debTask.getSummary(),
                 section: debTask.getPackageGroup(),
