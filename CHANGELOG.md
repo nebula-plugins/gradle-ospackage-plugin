@@ -1,3 +1,10 @@
+2.2.5 / 2015-05-06
+------------------
+
+* Issue #103: Debian 'release' configuration value should default to '0' or '1' or left away completely.
+* Issue #104: Omit description of .deb archive if not specified in build script.
+
+
 2.2.4 / 2015-04-30
 ------------------
 
