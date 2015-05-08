@@ -10,8 +10,8 @@ Provides: ${provides}
 Homepage: ${url}
 Architecture: ${arch}
 Distribution: ${distribution}<% if (multiArch) { %>
-Multi-Arch: ${multiArch}<% } %><% if (depends) { %>
-Depends: ${depends}<% } %><% if (conflicts) { %>
+Multi-Arch: ${multiArch}<% } %>
+Depends: ${depends}<% if (conflicts) { %>
 Conflicts: ${conflicts}<% } %><% if (replaces) { %>
 Replaces: ${replaces}<% } %><% if (recommends) { %>
 Recommends: ${recommends}<% } %><% if (suggests) { %>

@@ -51,7 +51,7 @@ class TemplateHelperSpec extends Specification {
         then:
         resultFile.exists()
         resultFile.text.contains('Architecture: Arch')
-        !resultFile.text.contains('Depends')
+        resultFile.text.contains('Depends')
         !resultFile.text.contains('Multi-Arch')
     }
 

@@ -1,6 +1,6 @@
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:2.0.+' }
+    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:2.2.+' }
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -53,5 +53,9 @@ contacts {
     'alan@trigonic.com' {
         moniker 'Alan Krueger'
         github 'AlanKrueger'
+    }
+    'rob.spieldenner@gmail.com' {
+        moniker 'Rob Spieldenner'
+        github 'rspieldenner'
     }
 }

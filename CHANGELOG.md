@@ -1,3 +1,8 @@
+2.2.6 / 2015-05-08
+------------------
+
+* Pass an empty depends to jdeb so it doesn't append default-jre | java6-runtime to debians Depend section
+
 2.2.5 / 2015-05-06
 ------------------
 
