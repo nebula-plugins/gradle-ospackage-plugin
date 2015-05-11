@@ -12,7 +12,7 @@ derived from Debian, e.g. Ubuntu.  It leverages [JDeb](https://github.com/tcurdt
         }
 
         dependencies {
-            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:2.4.+'
         }
     }
 

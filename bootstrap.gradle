@@ -3,7 +3,7 @@ import org.gradle.api.publish.maven.MavenPublication
 
 buildscript {
     repositories { jcenter() }
-    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:0.3' }
+    dependencies { classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.2' }
 }
 
 repositories { jcenter() }
@@ -23,7 +23,7 @@ publishing {
     }
 }
 
-apply plugin: 'bintray'
+apply plugin: 'com.jfrog.bintray'
 def packageName = name
 bintray {
     user = bintrayUser
@@ -57,7 +57,7 @@ dependencies {
         // Where logging foes is a runtime decision
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
-    compile('org.vafer:jdeb:1.0.1') {
+    compile('org.vafer:jdeb:1.4') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'
         exclude group: 'org.apache.maven', module: 'maven-plugin-api'
@@ -66,13 +66,14 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile('com.netflix.nebula:nebula-test:2.2.0-SNAPSHOT') {
+    testCompile('com.netflix.nebula:nebula-test:2.4.0-SNAPSHOT') {
         exclude group: 'org.codehaus.groovy'
     }
+    compile 'com.bmuschko:gradle-docker-plugin:2.0.3'
 }
 
 test.exclude '**/*Local*'
 
 task createWrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.4'
 }

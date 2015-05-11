@@ -12,7 +12,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         }
 
         dependencies {
-            classpath 'com.netflix.nebula:gradle-ospackage-plugin:1.12.2'
+            classpath 'com.netflix.nebula:gradle-ospackage-plugin:2.4.+'
         }
     }
 

@@ -13,9 +13,9 @@ sourceCompatibility = 1.6
 targetCompatibility = 1.6
 
 release {
-    git.requireBranch = 'gradle-2.2'
+    git.requireBranch = 'gradle-2.4'
 }
-createWrapper.gradleVersion='2.2.1'
+createWrapper.gradleVersion='2.4'
 
 dependencies {
     // Dynamic versions are ok, the nebula-maven-publishing plugin will take care of them
@@ -33,7 +33,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    testCompile('com.netflix.nebula:nebula-test:2.2.+') {
+    testCompile('com.netflix.nebula:nebula-test:2.4.+') {
         exclude group: 'org.codehaus.groovy'
     }
     compile 'com.bmuschko:gradle-docker-plugin:2.0.3'
