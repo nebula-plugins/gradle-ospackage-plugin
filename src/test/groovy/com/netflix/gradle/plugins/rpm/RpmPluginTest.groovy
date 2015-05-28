@@ -29,6 +29,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
+import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
@@ -1042,5 +1043,38 @@ class RpmPluginTest extends ProjectSpec {
         'This is a description' | 'This is a description'
         ''                      | ''
         null                    | ''
+    }
+
+    @Ignore
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/102")
+    def "Can set user and group for packaged files"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            version = '1.0'
+            packageName = 'bleah'
+
+            from(srcDir) {
+                user = 'me'
+                permissionGroup = 'awesome'
+            }
+        }
+
+        when:
+        rpmTask.execute()
+
+        then:
+        Scanner.ScannerResult scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm'))
+        Scanner.ScannerFile appleFile = scan.files.find { it.name == './apple' }
+        appleFile.uname == 'me'
+        appleFile.gname == 'awesome'
     }
 }
