@@ -815,4 +815,33 @@ class DebPluginTest extends ProjectSpec {
         ''                      | 'translates-package-description'
         null                    | 'translates-package-description'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/102")
+    def "Can set user and group for packaged files"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'user-group-packages-files'
+
+            from(srcDir) {
+                user = 'me'
+                permissionGroup = 'awesome'
+            }
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def appleFile = scan.getEntry('./apple')
+        appleFile
+        appleFile.userName == 'me'
+        appleFile.groupName == 'awesome'
+    }
 }
