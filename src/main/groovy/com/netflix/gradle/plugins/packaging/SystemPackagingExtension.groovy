@@ -135,6 +135,19 @@ class SystemPackagingExtension {
     @Input @Optional
     String priority
 
+    @Input Optional
+    final List<Object> supplementaryControlFiles = []
+
+    def supplementaryControl(String file) {
+        supplementaryControlFiles << file
+        return this
+    }
+
+    def supplementaryControl(File file) {
+        supplementaryControlFiles << file
+        return this
+    }
+
     // Scripts
 
     final List<Object> configurationFiles = []
