@@ -278,7 +278,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 }
         debianFiles.addAll(addlFiles)
 
-        (debTask.allSupplementaryControlFiles - null).each { supControl ->
+        debTask.allSupplementaryControlFiles.each { supControl ->
             def supControlFile = supControl instanceof File ? supControl : debTask.project.file(supControl)
             new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
         }

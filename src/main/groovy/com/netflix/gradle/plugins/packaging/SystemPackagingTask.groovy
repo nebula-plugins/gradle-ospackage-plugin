@@ -143,7 +143,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     @Input @Optional
     def getAllSupplementaryControlFiles() {
-        return getSupplementaryControlFiles() + parentExten?.getSupplementaryControlFiles()
+        return getSupplementaryControlFiles() + ( parentExten?.getSupplementaryControlFiles() ?: [] )
     }
 
     @Input @Optional
