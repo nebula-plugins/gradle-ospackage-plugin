@@ -302,7 +302,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     private static class GradleLoggerConsole implements Console {
         @Override
         void debug(String message) {
-            logger.warn(message)
+            logger.debug(message)
         }
 
         @Override
