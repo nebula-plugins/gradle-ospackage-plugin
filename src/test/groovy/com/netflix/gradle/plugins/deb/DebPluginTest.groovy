@@ -844,4 +844,29 @@ class DebPluginTest extends ProjectSpec {
         appleFile.userName == 'me'
         appleFile.groupName == 'awesome'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/109")
+    def "Can add supplementary files to debian control"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir,'changelog'), 'This is a changelog file')
+        FileUtils.writeStringToFile(new File(srcDir,'something'), 'This is a something file')
+
+        project.apply plugin: 'deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'supplementary-files-in-debian-control'
+            supplementaryControl project.file('src/changelog')
+            supplementaryControl 'src/something'
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        scan.getControl('./changelog')
+        scan.getControl('./something')
+    }
 }

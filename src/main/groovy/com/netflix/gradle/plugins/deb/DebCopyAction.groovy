@@ -278,6 +278,11 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 }
         debianFiles.addAll(addlFiles)
 
+        debTask.allSupplementaryControlFiles.each { supControl ->
+            def supControlFile = supControl instanceof File ? supControl : debTask.project.file(supControl)
+            new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
+        }
+
         DebMaker maker = new DebMaker(new GradleLoggerConsole(), dataProducers, null)
         File contextFile = templateHelper.generateFile("control", context)
         maker.setControl(contextFile.parentFile)
