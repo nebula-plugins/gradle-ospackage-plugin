@@ -104,7 +104,7 @@ buildRpm {
     ospackage {
         packageName = 'foo'
         version = '1.2.3'
-        release = 1
+        release = '1'
         arch = I386
         os = LINUX
 
