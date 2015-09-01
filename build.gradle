@@ -26,8 +26,7 @@ plugins {
     id 'com.gradle.plugin-publish' version '0.9.1'
     id 'nebula.javadoc-jar' version '4.0.1'
     id 'nebula.source-jar' version '4.0.1'
-    // FIXME causes build failures
-    // id 'nebula.test-jar' version '4.0.1'
+    id 'nebula.test-jar' version '4.0.1'
     id 'nebula.maven-apache-license' version '4.0.1'
     id 'com.github.kt3k.coveralls' version '2.4.0'
 }
