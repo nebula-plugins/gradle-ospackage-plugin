@@ -76,11 +76,46 @@ tasks.withType(Javadoc) {
 
 pluginBundle {
     plugins {
-        dependencyLock {
-            id = 'ospackage'
-            displayName = 'OS Package'
+        ospackage {
+            id = 'nebula.ospackage'
+            displayName = 'Nebula OS Package'
             description = project.description
-            tags = ['nebula', 'os', 'package', 'rpm', 'deb']
+            tags = ['nebula', 'rpm', 'centos', 'deb', 'debian']
+        }
+
+        ospackageBase {
+            id = 'nebula.ospackage-base'
+            displayName = 'Nebula OS Package Base'
+            description = 'Setup base publishing for OS packages'
+            tags = ['nebula', 'rpm', 'centos', 'deb', 'debian']
+        }
+
+        ospackageDocker {
+            id = 'nebula.ospackage-docker'
+            displayName = 'Nebula OS Package Docker'
+            description = 'Create docker images from ospackage block'
+            tags = ['nebula', 'docker']
+        }
+
+        ospackageDockerBase {
+            id = 'nebula.ospackage-docker-base'
+            displayName = 'Nebula OS Package Docker Base'
+            description = 'Setup base publishing for docker images'
+            tags = ['nebula', 'docker']
+        }
+
+        deb {
+            id = 'nebula.deb'
+            displayName = 'Nebula Debian Packaging Plugin'
+            description = 'Create debian system packages'
+            tags = ['nebula', 'deb', 'debian']
+        }
+
+        rpm {
+            id = 'nebula.rpm'
+            displayName = 'Nebula RPM Packaging Plugin'
+            description = 'Create RPM system packages'
+            tags = ['nebula', 'rpm', 'centos']
         }
     }
 }
