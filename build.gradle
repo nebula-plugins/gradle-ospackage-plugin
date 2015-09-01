@@ -1,49 +1,38 @@
-buildscript {
-    repositories { jcenter() }
-    dependencies { classpath 'com.netflix.nebula:nebula-plugin-plugin:2.2.+' }
+/*
+ * Copyright 2014-2015 Netflix, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id 'groovy'
+    id 'idea'
+    id 'jacoco'
+    id 'nebula.info' version '2.2.4'
+    id 'nebula.contacts' version '2.2.0'
+    id 'nebula.maven-publishing' version '3.0.2'
+    id 'nebula.nebula-release' version '2.2.7'
+    id 'nebula.nebula-bintray' version '3.0.1'
+    id 'com.gradle.plugin-publish' version '0.9.1'
+    id 'nebula.javadoc-jar' version '3.0.2'
+    id 'nebula.source-jar' version '3.0.2'
+    // FIXME causes build failures
+    // id 'nebula.test-jar' version '4.0.1'
+    id 'nebula.apache-license-pom' version '3.0.2'
+    id 'com.github.kt3k.coveralls' version '2.4.0'
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
-apply plugin: 'nebula-plugin'
-apply plugin: 'nebula-test-jar'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
-
-release {
-    git.requireBranch = 'gradle-2.2'
-}
-createWrapper.gradleVersion='2.2.1'
-
-dependencies {
-    // Dynamic versions are ok, the nebula-maven-publishing plugin will take care of them
-    compile 'org.apache.commons:commons-lang3:3.1'
-    compile('org.redline-rpm:redline:1.2.1') {
-        // Where logging foes is a runtime decision
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    }
-    compile('org.vafer:jdeb:1.4') {
-        // Individual listing so that they translate into the pom file
-        exclude group: 'org.apache.maven', module: 'maven-core'
-        exclude group: 'org.apache.maven', module: 'maven-plugin-api'
-        exclude group: 'org.apache.maven', module: 'maven-project'
-        exclude group: 'org.apache.maven', module: 'maven-artifact'
-        exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
-    }
-
-    testCompile('com.netflix.nebula:nebula-test:2.2.+') {
-        exclude group: 'org.codehaus.groovy'
-    }
-    compile 'com.bmuschko:gradle-docker-plugin:2.0.3'
-}
-
-def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
-def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
-tasks.withType(Javadoc) {
-    options.links(javaApiUrl, groovyApiUrl)
-}
 
 contacts {
     'justin@halfempty.org' {
@@ -57,5 +46,42 @@ contacts {
     'rob.spieldenner@gmail.com' {
         moniker 'Rob Spieldenner'
         github 'rspieldenner'
+    }
+}
+
+apply from: 'https://raw.githubusercontent.com/nebula-plugins/nebula-core/1a495ccc109b1d226e7a8d4b3474eab0ac78abb2/common.gradle'
+
+dependencies {
+    compile 'org.apache.commons:commons-lang3:3.1'
+    compile('org.redline-rpm:redline:1.2.1') {
+        // Where logging goes is a runtime decision
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+    compile('org.vafer:jdeb:1.4') {
+        // Individual listing so that they translate into the pom file
+        exclude group: 'org.apache.maven', module: 'maven-core'
+        exclude group: 'org.apache.maven', module: 'maven-plugin-api'
+        exclude group: 'org.apache.maven', module: 'maven-project'
+        exclude group: 'org.apache.maven', module: 'maven-artifact'
+        exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
+    }
+
+    compile 'com.bmuschko:gradle-docker-plugin:2.0.3'
+}
+
+def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
+def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
+tasks.withType(Javadoc) {
+    options.links(javaApiUrl, groovyApiUrl)
+}
+
+pluginBundle {
+    plugins {
+        dependencyLock {
+            id = 'ospackage'
+            displayName = 'OS Package'
+            description = project.description
+            tags = ['nebula', 'os', 'package', 'rpm', 'deb']
+        }
     }
 }
