@@ -20,15 +20,15 @@ plugins {
     id 'jacoco'
     id 'nebula.info' version '2.2.4'
     id 'nebula.contacts' version '2.2.0'
-    id 'nebula.maven-publishing' version '3.0.2'
+    id 'nebula.maven-publish' version '4.0.1'
     id 'nebula.nebula-release' version '2.2.7'
     id 'nebula.nebula-bintray' version '3.0.1'
     id 'com.gradle.plugin-publish' version '0.9.1'
-    id 'nebula.javadoc-jar' version '3.0.2'
-    id 'nebula.source-jar' version '3.0.2'
+    id 'nebula.javadoc-jar' version '4.0.1'
+    id 'nebula.source-jar' version '4.0.1'
     // FIXME causes build failures
     // id 'nebula.test-jar' version '4.0.1'
-    id 'nebula.apache-license-pom' version '3.0.2'
+    id 'nebula.maven-apache-license' version '4.0.1'
     id 'com.github.kt3k.coveralls' version '2.4.0'
 }
 
