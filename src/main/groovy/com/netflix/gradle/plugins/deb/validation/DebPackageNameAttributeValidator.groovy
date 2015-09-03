@@ -28,7 +28,7 @@ class DebPackageNameAttributeValidator implements SystemPackagingAttributeValida
     }
 
     private boolean matchesExpectedCharacters(String packageName) {
-        packageName ==~ /[a-z0-9.+-]+/
+        packageName ==~ /[A-Za-z0-9.+-]+/
     }
 
     @Override
