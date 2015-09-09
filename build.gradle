@@ -23,7 +23,7 @@ plugins {
     id 'nebula.contacts' version '2.2.0'
     id 'nebula.maven-publish' version '4.0.1'
     id 'nebula.nebula-release' version '3.0.0'
-    id 'nebula.nebula-bintray' version '3.0.1'
+    id 'nebula.nebula-bintray' version '3.1.0'
     id 'com.gradle.plugin-publish' version '0.9.1'
     id 'nebula.javadoc-jar' version '4.0.1'
     id 'nebula.source-jar' version '4.0.1'
