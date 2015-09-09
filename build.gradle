@@ -1,3 +1,4 @@
+buildscript { repositories { jcenter() } } // Some plugin dependencies (namely JFrog) are not in Maven Central
 /*
  * Copyright 2014-2015 Netflix, Inc.
  *
