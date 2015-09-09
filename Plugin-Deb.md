@@ -16,7 +16,7 @@ derived from Debian, e.g. Ubuntu.  It leverages [JDeb](https://github.com/tcurdt
         }
     }
 
-    apply plugin: 'deb'
+    apply plugin: 'nebula.deb'
 
     task fooDeb(type: Deb) {
         release '1'

@@ -28,7 +28,7 @@ class RpmCopySpecVisitorTest extends ProjectSpec {
 
     @Before
     public void setup() {
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             packageName = 'can-execute-rpm-task-with-valid-version'

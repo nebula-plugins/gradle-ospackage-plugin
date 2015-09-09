@@ -43,7 +43,7 @@ will serve as defaults, while values on the task will take precedence. Any copy 
 tasks irrelevant of what the task specifies.
 
 ```
-apply plugin: 'os-package-base'
+apply plugin: 'nebula.ospackage-base'
 
 ospackage {
     release '3'
@@ -73,7 +73,7 @@ This is useful when the project defaults are good and any configuration can be p
  platform supported.
 
 ```
-apply plugin: 'os-package'
+apply plugin: 'nebula.ospackage'
 
 ospackage {
     release '3'
@@ -104,7 +104,7 @@ buildRpm {
         }
     }
 
-    apply plugin: 'os-package'
+    apply plugin: 'nebula.ospackage'
 
     ospackage {
         packageName = 'foo'

@@ -16,7 +16,7 @@ derived from RedHat.  It leverages [Redline](http://redline-rpm.org/) Java libra
         }
     }
 
-    apply plugin: 'rpm'
+    apply plugin: 'nebula.rpm'
 
     task fooRpm(type: Rpm) {
         release '1'

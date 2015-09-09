@@ -17,7 +17,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         srcDir.mkdirs()
 
         when:
-        project.apply plugin: 'os-package-base'
+        project.apply plugin: 'nebula.ospackage-base'
 
         project.ospackage {
             release '3'
@@ -39,7 +39,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
         when:
-        project.apply plugin: 'os-package-base'
+        project.apply plugin: 'nebula.ospackage-base'
 
         project.ospackage {
             release = 3

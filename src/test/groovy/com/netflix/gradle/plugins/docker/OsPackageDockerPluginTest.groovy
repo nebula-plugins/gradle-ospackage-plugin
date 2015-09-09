@@ -9,7 +9,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 
     def "creates required tasks on its own"() {
         when:
-        project.apply plugin: 'os-package-docker'
+        project.apply plugin: 'nebula.ospackage-docker'
 
         then:
         project.tasks.findByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME)
@@ -19,7 +19,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 
     def "docker task inherits from extension"() {
         when:
-        project.apply plugin: 'os-package-docker'
+        project.apply plugin: 'nebula.ospackage-docker'
         project.ospackage {
             user 'builder'
         }
@@ -31,7 +31,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 
     def "docker task as package name"() {
         when:
-        project.apply plugin: 'os-package-docker'
+        project.apply plugin: 'nebula.ospackage-docker'
         def ospackageTask = project.tasks.findByName('createDockerfile')
 
         then:
@@ -48,7 +48,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir, 'banana.zip'), 'banana')
 
         when:
-        project.apply plugin: 'os-package-docker'
+        project.apply plugin: 'nebula.ospackage-docker'
 
         SystemPackageDockerfile task = project.tasks.getByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME) {
             destinationDir = destDir

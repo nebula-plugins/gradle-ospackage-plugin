@@ -50,7 +50,7 @@ class RpmPluginTest extends ProjectSpec {
         noParentsDir.mkdirs()
         FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -113,7 +113,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/ObsoletesConflictsTest')
@@ -175,7 +175,7 @@ class RpmPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
         when:
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {})
 
@@ -200,7 +200,7 @@ class RpmPluginTest extends ProjectSpec {
         Files.createParentDirs(appleFile)
         appleFile.text = 'apple'
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             addParentDirs = true
@@ -233,7 +233,7 @@ class RpmPluginTest extends ProjectSpec {
         Files.createParentDirs(appleFile)
         appleFile.text = '{{BASE}}/apple'
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = (Rpm) project.task([type: Rpm], 'buildRpm') {
             from(appleFile.getParentFile()) {
@@ -263,7 +263,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         when:
         project.task([type: Rpm], 'buildRpm', {})
@@ -284,7 +284,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
         def parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm')
@@ -319,7 +319,7 @@ class RpmPluginTest extends ProjectSpec {
         new File(etcDir, 'banana.conf').text = 'banana=true'
 
         // Simulate SystemPackagingBasePlugin
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
         ProjectPackagingExtension parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
 
         // Configure
@@ -364,7 +364,7 @@ class RpmPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir2, 'banana'), 'banana')
         FileUtils.writeStringToFile(new File(srcDir3, 'cherry'), 'cherry')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -422,7 +422,7 @@ class RpmPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir2, 'banana'), 'banana')
         FileUtils.writeStringToFile(new File(srcDir3, 'cherry'), 'cherry')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -481,7 +481,7 @@ class RpmPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir2, 'banana'), 'banana')
         FileUtils.writeStringToFile(new File(srcDir3, 'cherry'), 'cherry')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -555,7 +555,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -586,7 +586,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -619,7 +619,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -653,7 +653,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -687,7 +687,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -721,7 +721,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'os-package-base'
+        project.apply plugin: 'nebula.ospackage-base'
         project.ospackage { prefixes = ['/opt/ospackage', '/etc/maybe'] }
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
@@ -762,7 +762,7 @@ class RpmPluginTest extends ProjectSpec {
         File emptyDir = new File(myDir, 'own/empty')
         emptyDir.mkdirs()
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -801,7 +801,7 @@ class RpmPluginTest extends ProjectSpec {
         File emptyDir = new File(someDir, 'empty')
         emptyDir.mkdirs()
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -837,7 +837,7 @@ class RpmPluginTest extends ProjectSpec {
     def 'Sets owner and group for directory DSL'() {
         Project project = ProjectBuilder.builder().build()
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -871,7 +871,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -919,7 +919,7 @@ class RpmPluginTest extends ProjectSpec {
         JavaNIOUtils.createSymblicLink(new File(binDir, 'foo'), fooDir)
 
         when:
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         Task task = project.task('buildRpm', type: Rpm) {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -953,7 +953,7 @@ class RpmPluginTest extends ProjectSpec {
         GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
         generator.generateTestMavenRepo()
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         project.configurations {
             myConf
@@ -991,7 +991,7 @@ class RpmPluginTest extends ProjectSpec {
     @Unroll
     def "Translates package description '#description' to header entry"() {
         given:
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             destinationDir = project.file('build/tmp/RpmPluginTest')
@@ -1020,7 +1020,7 @@ class RpmPluginTest extends ProjectSpec {
     @Unroll
     def "Translates project description '#description' to header entry"() {
         given:
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
         project.description = description
 
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
@@ -1053,7 +1053,7 @@ class RpmPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'rpm'
+        project.apply plugin: 'nebula.rpm'
 
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             destinationDir = project.file('build/tmp/RpmPluginTest')

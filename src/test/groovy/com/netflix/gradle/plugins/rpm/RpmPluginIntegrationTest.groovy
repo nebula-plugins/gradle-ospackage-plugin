@@ -10,7 +10,7 @@ class RpmPluginIntegrationTest extends IntegrationSpec {
 
             given:
         buildFile << '''
-apply plugin: 'rpm'
+apply plugin: 'nebula.rpm'
 
 task buildRpm(type: Rpm) {
     packageName = 'rpmIsUpToDate'

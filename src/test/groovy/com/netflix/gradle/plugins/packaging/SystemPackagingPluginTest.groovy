@@ -19,7 +19,7 @@ class SystemPackagingPluginTest extends ProjectSpec {
         srcDir.mkdirs()
 
         when:
-        project.apply plugin: 'os-package'
+        project.apply plugin: 'nebula.ospackage'
 
         then:
         project.getPlugins().getPlugin(SystemPackagingPlugin) != null
@@ -46,7 +46,7 @@ class SystemPackagingPluginTest extends ProjectSpec {
         new File(srcDir, 'a.java').text = "public class A { }"
 
         when:
-        project.apply plugin: 'os-package'
+        project.apply plugin: 'nebula.ospackage'
 
         def ext = project.getExtensions().getByType(ProjectPackagingExtension)
         ext.from(srcDir)
@@ -72,7 +72,7 @@ class SystemPackagingPluginTest extends ProjectSpec {
     @Unroll
     def "Translates extension packageDescription '#description' to header entry for RPM task"() {
         given:
-        project.apply plugin: 'os-package'
+        project.apply plugin: 'nebula.ospackage'
 
         project.ospackage {
             packageName = 'bleah'
@@ -98,7 +98,7 @@ class SystemPackagingPluginTest extends ProjectSpec {
     @Unroll
     def "Translates extension packageDescription '#description' to header entry for Debian task"() {
         given:
-        project.apply plugin: 'os-package'
+        project.apply plugin: 'nebula.ospackage'
 
         project.ospackage {
             packageName = 'translates-extension-description'
