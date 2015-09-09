@@ -1,4 +1,3 @@
-buildscript { repositories { jcenter() } } // Some plugin dependencies (namely JFrog) are not in Maven Central
 /*
  * Copyright 2014-2015 Netflix, Inc.
  *
@@ -14,6 +13,8 @@ buildscript { repositories { jcenter() } } // Some plugin dependencies (namely J
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+buildscript { repositories { jcenter() } } // Some plugin dependencies (namely JFrog) are not in Maven Central
 
 plugins {
     id 'groovy'
