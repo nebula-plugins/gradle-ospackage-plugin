@@ -222,6 +222,13 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         return multiArchString
     }
 
+    protected Map<String,String> getCustomFields() {
+        debTask.getAllCustomFields().collectEntries { String key, String val ->
+            // in the deb control file, header XB-Foo becomes Foo in the binary package
+            ["XB-" + key.capitalize(), val]
+        }
+    }
+
     @Override
     protected void end() {
         for (Dependency recommends : task.getAllRecommends()) {
@@ -351,6 +358,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 breaks: StringUtils.join(breaks, ", "),
                 replaces: StringUtils.join(replaces, ", "),
                 fullVersion: buildFullVersion(),
+                customFields: getCustomFields(),
 
                 // Uses install command for directory
                 dirs: installDirs.collect { InstallDir dir ->
