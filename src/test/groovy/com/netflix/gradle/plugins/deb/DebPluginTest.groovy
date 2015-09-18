@@ -869,4 +869,43 @@ class DebPluginTest extends ProjectSpec {
         scan.getControl('./changelog')
         scan.getControl('./something')
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/131")
+    def "Can add user-defined fields to debian control"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'nebula.deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'allows-custom-control-fields'
+            customField 'someKey', 'someVal'
+            customField([
+                    'Foo': 'bar',
+                    'baz': 'quux'
+            ])
+            customFields << [
+                    'beep': 'boop',
+                    'Blip': 'boing'
+            ]
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        File debFile = debTask.getArchivePath()
+        def ant = new AntBuilder()
+        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
+        def scan = new Scanner(debFile)
+        'someVal' == scan.getHeaderEntry('SomeKey')
+        'bar' == scan.getHeaderEntry('Foo')
+        'quux' == scan.getHeaderEntry('Baz')
+        'boop' == scan.getHeaderEntry('Beep')
+        'boing' == scan.getHeaderEntry('Blip')
+    }
 }
