@@ -396,4 +396,19 @@ class SystemPackagingExtension {
         directories << directory
         directory
     }
+
+    // DEB-specific user-defined fields
+    // https://www.debian.org/doc/debian-policy/ch-controlfields.html#s5.7
+    Map<String, String> customFields = [:]
+
+    def customField(String key, String val) {
+        customFields[key] = val
+        return this
+    }
+
+    def customField(Map<String, String> fields) {
+        customFields += fields
+        return this
+    }
+
 }
