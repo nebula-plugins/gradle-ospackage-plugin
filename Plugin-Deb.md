@@ -108,6 +108,12 @@ corresponding methods can be called multiple times, and the contents will be app
 * _installUtils_ - Scripts which are prefixed to all the other scripts.
 * _configurationFiles_ - Files to be labeled as configuration files
 
+# User-Defined Control Headers
+
+Per the [Debian Policy Manual](https://www.debian.org/doc/debian-policy/ch-controlfields.html#s5.7), user-defined headers
+may be contributed to a package. Use the `customField` method to add key/val pairs, merge existing maps, or modify the
+`customFields` map directly. See example below.
+
 # Copy Spec
 
 The following attributes can be used inside _from_ and _into_ closures to complement the [Copy Spec](http://www.gradle.org/docs/current/userguide/working_with_files.html#sec:copying_files).
@@ -169,6 +175,15 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         }
 
         link('/etc/init.d/foo', '/opt/foo/bin/foo.init')
+
+        customField 'Build-Host', 'http://mycihost'
+        customField([
+            'Commit-ID': 'deadbeef',
+            'Owner': 'John Doe <johndoe@sweetdomain.io>'
+        ])
+        customFields << [
+            'Build-Job': 'FooProject'
+        ]
     }
 ```
 

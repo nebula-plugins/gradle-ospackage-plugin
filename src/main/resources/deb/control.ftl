@@ -18,6 +18,7 @@ Recommends: ${recommends}<% } %><% if (suggests) { %>
 Suggests: ${suggests}<% } %><% if (enhances) { %>
 Enhances: ${enhances}<% } %><% if (preDepends) { %>
 Pre-Depends: ${preDepends}<% } %><% if (breaks) { %>
-Breaks: ${breaks}<% } %>
+Breaks: ${breaks}<% } %><% customFields?.each { key, val -> %>
+${key}: ${val}<% } %>
 Description: ${summary}
  ${description}

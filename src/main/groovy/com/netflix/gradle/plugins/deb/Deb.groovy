@@ -68,55 +68,36 @@ class Deb extends SystemPackagingTask {
 
     @Input @Optional
     List<Dependency> getAllRecommends() {
-        if (parentExten) {
-            return getRecommends() + parentExten.getRecommends()
-        } else {
-            return getRecommends()
-        }
+        return getRecommends() + (parentExten?.getRecommends() ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllSuggests() {
-        if (parentExten) {
-            return getSuggests() + parentExten.getSuggests()
-        } else {
-            return getSuggests()
-        }
+        return getSuggests() + (parentExten?.getSuggests() ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllEnhances() {
-        if (parentExten) {
-            return getEnhances() + parentExten.getEnhances()
-        } else {
-            return getEnhances()
-        }
+        return getEnhances() + (parentExten?.getEnhances() ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllPreDepends() {
-        if (parentExten) {
-            return getPreDepends() + parentExten.getPreDepends()
-        } else {
-            return getPreDepends()
-        }
+        return getPreDepends() + (parentExten?.getPreDepends() ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllBreaks() {
-        if (parentExten) {
-            return getBreaks() + parentExten.getBreaks()
-        } else {
-            return getBreaks()
-        }
+        return getBreaks() + (parentExten?.getBreaks() ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllReplaces() {
-        if (parentExten) {
-            return getReplaces() + parentExten.getReplaces()
-        } else {
-            return getReplaces()
-        }
+        return getReplaces() + (parentExten?.getReplaces() ?: [])
+    }
+
+    @Input @Optional
+    Map<String, String> getAllCustomFields() {
+        return getCustomFields() + (parentExten?.getCustomFields() ?: [:])
     }
 }
