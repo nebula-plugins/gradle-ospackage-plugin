@@ -1,3 +1,13 @@
+3.1.0 / 2015-09-21
+------------------
+
+* Add support for custom fields in debs
+
+3.0.0 / 2015-09-16
+------------------
+
+* Switch to matrix tested, semantic versions
+
 2.2.6 / 2015-05-08
 ------------------
 
