@@ -1,6 +1,5 @@
-package com.netflix.gradle.plugins.deb.filevisitor
+package com.netflix.gradle.plugins.deb
 
-import com.netflix.gradle.plugins.deb.DebCopyAction
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import org.gradle.api.file.FileCopyDetails
 import org.vafer.jdeb.DataProducer
@@ -10,12 +9,31 @@ import java.nio.file.Path
 
 import static com.netflix.gradle.plugins.utils.FileCopyDetailsUtils.getRootPath
 
-class Java7AndHigherDebFileVisitorStrategy extends AbstractDebFileVisitorStrategy {
-    Java7AndHigherDebFileVisitorStrategy(List<DataProducer> dataProducers, List<DebCopyAction.InstallDir> installDirs) {
-        super(dataProducers, installDirs)
+class DebFileVisitorStrategy {
+    protected final List<DataProducer> dataProducers
+    protected final List<DebCopyAction.InstallDir> installDirs
+
+    DebFileVisitorStrategy(List<DataProducer> dataProducers, List<DebCopyAction.InstallDir> installDirs) {
+        this.dataProducers = dataProducers
+        this.installDirs = installDirs
     }
 
-    @Override
+    protected void addProducerFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
+        dataProducers << new DataProducerFileSimple(getRootPath(fileDetails), source, user, uid, group, gid, mode)
+    }
+
+    protected void addProducerDirectoryAndInstallDir(FileCopyDetails dirDetails, String user, int uid, String group, int gid, int mode) {
+        String rootPath = getRootPath(dirDetails)
+        dataProducers << new DataProducerDirectorySimple(rootPath, user, uid, group, gid, mode)
+
+        // addParentDirs is implicit in jdeb, I think.
+        installDirs << new DebCopyAction.InstallDir(
+                name: rootPath,
+                user: user,
+                group: group,
+        )
+    }
+
     void addFile(FileCopyDetails details, File source, String user, int uid, String group, int gid, int mode) {
         try {
             if(!JavaNIOUtils.isSymbolicLink(details.file.parentFile)) {
@@ -28,7 +46,6 @@ class Java7AndHigherDebFileVisitorStrategy extends AbstractDebFileVisitorStrateg
         }
     }
 
-    @Override
     void addDirectory(FileCopyDetails details, String user, int uid, String group, int gid, int mode) {
         try {
             if(JavaNIOUtils.isSymbolicLink(details.file)) {

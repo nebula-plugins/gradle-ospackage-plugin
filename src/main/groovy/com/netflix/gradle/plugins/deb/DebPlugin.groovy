@@ -36,8 +36,6 @@ class DebPlugin implements Plugin<Project> {
             DebPlugin.applyAliases(task) // DEB-specific aliases
             task.applyConventions()
         }
-
-
     }
 
     def static applyAliases(def dynamicObjectAware) {

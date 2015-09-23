@@ -17,7 +17,6 @@
 package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
-import com.netflix.gradle.plugins.deb.filevisitor.DebFileVisitorStrategyFactory
 import com.netflix.gradle.plugins.deb.validation.DebTaskPropertiesValidator
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
@@ -55,10 +54,9 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     List<String> replaces
     List<DataProducer> dataProducers
     List<InstallDir> installDirs
-    boolean includeStandardDefines = true
     TemplateHelper templateHelper
     private final DebTaskPropertiesValidator debTaskPropertiesValidator = new DebTaskPropertiesValidator()
-    private DebFileVisitorStrategyFactory debFileVisitorStrategyFactory
+    private DebFileVisitorStrategy debFileVisitorStrategy
 
     DebCopyAction(Deb debTask) {
         super(debTask)
@@ -76,7 +74,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         installDirs = []
         debianDir = new File(debTask.project.buildDir, "debian")
         templateHelper = new TemplateHelper(debianDir, '/deb')
-        debFileVisitorStrategyFactory = new DebFileVisitorStrategyFactory(dataProducers, installDirs)
+        debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
     }
 
     @Canonical
@@ -95,40 +93,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     }
 
-/*
-    boolean useJavaNioForMask() {
-        try {
-            Class.forName('java.nio.file.attribute.PosixFilePermission')
-            return true
-        } catch(Exception e) {
-            // Java 7 Classes weren't available
-            return false
-        }
-
-    }
-
-    int fileModeFromFile(File file) {
-        if (useJavaNioForMask()) {
-            return fileModeUsingPosix(file)
-        } else {
-            return fileModeUsingShell(file)
-        }
-    }
-
-    int fileModeUsingShell(File file) {
-        // "ls -l post2crucible | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\"%0o \",k)}'"
-        throw new IllegalStateException("Unable to determine permission mask, try using Java 7")
-    }
-
-    int fileModeUsingPosix(File file) {
-        try {
-            Set<PosixFilePermission> filePerm = Files.getPosixFilePermissions(file.toPath());
-            UnixFileModeAttribute.toUnixMode(filePerm)
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-*/
     @Override
     void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
@@ -142,7 +106,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
         int fileMode = fileDetails.mode
 
-        debFileVisitorStrategyFactory.strategy.addFile(fileDetails, inputFile, user, uid, group, gid, fileMode)
+        debFileVisitorStrategy.addFile(fileDetails, inputFile, user, uid, group, gid, fileMode)
     }
 
     @Override
@@ -159,7 +123,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
             int fileMode = dirDetails.mode
 
-            debFileVisitorStrategyFactory.strategy.addDirectory(dirDetails, user, uid, group, gid, fileMode)
+            debFileVisitorStrategy.addDirectory(dirDetails, user, uid, group, gid, fileMode)
         }
     }
 
@@ -390,61 +354,4 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
         fullVersion.toString()
     }
-
-    /*
-    private void createChanges(File changes, File changesFile, PackageDescriptor descriptor, Processor processor) {
-        try {
-            logger.info("Creating changes file ${changesFile}")
-            def changesIn = changes.newInputStream()
-            def provider = new TextfileChangesProvider(changesIn, descriptor)
-            processor.createChanges(descriptor, provider, null, null, null, changesFile.newOutputStream())
-        } catch (Exception e) {
-            throw new GradleException("Can't create changes file " + changesFile, e)
-        }
-
-        def secRing = new File(pkg.secureRing.replaceFirst("^~", System.getProperty("user.home")))
-        if (secRing.exists()) {
-            signChangesFile(changesFile, secRing, pkg.key)
-        } else {
-            logger.info("Secure keyring file does not exists. Changes will not be signed")
-        }
-    }
-
-    private void signChangesFile(File changesFile, File secRing, String keyId) {
-        try {
-            logger.info("Signing changes file ${changesFile} with ${secRing} and keyId ${keyId}")
-            def secretKey = SigningUtils.readSecretKey(secRing.newInputStream(), keyId)
-
-            if (secretKey) {
-                def privateKey = getPrivateKey(secretKey)
-                if (privateKey) {
-                    InputStream fIn = new ByteArrayInputStream(changesFile.getText("UTF-8").bytes)
-                    OutputStream fOut = new FileOutputStream(changesFile, false) // override previous file
-                    SigningUtils.sign(fIn, fOut, secretKey, privateKey, PGPUtil.SHA256)
-                    fOut.close()
-                }
-            }
-        } catch (Exception e) {
-            throw new GradleException("Can't sign changes file " + changesFile, e)
-        }
-    }
-
-    private static PGPPrivateKey getPrivateKey(PGPSecretKey secretKey) {
-        while (true) {
-            try {
-                String pass = PassphraseProvider.provide()
-                if (pass.length() == 0) {
-                    PassphraseProvider.remember(pass)
-                    return null
-                }
-
-                PGPPrivateKey key = SigningUtils.readPrivateKey(secretKey, pass)
-                PassphraseProvider.remember(pass)
-                return key
-            } catch (PGPException e) {
-                System.err.println("Invalid passphrase. Please try again")
-            }
-        }
-    }
-    */
 }

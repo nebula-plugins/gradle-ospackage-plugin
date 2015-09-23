@@ -1,4 +1,4 @@
-package com.netflix.gradle.plugins.rpm.filevisitor
+package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import org.redline_rpm.Builder
@@ -9,12 +9,21 @@ import java.nio.file.Path
 
 import static com.netflix.gradle.plugins.utils.FileCopyDetailsUtils.getRootPath
 
-class Java7AndHigherRpmFileVisitorStrategy extends AbstractRpmFileVisitorStrategy {
-    Java7AndHigherRpmFileVisitorStrategy(Builder builder) {
-        super(builder)
+class RpmFileVisitorStrategy {
+    protected final Builder builder
+
+    RpmFileVisitorStrategy(Builder builder) {
+        this.builder = builder
     }
 
-    @Override
+    protected void addFileToBuilder(FileCopyDetails details, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
+        builder.addFile(getRootPath(details), source, mode, dirmode, directive, uname, gname, addParents)
+    }
+
+    protected void addDirectoryToBuilder(FileCopyDetails details, int permissions, Directive directive, String uname, String gname, boolean addParents) {
+        builder.addDirectory(getRootPath(details), permissions, directive, uname, gname, addParents)
+    }
+
     void addFile(FileCopyDetails details, File source, int mode, int dirmode, Directive directive, String uname, String gname, boolean addParents) {
         try {
             if(!JavaNIOUtils.isSymbolicLink(details.file.parentFile)) {
@@ -27,7 +36,6 @@ class Java7AndHigherRpmFileVisitorStrategy extends AbstractRpmFileVisitorStrateg
         }
     }
 
-    @Override
     void addDirectory(FileCopyDetails details, int permissions, Directive directive, String uname, String gname, boolean addParents) {
         try {
             if(JavaNIOUtils.isSymbolicLink(details.file)) {
