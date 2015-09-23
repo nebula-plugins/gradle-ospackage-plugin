@@ -26,27 +26,24 @@ import org.slf4j.LoggerFactory
 
 import java.lang.reflect.Field
 
-public abstract class AbstractPackagingCopyAction implements CopyAction {
+public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implements CopyAction {
     static final Logger logger = LoggerFactory.getLogger(AbstractPackagingCopyAction.class)
 
-    SystemPackagingTask task
+    T task
     File tempDir
     Collection<File> filteredFiles = []
 
-    protected AbstractPackagingCopyAction(SystemPackagingTask task) {
+    protected AbstractPackagingCopyAction(T task) {
         this.task = task
     }
 
     public WorkResult execute(CopyActionProcessingStream stream) {
-
         try {
             startVisit(this)
             stream.process(new StreamAction());
             endVisit()
         } catch (Exception e) {
             UncheckedException.throwAsUncheckedException(e);
-        } finally {
-            visitFinally()
         }
 
         return new SimpleWorkResult(true);
@@ -77,9 +74,6 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
     void startVisit(CopyAction action) {
         // Delay reading destinationDir until we start executing
         tempDir = task.getTemporaryDir()
-    }
-
-    void visitFinally(Exception e) {
     }
 
     void endVisit() {
@@ -156,13 +150,13 @@ public abstract class AbstractPackagingCopyAction implements CopyAction {
 
     }
 
-    def static lookup(def specToLookAt, String propertyName) {
+    static <T> T lookup(def specToLookAt, String propertyName) {
         if (specToLookAt?.metaClass?.hasProperty(specToLookAt, propertyName) != null) {
             def prop = specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
             if (prop instanceof MetaBeanProperty) {
-                return prop?.getProperty(specToLookAt)
+                return prop?.getProperty(specToLookAt) as T
             } else {
-                return prop
+                return prop as T
             }
         } else {
             return null

@@ -25,11 +25,9 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 
 class Deb extends SystemPackagingTask {
-    static final String DEB_EXTENSION = "deb";
-
     Deb() {
         super()
-        extension = DEB_EXTENSION
+        extension = 'deb'
     }
 
     @Override

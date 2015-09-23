@@ -23,7 +23,7 @@ class SystemPackageDockerfile extends SystemPackagingTask {
     }
 
     @Override
-    protected String getArchString() {
+    String getArchString() {
         throw new UnsupportedMethodException('The architecture is defined through FROM instruction in Docker images')
     }
 

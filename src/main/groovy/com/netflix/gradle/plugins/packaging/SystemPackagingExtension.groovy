@@ -83,15 +83,8 @@ class SystemPackagingExtension {
 
     @Input @Optional
     void setArch(Object arch) {
-        archStr = (arch instanceof Architecture)?arch.name():arch.toString()
+        archStr = (arch instanceof Architecture) ? arch.name() : arch.toString()
     }
-
-    // Type of getter has to match setter
-//    Object getArch() {
-//        return getArchStr();
-//    }
-
-    // RPM Only
 
     @Input @Optional
     Directive fileType
@@ -136,10 +129,10 @@ class SystemPackagingExtension {
     String priority
 
     @Input @Optional
-    final List<Object> supplementaryControlFiles = []
+    final List<File> supplementaryControlFiles = []
 
     def supplementaryControl(String file) {
-        supplementaryControlFiles << file
+        supplementaryControlFiles << new File(file)
         return this
     }
 

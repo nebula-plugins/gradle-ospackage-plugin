@@ -27,11 +27,9 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
 class Rpm extends SystemPackagingTask {
-    static final String RPM_EXTENSION = "rpm";
-
     Rpm() {
         super()
-        extension = RPM_EXTENSION
+        extension = 'rpm'
     }
 
     @Override

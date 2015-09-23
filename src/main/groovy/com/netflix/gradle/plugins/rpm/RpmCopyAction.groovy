@@ -32,10 +32,9 @@ import org.slf4j.LoggerFactory
 
 import java.nio.channels.FileChannel
 
-class RpmCopyAction extends AbstractPackagingCopyAction {
+class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     static final Logger logger = LoggerFactory.getLogger(RpmCopyAction.class)
 
-    Rpm rpmTask
     Builder builder
     boolean includeStandardDefines = true // candidate for being pushed up to packaging level
     private final RpmTaskPropertiesValidator rpmTaskPropertiesValidator = new RpmTaskPropertiesValidator()
@@ -43,7 +42,6 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
 
     RpmCopyAction(Rpm rpmTask) {
         super(rpmTask)
-        this.rpmTask = rpmTask
         rpmTaskPropertiesValidator.validate(rpmTask)
     }
 
@@ -51,37 +49,37 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     void startVisit(CopyAction action) {
         super.startVisit(action)
 
-        assert rpmTask.getVersion() != null, "RPM requires a version string"
+        assert task.getVersion() != null, 'RPM requires a version string'
 
         builder = new Builder()
-        builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release, rpmTask.epoch
-        builder.setType rpmTask.type
-        builder.setPlatform Architecture.valueOf(rpmTask.archStr.toUpperCase()), rpmTask.os
-        builder.setGroup rpmTask.packageGroup
-        builder.setBuildHost rpmTask.buildHost
-        builder.setSummary rpmTask.summary
-        builder.setDescription rpmTask.packageDescription ?: ''
-        builder.setLicense rpmTask.license
-        builder.setPackager rpmTask.packager
-        builder.setDistribution rpmTask.distribution
-        builder.setVendor rpmTask.vendor
-        builder.setUrl rpmTask.url
-        builder.setProvides rpmTask.provides
-        if (rpmTask.allPrefixes) {
-            builder.setPrefixes(rpmTask.allPrefixes as String[])
+        builder.setPackage task.packageName, task.version, task.release, task.epoch
+        builder.setType task.type
+        builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.os
+        builder.setGroup task.packageGroup
+        builder.setBuildHost task.buildHost
+        builder.setSummary task.summary
+        builder.setDescription task.packageDescription ?: ''
+        builder.setLicense task.license
+        builder.setPackager task.packager
+        builder.setDistribution task.distribution
+        builder.setVendor task.vendor
+        builder.setUrl task.url
+        builder.setProvides task.provides
+        if (task.allPrefixes) {
+            builder.setPrefixes(task.allPrefixes as String[])
         }
 
-        String sourcePackage = rpmTask.sourcePackage
+        String sourcePackage = task.sourcePackage
         if (!sourcePackage) {
             // need a source package because createrepo will assume your package is a source package without it
             sourcePackage = builder.defaultSourcePackage
         }
         builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-        builder.setPreInstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPreInstallCommands))
-        builder.setPostInstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPostInstallCommands))
-        builder.setPreUninstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPreUninstallCommands))
-        builder.setPostUninstallScript(scriptWithUtils(rpmTask.allCommonCommands, rpmTask.allPostUninstallCommands))
+        builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
+        builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
+        builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
+        builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
 
         rpmFileVisitorStrategy = new RpmFileVisitorStrategy(builder)
     }
@@ -93,14 +91,12 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         def inputFile = extractFile(fileDetails)
 
         Directive fileType = lookup(specToLookAt, 'fileType')
-        String user = lookup(specToLookAt, 'user') ?: rpmTask.user
-        String group = lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
+        String user = lookup(specToLookAt, 'user') ?: task.user
+        String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
 
-        Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
-        int fileMode = (int) (specFileMode?:fileDetails.mode)
-
+        int fileMode = lookup(specToLookAt, 'fileMode') ?: fileDetails.mode
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
+        boolean addParentsDir = specAddParentsDir ?: task.addParentDirs
 
         rpmFileVisitorStrategy.addFile(fileDetails, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
@@ -113,17 +109,16 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         }
         // Have to take booleans specially, since they would fail an elvis operator if set to false
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
-        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : rpmTask.createDirectoryEntry
+        boolean createDirectoryEntry = specCreateDirectoryEntry ?: task.createDirectoryEntry
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : rpmTask.addParentDirs
+        boolean addParentsDir = specAddParentsDir ?: task.addParentDirs
 
         if (createDirectoryEntry) {
-            logger.debug "adding directory {}", dirDetails.relativePath.pathString
-            Integer specFileMode = lookup(specToLookAt, 'fileMode') // Integer to allow for null
-            int dirMode = (int) (specFileMode?:dirDetails.mode)
-            Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: rpmTask.fileType
-            String user = (String) lookup(specToLookAt, 'user') ?: rpmTask.user
-            String group = (String) lookup(specToLookAt, 'permissionGroup') ?: rpmTask.permissionGroup
+            logger.debug 'adding directory {}', dirDetails.relativePath.pathString
+            int dirMode = lookup(specToLookAt, 'fileMode') ?: dirDetails.mode
+            Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: task.fileType
+            String user = lookup(specToLookAt, 'user') ?: task.user
+            String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
 
             rpmFileVisitorStrategy.addDirectory(dirDetails, dirMode, directive, user, group, addParentsDir)
         }
@@ -136,27 +131,27 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
 
     @Override
     protected void addDependency(Dependency dep) {
-        builder.addDependency dep.packageName, dep.version, dep.flag
+        builder.addDependency(dep.packageName, dep.flag, dep.version)
     }
 
     @Override 
     protected void addConflict(Dependency dep) {
-        builder.addConflicts dep.packageName, dep.version, dep.flag
+        builder.addConflicts(dep.packageName, dep.flag, dep.version)
     }
 
     @Override
     protected void addObsolete(Dependency dep) {
-        builder.addObsoletes dep.packageName, dep.version, dep.flag
+        builder.addObsoletes(dep.packageName, dep.flag, dep.version)
     }
 
     @Override
     protected void addDirectory(Directory directory) {
-        builder.addDirectory(directory.path, directory.permissions, null, rpmTask.user, rpmTask.permissionGroup, false)
+        builder.addDirectory(directory.path, directory.permissions, null, task.user, task.permissionGroup, false)
     }
 
     @Override
     protected void end() {
-        File rpmFile = rpmTask.getArchivePath()
+        File rpmFile = task.getArchivePath()
         FileChannel fc = new RandomAccessFile( rpmFile, "rw").getChannel()
         builder.build(fc)
         logger.info 'Created rpm {}', rpmFile
@@ -165,14 +160,14 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
     String standardScriptDefines() {
         includeStandardDefines ?
             String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
-                rpmTask.getArchString(),
-                rpmTask.os?.toString().toLowerCase(),
-                rpmTask.getPackageName(),
-                rpmTask.getVersion(),
-                rpmTask.getRelease()) : null
+                task.getArchString(),
+                task.os?.toString()?.toLowerCase() ?: '',
+                task.getPackageName(),
+                task.getVersion(),
+                task.getRelease()) : null
     }
 
-    Object scriptWithUtils(List utils, List scripts) {
+    String scriptWithUtils(List<Object> utils, List<Object> scripts) {
         def l = []
         def stdDefines = standardScriptDefines()
         if(stdDefines) l.add(stdDefines)

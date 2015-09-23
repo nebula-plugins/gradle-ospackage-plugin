@@ -6,7 +6,7 @@ import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 
-class DockerCopyAction extends AbstractPackagingCopyAction {
+class DockerCopyAction extends AbstractPackagingCopyAction<SystemPackageDockerfile> {
     private final DockerfileInstructionManager dockerfileInstructionManager
 
     DockerCopyAction(SystemPackageDockerfile task, DockerfileInstructionManager dockerfileInstructionManager) {

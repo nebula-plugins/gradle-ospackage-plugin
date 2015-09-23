@@ -33,7 +33,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     ProjectPackagingExtension parentExten
 
     // TODO Add conventions to pull from extension
-
     SystemPackagingTask() {
         super()
         exten = new SystemPackagingExtension()
@@ -112,38 +111,38 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Input @Optional
-    def getAllConfigurationFiles() {
+    List<File> getAllConfigurationFiles() {
         return getConfigurationFiles() + (parentExten?.getConfigurationFiles()?: [])
     }
 
     @Input @Optional
-    def getAllPreInstallCommands() {
+    List<Object> getAllPreInstallCommands() {
         return getPreInstallCommands() + parentExten?.getPreInstallCommands()
     }
 
     @Input @Optional
-    def getAllPostInstallCommands() {
+    List<Object> getAllPostInstallCommands() {
         return getPostInstallCommands() + parentExten?.getPostInstallCommands()
     }
 
     @Input @Optional
-    def getAllPreUninstallCommands() {
+    List<Object> getAllPreUninstallCommands() {
         return getPreUninstallCommands() + parentExten?.getPreUninstallCommands()
     }
 
     @Input @Optional
-    def getAllPostUninstallCommands() {
+    List<Object> getAllPostUninstallCommands() {
         return getPostUninstallCommands() + parentExten?.getPostUninstallCommands()
     }
 
     @Input @Optional
-    def getAllCommonCommands() {
+    List<Object> getAllCommonCommands() {
         return getCommonCommands() + parentExten?.getCommonCommands()
     }
 
     @Input @Optional
-    def getAllSupplementaryControlFiles() {
-        return getSupplementaryControlFiles() + ( parentExten?.getSupplementaryControlFiles() ?: [] )
+    List<File> getAllSupplementaryControlFiles() {
+        return getSupplementaryControlFiles() + (parentExten?.getSupplementaryControlFiles() ?: [])
     }
 
     @Input @Optional
@@ -194,7 +193,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
-    protected String getArchString() {
+    public String getArchString() {
         return getArchStr()?.toLowerCase();
     }
 

@@ -39,11 +39,10 @@ import org.vafer.jdeb.producers.DataProducerLink
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
  */
-class DebCopyAction extends AbstractPackagingCopyAction {
+class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     static final Logger logger = LoggerFactory.getLogger(DebCopyAction.class)
 
-    Deb debTask
-    def debianDir
+    File debianDir
     List<String> dependencies
     List<String> conflicts
     List<String> recommends
@@ -60,7 +59,6 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     DebCopyAction(Deb debTask) {
         super(debTask)
-        this.debTask = debTask
         debTaskPropertiesValidator.validate(debTask)
         dependencies = []
         conflicts = []
@@ -72,7 +70,7 @@ class DebCopyAction extends AbstractPackagingCopyAction {
         replaces = []
         dataProducers = []
         installDirs = []
-        debianDir = new File(debTask.project.buildDir, "debian")
+        debianDir = new File(task.project.buildDir, "debian")
         templateHelper = new TemplateHelper(debianDir, '/deb')
         debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
     }
@@ -99,10 +97,10 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
         def inputFile = extractFile(fileDetails)
 
-        String user = lookup(specToLookAt, 'user') ?: debTask.user
-        int uid = (int) (lookup(specToLookAt, 'uid') ?: debTask.uid)
-        String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
-        int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
+        String user = lookup(specToLookAt, 'user') ?: task.user
+        int uid = (int) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
+        String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
+        int gid = (int) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
 
         int fileMode = fileDetails.mode
 
@@ -112,14 +110,14 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     @Override
     void visitDir(FileCopyDetailsInternal dirDetails, def specToLookAt) {
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
-        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : debTask.createDirectoryEntry
+        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : task.createDirectoryEntry
         if (createDirectoryEntry) {
 
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
-            String user = lookup(specToLookAt, 'user') ?: debTask.user
-            int uid = (int) (lookup(specToLookAt, 'uid') ?: debTask.uid)
-            String group = lookup(specToLookAt, 'permissionGroup') ?: debTask.permissionGroup
-            int gid = (int) (lookup(specToLookAt, 'gid') ?: debTask.gid)
+            String user = lookup(specToLookAt, 'user') ?: task.user
+            int uid = (int) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
+            String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
+            int gid = (int) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
 
             int fileMode = dirDetails.mode
 
@@ -173,12 +171,12 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     @Override
     protected void addDirectory(Directory directory) {
-        logger.warn "Directory functionality not implemented for deb files"
+        logger.warn 'Directory functionality not implemented for deb files'
     }
 
     protected String getMultiArch() {
-        def archString = debTask.getArchString()
-        def multiArch = debTask.getMultiArch()
+        def archString = task.getArchString()
+        def multiArch = task.getMultiArch()
         if (('all' == archString) && (MultiArch.SAME == multiArch)) {
             throw new IllegalArgumentException('Deb packages with Architecture: all cannot declare Multi-Arch: same')
         }
@@ -187,30 +185,30 @@ class DebCopyAction extends AbstractPackagingCopyAction {
     }
 
     protected Map<String,String> getCustomFields() {
-        debTask.getAllCustomFields().collectEntries { String key, String val ->
+        task.getAllCustomFields().collectEntries { String key, String val ->
             // in the deb control file, header XB-Foo becomes Foo in the binary package
-            ["XB-" + key.capitalize(), val]
+            ['XB-' + key.capitalize(), val]
         }
     }
 
     @Override
     protected void end() {
-        for (Dependency recommends : task.getAllRecommends()) {
+        for (Dependency recommends : task.allRecommends) {
             logger.debug "adding recommends on {} {}", recommends.packageName, recommends.version
             addRecommends(recommends)
         }
 
-        for (Dependency suggests : task.getAllSuggests()) {
+        for (Dependency suggests : task.allSuggests) {
             logger.debug "adding suggests on {} {}", suggests.packageName, suggests.version
             addSuggests(suggests)
         }
 
-        for (Dependency enhances : task.getAllEnhances()) {
+        for (Dependency enhances : task.allEnhances) {
             logger.debug "adding enhances on {} {}", enhances.packageName, enhances.version
             addEnhances(enhances)
         }
 
-        for (Dependency preDepends : task.getAllPreDepends()) {
+        for (Dependency preDepends : task.allPreDepends) {
             logger.debug "adding preDepends on {} {}", preDepends.packageName, preDepends.version
             addPreDepends(preDepends)
         }
@@ -220,28 +218,28 @@ class DebCopyAction extends AbstractPackagingCopyAction {
             addBreaks(breaks)
         }
 
-        for (Dependency replaces : task.getAllReplaces()) {
+        for (Dependency replaces : task.allReplaces) {
             logger.debug "adding replaces on {} {}", replaces.packageName, replaces.version
             addReplaces(replaces)
         }
 
-        File debFile = debTask.getArchivePath()
+        File debFile = task.getArchivePath()
 
         def context = toContext()
         List<File> debianFiles = new ArrayList<File>();
 
         debianFiles << templateHelper.generateFile("control", context)
 
-        def configurationFiles = debTask.allConfigurationFiles
+        def configurationFiles = task.allConfigurationFiles
         if (configurationFiles.any()) {
             debianFiles << templateHelper.generateFile("conffiles", [files: configurationFiles] )
         }
 
-        def installUtils = debTask.allCommonCommands.collect { stripShebang(it) }
-        def preInstall = installUtils + debTask.allPreInstallCommands.collect { stripShebang(it) }
-        def postInstall = installUtils + debTask.allPostInstallCommands.collect { stripShebang(it) }
-        def preUninstall = installUtils + debTask.allPreUninstallCommands.collect { stripShebang(it) }
-        def postUninstall = installUtils + debTask.allPostUninstallCommands.collect { stripShebang(it) }
+        def installUtils = task.allCommonCommands.collect { stripShebang(it) }
+        def preInstall = installUtils + task.allPreInstallCommands.collect { stripShebang(it) }
+        def postInstall = installUtils + task.allPostInstallCommands.collect { stripShebang(it) }
+        def preUninstall = installUtils + task.allPreUninstallCommands.collect { stripShebang(it) }
+        def postUninstall = installUtils + task.allPostUninstallCommands.collect { stripShebang(it) }
 
         def addlFiles = [preinst: preInstall, postinst: postInstall, prerm: preUninstall, postrm:postUninstall]
                 .collect {
@@ -249,8 +247,8 @@ class DebCopyAction extends AbstractPackagingCopyAction {
                 }
         debianFiles.addAll(addlFiles)
 
-        debTask.allSupplementaryControlFiles.each { supControl ->
-            def supControlFile = supControl instanceof File ? supControl : debTask.project.file(supControl)
+        task.allSupplementaryControlFiles.each { supControl ->
+            def supControlFile = supControl instanceof File ? supControl : task.project.file(supControl)
             new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
         }
 
@@ -297,22 +295,22 @@ class DebCopyAction extends AbstractPackagingCopyAction {
      */
     def Map toContext() {
         [
-                name: debTask.getPackageName(),
-                version: debTask.getVersion(),
-                release: debTask.getRelease(),
-                maintainer: debTask.getMaintainer(),
-                uploaders: debTask.getUploaders(),
-                priority: debTask.getPriority(),
-                epoch: debTask.getEpoch(),
-                description: debTask.getPackageDescription() ?: '',
-                distribution: debTask.getDistribution(),
-                summary: debTask.getSummary(),
-                section: debTask.getPackageGroup(),
+                name: task.getPackageName(),
+                version: task.getVersion(),
+                release: task.getRelease(),
+                maintainer: task.getMaintainer(),
+                uploaders: task.getUploaders(),
+                priority: task.getPriority(),
+                epoch: task.getEpoch(),
+                description: task.getPackageDescription() ?: '',
+                distribution: task.getDistribution(),
+                summary: task.getSummary(),
+                section: task.getPackageGroup(),
                 time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
-                provides: debTask.getProvides(),
+                provides: task.getProvides(),
                 depends: StringUtils.join(dependencies, ", "),
-                url: debTask.getUrl(),
-                arch: debTask.getArchString(),
+                url: task.getUrl(),
+                arch: task.getArchString(),
                 multiArch: getMultiArch(),
                 conflicts: StringUtils.join(conflicts, ", "),
                 recommends: StringUtils.join(recommends, ", "),
@@ -341,15 +339,15 @@ class DebCopyAction extends AbstractPackagingCopyAction {
 
     private String buildFullVersion() {
         StringBuilder fullVersion = new StringBuilder()
-        if (debTask.getEpoch() != 0) {
-            fullVersion <<= debTask.getEpoch()
+        if (task.getEpoch() != 0) {
+            fullVersion <<= task.getEpoch()
             fullVersion <<= ':'
         }
-        fullVersion <<= debTask.getVersion()
+        fullVersion <<= task.getVersion()
 
-        if(debTask.getRelease()) {
+        if(task.getRelease()) {
             fullVersion <<= '-'
-            fullVersion <<= debTask.getRelease()
+            fullVersion <<= task.getRelease()
         }
 
         fullVersion.toString()
