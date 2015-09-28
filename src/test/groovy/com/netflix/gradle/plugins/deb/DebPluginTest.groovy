@@ -908,4 +908,34 @@ class DebPluginTest extends ProjectSpec {
         'boop' == scan.getHeaderEntry('Beep')
         'boing' == scan.getHeaderEntry('Blip')
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/129")
+    def "Can add multiple configuration files"() {
+
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        File noParentsDir = new File(projectDir, 'noParentsDir')
+        noParentsDir.mkdirs()
+        FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
+
+        project.apply plugin: 'nebula.deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'bleah'
+            release = '1'
+
+            configurationFile '/etc/init.d/served'
+            configurationFile '/etc/init.d/served2'
+        })
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.getArchivePath())
+
+        scan.controlContents['./conffiles'] == '/etc/init.d/served\n/etc/init.d/served2\n'
+    }
 }
