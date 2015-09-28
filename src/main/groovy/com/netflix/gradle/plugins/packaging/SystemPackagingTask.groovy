@@ -111,7 +111,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Input @Optional
-    List<File> getAllConfigurationFiles() {
+    List<Object> getAllConfigurationFiles() {
         return getConfigurationFiles() + (parentExten?.getConfigurationFiles()?: [])
     }
 
@@ -140,8 +140,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         return getCommonCommands() + parentExten?.getCommonCommands()
     }
 
+    /**
+     * @return supplementary control files consisting of a combination of Strings and Files
+     */
     @Input @Optional
-    List<File> getAllSupplementaryControlFiles() {
+    List<Object> getAllSupplementaryControlFiles() {
         return getSupplementaryControlFiles() + (parentExten?.getSupplementaryControlFiles() ?: [])
     }
 

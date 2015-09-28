@@ -100,9 +100,12 @@ class RpmPluginTest extends ProjectSpec {
         0 == Scanner.getHeaderEntry(scan, EPOCH).values[0]
         'i386' == Scanner.getHeaderEntryString(scan, ARCH)
         'linux' == Scanner.getHeaderEntryString(scan, OS)
-        ['./a/path/not/to/create/alone', './opt/bleah',
-                './opt/bleah/apple', './opt/bleah/banana'] == scan.files*.name
-        [FILE, DIR, FILE, SYMLINK] == scan.files*.type
+        scan.files*.name.every { fileName ->
+            ['./a/path/not/to/create/alone', './opt/bleah',
+             './opt/bleah/apple', './opt/bleah/banana'].any { path ->
+                path.startsWith(fileName)
+            }
+        }
     }
 
     def 'obsoletesAndConflicts'() {
@@ -784,8 +787,7 @@ class RpmPluginTest extends ProjectSpec {
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
-        scan.files*.name == ['./own/content/myfile.txt']
-        scan.files*.type == [FILE]
+        scan.files*.name.every { './own/content/myfile.txt'.startsWith(it) }
     }
 
     def 'Can create empty directories'() {
@@ -830,8 +832,8 @@ class RpmPluginTest extends ProjectSpec {
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
-        scan.files*.name == ['./inside/the/archive/empty', './own/content/myfile.txt', './using/the/dsl']
-        scan.files*.type == [DIR, FILE, DIR]
+        scan.files*.name.containsAll(['./inside/the/archive/empty', './own/content/myfile.txt', './using/the/dsl'])
+        scan.files*.type.containsAll([DIR, FILE])
     }
 
     def 'Sets owner and group for directory DSL'() {

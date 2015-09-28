@@ -128,15 +128,13 @@ class SystemPackagingExtension {
     @Input @Optional
     String priority
 
+    /**
+     * Can be of type String or File
+     */
     @Input @Optional
-    final List<File> supplementaryControlFiles = []
+    final List<Object> supplementaryControlFiles = []
 
-    def supplementaryControl(String file) {
-        supplementaryControlFiles << new File(file)
-        return this
-    }
-
-    def supplementaryControl(File file) {
+    def supplementaryControl(Object file) {
         supplementaryControlFiles << file
         return this
     }
