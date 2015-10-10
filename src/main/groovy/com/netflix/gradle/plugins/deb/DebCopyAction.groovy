@@ -105,7 +105,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
         String user = lookup(specToLookAt, 'user') ?: task.user
         Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
-        String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
+        String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup ?: user
         Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
 
         int fileMode = fileDetails.mode
@@ -122,7 +122,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             String user = lookup(specToLookAt, 'user') ?: task.user
             Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
-            String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
+            String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup ?: user
             Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
 
             int fileMode = dirDetails.mode
