@@ -121,3 +121,9 @@ pluginBundle {
         }
     }
 }
+
+test {
+  onOutput { descriptor, event ->
+     logger.lifecycle("Test: " + descriptor + " produced standard out/err: " + event.message )
+  }
+}
