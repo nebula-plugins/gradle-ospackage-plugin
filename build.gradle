@@ -50,7 +50,7 @@ contacts {
     }
 }
 
-apply from: 'https://raw.githubusercontent.com/nebula-plugins/nebula-core/d2c65b66452da8768aeee1beaf96a42057a9208d/common.gradle'
+apply from: 'https://raw.githubusercontent.com/nebula-plugins/nebula-core/fc54bacf5087f3b3f160f2bd7f7df7eaa3bf881d/common.gradle'
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.1'
