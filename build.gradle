@@ -77,6 +77,10 @@ tasks.withType(Javadoc) {
     options.links(javaApiUrl, groovyApiUrl)
 }
 
+test {
+    maxHeapSize = '700m'
+}
+
 pluginBundle {
     plugins {
         ospackage {
