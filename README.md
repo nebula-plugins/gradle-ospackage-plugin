@@ -16,7 +16,7 @@ Gradle requires that plugins be added to the classpath as part of the classpath.
 
 ```groovy
 plugins {
-  id "nebula.os-package" version "2.2.6"
+  id "nebula.ospackage" version "3.1.0"
 }
 ```
 
