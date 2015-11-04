@@ -22,7 +22,7 @@ class DebPackageNameValidatorTest extends Specification {
         'my.awesome.package' | true   | 'package with dot characters'
         'my-awesome-package' | true   | 'package with dash characters'
         'my+awesome+package' | true   | 'package with plus characters'
-        'My-Awesome-Package' | true   | 'package with upper case characters'
+        'My-Awesome-Package' | false  | 'package with upper case characters'
         'a'                  | false  | 'package name too short'
         '-abc'               | false  | 'package name does not start with alphanumeric character'
         'abc^'               | false  | 'package name with an invalid character'

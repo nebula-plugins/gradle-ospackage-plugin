@@ -28,11 +28,11 @@ class DebPackageNameAttributeValidator implements SystemPackagingAttributeValida
     }
 
     private boolean matchesExpectedCharacters(String packageName) {
-        packageName ==~ /[A-Za-z0-9.+-]+/
+        packageName ==~ /[a-z0-9.+-]+/
     }
 
     @Override
     String getErrorMessage(String attribute) {
-        "Invalid package name '$attribute' - a valid package name must start with an alphanumeric character, have a length of at least two characters and only contain [A-Za-z0-9.+-]"
+        "Invalid package name '$attribute' - a valid package name must start with an alphanumeric character, have a length of at least two characters and only contain [a-z0-9.+-]"
     }
 }
