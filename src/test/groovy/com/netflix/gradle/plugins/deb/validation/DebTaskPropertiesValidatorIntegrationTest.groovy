@@ -68,6 +68,6 @@ class DebTaskPropertiesValidatorIntegrationTest extends ProjectSpec {
 
         then:
         Throwable t = thrown(InvalidUserDataException)
-        t.message == "Invalid package name 'a' - a valid package name must start with an alphanumeric character, have a length of at least two characters and only contain [A-Za-z0-9.+-]"
+        t.message == "Invalid package name 'a' - a valid package name must start with an alphanumeric character, have a length of at least two characters and only contain [a-z0-9.+-]"
     }
 }
