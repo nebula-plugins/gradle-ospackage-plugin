@@ -33,6 +33,6 @@ class DebPackageNameValidatorTest extends Specification {
         String errorMessage = validator.getErrorMessage('a')
 
         then:
-        errorMessage == "Invalid package name 'a' - a valid package name must start with an alphanumeric character, have a length of at least two characters and only contain [A-Za-z0-9.+-]"
+        errorMessage == "Invalid package name 'a' - a valid package name must start with an alphanumeric character, have a length of at least two characters and only contain [a-z0-9.+-]"
     }
 }
