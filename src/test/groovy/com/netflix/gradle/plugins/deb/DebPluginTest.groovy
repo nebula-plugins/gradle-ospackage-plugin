@@ -938,4 +938,29 @@ class DebPluginTest extends ProjectSpec {
 
         scan.controlContents['./conffiles'] == '/etc/init.d/served\n/etc/init.d/served2\n'
     }
+
+    @Unroll
+    def 'handle semantic versions with dashes and metadata (+) expect #version to be #expected'() {
+        given:
+        project.apply plugin: 'nebula.deb'
+        project.version = version
+
+        project.task([type: Deb], 'buildDeb', {
+            destinationDir = project.file('build/tmp/DebPluginTest')
+            destinationDir.mkdirs()
+            packageName = 'semvertest'
+        })
+
+        project.tasks.buildDeb.execute()
+
+        expect:
+        project.file("build/tmp/DebPluginTest/semvertest_${expected}_all.deb").exists()
+
+        where:
+        version              | expected
+        '1.0'                | '1.0'
+        '1.0.0'              | '1.0.0'
+        '1.0.0-rc.1'         | '1.0.0~rc.1'
+        '1.0.0-dev.3+abc219' | '1.0.0~dev.3'
+    }
 }
