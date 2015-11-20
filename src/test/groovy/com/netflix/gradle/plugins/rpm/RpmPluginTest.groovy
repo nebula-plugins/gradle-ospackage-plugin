@@ -1079,4 +1079,30 @@ class RpmPluginTest extends ProjectSpec {
         appleFile.uname == 'me'
         appleFile.gname == 'awesome'
     }
+
+    @Ignore
+    @Unroll
+    def 'handle semantic versions with dashes and metadata (+) expect #version to be #expected'() {
+        given:
+        project.apply plugin: 'nebula.rpm'
+        project.version = version
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+            packageName = 'semvertest'
+        })
+
+        project.tasks.buildRpm.execute()
+
+        expect:
+        project.file("build/tmp/RpmPluginTest/semvertest_${expected}.noarch.rpm").exists()
+
+        where:
+        version              | expected
+        '1.0'                | '1.0'
+        '1.0.0'              | '1.0.0'
+        '1.0.0-rc.1'         | '1.0.0~rc.1'
+        '1.0.0-dev.3+abc219' | '1.0.0~dev.3'
+    }
 }

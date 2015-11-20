@@ -65,7 +65,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             parentExten?.getPackageName()?:getBaseName()
         })
         mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
-        mapping.map('version', { parentExten?.getVersion()?:project.getVersion().toString() })
+        mapping.map('version', { sanitizeVersion(parentExten?.getVersion()?:project.getVersion().toString()) })
         mapping.map('epoch', { parentExten?.getEpoch()?:0 })
         mapping.map('user', { parentExten?.getUser()?:getPackager() })
         mapping.map('maintainer', { parentExten?.getMaintainer()?:getPackager() })
@@ -90,6 +90,10 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
+    }
+
+    String sanitizeVersion(String version) {
+        version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
     }
 
     abstract String assembleArchiveName();

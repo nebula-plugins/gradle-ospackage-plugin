@@ -1,3 +1,10 @@
+3.2.0 / 2015-11-19
+------------------
+
+* Sanitize version strings
+    * if my version is 1.4.2-dev.3+ad3902 replace with 1.4.2~dev.3
+    * if my version is 1.4.2-rc.1 replace with 1.4.2~rc.1
+
 3.1.0 / 2015-09-21
 ------------------
 
