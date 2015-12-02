@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory
 
 import java.nio.channels.FileChannel
 
+import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
+
 class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     static final Logger logger = LoggerFactory.getLogger(RpmCopyAction.class)
 

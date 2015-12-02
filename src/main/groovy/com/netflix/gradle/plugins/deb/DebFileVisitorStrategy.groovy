@@ -7,7 +7,7 @@ import org.vafer.jdeb.producers.DataProducerLink
 
 import java.nio.file.Path
 
-import static com.netflix.gradle.plugins.utils.FileCopyDetailsUtils.getRootPath
+import static com.netflix.gradle.plugins.utils.GradleUtils.getRootPath
 
 class DebFileVisitorStrategy {
     protected final List<DataProducer> dataProducers

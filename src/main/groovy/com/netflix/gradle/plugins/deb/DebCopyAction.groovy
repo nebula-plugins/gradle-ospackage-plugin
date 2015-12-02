@@ -15,7 +15,6 @@
  */
 
 package com.netflix.gradle.plugins.deb
-
 import com.netflix.gradle.plugins.deb.control.MultiArch
 import com.netflix.gradle.plugins.deb.validation.DebTaskPropertiesValidator
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
@@ -35,6 +34,8 @@ import org.vafer.jdeb.Console
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.DebMaker
 import org.vafer.jdeb.producers.DataProducerLink
+
+import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
