@@ -7,7 +7,7 @@ import org.gradle.api.file.FileCopyDetails
 
 import java.nio.file.Path
 
-import static com.netflix.gradle.plugins.utils.FileCopyDetailsUtils.getRootPath
+import static com.netflix.gradle.plugins.utils.GradleUtils.getRootPath
 
 class RpmFileVisitorStrategy {
     protected final Builder builder

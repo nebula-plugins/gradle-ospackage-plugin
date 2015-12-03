@@ -150,19 +150,6 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
 
     }
 
-    static <T> T lookup(def specToLookAt, String propertyName) {
-        if (specToLookAt?.metaClass?.hasProperty(specToLookAt, propertyName) != null) {
-            def prop = specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
-            if (prop instanceof MetaBeanProperty) {
-                return prop?.getProperty(specToLookAt) as T
-            } else {
-                return prop as T
-            }
-        } else {
-            return null
-        }
-    }
-
     CopySpecInternal extractSpec(FileCopyDetailsInternal fileDetails) {
         if (fileDetails instanceof DefaultFileCopyDetails) {
             def startingClass = fileDetails.getClass() // It's in there somewhere
