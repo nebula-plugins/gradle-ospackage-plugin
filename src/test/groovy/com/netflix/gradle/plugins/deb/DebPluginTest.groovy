@@ -963,4 +963,25 @@ class DebPluginTest extends ProjectSpec {
         '1.0.0-rc.1'         | '1.0.0~rc.1'
         '1.0.0-dev.3+abc219' | '1.0.0~dev.3'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/115")
+    def 'directory construct'() {
+        given:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            user 'test'
+            permissionGroup 'testgroup'
+            directory("/var/log/customemptyfolder", 0750)
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def emptydir = scan.getEntry('./var/log/customemptyfolder/')
+        emptydir.userName == 'test'
+        emptydir.groupName == 'testgroup'
+        emptydir.mode == 0750
+    }
 }
