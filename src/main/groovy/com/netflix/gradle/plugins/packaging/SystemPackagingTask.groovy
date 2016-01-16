@@ -84,7 +84,6 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('vendor', { parentExten?.getVendor()?:'' })
         mapping.map('url', { parentExten?.getUrl()?:'' })
         mapping.map('sourcePackage', { parentExten?.getSourcePackage()?:'' })
-        mapping.map('provides', { parentExten?.getProvides()?:getPackageName() })
         mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry()?:false })
         mapping.map('priority', { parentExten?.getPriority()?:'optional' })
 
@@ -176,6 +175,15 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
             return getPrefixes() + parentExten.getPrefixes()
         } else {
             return getPrefixes()
+        }
+    }
+
+    @Input @Optional
+    List<Dependency> getAllProvides() {
+        if (parentExten) {
+            return parentExten.getProvides() + getProvides()
+        } else {
+            return getProvides()
         }
     }
 

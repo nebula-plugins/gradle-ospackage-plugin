@@ -64,12 +64,13 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
 
     protected abstract void visitDir(FileCopyDetailsInternal dirDetails, def specToLookAt)
     protected abstract void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt)
-    protected abstract void addLink(Link link);
-    protected abstract void addDependency(Dependency dependency);
-    protected abstract void addConflict(Dependency dependency);
-    protected abstract void addObsolete(Dependency dependency);
+    protected abstract void addLink(Link link)
+    protected abstract void addDependency(Dependency dependency)
+    protected abstract void addConflict(Dependency dependency)
+    protected abstract void addObsolete(Dependency dependency)
+    protected abstract void addProvides(Dependency dependency)
     protected abstract void addDirectory(Directory directory)
-    protected abstract void end();
+    protected abstract void end()
 
     void startVisit(CopyAction action) {
         // Delay reading destinationDir until we start executing
@@ -95,6 +96,11 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         for (Dependency conflict : task.getAllConflicts()) {
             logger.debug "adding conflicts on {} {}", conflict.packageName, conflict.version
             addConflict conflict
+        }
+
+        for (Dependency provides : task.getAllProvides()) {
+            logger.debug "adding provides on {} {}", provides.packageName, provides.version
+            addProvides(provides)
         }
 
         task.directories.each { directory ->

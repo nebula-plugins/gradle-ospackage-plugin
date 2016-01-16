@@ -52,6 +52,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     List<String> preDepends
     List<String> breaks
     List<String> replaces
+    List<String> provides
     List<DataProducer> dataProducers
     List<InstallDir> installDirs
     TemplateHelper templateHelper
@@ -71,6 +72,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         replaces = []
         dataProducers = []
         installDirs = []
+        provides = []
         debianDir = new File(task.project.buildDir, "debian")
         templateHelper = new TemplateHelper(debianDir, '/deb')
         debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
@@ -139,6 +141,11 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     @Override
     protected void addConflict(Dependency dep) {
         conflicts << dep.toDebString()
+    }
+
+    @Override
+    protected void addProvides(Dependency dep) {
+        provides << dep.packageName
     }
 
     @Override
@@ -308,7 +315,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
                 summary: task.getSummary(),
                 section: task.getPackageGroup(),
                 time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
-                provides: task.getProvides(),
+                provides: StringUtils.join(provides, ", "),
                 depends: StringUtils.join(dependencies, ", "),
                 url: task.getUrl(),
                 arch: task.getArchString(),

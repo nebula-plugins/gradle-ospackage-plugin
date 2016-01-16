@@ -75,9 +75,6 @@ class SystemPackagingExtension {
     @Input @Optional
     String sourcePackage
 
-    @Input @Optional
-    String provides
-
     // For Backward compatibility for those that passed in a Architecture object
     String archStr // This is what can be convention mapped and then referenced
 
@@ -283,6 +280,7 @@ class SystemPackagingExtension {
     List<Dependency> preDepends = new ArrayList<Dependency>()
     List<Dependency> breaks = new ArrayList<Dependency>()
     List<Dependency> replaces = new ArrayList<Dependency>()
+    List<Dependency> provides = new ArrayList<Dependency>()
 
     Dependency requires(String packageName, String version, int flag) {
         def dep = new Dependency(packageName, version, flag)
@@ -372,6 +370,16 @@ class SystemPackagingExtension {
 
     Dependency replaces(String packageName) {
         replaces(packageName, '', 0)
+    }
+
+    Dependency provides(String packageName, String version, int flag) {
+        def dep = new Dependency(packageName, version, flag)
+        provides.add(dep)
+        dep
+    }
+
+    Dependency provides(String packageName) {
+        provides(packageName, '', 0)
     }
 
     List<Directory> directories = new ArrayList<Directory>()

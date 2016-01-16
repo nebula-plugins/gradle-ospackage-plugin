@@ -55,7 +55,7 @@ apply from: 'https://raw.githubusercontent.com/nebula-plugins/nebula-core/b676bb
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.1'
-    compile('org.redline-rpm:redline:1.2.1') {
+    compile('org.redline-rpm:redline:1.2.2') {
         // Where logging goes is a runtime decision
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }

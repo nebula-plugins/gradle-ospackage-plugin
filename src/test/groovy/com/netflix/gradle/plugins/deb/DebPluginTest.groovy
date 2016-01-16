@@ -128,7 +128,6 @@ class DebPluginTest extends ProjectSpec {
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_amd64.deb'))
         'bleah' == scan.getHeaderEntry('Package')
         'blarg (>= 1.0), blech' ==  scan.getHeaderEntry('Depends')
-        'bleah' == scan.getHeaderEntry('Provides')
         'Bleah blarg\n Not a very interesting library.' == scan.getHeaderEntry('Description')
         'http://www.example.com/' == scan.getHeaderEntry('Homepage')
         'Superman' == scan.getHeaderEntry('Maintainer')
@@ -962,5 +961,30 @@ class DebPluginTest extends ProjectSpec {
         '1.0.0'              | '1.0.0'
         '1.0.0-rc.1'         | '1.0.0~rc.1'
         '1.0.0-dev.3+abc219' | '1.0.0~dev.3'
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/148")
+    def "Can specify multiple provides"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'nebula.deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'allows-multiple-provides'
+            provides 'someVirtualPackage'
+            provides 'someOtherVirtualPackage'
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        'someVirtualPackage, someOtherVirtualPackage' == scan.getHeaderEntry('Provides')
     }
 }

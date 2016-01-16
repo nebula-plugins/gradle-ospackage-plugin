@@ -74,6 +74,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         when:
         ProjectPackagingExtension ext = project.getConvention().getByType(ProjectPackagingExtension)
         ext.with {
+            provides project.name
             release = 3
             requires 'awesomesauce'
             url 'http://notawesome.com'
@@ -104,6 +105,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         '3' == Scanner.getHeaderEntryString(rpmScanner, RELEASE)
         Scanner.getHeaderEntryString(rpmScanner, REQUIRENAME).contains('awesomesauce')
         'i386' == Scanner.getHeaderEntryString(rpmScanner, ARCH)
+        'execute-both-tasks' == Scanner.getHeaderEntryString(rpmScanner, PROVIDENAME)
         ['./opt/bleah', './opt/bleah/apple'] == rpmScanner.files*.name
 
     }

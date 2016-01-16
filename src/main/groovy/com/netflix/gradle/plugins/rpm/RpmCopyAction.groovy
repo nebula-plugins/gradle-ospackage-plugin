@@ -66,7 +66,6 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         builder.setDistribution task.distribution
         builder.setVendor task.vendor
         builder.setUrl task.url
-        builder.setProvides task.provides
         if (task.allPrefixes) {
             builder.setPrefixes(task.allPrefixes as String[])
         }
@@ -144,6 +143,11 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     @Override
     protected void addObsolete(Dependency dep) {
         builder.addObsoletes(dep.packageName, dep.flag, dep.version)
+    }
+
+    @Override
+    protected void addProvides(Dependency dep) {
+        builder.addProvides(dep.packageName, dep.version, dep.flag)
     }
 
     @Override
