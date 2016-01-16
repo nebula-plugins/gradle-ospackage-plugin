@@ -5,8 +5,8 @@ Maintainer: ${maintainer}
 Uploaders: ${uploaders}
 Version: ${fullVersion}
 Standards-Version: 3.8.3
-Package: ${name}
-Provides: ${provides}
+Package: ${name}<% if (provides) { %>
+Provides: ${provides}<% } %>
 Homepage: ${url}
 Architecture: ${arch}
 Distribution: ${distribution}<% if (multiArch) { %>

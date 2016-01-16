@@ -180,14 +180,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     @Input @Optional
     List<Dependency> getAllProvides() {
-        Dependency thisPackage = new Dependency(getPackageName(), '', 0)
-        List<Dependency> provides = new ArrayList<Dependency>()
-        provides.add(thisPackage)
-        provides += getProvides()
         if (parentExten) {
-            provides += parentExten.getProvides()
+            return parentExten.getProvides() + getProvides()
+        } else {
+            return getProvides()
         }
-        return provides.unique()
     }
 
     @Input @Optional

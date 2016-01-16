@@ -1105,4 +1105,27 @@ class RpmPluginTest extends ProjectSpec {
         '1.0.0-rc.1'         | '1.0.0~rc.1'
         '1.0.0-dev.3+abc219' | '1.0.0~dev.3'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/148")
+    def 'handles multiple provides'() {
+        given:
+        project.apply plugin: 'nebula.rpm'
+        project.version = '1.0'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+            packageName = 'providesTest'
+            provides 'foo'
+            provides 'bar'
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/providesTest-1.0.noarch.rpm'))
+        def provides = Scanner.getHeaderEntry(scan, PROVIDENAME)
+        ['foo', 'bar'].every { it in provides.values }
+    }
 }

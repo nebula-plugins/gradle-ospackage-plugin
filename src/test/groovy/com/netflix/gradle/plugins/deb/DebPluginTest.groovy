@@ -128,7 +128,6 @@ class DebPluginTest extends ProjectSpec {
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_amd64.deb'))
         'bleah' == scan.getHeaderEntry('Package')
         'blarg (>= 1.0), blech' ==  scan.getHeaderEntry('Depends')
-        'bleah' == scan.getHeaderEntry('Provides')
         'Bleah blarg\n Not a very interesting library.' == scan.getHeaderEntry('Description')
         'http://www.example.com/' == scan.getHeaderEntry('Homepage')
         'Superman' == scan.getHeaderEntry('Maintainer')
@@ -986,7 +985,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(debTask.archivePath)
-        def expectedHeader = "${debTask.packageName}, someVirtualPackage, someOtherVirtualPackage" as String
-        expectedHeader == scan.getHeaderEntry('Provides')
+        'someVirtualPackage, someOtherVirtualPackage' == scan.getHeaderEntry('Provides')
     }
 }
