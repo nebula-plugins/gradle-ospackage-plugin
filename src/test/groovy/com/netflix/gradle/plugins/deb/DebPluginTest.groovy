@@ -963,4 +963,30 @@ class DebPluginTest extends ProjectSpec {
         '1.0.0-rc.1'         | '1.0.0~rc.1'
         '1.0.0-dev.3+abc219' | '1.0.0~dev.3'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/148")
+    def "Can specify multiple provides"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'nebula.deb'
+        project.version = '1.0'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'allows-multiple-provides'
+            provides 'someVirtualPackage'
+            provides 'someOtherVirtualPackage'
+        })
+        debTask.from(srcDir)
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def expectedHeader = "${debTask.packageName}, someVirtualPackage, someOtherVirtualPackage" as String
+        expectedHeader == scan.getHeaderEntry('Provides')
+    }
 }
