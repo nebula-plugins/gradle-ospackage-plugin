@@ -1,6 +1,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
+import org.gradle.api.tasks.InputFile
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
@@ -29,6 +30,16 @@ class SystemPackagingExtension {
 
     @Input @Optional
     Integer epoch
+
+    // Package signing data
+    @Input @Optional
+    String signingKeyId
+
+    @Input @Optional
+    String signingKeyPassphrase
+
+    @InputFile @Optional
+    File signingKeyRingFile
 
     // Metadata, some are probably specific to a type
     @Input @Optional

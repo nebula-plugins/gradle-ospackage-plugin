@@ -67,6 +67,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
         mapping.map('version', { sanitizeVersion(parentExten?.getVersion()?:project.getVersion().toString()) })
         mapping.map('epoch', { parentExten?.getEpoch()?:0 })
+        mapping.map('signingKeyId', { parentExten?.getSigningKeyId()?:'' })
+        mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase()?:'' })
+        mapping.map('signingKeyRingFile', {
+            parentExten?.getSigningKeyRingFile()?:new File(System.getProperty('user.home').toString(), '.gnupg/secring.gpg')
+        })
         mapping.map('user', { parentExten?.getUser()?:getPackager() })
         mapping.map('maintainer', { parentExten?.getMaintainer()?:getPackager() })
         mapping.map('uploaders', { parentExten?.getUploaders()?:getPackager() })

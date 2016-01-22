@@ -21,6 +21,7 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
+import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.redline_rpm.Builder
@@ -68,6 +69,13 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         builder.setUrl task.url
         if (task.allPrefixes) {
             builder.setPrefixes(task.allPrefixes as String[])
+        }
+        if (StringUtils.isNotBlank(task.getSigningKeyId())
+                && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
+                && task.getSigningKeyRingFile().exists()) {
+            builder.setPrivateKeyId task.getSigningKeyId()
+            builder.setPrivateKeyPassphrase task.getSigningKeyPassphrase()
+            builder.setPrivateKeyRingFile task.getSigningKeyRingFile()
         }
 
         String sourcePackage = task.sourcePackage
