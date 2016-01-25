@@ -1,3 +1,10 @@
+3.4.0 / 2015-01-25
+------------------
+
+* Added directory capability for debs via https://github.com/bi-
+* Added signing for debs via [Damian Johnson](https://github.com/dmnjohns)
+* move to gradle 2.10
+
 3.3.0 / 2015-01-18
 ------------------
 * Make `provides` accept multiple values
