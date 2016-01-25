@@ -13,11 +13,13 @@ public class Scanner {
     static final String CONTROL_GZ_FILE = 'control.tar.gz'
     static final String CONTROL_FILE = './control'
     static final String DATA_FILE = 'data.tar.gz'
+    static final String SIGNATURE_FILE = '_gpgorigin'
 
     File debFile
     Map<String, String> controlContents
     Map<TarArchiveEntry, File> dataContents
     Map<String, String> headerFields
+    boolean signed = false
 
     /**
      *
@@ -83,6 +85,8 @@ public class Scanner {
                 controlContents = extractContents(debInputStream)
             } else if(entry.name == DATA_FILE) {
                 dataContents = extractFiles(debInputStream, outputDir)
+            } else if(entry.name == SIGNATURE_FILE) {
+                signed = true
             }
         }
         debInputStream.close();

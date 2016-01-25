@@ -765,6 +765,48 @@ class DebPluginTest extends ProjectSpec {
         scan.getHeaderEntry('Version') == '1:42.1.0'
     }
 
+    def 'Does not include signature file if signing is not fully configured'() {
+        given:
+        project.apply plugin: 'nebula.deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'my-package'
+            version = '1.0.0'
+            signingKeyPassphrase = 'os-package'
+            signingKeyRingFile = new File(getClass().getClassLoader().getResource('pgp-test-key/secring.gpg').toURI())
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        !scan.getSigned()
+    }
+
+    def 'Includes signature file'() {
+        given:
+        project.apply plugin: 'nebula.deb'
+
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'my-package'
+            version = '1.0.0'
+            signingKeyId = '92D555F5'
+            signingKeyPassphrase = 'os-package'
+            signingKeyRingFile = new File(getClass().getClassLoader().getResource('pgp-test-key/secring.gpg').toURI())
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        // Note: This test currently verifies the existence of a signature, but not the validity.
+        //       To verify the validity will require more intensive inspection of the DEB package, a mechanism
+        //       for which can hopefully be added to jDeb.
+        def scan = new Scanner(debTask.archivePath)
+        scan.getSigned()
+    }
+
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
     @Unroll
     def "Translates package description '#description' to header entry"() {

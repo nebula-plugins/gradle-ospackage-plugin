@@ -29,6 +29,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
+import org.redline_rpm.header.Signature
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
@@ -896,6 +897,58 @@ class RpmPluginTest extends ProjectSpec {
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/has-epoch-1.0-1.i386.rpm'))
         2 == Scanner.getHeaderEntry(scan, EPOCH).values[0]
+    }
+
+    def 'Does not include signature header if signing is not fully configured'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+
+        project.apply plugin: 'nebula.rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.format.signature.getEntry(Signature.SignatureTag.LEGACY_PGP) == null
+    }
+
+    def 'Does include signature header'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+
+        project.apply plugin: 'nebula.rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            signingKeyId = '92D555F5'
+            signingKeyPassphrase = 'os-package'
+            signingKeyRingFile = new File(getClass().getClassLoader().getResource('pgp-test-key/secring.gpg').toURI())
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        scan.format.signature.getEntry(Signature.SignatureTag.LEGACY_PGP) != null
     }
 
     /**

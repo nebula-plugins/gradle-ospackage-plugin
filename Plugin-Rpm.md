@@ -46,6 +46,9 @@ be set, which are specific to RPMs. Quite of them have defaults which fall back 
 * _distribution_
 * _vendor_
 * _url_
+* _signingKeyId_
+* _signingKeyPassphrase_
+* _signingKeyRingFile_
 * _sourcePackage_
 * _provides_
 * _fileType [org.freecompany.redline.payload.Directive]_ - Default for types, e.g. CONFIG, DOC, NOREPLACE, LICENSE

@@ -264,12 +264,21 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         File contextFile = templateHelper.generateFile("control", context)
         maker.setControl(contextFile.parentFile)
         maker.setDeb(debFile)
+        if (StringUtils.isNotBlank(task.getSigningKeyId())
+                && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
+                && task.getSigningKeyRingFile().exists()) {
+            maker.setKey(task.getSigningKeyId())
+            maker.setPassphrase(task.getSigningKeyPassphrase())
+            maker.setKeyring(task.getSigningKeyRingFile())
+            maker.setSignPackage(true)
+        }
 
         logger.info("Creating debian package: ${debFile}")
 
         try {
             logger.info("Creating debian package: ${debFile}")
-            maker.createDeb(Compression.GZIP)
+            maker.setCompression(Compression.GZIP.toString())
+            maker.makeDeb()
         } catch (Exception e) {
             throw new GradleException("Can't build debian package ${debFile}", e)
         }
