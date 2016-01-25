@@ -16,8 +16,21 @@ Gradle requires that plugins be added to the classpath as part of the classpath.
 
 ```groovy
 plugins {
-  id "nebula.ospackage" version "3.3.0"
+  id 'nebula.ospackage' version '3.4.0'
 }
+```
+
+For older versions of gradle
+
+```groovy
+buildscript {
+  repositories { jcenter() }
+  dependencies {
+    classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.4.0'
+  }
+}
+
+apply plugin: 'nebula.ospackage'
 ```
 
 # Gradle RPM plugin
@@ -169,3 +182,39 @@ buildRpm {
     }
 
 ```
+
+Gradle Compatibility Tested
+---------------------------
+
+Built with Oracle JDK7
+Tested with Oracle JDK8
+
+| Gradle Version | Works |
+| :------------: | :---: |
+| 2.2.1          | yes   |
+| 2.3            | yes   |
+| 2.4            | yes   |
+| 2.5            | yes   |
+| 2.6            | yes   |
+| 2.7            | yes   |
+| 2.8            | yes   |
+| 2.9            | yes   |
+| 2.10           | yes   |
+
+LICENSE
+=======
+
+Copyright 2014-2016 Netflix, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+<http://www.apache.org/licenses/LICENSE-2.0>
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
