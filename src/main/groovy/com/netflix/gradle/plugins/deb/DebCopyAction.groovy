@@ -29,6 +29,7 @@ import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.vafer.jdeb.Compression
 import org.vafer.jdeb.Console
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.DebMaker
@@ -276,6 +277,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
         try {
             logger.info("Creating debian package: ${debFile}")
+            maker.setCompression(Compression.GZIP.toString())
             maker.makeDeb()
         } catch (Exception e) {
             throw new GradleException("Can't build debian package ${debFile}", e)
