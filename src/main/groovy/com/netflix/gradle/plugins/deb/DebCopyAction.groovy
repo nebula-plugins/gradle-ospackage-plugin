@@ -34,6 +34,9 @@ import org.vafer.jdeb.Console
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.DebMaker
 import org.vafer.jdeb.producers.DataProducerLink
+import org.vafer.jdeb.producers.DataProducerPathTemplate
+import org.vafer.jdeb.mapping.PermMapper
+import org.vafer.jdeb.mapping.Mapper
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 
@@ -179,7 +182,10 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
     @Override
     protected void addDirectory(Directory directory) {
-        logger.warn 'Directory functionality not implemented for deb files'
+        dataProducers << new DataProducerPathTemplate(
+            [directory.path] as String[], null, null, 
+            [ new PermMapper(-1, -1, task.user, task.permissionGroup, 
+            directory.permissions, -1, 0, null) ] as Mapper[])
     }
 
     protected String getMultiArch() {
