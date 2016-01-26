@@ -12,6 +12,9 @@ before_install:
   -in gradle.properties.enc -out gradle.properties -d || true
 after_success:
 - "./gradlew jacocoTestReport coveralls"
+after_failure:
+- "git status"
+- "ls -al"
 notifications:
   webhooks:
     urls:
