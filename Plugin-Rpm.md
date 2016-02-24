@@ -143,6 +143,8 @@ corresponding methods can be called multiple times, and the contents will be app
 * _postInstall_
 * _preUninstall_
 * _postUninstall_
+* _preTrans_
+* _postTrans_
 * _installUtils_ - Scripts which are prefixed to all the other scripts.
 
 # Aliases
@@ -177,6 +179,8 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         postInstall file('scripts/rpm/postInstall.sh')
         preUninstall file('scripts/rpm/preUninstall.sh')
         postUninstall file('scripts/rpm/postUninstall.sh')
+        preTrans file('scripts/rpm/preTrans.sh')
+        postTrans file('scripts/rpm/postTrans.sh')
 
         requires('bar', '2.2', GREATER | EQUAL)
         requires('baz', '1.0.1', LESS)
