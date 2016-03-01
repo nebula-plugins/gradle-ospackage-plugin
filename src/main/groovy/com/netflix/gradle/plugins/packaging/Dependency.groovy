@@ -16,8 +16,10 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.EqualsAndHashCode
 import org.redline_rpm.header.Flags
 
+@EqualsAndHashCode
 class Dependency implements Serializable {
     private static final long serialVersionUID = 5707700441069141432L;
 

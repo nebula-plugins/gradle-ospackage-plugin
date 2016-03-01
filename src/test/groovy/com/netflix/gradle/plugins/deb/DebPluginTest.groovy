@@ -1050,4 +1050,16 @@ class DebPluginTest extends ProjectSpec {
         emptydir.groupName == 'testgroup'
         emptydir.mode == 0750
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/161")
+    def 'equal task dependencies are equal'() {
+        expect:
+        def taskA = project.task('buildDebA', type: Deb) {
+            requires('test')
+        }
+        def taskB = project.task('buildDebB', type: Deb) {
+            requires('test')
+        }
+        taskA.getAllDependencies() == taskB.getAllDependencies()
+    }
 }
