@@ -1181,4 +1181,39 @@ class RpmPluginTest extends ProjectSpec {
         def provides = Scanner.getHeaderEntry(scan, PROVIDENAME)
         ['foo', 'bar'].every { it in provides.values }
     }
+
+    def 'Add preTrans and postTrans scripts'() {
+        given:
+        File prescript = new File(projectDir, 'prescript')
+        File postscript = new File(projectDir, 'postscript')
+        FileUtils.writeStringToFile(prescript, 'MyPreTransScript')
+        FileUtils.writeStringToFile(postscript, 'MyPostTransScript')
+
+        Project project = ProjectBuilder.builder().build()
+
+        project.apply plugin: 'nebula.rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            preTrans prescript
+            postTrans postscript
+        })
+
+        when:
+        project.tasks.buildRpm.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        def PRE_TRANS_HEADER_INDEX = 1151
+        def POST_TRANS_HEADER_INDEX = 1152
+        scan.format.header.entries[PRE_TRANS_HEADER_INDEX].values[0].contains('MyPreTransScript')
+        scan.format.header.entries[POST_TRANS_HEADER_INDEX].values[0].contains('MyPostTransScript')
+    }
 }
