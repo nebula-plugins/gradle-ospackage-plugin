@@ -159,6 +159,11 @@ class SystemPackagingExtension {
 
     final List<Object> postUninstallCommands = []
 
+    // RPM specific
+    final List<Object> preTransCommands = []
+
+    final List<Object> postTransCommands = []
+
     final List<Object> commonCommands = []
 
     /**
@@ -262,6 +267,42 @@ class SystemPackagingExtension {
 
     def postUninstall(File script) {
         postUninstallCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setPreTrans(File script) {
+        preTrans(script)
+    }
+
+    def preTrans(String script) {
+        preTransCommands << script
+        return this
+    }
+
+    def preTrans(File script) {
+        preTransCommands << script
+        return this
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setPostTrans(File script) {
+        postTrans(script)
+    }
+
+    def postTrans(String script) {
+        postTransCommands << script
+        return this
+    }
+
+    def postTrans(File script) {
+        postTransCommands << script
         return this
     }
 
