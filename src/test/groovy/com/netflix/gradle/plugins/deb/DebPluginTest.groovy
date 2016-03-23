@@ -1062,4 +1062,27 @@ class DebPluginTest extends ProjectSpec {
         }
         taskA.getAllDependencies() == taskB.getAllDependencies()
     }
+
+    @Issue("")
+    def 'special characters in directory names'() {
+        given:
+        File nodeModules = new File(projectDir, 'node_modules')
+        File file = new File(nodeModules, "memoizee/node_modules/es5-ext/string/#/at.js")
+        Files.createParentDirs(file)
+        file.text = "dummy"
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            user 'test'
+            permissionGroup 'testgroup'
+            from(projectDir)
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def entry = scan.getEntry('./node_modules/memoizee/node_modules/es5-ext/string/#/at.js')
+        entry.isFile()
+    }
 }
