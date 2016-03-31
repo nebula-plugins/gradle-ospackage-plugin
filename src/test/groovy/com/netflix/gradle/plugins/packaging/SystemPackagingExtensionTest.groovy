@@ -20,6 +20,21 @@ class SystemPackagingExtensionTest extends Specification {
         dep.flag == 0
     }
 
+    def "Can define required package name with version and without flag"(){
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.requires(packageName, '1.0.0')
+
+        then:
+        extension.dependencies.size() == 1
+        Dependency dep = extension.dependencies[0]
+        dep.packageName == packageName
+        dep.version == '1.0.0'
+        dep.flag == 0
+    }
+
     def "Can define required package name with version and flag"() {
         given:
         String packageName = 'myPackage'
