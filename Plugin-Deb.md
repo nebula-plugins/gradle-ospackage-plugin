@@ -82,8 +82,14 @@ link(String symLinkPath, String targetPath, int permissions)
 Required packages are specified via the required method:
 
 ```
-requires(String packageName, String version)
+requires(String packageName)
 ```
+or
+```
+requires(String packageName, String version, int flag) 
+```
+
+For information about possible flags, see [Dependency.groovy](https://github.com/nebula-plugins/gradle-ospackage-plugin/blob/master/src/main/groovy/com/netflix/gradle/plugins/packaging/Dependency.groovy#L37).
 
 # Other Relationships
 
