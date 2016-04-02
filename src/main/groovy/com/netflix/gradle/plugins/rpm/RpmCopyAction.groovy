@@ -89,6 +89,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
         builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
         builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
+        builder.setPreTransScript(scriptWithUtils(task.allCommonCommands, task.allPreTransCommands))
+        builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
+
 
         rpmFileVisitorStrategy = new RpmFileVisitorStrategy(builder)
     }
