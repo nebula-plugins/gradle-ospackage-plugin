@@ -86,6 +86,10 @@ requires(String packageName)
 ```
 or
 ```
+requires(String packageName, String version)
+```
+or
+```
 requires(String packageName, String version, int flag) 
 ```
 
