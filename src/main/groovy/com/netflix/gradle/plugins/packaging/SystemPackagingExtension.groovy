@@ -132,7 +132,7 @@ class SystemPackagingExtension {
 
     @Input @Optional
     String uploaders
-    
+
     @Input @Optional
     String priority
 
@@ -297,6 +297,10 @@ class SystemPackagingExtension {
         def dep = new Dependency(packageName, version, flag)
         dependencies.add(dep)
         dep
+    }
+
+    Dependency requires(String packageName, String version){
+        requires(packageName, version, 0)
     }
 
     Dependency requires(String packageName) {
