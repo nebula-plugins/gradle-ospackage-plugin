@@ -187,7 +187,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Input @Optional
     def getAllPrefixes() {
         if(parentExten) {
-            return getPrefixes() + parentExten.getPrefixes()
+            return (getPrefixes() + parentExten.getPrefixes()).unique()
         } else {
             return getPrefixes()
         }
