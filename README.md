@@ -16,7 +16,7 @@ Gradle requires that plugins be added to the classpath as part of the classpath.
 
 ```groovy
 plugins {
-  id 'nebula.ospackage' version '3.4.0'
+  id 'nebula.ospackage' version '3.5.0'
 }
 ```
 
@@ -26,7 +26,7 @@ For older versions of gradle
 buildscript {
   repositories { jcenter() }
   dependencies {
-    classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.4.0'
+    classpath 'com.netflix.nebula:gradle-ospackage-plugin:3.5.0'
   }
 }
 

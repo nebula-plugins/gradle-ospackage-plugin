@@ -1,9 +1,16 @@
+3.5.0 / 2015-04-15
+------------------
+
+* Added missing required() method (contribution by @wallner)
+* Added preTrans and postTrans for RPM packages (contribution by @dwendelen)
+* Update to Gradle 2.12
+
 3.4.0 / 2015-01-25
 ------------------
 
-* Added directory capability for debs via https://github.com/bi-
-* Added signing for debs via [Damian Johnson](https://github.com/dmnjohns)
-* move to gradle 2.10
+* Added directory capability for debs (contribution by @bi-)
+* Added signing for debs (contribution by @dmnjohns)
+* Update to gradle 2.10
 
 3.3.0 / 2015-01-18
 ------------------
