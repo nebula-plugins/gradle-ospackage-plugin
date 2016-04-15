@@ -144,6 +144,16 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Input @Optional
+    List<Object> getAllPreTransCommands() {
+        return getPreTransCommands() + parentExten?.getPreTransCommands()
+    }
+
+    @Input @Optional
+    List<Object> getAllPostTransCommands() {
+        return getPostTransCommands() + parentExten?.getPostTransCommands()
+    }
+
+    @Input @Optional
     List<Object> getAllCommonCommands() {
         return getCommonCommands() + parentExten?.getCommonCommands()
     }
