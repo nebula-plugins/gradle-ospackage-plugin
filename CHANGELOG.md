@@ -1,18 +1,18 @@
-3.5.0 / 2015-04-15
+3.5.0 / 2016-04-15
 ------------------
 
 * Added missing required() method (contribution by @wallner)
 * Added preTrans and postTrans for RPM packages (contribution by @dwendelen)
 * Update to Gradle 2.12
 
-3.4.0 / 2015-01-25
+3.4.0 / 2016-01-25
 ------------------
 
 * Added directory capability for debs (contribution by @bi-)
 * Added signing for debs (contribution by @dmnjohns)
 * Update to gradle 2.10
 
-3.3.0 / 2015-01-18
+3.3.0 / 2016-01-18
 ------------------
 * Make `provides` accept multiple values
 
