@@ -18,20 +18,8 @@
 buildscript { repositories { jcenter() } } // Some plugin dependencies (namely JFrog) are not in Maven Central
 
 plugins {
-    id 'groovy'
-    id 'idea'
-    id 'jacoco'
-    id 'nebula.info' version '3.0.3'
-    id 'nebula.contacts' version '3.0.1'
-    id 'nebula.maven-publish' version '4.4.4'
-    id 'nebula.nebula-release' version '3.1.2'
-    id 'nebula.nebula-bintray' version '3.1.0'
-    id 'com.gradle.plugin-publish' version '0.9.3'
-    id 'nebula.javadoc-jar' version '4.4.4'
-    id 'nebula.source-jar' version '4.4.4'
-    id 'nebula.test-jar' version '4.4.4'
-    id 'nebula.maven-apache-license' version '4.4.4'
-    id 'com.github.kt3k.coveralls' version '2.4.0'
+    id 'com.gradle.plugin-publish' version '0.9.1'
+    id 'nebula.plugin-plugin' version '4.0.0'
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -50,8 +38,6 @@ contacts {
         github 'rspieldenner'
     }
 }
-
-apply from: 'https://raw.githubusercontent.com/nebula-plugins/nebula-core/b676bbc026d0053494b5439ba8ef147c16adabba/common.gradle'
 
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.1'
