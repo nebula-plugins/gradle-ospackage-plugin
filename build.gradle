@@ -64,7 +64,7 @@ tasks.withType(Javadoc) {
 }
 
 test {
-    maxHeapSize = '700m'
+    maxHeapSize = '384m'
 }
 
 pluginBundle {
