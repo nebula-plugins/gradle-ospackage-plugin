@@ -76,11 +76,32 @@ pluginBundle {
             tags = ['nebula', 'rpm', 'centos', 'deb', 'debian']
         }
 
+        ospackageApplication {
+            id = 'nebula.ospackage-application'
+            displayName = 'Nebula OS Package Application Plugin'
+            description = 'Packages output of application plugin into a debian or rpm'
+            tags = ['nebula', 'os', 'package', 'rpm', 'deb', 'application']
+        }
+
+        ospackageApplicationDaemon {
+            id = 'nebula.ospackage-application-daemon'
+            displayName = 'Nebula OS Package Application Daemon Plugin'
+            description = 'Creates daemontools setup to run output from application plugin'
+            tags = ['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'daemon']
+        }
+
         ospackageBase {
             id = 'nebula.ospackage-base'
             displayName = 'Nebula OS Package Base'
             description = 'Setup base publishing for OS packages'
             tags = ['nebula', 'rpm', 'centos', 'deb', 'debian']
+        }
+
+        ospackageDaemon {
+            id = 'nebula.ospackage-daemon'
+            displayName = 'Nebula OS Package Daemon Plugin'
+            description = 'Create daemontools runner'
+            tags = ['nebula', 'os', 'package', 'rpm', 'deb', 'daemon']
         }
 
         ospackageDocker {
