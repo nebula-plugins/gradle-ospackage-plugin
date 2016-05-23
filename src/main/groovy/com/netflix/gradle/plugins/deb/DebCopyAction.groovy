@@ -15,12 +15,14 @@
  */
 
 package com.netflix.gradle.plugins.deb
+
 import com.netflix.gradle.plugins.deb.control.MultiArch
 import com.netflix.gradle.plugins.deb.validation.DebTaskPropertiesValidator
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
+import com.netflix.gradle.plugins.utils.ApacheCommonsFileSystemActions
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
@@ -33,13 +35,12 @@ import org.vafer.jdeb.Compression
 import org.vafer.jdeb.Console
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.DebMaker
+import org.vafer.jdeb.mapping.Mapper
+import org.vafer.jdeb.mapping.PermMapper
 import org.vafer.jdeb.producers.DataProducerLink
 import org.vafer.jdeb.producers.DataProducerPathTemplate
-import org.vafer.jdeb.mapping.PermMapper
-import org.vafer.jdeb.mapping.Mapper
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
-
 /**
  * Forked and modified from org.jamel.pkg4j.gradle.tasks.BuildDebTask
  */
@@ -58,9 +59,9 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     List<String> provides
     List<DataProducer> dataProducers
     List<InstallDir> installDirs
-    TemplateHelper templateHelper
     private final DebTaskPropertiesValidator debTaskPropertiesValidator = new DebTaskPropertiesValidator()
     private DebFileVisitorStrategy debFileVisitorStrategy
+    private final MaintainerScriptsGenerator maintainerScriptsGenerator
 
     DebCopyAction(Deb debTask) {
         super(debTask)
@@ -77,8 +78,8 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         installDirs = []
         provides = []
         debianDir = new File(task.project.buildDir, "debian")
-        templateHelper = new TemplateHelper(debianDir, '/deb')
         debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
+        maintainerScriptsGenerator = new MaintainerScriptsGenerator(debTask, new TemplateHelper(debianDir, '/deb'), debianDir, new ApacheCommonsFileSystemActions())
     }
 
     @Canonical
@@ -237,29 +238,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
             addReplaces(replaces)
         }
 
-        File debFile = task.getArchivePath()
-
-        def context = toContext()
-        List<File> debianFiles = new ArrayList<File>();
-
-        debianFiles << templateHelper.generateFile("control", context)
-
-        def configurationFiles = task.allConfigurationFiles
-        if (configurationFiles.any()) {
-            debianFiles << templateHelper.generateFile("conffiles", [files: configurationFiles] )
-        }
-
-        def installUtils = task.allCommonCommands.collect { stripShebang(it) }
-        def preInstall = installUtils + task.allPreInstallCommands.collect { stripShebang(it) }
-        def postInstall = installUtils + task.allPostInstallCommands.collect { stripShebang(it) }
-        def preUninstall = installUtils + task.allPreUninstallCommands.collect { stripShebang(it) }
-        def postUninstall = installUtils + task.allPostUninstallCommands.collect { stripShebang(it) }
-
-        def addlFiles = [preinst: preInstall, postinst: postInstall, prerm: preUninstall, postrm:postUninstall]
-                .collect {
-                    templateHelper.generateFile(it.key, context + [commands: it.value] )
-                }
-        debianFiles.addAll(addlFiles)
+        maintainerScriptsGenerator.generate(toContext())
 
         task.allSupplementaryControlFiles.each { supControl ->
             File supControlFile = supControl instanceof File ? supControl : task.project.file(supControl)
@@ -267,8 +246,8 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         }
 
         DebMaker maker = new DebMaker(new GradleLoggerConsole(), dataProducers, null)
-        File contextFile = templateHelper.generateFile("control", context)
-        maker.setControl(contextFile.parentFile)
+        File debFile = task.getArchivePath()
+        maker.setControl(debianDir)
         maker.setDeb(debFile)
         if (StringUtils.isNotBlank(task.getSigningKeyId())
                 && StringUtils.isNotBlank(task.getSigningKeyPassphrase())

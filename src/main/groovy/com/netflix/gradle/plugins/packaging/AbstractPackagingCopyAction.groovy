@@ -138,24 +138,6 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         result.toString()
     }
 
-    /**
-     * Works with nulls, Strings and Files.
-     *
-     * @param script
-     * @return
-     */
-    String stripShebang(Object script) {
-        StringBuilder result = new StringBuilder();
-        script?.eachLine { line ->
-            if (!line.matches('^#!.*$')) {
-                result.append line
-                result.append "\n"
-            }
-        }
-        result.toString()
-
-    }
-
     CopySpecInternal extractSpec(FileCopyDetailsInternal fileDetails) {
         if (fileDetails instanceof DefaultFileCopyDetails) {
             def startingClass = fileDetails.getClass() // It's in there somewhere
