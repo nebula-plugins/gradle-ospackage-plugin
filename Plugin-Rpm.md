@@ -216,7 +216,7 @@ The following attributes can be used inside _from_ and _into_ closures to comple
         from('endorsed') {
             // Will tell redline-rpm not to auto create directories, which
             // is sometimes necessary to avoid rpm directory conflicts
-            addParentDirs false
+            addParentDirs = false
             into '/usr/share/tomcat/endorsed'
         }
 
