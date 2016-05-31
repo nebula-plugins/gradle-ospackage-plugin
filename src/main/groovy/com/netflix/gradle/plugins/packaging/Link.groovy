@@ -16,6 +16,9 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
 class Link implements Serializable {
     String path
     String target
