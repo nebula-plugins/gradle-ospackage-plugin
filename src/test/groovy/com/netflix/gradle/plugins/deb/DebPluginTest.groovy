@@ -1063,6 +1063,22 @@ class DebPluginTest extends ProjectSpec {
         taskA.getAllDependencies() == taskB.getAllDependencies()
     }
 
+    def 'add alternative dependencies' () {
+        given:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            requires('depA', '1.0').or('depB', '2.0', Flags.GREATER | Flags.EQUAL)
+            requires('depC', '3.0').or('depD')
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        'depA (1.0) | depB (>= 2.0), depC (3.0) | depD' ==  scan.getHeaderEntry('Depends')
+    }
+
     @Issue("")
     def 'special characters in directory names'() {
         given:
