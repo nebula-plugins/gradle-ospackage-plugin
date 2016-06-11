@@ -31,13 +31,13 @@ class MaintainerScriptsGenerator {
                 new MaintainerScript("postrm", task.postUninstallFile, task.allPostUninstallCommands)
         ]
         def installUtils = task.allCommonCommands.collect { stripShebang(it) }
-        scripts.forEach({ script ->
+        for (script in scripts) {
             if(script.file) {
                 fileSystem.copy(script.file, new File(destination, script.name))
             } else {
                 templateHelper.generateFile(script.name, context + [commands: installUtils + script.commands.collect { stripShebang(it) }])
             }
-        })
+        }
     }
 
     /**
