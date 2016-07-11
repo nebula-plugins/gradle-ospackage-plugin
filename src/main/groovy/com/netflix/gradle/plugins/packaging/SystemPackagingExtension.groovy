@@ -18,6 +18,15 @@ import org.gradle.api.tasks.Optional
  */
 
 class SystemPackagingExtension {
+    static final IllegalStateException MULTIPLE_PREINSTALL_FILES = multipleFilesDefined('PreInstall')
+    static final IllegalStateException MULTIPLE_POSTINSTALL_FILES = multipleFilesDefined('PostInstall')
+    static final IllegalStateException MULTIPLE_PREUNINSTALL_FILES = multipleFilesDefined('PreUninstall')
+    static final IllegalStateException MULTIPLE_POSTUNINSTALL_FILES = multipleFilesDefined('PostUninstall')
+    static final IllegalStateException PREINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PreInstall')
+    static final IllegalStateException POSTINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostInstall')
+    static final IllegalStateException PREUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PreUninstall')
+    static final IllegalStateException POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostUninstall')
+
     // File name components
     @Input @Optional
     String packageName
@@ -149,6 +158,11 @@ class SystemPackagingExtension {
 
     // Scripts
 
+    File preInstallFile
+    File postInstallFile
+    File preUninstallFile
+    File postUninstallFile
+
     final List<Object> configurationFiles = []
 
     final List<Object> preInstallCommands = []
@@ -206,13 +220,21 @@ class SystemPackagingExtension {
     }
 
     def preInstall(String script) {
+        if(preInstallFile) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
         preInstallCommands << script
         return this
     }
 
     def preInstall(File script) {
+        if(preInstallFile) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
         preInstallCommands << script
         return this
+    }
+
+    def preInstallFile(File path) {
+        if(preInstallFile) { throw MULTIPLE_PREINSTALL_FILES }
+        if(preInstallCommands) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
+        preInstallFile = path
     }
 
     /**
@@ -224,15 +246,22 @@ class SystemPackagingExtension {
     }
 
     def postInstall(String script) {
+        if(postInstallFile) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
         postInstallCommands << script
         return this
     }
 
     def postInstall(File script) {
+        if(postInstallFile) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
         postInstallCommands << script
         return this
     }
 
+    def postInstallFile(File path) {
+        if(postInstallFile) { throw MULTIPLE_POSTINSTALL_FILES }
+        if(postInstallCommands) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
+        postInstallFile = path
+    }
 
     /**
      * For backwards compatibility
@@ -243,13 +272,21 @@ class SystemPackagingExtension {
     }
 
     def preUninstall(String script) {
+        if(preUninstallFile) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         preUninstallCommands << script
         return this
     }
 
     def preUninstall(File script) {
+        if(preUninstallFile) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         preUninstallCommands << script
         return this
+    }
+
+    def preUninstallFile(File script) {
+        if(preUninstallFile) { throw MULTIPLE_PREUNINSTALL_FILES }
+        if(preUninstallCommands) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        preUninstallFile = script
     }
 
     /**
@@ -261,13 +298,21 @@ class SystemPackagingExtension {
     }
 
     def postUninstall(String script) {
+        if(postUninstallFile) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         postUninstallCommands << script
         return this
     }
 
     def postUninstall(File script) {
+        if(postUninstallFile) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         postUninstallCommands << script
         return this
+    }
+
+    def postUninstallFile(File script) {
+        if(postUninstallFile) { throw MULTIPLE_POSTUNINSTALL_FILES }
+        if(postUninstallCommands) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        postUninstallFile = script
     }
 
     /**
@@ -466,4 +511,11 @@ class SystemPackagingExtension {
         return this
     }
 
+    private static IllegalStateException multipleFilesDefined(String fileName) {
+        new IllegalStateException("Cannot specify more than one $fileName File")
+    }
+
+    private static IllegalStateException conflictingDefinitions(String type) {
+        new IllegalStateException("Cannot specify $type File and $type Commands")
+    }
 }
