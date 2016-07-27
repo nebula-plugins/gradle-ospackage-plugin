@@ -158,9 +158,13 @@ class SystemPackagingExtension {
 
     // Scripts
 
+    @Input @Optional
     File preInstallFile
+    @Input @Optional
     File postInstallFile
+    @Input @Optional
     File preUninstallFile
+    @Input @Optional
     File postUninstallFile
 
     final List<Object> configurationFiles = []
