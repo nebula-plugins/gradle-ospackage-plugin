@@ -1,3 +1,22 @@
+3.7.0 / 2016-08-03
+------------------
+
+* Allow defining complete maintainer scripts for debians
+
+3.6.1 / 2016-06-01
+------------------
+
+* Publish a test jar
+
+3.6.0 / 2016-05-31
+------------------
+
+* nebula-ospackage-plugin plugins have been migrated to this plugin
+* Support for dependency alternatives (contributed by @mxwell)
+* Link class now works correctly as a task input, avoiding UP-TO-DATE when stale issues 
+  (contributed by @simplivity)
+* Minor fix to RPM documentation (contributed by @ahadas)
+
 3.5.0 / 2016-04-15
 ------------------
 
