@@ -251,32 +251,6 @@ class RpmPluginTest extends ProjectSpec {
         scannerApple.asString() == '/usr/local/myproduct/apple'
     }
 
-    def 'buildHost_shouldHaveASensibleDefault'() {
-        setup:
-        InetAddress mockInetAddress = Mock()
-        mockInetAddress.hostName >> { throw new UnknownHostException() }
-
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        when:
-        project.apply plugin: 'rpm'
-
-        Rpm rpmTask = (Rpm) project.task([type: Rpm], 'buildRpm', {})
-        SystemPackagingTask.machineAddress = mockInetAddress
-
-        then:
-        'unknown' == rpmTask.getBuildHost()
-
-        when:
-        rpmTask.execute()
-
-        then:
-        noExceptionThrown()
-
-    }
-
     def 'usesArchivesBaseName'() {
 
         // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
