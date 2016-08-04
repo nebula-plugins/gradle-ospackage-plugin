@@ -5,10 +5,10 @@ import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.rpm.Scanner
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-import org.freecompany.redline.header.Architecture
-import org.freecompany.redline.header.Os
+import org.redline_rpm.header.Architecture
+import org.redline_rpm.header.Os
 
-import static org.freecompany.redline.header.Header.HeaderTag.*
+import static org.redline_rpm.header.Header.HeaderTag.*
 
 class SystemPackagingBasePluginTest extends ProjectSpec {
     def 'callExtensionDynamically'() {

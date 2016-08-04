@@ -21,9 +21,9 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.filevisitor.RpmFileVisitorStrategyFactory
-import org.freecompany.redline.Builder
-import org.freecompany.redline.header.Header.HeaderTag
-import org.freecompany.redline.payload.Directive
+import org.redline_rpm.Builder
+import org.redline_rpm.header.Header.HeaderTag
+import org.redline_rpm.payload.Directive
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.slf4j.Logger
@@ -51,7 +51,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction {
         assert rpmTask.getVersion() != null, "RPM requires a version string"
 
         builder = new Builder()
-        builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release
+        builder.setPackage rpmTask.packageName, rpmTask.version, rpmTask.release, rpmTask.epoch
         builder.setType rpmTask.type
         builder.setPlatform rpmTask.arch, rpmTask.os
         builder.setGroup rpmTask.packageGroup

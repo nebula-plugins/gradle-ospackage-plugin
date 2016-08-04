@@ -33,9 +33,9 @@ import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 
-import static org.freecompany.redline.header.Flags.*
-import static org.freecompany.redline.header.Header.HeaderTag.*
-import static org.freecompany.redline.payload.CpioHeader.*
+import static org.redline_rpm.header.Flags.*
+import static org.redline_rpm.header.Header.HeaderTag.*
+import static org.redline_rpm.payload.CpioHeader.*
 
 class RpmPluginTest extends ProjectSpec {
     def 'files'() {
@@ -96,6 +96,7 @@ class RpmPluginTest extends ProjectSpec {
         'bleah' == Scanner.getHeaderEntryString(scan, NAME)
         '1.0' == Scanner.getHeaderEntryString(scan, VERSION)
         '1' == Scanner.getHeaderEntryString(scan, RELEASE)
+        0 == Scanner.getHeaderEntry(scan, EPOCH).values[0]
         'i386' == Scanner.getHeaderEntryString(scan, ARCH)
         'linux' == Scanner.getHeaderEntryString(scan, OS)
         ['./a/path/not/to/create/alone', './opt/bleah',
@@ -886,6 +887,38 @@ class RpmPluginTest extends ProjectSpec {
         scan.files*.name == ['./using/the/dsl']
         scan.files*.type == [DIR]
         scan.format.header.getEntry(FILEGROUPNAME).values.toList() == ['test']
+    }
+
+    def 'has epoch value'() {
+        given:
+        Project project = ProjectBuilder.builder().build()
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
+
+        project.apply plugin: 'rpm'
+
+        def rpmTask = project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'has-epoch'
+            version = '1.0'
+            release = '1'
+            epoch = 2
+            arch = I386
+            os = LINUX
+
+            into '/opt/bleah'
+            from (srcDir)
+        })
+
+        when:
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/has-epoch-1.0-1.i386.rpm'))
+        2 == Scanner.getHeaderEntry(scan, EPOCH).values[0]
     }
 
     /**

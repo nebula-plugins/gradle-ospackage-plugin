@@ -25,7 +25,7 @@ import com.netflix.gradle.plugins.packaging.Link
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
-import org.freecompany.redline.header.Flags
+import org.redline_rpm.header.Flags
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal

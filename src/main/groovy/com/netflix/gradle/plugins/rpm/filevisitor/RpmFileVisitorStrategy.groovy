@@ -1,6 +1,6 @@
 package com.netflix.gradle.plugins.rpm.filevisitor
 
-import org.freecompany.redline.payload.Directive
+import org.redline_rpm.payload.Directive
 import org.gradle.api.file.FileCopyDetails
 
 interface RpmFileVisitorStrategy {

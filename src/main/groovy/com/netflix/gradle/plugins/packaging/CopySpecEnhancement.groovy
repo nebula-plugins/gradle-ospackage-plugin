@@ -1,7 +1,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import org.apache.commons.lang3.reflect.FieldUtils
-import org.freecompany.redline.payload.Directive
+import org.redline_rpm.payload.Directive
 import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.file.copy.CopySpecWrapper
 
