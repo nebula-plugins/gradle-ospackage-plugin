@@ -153,6 +153,6 @@ class OspackageDaemonPluginSpec extends PluginProjectSpec {
         initd.exists()
         File logrun = new File(projectDir, 'build/daemon/Foobar/buildDeb/log-run')
         !logrun.text.contains("null")
-        logrun.text.contains("chown nobody:nobody ./main")
+        logrun.text.contains("chown nobody ./main")
     }
 }
