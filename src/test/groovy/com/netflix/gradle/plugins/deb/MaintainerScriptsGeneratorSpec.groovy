@@ -32,7 +32,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         0 * templateHelper.generateFile('preinst', _ as Map<String, Object>)
     }
 
-    def 'call templateHelper when no preInstallFile defined'() {
+    def 'do not generate preinst when no preInstall and preInstallFile defined'() {
         given:
         Deb task = project.task([type: Deb], 'buildDeb', {
             preInstallFile = null
@@ -44,7 +44,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
 
         then:
         0 * fileSystemActions.copy(_ as File, _ as File)
-        1 * templateHelper.generateFile('preinst', _ as Map<String, Object>)
+        0 * templateHelper.generateFile('preinst', _ as Map<String, Object>)
     }
 
     def 'does not call templateHelper if postInstallFile defined'() {
@@ -64,7 +64,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         0 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
     }
 
-    def 'call templateHelper when no postInstallFile defined'() {
+    def 'do not generate postinst when when no postInstall and postInstallFile defined'() {
         given:
         Deb task = project.task([type: Deb], 'buildDeb', {
             postInstallFile = null
@@ -76,7 +76,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
 
         then:
         0 * fileSystemActions.copy(_ as File, _ as File)
-        1 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
+        0 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
     }
 
     def 'does not call templateHelper if preUninstallFile defined'() {
@@ -96,7 +96,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         0 * templateHelper.generateFile('prerm', _ as Map<String, Object>)
     }
 
-    def 'call templateHelper when no preUninstallFile defined'() {
+    def 'do not generate prerm when no preUninstall and preUninstallFile defined'() {
         given:
         Deb task = project.task([type: Deb], 'buildDeb', {
             preUninstallFile = null
@@ -108,7 +108,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
 
         then:
         0 * fileSystemActions.copy(_ as File, _ as File)
-        1 * templateHelper.generateFile('prerm', _ as Map<String, Object>)
+        0 * templateHelper.generateFile('prerm', _ as Map<String, Object>)
     }
 
     def 'does not call templateHelper if postUninstallFile defined'() {
@@ -128,7 +128,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         0 * templateHelper.generateFile('postrm', _ as Map<String, Object>)
     }
 
-    def 'call templateHelper when no postUninstallFile defined'() {
+    def 'do not generate postrm when no postUninstall and postUninstallFile defined'() {
         given:
         Deb task = project.task([type: Deb], 'buildDeb', {
             postUninstallFile = null
@@ -140,6 +140,6 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
 
         then:
         0 * fileSystemActions.copy(_ as File, _ as File)
-        1 * templateHelper.generateFile('postrm', _ as Map<String, Object>)
+        0 * templateHelper.generateFile('postrm', _ as Map<String, Object>)
     }
 }

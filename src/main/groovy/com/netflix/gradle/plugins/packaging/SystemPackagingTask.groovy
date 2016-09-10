@@ -125,22 +125,22 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     @Input @Optional
     List<Object> getAllPreInstallCommands() {
-        return getPreInstallCommands() + parentExten?.getPreInstallCommands()
+        return getPreInstallCommands() + (parentExten?.getPreInstallCommands() ?: [])
     }
 
     @Input @Optional
     List<Object> getAllPostInstallCommands() {
-        return getPostInstallCommands() + parentExten?.getPostInstallCommands()
+        return getPostInstallCommands() + (parentExten?.getPostInstallCommands() ?: [])
     }
 
     @Input @Optional
     List<Object> getAllPreUninstallCommands() {
-        return getPreUninstallCommands() + parentExten?.getPreUninstallCommands()
+        return getPreUninstallCommands() + (parentExten?.getPreUninstallCommands() ?: [])
     }
 
     @Input @Optional
     List<Object> getAllPostUninstallCommands() {
-        return getPostUninstallCommands() + parentExten?.getPostUninstallCommands()
+        return getPostUninstallCommands() + (parentExten?.getPostUninstallCommands() ?: [])
     }
 
     @Input @Optional
