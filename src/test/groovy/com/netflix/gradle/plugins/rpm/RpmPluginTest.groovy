@@ -192,6 +192,19 @@ class RpmPluginTest extends ProjectSpec {
         then:
         noExceptionThrown()
     }
+	
+	def 'file handle closed'() {
+
+		when:
+		project.apply plugin: 'nebula.rpm'
+		project.task([type: Rpm], 'buildRpm', {})
+		project.tasks.buildRpm.execute()
+		// see https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/200#issuecomment-244666158
+		// if file is not closed this will fail 
+		project.tasks.clean.execute()
+		then:
+		noExceptionThrown()
+	}
 
     def 'category_on_spec'() {
         project.version = '1.0.0'
