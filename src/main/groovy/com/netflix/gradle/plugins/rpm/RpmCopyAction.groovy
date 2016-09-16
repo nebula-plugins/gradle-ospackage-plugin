@@ -167,7 +167,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     @Override
     protected void addDirectory(Directory directory) {
-	def user = directory.user ? directory.user : task.user
+        def user = directory.user ? directory.user : task.user
         def permissionGroup = directory.permissionGroup ? directory.permissionGroup : task.permissionGroup
         builder.addDirectory(directory.path, directory.permissions, null, user, permissionGroup, directory.addParents)
     }
