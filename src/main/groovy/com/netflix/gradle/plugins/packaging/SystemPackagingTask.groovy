@@ -92,6 +92,11 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry()?:false })
         mapping.map('priority', { parentExten?.getPriority()?:'optional' })
 
+        mapping.map('preInstallFile', { parentExten?.getPreInstallFile() })
+        mapping.map('postInstallFile', { parentExten?.getPostInstallFile() })
+        mapping.map('preUninstallFile', { parentExten?.getPreUninstallFile() })
+        mapping.map('postUninstallFile', { parentExten?.getPostUninstallFile() })
+
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
     }
