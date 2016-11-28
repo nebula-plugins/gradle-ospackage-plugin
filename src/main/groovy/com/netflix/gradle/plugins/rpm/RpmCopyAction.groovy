@@ -96,6 +96,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         builder.setPreTransScript(scriptWithUtils(task.allCommonCommands, task.allPreTransCommands))
         builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
 
+		if (((Rpm) task).changeLogFile != null){
+			builder.addChangelogFile(((Rpm) task).changeLogFile)
+		}
 
         rpmFileVisitorStrategy = new RpmFileVisitorStrategy(builder)
     }

@@ -19,6 +19,7 @@ package com.netflix.gradle.plugins.rpm
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
@@ -27,6 +28,8 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
 class Rpm extends SystemPackagingTask {
+	@InputFile @Optional
+	File changeLogFile
     Rpm() {
         super()
         extension = 'rpm'
@@ -75,4 +78,12 @@ class Rpm extends SystemPackagingTask {
     List<String> getPrefixes() {
         exten.prefixes
     }
+
+	public File getChangeLogFile() {
+		return changeLogFile;
+	}
+
+	public void setChangeLogFile(File changeLogFile) {
+		this.changeLogFile = changeLogFile;
+	}
 }
