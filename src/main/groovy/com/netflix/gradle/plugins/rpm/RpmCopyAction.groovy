@@ -134,7 +134,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
         if (createDirectoryEntry) {
             logger.debug 'adding directory {}', dirDetails.relativePath.pathString
-            int dirMode = lookup(specToLookAt, 'fileMode') ?: dirDetails.mode
+            int dirMode = lookup(specToLookAt, 'dirMode') ?: dirDetails.mode
             Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: task.fileType
             String user = lookup(specToLookAt, 'user') ?: task.user
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
