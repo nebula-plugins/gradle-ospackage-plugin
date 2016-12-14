@@ -115,7 +115,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
         int fileMode = lookup(specToLookAt, 'fileMode') ?: fileDetails.mode
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        boolean addParentsDir = specAddParentsDir ?: task.addParentDirs
+        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : task.addParentDirs
 
         rpmFileVisitorStrategy.addFile(fileDetails, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
@@ -128,9 +128,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         }
         // Have to take booleans specially, since they would fail an elvis operator if set to false
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
-        boolean createDirectoryEntry = specCreateDirectoryEntry ?: task.createDirectoryEntry
+        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : task.createDirectoryEntry
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        boolean addParentsDir = specAddParentsDir ?: task.addParentDirs
+        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : task.addParentDirs
 
         if (createDirectoryEntry) {
             logger.debug 'adding directory {}', dirDetails.relativePath.pathString

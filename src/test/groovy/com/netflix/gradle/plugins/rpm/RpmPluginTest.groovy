@@ -107,6 +107,11 @@ class RpmPluginTest extends ProjectSpec {
                 path.startsWith(fileName)
             }
         }
+        scan.files*.name.every { fileName ->
+            ['./a/path/not/to/create'].every { path ->
+                ! path.startsWith(fileName)
+            }
+        }
     }
 
     def 'obsoletesAndConflicts'() {
