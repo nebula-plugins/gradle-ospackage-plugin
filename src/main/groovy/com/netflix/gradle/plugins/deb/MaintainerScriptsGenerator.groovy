@@ -34,7 +34,7 @@ class MaintainerScriptsGenerator {
         for (script in scripts) {
             if(script.file) {
                 fileSystem.copy(script.file, new File(destination, script.name))
-            } else {
+            } else if (script.commands) {
                 templateHelper.generateFile(script.name, context + [commands: installUtils + script.commands.collect { stripShebang(it) }])
             }
         }

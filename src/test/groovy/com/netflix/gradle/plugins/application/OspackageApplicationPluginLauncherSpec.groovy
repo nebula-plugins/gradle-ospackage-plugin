@@ -39,9 +39,7 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
             scan.getEntry(".${it}").isFile()
         }
 
-        scan.controlContents.containsKey('./postinst')
-        scan.controlContents['./postinst'] =~ /configure\)\s+;;/ // No commands
-
+        !scan.controlContents.containsKey('./postinst')
     }
 
     def 'can customize destination'() {
