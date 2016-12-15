@@ -495,8 +495,32 @@ class SystemPackagingExtension {
         directory
     }
 
+    Directory directory(String path, boolean addParents) {
+        Directory directory = new Directory(path: path, addParents: addParents)
+        directories << directory
+        directory
+    }
+
     Directory directory(String path, int permissions) {
         Directory directory = new Directory(path: path, permissions: permissions)
+        directories << directory
+        directory
+    }
+
+    Directory directory(String path, int permissions, boolean addParents) {
+        Directory directory = new Directory(path: path, permissions: permissions, addParents: addParents)
+        directories << directory
+        directory
+    }
+
+    Directory directory(String path, int permissions, String user, String permissionGroup) {
+        Directory directory = new Directory(path: path, permissions: permissions, user: user, permissionGroup: permissionGroup)
+        directories << directory
+        directory
+    }
+
+    Directory directory(String path, int permissions, String user, String permissionGroup, boolean addParents) {
+        Directory directory = new Directory(path: path, permissions: permissions, user: user, permissionGroup: permissionGroup, addParents: addParents)
         directories << directory
         directory
     }
