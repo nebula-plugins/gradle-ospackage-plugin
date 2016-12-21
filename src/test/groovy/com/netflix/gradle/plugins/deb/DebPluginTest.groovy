@@ -492,8 +492,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foreign' == scan.getHeaderEntry('Multi-Arch')
     }
@@ -544,8 +542,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Conflicts')
     }
@@ -572,8 +568,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Recommends')
     }
@@ -600,8 +594,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Suggests')
     }
@@ -628,8 +620,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Enhances')
     }
@@ -656,8 +646,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Pre-Depends')
     }
@@ -684,8 +672,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Breaks')
     }
@@ -712,8 +698,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Replaces')
     }
@@ -980,8 +964,6 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         File debFile = debTask.getArchivePath()
-        def ant = new AntBuilder()
-        ant.copy(file: debTask.getArchivePath(), toFile: '/tmp/foo.deb')
         def scan = new Scanner(debFile)
         'someVal' == scan.getHeaderEntry('SomeKey')
         'bar' == scan.getHeaderEntry('Foo')
