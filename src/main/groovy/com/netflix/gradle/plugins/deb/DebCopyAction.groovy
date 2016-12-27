@@ -62,6 +62,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     private final DebTaskPropertiesValidator debTaskPropertiesValidator = new DebTaskPropertiesValidator()
     private DebFileVisitorStrategy debFileVisitorStrategy
     private final MaintainerScriptsGenerator maintainerScriptsGenerator
+    private final InstallLineGenerator installLineGenerator
 
     DebCopyAction(Deb debTask) {
         super(debTask)
@@ -80,6 +81,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         debianDir = new File(task.project.buildDir, "debian")
         debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
         maintainerScriptsGenerator = new MaintainerScriptsGenerator(debTask, new TemplateHelper(debianDir, '/deb'), debianDir, new ApacheCommonsFileSystemActions())
+        installLineGenerator = new InstallLineGenerator()
     }
 
     @Canonical
@@ -325,17 +327,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
                 customFields: getCustomFields(),
 
                 // Uses install command for directory
-                dirs: installDirs.collect { InstallDir dir ->
-                    def map = [name: dir.name]
-                    if(dir.user) {
-                        if (dir.group) {
-                            map['owner'] = "${dir.user}:${dir.group}"
-                        } else {
-                            map['owner'] = dir.user
-                        }
-                    }
-                    return map
-                }
+                dirs: installDirs.collect { InstallDir dir -> [install: installLineGenerator.generate(dir)] }
         ]
     }
 
