@@ -23,6 +23,7 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
 
 class Deb extends SystemPackagingTask {
     Deb() {
@@ -97,5 +98,10 @@ class Deb extends SystemPackagingTask {
     @Input @Optional
     Map<String, String> getAllCustomFields() {
         return getCustomFields() + (parentExten?.getCustomFields() ?: [:])
+    }
+
+    @OutputFile
+    File getChangesFile() {
+        return new File(getArchivePath().path.replaceFirst('deb$', 'changes'))
     }
 }
