@@ -29,6 +29,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
+import org.redline_rpm.header.Header
 import org.redline_rpm.header.Signature
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
@@ -1118,7 +1119,6 @@ class RpmPluginTest extends ProjectSpec {
         null                    | ''
     }
 
-    @Ignore
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/102")
     def "Can set user and group for packaged files"() {
         given:
@@ -1145,10 +1145,50 @@ class RpmPluginTest extends ProjectSpec {
         rpmTask.execute()
 
         then:
-        Scanner.ScannerResult scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm'))
-        Scanner.ScannerFile appleFile = scan.files.find { it.name == './apple' }
-        appleFile.uname == 'me'
-        appleFile.gname == 'awesome'
+        Header header = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm')).format.header
+        ['awesome'] == header.getEntry(FILEGROUPNAME).values.toList()
+        ['me'] == header.getEntry(FILEUSERNAME).values.toList()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/102")
+    def "Can set multiple users and groups for packaged files"() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        File scriptDir = new File(projectDir, 'script')
+        srcDir.mkdirs()
+        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple', "UTF-8")
+        FileUtils.writeStringToFile(new File(scriptDir, 'orange'), 'orange', "UTF-8")
+        FileUtils.writeStringToFile(new File(scriptDir, 'banana'), 'banana', "UTF-8")
+
+        project.apply plugin: 'nebula.rpm'
+
+        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            version = '1.0'
+            packageName = 'bleah'
+
+            user 'defaultUser'
+            permissionGroup 'defaultGroup'
+
+            from(srcDir) {
+                user 'me'
+                permissionGroup 'awesome'
+            }
+
+            from(scriptDir) {
+                into '/etc'
+            }
+        }
+
+        when:
+        rpmTask.execute()
+
+        then:
+        Header header = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm')).format.header
+        ['awesome', 'defaultGroup', 'defaultGroup'] == header.getEntry(FILEGROUPNAME).values.toList()
+        ['me', 'defaultUser', 'defaultUser'] == header.getEntry(FILEUSERNAME).values.toList()
     }
 
     @Ignore
