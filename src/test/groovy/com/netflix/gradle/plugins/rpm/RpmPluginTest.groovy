@@ -102,6 +102,7 @@ class RpmPluginTest extends ProjectSpec {
         0 == Scanner.getHeaderEntry(scan, EPOCH).values[0]
         'i386' == Scanner.getHeaderEntryString(scan, ARCH)
         'linux' == Scanner.getHeaderEntryString(scan, OS)
+        ['SuperSystem'] == Scanner.getHeaderEntry(scan, DISTRIBUTION).values
         scan.files*.name.every { fileName ->
             ['./a/path/not/to/create/alone', './opt/bleah',
              './opt/bleah/apple', './opt/bleah/banana'].any { path ->
@@ -160,6 +161,7 @@ class RpmPluginTest extends ProjectSpec {
         def conflicts = Scanner.getHeaderEntry(scan, CONFLICTNAME)
         def conflictVersions = Scanner.getHeaderEntry(scan, CONFLICTVERSION)
         def conflictComparisons = Scanner.getHeaderEntry(scan, CONFLICTFLAGS)
+        def distribution = Scanner.getHeaderEntry(scan, DISTRIBUTION)
 
         'blarg' == obsoletes.values[0]
         '1.0' == obsoleteVersions.values[0]
@@ -176,6 +178,8 @@ class RpmPluginTest extends ProjectSpec {
         'packageB' == obsoletes.values[1]
         '2.2' == obsoleteVersions.values[1]
         GREATER == obsoleteComparisons.values[1]
+
+        ['SuperSystem'] == distribution.values
     }
 
 
