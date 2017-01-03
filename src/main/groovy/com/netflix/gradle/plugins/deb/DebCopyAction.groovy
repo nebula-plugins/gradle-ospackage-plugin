@@ -258,8 +258,6 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
             maker.setSignPackage(true)
         }
 
-        logger.info("Creating debian package: ${debFile}")
-
         try {
             logger.info("Creating debian package: ${debFile}")
             maker.setCompression(Compression.GZIP.toString())
@@ -267,10 +265,6 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         } catch (Exception e) {
             throw new GradleException("Can't build debian package ${debFile}", e)
         }
-
-        // TODO Put changes file into a separate task
-        //def changesFile = new File("${packagePath}_all.changes")
-        //createChanges(pkg, changesFile, descriptor, processor)
 
         logger.info 'Created deb {}', debFile
     }

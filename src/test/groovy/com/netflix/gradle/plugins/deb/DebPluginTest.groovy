@@ -50,6 +50,21 @@ class DebPluginTest extends ProjectSpec {
         debFile.exists()
     }
 
+    def 'outputs declared'() {
+        when:
+        project.apply plugin: 'nebula.deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName 'testpkg'
+            version '1.0.0'
+            release '1'
+        })
+
+        then:
+        Set<String> declaredOutputs = debTask.outputs.files.collect { it.name }
+        ['testpkg_1.0.0-1_all.deb', 'testpkg_1.0.0-1_all.changes'].toSet() == declaredOutputs
+    }
+
 //    public void alwaysRun(DefaultTask task ) {
 //        assertTrue(this instanceof GroovyObject)
 //        assertTrue(task.inputs instanceof GroovyObject)
