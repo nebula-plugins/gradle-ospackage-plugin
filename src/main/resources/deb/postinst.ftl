@@ -8,11 +8,7 @@ ec() {
 case "\$1" in
     configure)
         <% dirs.each{ dir -> %>
-        <% if (dir['owner']) { %>
-            ec install -o <%= dir['owner'] %> -d <%= dir['name'] %>
-        <% } else { %>
-            ec install -d <%= dir['name'] %>
-        <% } %>
+            ec <%= dir['install'] %>
         <% } %>
 
         <% commands.each {command -> %>

@@ -33,7 +33,8 @@ class TemplateHelperSpec extends Specification {
         url: 'URL',
         depends: '',
         arch: 'Arch',
-        dirs: 'dirs',
+        dirs: [],
+        commands: [],
         multiArch: '',
         conflicts: '',
         recommends: '',
@@ -64,5 +65,18 @@ class TemplateHelperSpec extends Specification {
         resultFile.exists()
         resultFile.text.contains('Depends: Depends1')
         resultFile.text.contains('Multi-Arch: MultiArch1')
+    }
+
+    def 'produces install line for directories'() {
+        given:
+        def context = defaultContext + [dirs: [
+                [install: 'install -d no-user-or-group-specified']
+        ]]
+
+        when:
+        def resultFile = helper.generateFile('postinst', context)
+
+        then:
+        resultFile.text.contains('ec install -d no-user-or-group-specified')
     }
 }
