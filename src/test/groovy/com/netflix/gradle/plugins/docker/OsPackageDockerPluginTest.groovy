@@ -2,8 +2,6 @@ package com.netflix.gradle.plugins.docker
 
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 
 class OsPackageDockerPluginTest extends ProjectSpec {
 

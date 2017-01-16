@@ -36,6 +36,8 @@ import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
 
+import java.nio.file.Path
+
 import static org.redline_rpm.header.Flags.*
 import static org.redline_rpm.header.Header.HeaderTag.*
 import static org.redline_rpm.payload.CpioHeader.*
@@ -1277,5 +1279,51 @@ class RpmPluginTest extends ProjectSpec {
         def POST_TRANS_HEADER_INDEX = 1152
         scan.format.header.entries[PRE_TRANS_HEADER_INDEX].values[0].contains('MyPreTransScript')
         scan.format.header.entries[POST_TRANS_HEADER_INDEX].values[0].contains('MyPostTransScript')
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
+    def 'preserve symlinks without closure'() {
+        given:
+        Path target = JavaNIOUtils.createTempFile("file-to-symlink-to", "sh")
+        File file = project.file('bin/my-symlink')
+        Files.createParentDirs(file)
+        JavaNIOUtils.createSymblicLink(file, target.toFile())
+
+        when:
+        project.apply plugin: 'nebula.rpm'
+
+        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
+            from 'bin'
+        })
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(rpmTask.getArchivePath())
+        def symlink = scan.files.find { it.name == 'my-symlink' }
+        symlink.header.type == SYMLINK
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
+    def 'preserve symlinks with closure'() {
+        given:
+        Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
+        File file = project.file('bin/my-symlink')
+        Files.createParentDirs(file)
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target)
+
+        when:
+        project.apply plugin: 'nebula.rpm'
+
+        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
+            from('bin') {
+                into 'lib'
+            }
+        })
+        rpmTask.execute()
+
+        then:
+        def scan = Scanner.scan(rpmTask.getArchivePath())
+        def symlink = scan.files.find { it.name == 'lib/my-symlink' }
+        symlink.header.type == SYMLINK
     }
 }

@@ -16,10 +16,17 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import com.netflix.gradle.plugins.utils.FromConfigurationFactory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.AbstractCopyTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.SkipWhenEmpty
+import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.redline_rpm.header.Architecture
 
@@ -233,9 +240,18 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
+    AbstractCopyTask from(Object... sourcePaths) {
+        for (Object sourcePath : sourcePaths) {
+            from(sourcePath, {})
+        }
+        return this
+    }
+
+    @Override
     public AbstractCopyTask from(Object sourcePath, Closure c) {
+        def preserveSymlinks = FromConfigurationFactory.preserveSymlinks(this)
         use(CopySpecEnhancement) {
-            getMainSpec().from(sourcePath, c);
+            getMainSpec().from(sourcePath, c << preserveSymlinks)
         }
         return this
     }

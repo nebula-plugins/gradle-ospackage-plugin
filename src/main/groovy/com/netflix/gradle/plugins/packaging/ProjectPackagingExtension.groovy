@@ -1,8 +1,15 @@
 package com.netflix.gradle.plugins.packaging
 
+import com.netflix.gradle.plugins.utils.FromConfigurationFactory
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.file.*
+import org.gradle.api.file.CopyProcessingSpec
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.FileCopyDetails
+import org.gradle.api.file.FileTree
+import org.gradle.api.file.FileTreeElement
+import org.gradle.api.file.RelativePath
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopySpecInternal
 import org.gradle.api.internal.file.copy.DefaultCopySpec
@@ -37,9 +44,18 @@ public class ProjectPackagingExtension extends SystemPackagingExtension {
      * Special Use cases that involve Closure's which we want to wrap:
      */
     CopySpec from(Object sourcePath, Closure c) {
+        def preserveSymlinks = FromConfigurationFactory.preserveSymlinks(this)
         use(CopySpecEnhancement) {
-            return getDelegateCopySpec().from(sourcePath, c);
+            return getDelegateCopySpec().from(sourcePath, c << preserveSymlinks)
         }
+    }
+
+    CopySpec from(Object... sourcePaths) {
+        def spec = null
+        for (Object sourcePath : sourcePaths) {
+            spec = from(sourcePath, {})
+        }
+        return spec
     }
 
     CopySpec into(Object destPath, Closure configureClosure) {
@@ -132,10 +148,6 @@ public class ProjectPackagingExtension extends SystemPackagingExtension {
 
     public CopySpec with(CopySpec... sourceSpecs) {
         return getDelegateCopySpec().with(sourceSpecs);
-    }
-
-    public CopySourceSpec from(Object... sourcePaths) {
-        return getDelegateCopySpec().from(sourcePaths);
     }
 
 //    public CopySpec from(Object sourcePath, Closure c) {

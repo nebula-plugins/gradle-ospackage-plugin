@@ -25,4 +25,8 @@ final class JavaNIOUtils {
         Path targetDir = createPath(target.path)
         Files.createSymbolicLink(newLink, targetDir)
     }
+
+    static Path createTempFile(String prefix, String suffix) {
+        return Files.createTempFile(prefix, suffix)
+    }
 }
