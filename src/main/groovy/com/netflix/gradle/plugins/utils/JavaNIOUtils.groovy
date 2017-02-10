@@ -20,9 +20,13 @@ final class JavaNIOUtils {
         Files.readSymbolicLink(path)
     }
 
-    static void createSymblicLink(File source, File target) {
+    static void createSymbolicLink(File source, File target) {
         Path newLink = createPath(source.path)
         Path targetDir = createPath(target.path)
         Files.createSymbolicLink(newLink, targetDir)
+    }
+
+    static Path createTempFile(String prefix, String suffix) {
+        return Files.createTempFile(prefix, suffix)
     }
 }

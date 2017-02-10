@@ -26,6 +26,8 @@ import org.redline_rpm.header.Flags
 import spock.lang.Issue
 import spock.lang.Unroll
 
+import java.nio.file.Path
+
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
         project.version = 1.0
@@ -1137,5 +1139,50 @@ class DebPluginTest extends ProjectSpec {
         def scan = new Scanner(debTask.archivePath)
         def entry = scan.getEntry('./node_modules/memoizee/node_modules/es5-ext/string/#/at.js')
         entry.isFile()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
+    def 'preserve symlinks without closure'() {
+        given:
+        Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
+        File file = project.file('bin/my-symlink')
+        Files.createParentDirs(file)
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target)
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from 'bin'
+        })
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./my-symlink')
+        packagedSymlink.isSymbolicLink()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
+    def 'preserve symlinks with closure'() {
+        given:
+        Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
+        File file = project.file('bin/my-symlink')
+        Files.createParentDirs(file)
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target)
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from('bin') {
+                into '/lib'
+            }
+        })
+        debTask.execute()
+
+        then:
+        println(debTask.archivePath)
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./lib/my-symlink')
+        packagedSymlink.isSymbolicLink()
     }
 }
