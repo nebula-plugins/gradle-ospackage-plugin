@@ -996,7 +996,7 @@ class RpmPluginTest extends ProjectSpec {
         File fooDir = new File(binDir, 'foo-1.2')
         binDir.mkdirs()
         FileUtils.writeStringToFile(new File(fooDir, 'foo.txt'), 'foo')
-        JavaNIOUtils.createSymblicLink(new File(binDir, 'foo'), fooDir)
+        JavaNIOUtils.createSymbolicLink(new File(binDir, 'foo'), fooDir)
 
         when:
         project.apply plugin: 'nebula.rpm'
@@ -1287,7 +1287,7 @@ class RpmPluginTest extends ProjectSpec {
         Path target = JavaNIOUtils.createTempFile("file-to-symlink-to", "sh")
         File file = project.file('bin/my-symlink')
         Files.createParentDirs(file)
-        JavaNIOUtils.createSymblicLink(file, target.toFile())
+        JavaNIOUtils.createSymbolicLink(file, target.toFile())
 
         when:
         project.apply plugin: 'nebula.rpm'
