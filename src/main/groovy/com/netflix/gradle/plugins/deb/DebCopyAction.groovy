@@ -185,9 +185,11 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
     @Override
     protected void addDirectory(Directory directory) {
+        def user = directory.user ? directory.user : task.user
+        def permissionGroup = directory.permissionGroup ? directory.permissionGroup : task.permissionGroup
         dataProducers << new DataProducerPathTemplate(
             [directory.path] as String[], null, null, 
-            [ new PermMapper(-1, -1, task.user, task.permissionGroup, 
+            [ new PermMapper(-1, -1, user, permissionGroup,
             directory.permissions, -1, 0, null) ] as Mapper[])
     }
 

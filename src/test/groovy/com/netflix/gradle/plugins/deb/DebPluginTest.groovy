@@ -1090,6 +1090,26 @@ class DebPluginTest extends ProjectSpec {
         emptydir.mode == 0750
     }
 
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/231")
+    def 'directory construct with owner and group'() {
+        given:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            user 'test'
+            permissionGroup 'testgroup'
+            directory("/var/log/customemptyfolder", 0750, 'myuser', 'mygroup')
+        }
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def emptydir = scan.getEntry('./var/log/customemptyfolder/')
+        emptydir.userName == 'myuser'
+        emptydir.groupName == 'mygroup'
+    }
+
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/161")
     def 'equal task dependencies are equal'() {
         expect:
