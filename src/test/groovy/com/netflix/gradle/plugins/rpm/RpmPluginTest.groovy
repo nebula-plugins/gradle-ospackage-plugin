@@ -31,7 +31,6 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.redline_rpm.header.Header
 import org.redline_rpm.header.Signature
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
@@ -1197,7 +1196,6 @@ class RpmPluginTest extends ProjectSpec {
         ['me', 'defaultUser', 'defaultUser'] == header.getEntry(FILEUSERNAME).values.toList()
     }
 
-    @Ignore
     @Unroll
     def 'handle semantic versions with dashes and metadata (+) expect #version to be #expected'() {
         given:
@@ -1213,7 +1211,7 @@ class RpmPluginTest extends ProjectSpec {
         project.tasks.buildRpm.execute()
 
         expect:
-        project.file("build/tmp/RpmPluginTest/semvertest_${expected}.noarch.rpm").exists()
+        project.file("build/tmp/RpmPluginTest/semvertest-${expected}.noarch.rpm").exists()
 
         where:
         version              | expected
