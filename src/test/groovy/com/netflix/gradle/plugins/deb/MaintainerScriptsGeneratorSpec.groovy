@@ -64,7 +64,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         0 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
     }
 
-    def 'do not generate postinst when when no postInstall and postInstallFile defined'() {
+    def 'do not generate postinst when no postInstall, postInstallFile, or dirs defined'() {
         given:
         Deb task = project.task([type: Deb], 'buildDeb', {
             postInstallFile = null
@@ -77,6 +77,22 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         then:
         0 * fileSystemActions.copy(_ as File, _ as File)
         0 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
+    }
+
+    def 'generate postinst when no postInstall or postInstallFile but dirs defined'() {
+        given:
+        Deb task = project.task([type: Deb], 'buildDeb', {
+            postInstallFile = null
+        }) as Deb
+        context['dirs'] = ['install abc...']
+        def generator = new MaintainerScriptsGenerator(task, templateHelper, new File('/tmp'), fileSystemActions)
+
+        when:
+        generator.generate(context)
+
+        then:
+        0 * fileSystemActions.copy(_ as File, _ as File)
+        1 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
     }
 
     def 'does not call templateHelper if preUninstallFile defined'() {

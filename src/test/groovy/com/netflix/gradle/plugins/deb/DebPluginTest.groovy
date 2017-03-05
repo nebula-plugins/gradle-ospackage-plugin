@@ -67,6 +67,32 @@ class DebPluginTest extends ProjectSpec {
         ['testpkg_1.0.0-1_all.deb', 'testpkg_1.0.0-1_all.changes'].toSet() == declaredOutputs
     }
 
+    def 'createDirectoryEntry generates postinst install line'() {
+        given:
+        String testDir = "${project.buildDir.path}/testdir"
+        File srcDir = new File(testDir, 'a')
+        srcDir.mkdirs()
+        project.apply plugin: 'nebula.deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName 'postinsttestdeb'
+            permissionGroup 'anothergroup'
+            from(testDir) {
+                into 'subdir'
+                createDirectoryEntry true
+            }
+        })
+
+        when:
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.getArchivePath())
+        def postinst = scan.controlContents['./postinst']
+        postinst.contains("ec install")
+        postinst.contains("/subdir/a")
+    }
+
 //    public void alwaysRun(DefaultTask task ) {
 //        assertTrue(this instanceof GroovyObject)
 //        assertTrue(task.inputs instanceof GroovyObject)
