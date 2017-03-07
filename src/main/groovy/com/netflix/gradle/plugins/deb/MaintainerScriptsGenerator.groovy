@@ -26,7 +26,7 @@ class MaintainerScriptsGenerator {
 
         def scripts = [
                 new MaintainerScript("preinst", task.preInstallFile, task.allPreInstallCommands),
-                new MaintainerScript("postinst", task.postInstallFile, task.allPostInstallCommands),
+                new PostInstScript(task.postInstallFile, task.allPostInstallCommands, context),
                 new MaintainerScript("prerm", task.preUninstallFile, task.allPreUninstallCommands),
                 new MaintainerScript("postrm", task.postUninstallFile, task.allPostUninstallCommands)
         ]
@@ -34,7 +34,7 @@ class MaintainerScriptsGenerator {
         for (script in scripts) {
             if(script.file) {
                 fileSystem.copy(script.file, new File(destination, script.name))
-            } else if (script.commands) {
+            } else if (script.needsTemplateGeneration()) {
                 templateHelper.generateFile(script.name, context + [commands: installUtils + script.commands.collect { stripShebang(it) }])
             }
         }
@@ -63,5 +63,23 @@ class MaintainerScriptsGenerator {
         String name
         File file
         List<Object> commands
+
+        boolean needsTemplateGeneration() {
+            return commands
+        }
+    }
+
+    private static class PostInstScript extends MaintainerScript {
+        Map<String, Object> context
+
+        PostInstScript(File file, List<Object> commands, Map<String, Object> context) {
+            super("postinst", file, commands)
+            this.context = context
+        }
+
+        @Override
+        boolean needsTemplateGeneration() {
+            return super.needsTemplateGeneration() || context['dirs']
+        }
     }
 }
