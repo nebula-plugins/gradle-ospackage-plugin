@@ -165,7 +165,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     
     @Input @Optional
     List<Object> getAllDebconfTemplatesCommands() {
-        return getDebconfTemplatesCommands() + (parentExten?.getDebconfTemplateCommands() ?: [])
+        return getDebconfTemplatesCommands() + (parentExten?.getDebconfTemplatesCommands() ?: [])
     }
 
     @Input @Optional
