@@ -22,10 +22,14 @@ class SystemPackagingExtension {
     static final IllegalStateException MULTIPLE_POSTINSTALL_FILES = multipleFilesDefined('PostInstall')
     static final IllegalStateException MULTIPLE_PREUNINSTALL_FILES = multipleFilesDefined('PreUninstall')
     static final IllegalStateException MULTIPLE_POSTUNINSTALL_FILES = multipleFilesDefined('PostUninstall')
+    static final IllegalStateException MULTIPLE_DEBCONFCONFIG_FILES = multipleFilesDefined('DebconfConfig')
+    static final IllegalStateException MULTIPLE_DEBCONFTEMPLATES_FILES = multipleFilesDefined('DebconfTemplates')
     static final IllegalStateException PREINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PreInstall')
     static final IllegalStateException POSTINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostInstall')
     static final IllegalStateException PREUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PreUninstall')
     static final IllegalStateException POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostUninstall')
+    static final IllegalStateException DEBCONFCONFIG_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('DebconfConfig')
+    static final IllegalStateException DEBCONFTEMPLATES_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('DebconfTemplates')
 
     // File name components
     @Input @Optional
@@ -166,6 +170,10 @@ class SystemPackagingExtension {
     File preUninstallFile
     @InputFile @Optional
     File postUninstallFile
+    @InputFile @Optional
+    File debconfConfigFile
+    @InputFile @Optional
+    File debconfTemplatesFile
 
     final List<Object> configurationFiles = []
 
@@ -176,6 +184,10 @@ class SystemPackagingExtension {
     final List<Object> preUninstallCommands = []
 
     final List<Object> postUninstallCommands = []
+    
+    final List<Object> debconfConfigCommands = []
+    
+    final List<Object> debconfTemplatesCommands = []
 
     // RPM specific
     final List<Object> preTransCommands = []
@@ -319,6 +331,58 @@ class SystemPackagingExtension {
         postUninstallFile = script
     }
 
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setDebconfConfig(File script) {
+        debconfConfig(script)
+    }
+
+    def debconfConfig(String script) {
+        if(debconfConfigFile) { throw DEBCONFCONFIG_COMMANDS_AND_FILE_DEFINED }
+        debconfConfigCommands << script
+        return this
+    }
+
+    def debconfConfig(File script) {
+        if(debconfConfigFile) { throw DEBCONFCONFIG_COMMANDS_AND_FILE_DEFINED }
+        debconfConfigCommands << script
+        return this
+    }
+
+    def debconfConfigFile(File script) {
+        if(debconfConfigFile) { throw MULTIPLE_DEBCONFCONFIG_FILES }
+        if(debconfConfigCommands) { throw DEBCONFCONFIG_COMMANDS_AND_FILE_DEFINED }
+        debconfConfigFile = script
+    }
+    
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setDebconfTemplates(File script) {
+        debconfTemplates(script)
+    }
+
+    def debconfTemplates(String script) {
+        if(debconfTemplatesFile) { throw DEBCONFTEMPLATES_COMMANDS_AND_FILE_DEFINED }
+        debconfTemplatesCommands << script
+        return this
+    }
+
+    def debconfTemplates(File script) {
+        if(debconfTemplatesFile) { throw DEBCONFTEMPLATES_COMMANDS_AND_FILE_DEFINED }
+        debconfTemplatesCommands << script
+        return this
+    }
+
+    def debconfTemplatesFile(File script) {
+        if(debconfTemplatesFile) { throw MULTIPLE_DEBCONFTEMPLATES_FILES }
+        if(debconfTemplatesCommands) { throw DEBCONFTEMPLATES_COMMANDS_AND_FILE_DEFINED }
+        debconfTemplatesFile = script
+    }
+        
     /**
      * For backwards compatibility
      * @param script

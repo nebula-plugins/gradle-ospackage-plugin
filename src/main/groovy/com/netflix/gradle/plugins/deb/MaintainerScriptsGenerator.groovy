@@ -38,6 +38,18 @@ class MaintainerScriptsGenerator {
                 templateHelper.generateFile(script.name, context + [commands: installUtils + script.commands.collect { stripShebang(it) }])
             }
         }
+        // The debconf configuration files don't include the installUtils scripts.
+        def debconfScripts = [
+                new MaintainerScript("config", task.debconfConfigFile, task.allDebconfConfigCommands),
+                new MaintainerScript("templates", task.debconfTemplatesFile, task.allDebconfTemplatesCommands)
+        ]
+        for (script in debconfScripts) {
+            if(script.file) {
+                fileSystem.copy(script.file, new File(destination, script.name))
+            } else if (script.needsTemplateGeneration()) {
+                templateHelper.generateFile(script.name, context + [commands: script.commands.collect { stripShebang(it) }])
+            }
+        }
     }
 
     /**
