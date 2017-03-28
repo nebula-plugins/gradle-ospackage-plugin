@@ -1,3 +1,2 @@
 <% commands.each {command -> %>
-<%= command %>
-<% } %>
+<%= command %><% } %>
