@@ -1,0 +1,300 @@
+{
+    "compile": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "compileClasspath": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "default": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "integTestCompile": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "integTestCompileClasspath": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "integTestRuntime": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "integTestRuntimeClasspath": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "jacocoAgent": {
+        "org.jacoco:org.jacoco.agent": {
+            "locked": "0.7.8"
+        }
+    },
+    "jacocoAnt": {
+        "org.jacoco:org.jacoco.ant": {
+            "locked": "0.7.8"
+        }
+    },
+    "runtime": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "runtimeClasspath": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "test": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "testCompile": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "testCompileClasspath": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "testRuntime": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    },
+    "testRuntimeClasspath": {
+        "com.bmuschko:gradle-docker-plugin": {
+            "locked": "3.0.1",
+            "requested": "3.0.1"
+        },
+        "com.netflix.nebula:nebula-test": {
+            "locked": "6.0.0",
+            "requested": "6.0.0"
+        },
+        "org.apache.commons:commons-lang3": {
+            "locked": "3.1",
+            "requested": "3.1"
+        },
+        "org.redline-rpm:redline": {
+            "locked": "1.2.5",
+            "requested": "1.2.5"
+        },
+        "org.vafer:jdeb": {
+            "locked": "1.4",
+            "requested": "1.4"
+        }
+    }
+}
