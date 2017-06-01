@@ -103,6 +103,9 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('postInstallFile', { parentExten?.getPostInstallFile() })
         mapping.map('preUninstallFile', { parentExten?.getPreUninstallFile() })
         mapping.map('postUninstallFile', { parentExten?.getPostUninstallFile() })
+        mapping.map('debconfConfigFile', { parentExten?.getDebconfConfigFile() })
+        mapping.map('debconfTemplatesFile', { parentExten?.getDebconfTemplatesFile() })
+        
 
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
@@ -153,6 +156,16 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Input @Optional
     List<Object> getAllPostUninstallCommands() {
         return getPostUninstallCommands() + (parentExten?.getPostUninstallCommands() ?: [])
+    }
+    
+    @Input @Optional
+    List<Object> getAllDebconfConfigCommands() {
+        return getDebconfConfigCommands() + (parentExten?.getDebconfConfigCommands() ?: [])
+    }
+    
+    @Input @Optional
+    List<Object> getAllDebconfTemplatesCommands() {
+        return getDebconfTemplatesCommands() + (parentExten?.getDebconfTemplatesCommands() ?: [])
     }
 
     @Input @Optional
