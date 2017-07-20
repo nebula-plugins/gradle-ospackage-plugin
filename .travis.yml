@@ -1,7 +1,6 @@
 language: java
-sudo: true
-jdk:
-  - openjdk7
+sudo: false
+jdk: openjdk7
 install: true
 script: "./gradle/buildViaTravis.sh"
 cache:
