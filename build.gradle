@@ -17,7 +17,7 @@
 
 
 plugins {
-    id 'nebula.plugin-plugin' version '5.17.1'
+    id 'nebula.plugin-plugin' version '5.17.2'
     id 'nebula.test-jar' version '4.7.0'
 }
 
