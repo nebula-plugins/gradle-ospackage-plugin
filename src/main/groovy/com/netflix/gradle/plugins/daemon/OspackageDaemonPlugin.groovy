@@ -126,7 +126,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     task.postInstall("\$touch /service/${daemonName}/down")
 
                     def installCmd = isRedhat?
-                            "/sbin/chkconfig ${daemonName} on":
+                            "/sbin/chkconfig --add ${daemonName}":
                             "/usr/sbin/update-rc.d ${daemonName} start ${startSequence} ${runLevels.join(' ')} . stop ${stopSequence} ${([0,1,2,3,4,5,6]-runLevels).join(' ')} ."
 
                     if (templateTask.getContext().autoStart) {
