@@ -20,6 +20,7 @@ import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.copy.*
 import org.gradle.api.internal.tasks.SimpleWorkResult
 import org.gradle.api.tasks.WorkResult
+import org.gradle.api.tasks.WorkResults
 import org.gradle.internal.UncheckedException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -43,10 +44,14 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
             stream.process(new StreamAction());
             endVisit()
         } catch (Exception e) {
-            UncheckedException.throwAsUncheckedException(e);
+            UncheckedException.throwAsUncheckedException(e)
         }
-
-        return new SimpleWorkResult(true);
+        try {
+            // Gradle 4.2 and later
+            return WorkResults.didWork(true)
+        } catch (ClassNotFoundException e) {
+            return new SimpleWorkResult(true)
+        }
     }
 
     // Not a static class
