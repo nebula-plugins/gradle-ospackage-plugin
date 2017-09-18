@@ -49,7 +49,7 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         try {
             // Gradle 4.2 and later
             return WorkResults.didWork(true)
-        } catch (ClassNotFoundException e) {
+        } catch (NoClassDefFoundError ignored) {
             return new SimpleWorkResult(true)
         }
     }
