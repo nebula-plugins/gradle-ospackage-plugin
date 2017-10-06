@@ -82,13 +82,16 @@ class OspackageDaemonPluginSpec extends PluginProjectSpec {
         project.daemon {
             daemonName = 'foobar'
             command = 'exit 0'
+            installCmd = 'abc'
         }
 
         then: 'daemon was added to list'
         !extension.daemons.isEmpty()
 
         then: 'daemon configurate'
-        extension.daemons.iterator().next().daemonName == 'foobar'
+        def daemon = extension.daemons.iterator().next()
+        daemon.daemonName == 'foobar'
+        daemon.installCmd == 'abc'
     }
 
     def 'can call daemons extensions in project'() {

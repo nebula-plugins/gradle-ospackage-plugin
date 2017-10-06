@@ -36,6 +36,7 @@ class DaemonExtensionSpec extends Specification {
             autoStart = false
             startSequence = 85
             stopSequence = 15
+            installCmd = 'exit 2'
         }
 
         then:
@@ -51,5 +52,6 @@ class DaemonExtensionSpec extends Specification {
         !definition.autoStart
         definition.startSequence == 85
         definition.stopSequence == 15
+        definition.installCmd == 'exit 2'
     }
 }
