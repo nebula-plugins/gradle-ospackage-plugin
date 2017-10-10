@@ -122,4 +122,29 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         files.any { it == './etc/rc.d/init.d/foobaz' }
     }
 
+    def 'override install cmd'() {
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        buildFile << """
+            ${applyPlugin(OspackageDaemonPlugin)}
+            ${applyPlugin(SystemPackagingPlugin)}
+            daemon {
+              daemonName = "foobaz" // default = packageName
+              command = "sleep infinity" // required
+              installCmd = "sleep 30"
+            }""".stripIndent()
+
+        when:
+        runTasksSuccessfully('buildDeb')
+
+        then:
+        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
+
+        scan.controlContents.containsKey('./postinst')
+        def postInst = scan.controlContents['./postinst']
+        postInst.contains("sleep 30")
+        !postInst.contains("/usr/sbin/update-rc.d")
+    }
+
 }
