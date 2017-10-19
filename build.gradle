@@ -17,7 +17,7 @@
 
 
 plugins {
-    id 'nebula.plugin-plugin' version '5.17.2'
+    id 'nebula.plugin-plugin' version '5.18.0'
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
