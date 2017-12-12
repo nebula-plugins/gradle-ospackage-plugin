@@ -89,12 +89,28 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         }
         builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-        builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
-        builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
-        builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
-        builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
-        builder.setPreTransScript(scriptWithUtils(task.allCommonCommands, task.allPreTransCommands))
-        builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
+        if (!task.allPreInstallCommands?.empty) {
+            builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
+        }
+        if (!task.allPostInstallCommands?.empty) {
+            builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
+        }
+        if (!task.allPreUninstallCommands?.empty) {
+            builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
+        }
+        if (!task.allPostUninstallCommands?.empty) {
+            builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
+        }
+        if (!task.allPreTransCommands?.empty) {
+            // pretrans* scriptlets are special. They may be run in an
+            // environment where no shell exists. It's recommended that they
+            // be avoided where possible, but where not, written in Lua:
+            // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
+            builder.setPreTransScript(concat(task.allPreTransCommands))
+        }
+        if (!task.allPostTransCommands?.empty) {
+            builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
+        }
 
 		if (((Rpm) task).changeLogFile != null){
 			builder.addChangelogFile(((Rpm) task).changeLogFile)
