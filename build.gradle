@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Netflix, Inc.
+ * Copyright 2014-2017 Netflix, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +14,8 @@
  * limitations under the License.
  *
  */
-
-
 plugins {
-    id 'nebula.plugin-plugin' version '5.18.0'
+    id 'nebula.plugin-plugin' version '6.1.0'
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -52,7 +50,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    compile 'com.bmuschko:gradle-docker-plugin:3.0.1'
+    compile 'com.bmuschko:gradle-docker-plugin:3.2.1'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
