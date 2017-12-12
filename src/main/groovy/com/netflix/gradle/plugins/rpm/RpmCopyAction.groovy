@@ -58,7 +58,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
                     'and will be ignored for RPM builds')
         }
 
-        builder = new Builder()
+        builder = createBuilder()
         builder.setPackage task.packageName, task.version, task.release, task.epoch
         builder.setType task.type
         builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.os
@@ -204,6 +204,10 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 				rpmFile.close()
 			}	
 		}
+    }
+
+    protected Builder createBuilder() {
+        return new Builder()
     }
 
     String standardScriptDefines() {
