@@ -874,7 +874,8 @@ class DebPluginTest extends ProjectSpec {
         scan.getSigned()
     }
 
-    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Issue(["https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104",
+            "https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/268"])
     @Unroll
     def "Translates package description '#description' to header entry"() {
         given:
@@ -893,13 +894,15 @@ class DebPluginTest extends ProjectSpec {
         scan.getHeaderEntry('Description') == headerEntry
 
         where:
-        description             | headerEntry
-        'This is a description' | 'translates-package-description\n This is a description'
-        ''                      | 'translates-package-description'
-        null                    | 'translates-package-description'
+        description                        | headerEntry
+        'This is a description'            | 'translates-package-description\n This is a description'
+        ''                                 | 'translates-package-description'
+        'This is a\nmultiline description' | 'translates-package-description\n This is a\n multiline description'
+        null                               | 'translates-package-description'
     }
 
-    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Issue(["https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104",
+            "https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/268"])
     @Unroll
     def "Translates project description '#description' to header entry"() {
         given:
@@ -918,10 +921,11 @@ class DebPluginTest extends ProjectSpec {
         scan.getHeaderEntry('Description') == headerEntry
 
         where:
-        description             | headerEntry
-        'This is a description' | 'translates-package-description\n This is a description'
-        ''                      | 'translates-package-description'
-        null                    | 'translates-package-description'
+        description                        | headerEntry
+        'This is a description'            | 'translates-package-description\n This is a description'
+        ''                                 | 'translates-package-description'
+        'This is a\nmultiline description' | 'translates-package-description\n This is a\n multiline description'
+        null                               | 'translates-package-description'
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/102")
