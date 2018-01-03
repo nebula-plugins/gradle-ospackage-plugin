@@ -21,4 +21,6 @@ Pre-Depends: ${preDepends}<% } %><% if (breaks) { %>
 Breaks: ${breaks}<% } %><% customFields?.each { key, val -> %>
 ${key}: ${val}<% } %>
 Description: ${summary}
- ${description}
+<% description.eachLine { %>\
+ ${it}
+<% } %>
