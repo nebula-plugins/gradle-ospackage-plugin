@@ -18,13 +18,14 @@ package com.netflix.gradle.plugins.application
 
 import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
-import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
 import com.netflix.gradle.plugins.rpm.Rpm
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.plugins.ApplicationPlugin
+
 /**
  * Combine the os-package with the Application plugin. Currently heavily opinionated to where
  * the code will live, though that is slightly configurable using the ospackage-application extension.
@@ -38,7 +39,6 @@ import org.gradle.api.plugins.ApplicationPlugin
  * </ul>
  */
 class OspackageApplicationPlugin implements Plugin<Project> {
-
     OspackageApplicationExtension extension
 
     @Override
@@ -47,23 +47,25 @@ class OspackageApplicationPlugin implements Plugin<Project> {
         ((IConventionAware) extension).conventionMapping.map('prefix') { '/opt'}
 
         project.plugins.apply(ApplicationPlugin)
+        project.plugins.apply(SystemPackagingPlugin)
 
         // sets the location to $prefix/baseName-appendix-classifier
         project.tasks.distZip.version = ''
 
-        project.plugins.apply(SystemPackagingBasePlugin.class)
-        def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
-        packagingExt.from { project.zipTree(project.tasks.distZip.outputs.files.singleFile) }
+        final installDist = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME)
 
-        // Using a closure here to delay evaluation of prefix
-        packagingExt.into { extension.getPrefix() }
-
-        project.plugins.apply(SystemPackagingPlugin)
-        project.tasks.withType(Deb) { task ->
-            task.dependsOn(project.tasks.distZip)
+        final packagingExt = project.extensions.getByType(ProjectPackagingExtension)
+        packagingExt.from {
+            installDist.outputs.files.singleFile.parent
         }
-        project.tasks.withType(Rpm) { task ->
-            task.dependsOn(project.tasks.distZip)
+        packagingExt.into { // Using a closure here to delay evaluation of prefix
+            extension.getPrefix()
+        }
+
+        [Deb, Rpm].each { type ->
+            project.tasks.withType(type) { task ->
+                task.dependsOn(installDist)
+            }
         }
     }
 }
