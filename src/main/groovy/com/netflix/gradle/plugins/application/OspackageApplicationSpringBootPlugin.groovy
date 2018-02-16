@@ -29,7 +29,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
  * <ul>
  *     <li>
  *       <pre>
- *         apply plugin: 'nebula.ospackage-application-spring'
+ *         apply plugin: 'nebula.ospackage-application-spring-boot'
  *
  *         dependencies {
  *           compile 'org.springframework.boot:spring-boot-starter'
@@ -42,7 +42,7 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
  *     <li>{@code $ ./gradlew run}</li>
  * </ul>
  */
-class OspackageApplicationSpringPlugin implements Plugin<Project> {
+class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
     OspackageApplicationExtension extension
 
     @Override

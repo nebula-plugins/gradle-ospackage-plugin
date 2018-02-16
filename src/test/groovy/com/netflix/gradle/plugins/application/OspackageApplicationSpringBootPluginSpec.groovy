@@ -18,9 +18,9 @@ package com.netflix.gradle.plugins.application
 
 import nebula.test.PluginProjectSpec
 
-class OspackageApplicationSpringPluginSpec extends PluginProjectSpec {
+class OspackageApplicationSpringBootPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'nebula.ospackage-application-spring'
+        'nebula.ospackage-application-spring-boot'
     }
 }

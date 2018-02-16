@@ -89,7 +89,7 @@ pluginBundle {
         }
 
         ospackageApplicationSpring {
-            id = 'nebula.ospackage-application-spring'
+            id = 'nebula.ospackage-application-spring-boot'
             displayName = 'Nebula OS Package Spring Application Plugin'
             description = 'Packages output of application plugin into a debian or rpm'
             tags = ['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'spring']

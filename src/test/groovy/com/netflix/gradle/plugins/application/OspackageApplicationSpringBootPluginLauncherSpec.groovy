@@ -22,7 +22,7 @@ import nebula.test.IntegrationSpec
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
-class OspackageApplicationSpringPluginLauncherSpec extends IntegrationSpec {
+class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
     def 'application shows up in deb'() {
         writeHelloWorld('nebula.test')
         buildFile << """
@@ -30,7 +30,7 @@ class OspackageApplicationSpringPluginLauncherSpec extends IntegrationSpec {
                 mavenCentral()
             }
 
-            ${applyPlugin(OspackageApplicationSpringPlugin)}
+            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
 
             dependencies {
                 compile 'org.springframework.boot:spring-boot-starter:1.5.10.RELEASE'
@@ -73,7 +73,7 @@ class OspackageApplicationSpringPluginLauncherSpec extends IntegrationSpec {
                 mavenCentral()
             }
 
-            ${applyPlugin(OspackageApplicationSpringPlugin)}
+            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
 
             applicationName = 'myapp'
 
