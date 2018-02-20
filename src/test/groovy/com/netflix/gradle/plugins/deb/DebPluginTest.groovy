@@ -1244,7 +1244,7 @@ class DebPluginTest extends ProjectSpec {
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/278")
-    def 'non relative symlinks throw exception'() {
+    def 'non relative symlinks are copied normally'() {
         given:
         Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
         File file = project.file('bin/my-symlink')
@@ -1259,8 +1259,10 @@ class DebPluginTest extends ProjectSpec {
         debTask.execute()
 
         then:
-        def e = thrown(TaskExecutionException)
-        Throwables.getRootCause(e).message.startsWith("Unable to relativize symbolic link for my-symlink ")
+        println(debTask.archivePath)
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./my-symlink')
+        !packagedSymlink.isSymbolicLink()
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/278")
