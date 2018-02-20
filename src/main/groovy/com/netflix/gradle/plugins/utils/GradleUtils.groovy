@@ -26,7 +26,7 @@ final class GradleUtils {
 
     static Tuple2<String, String> relativizeSymlink(FileCopyDetails details, File target) {
         String sourcePath = details.file.path
-        String sourceBasePath = sourcePath.substring(0, sourcePath.length() - details.relativeSourcePath.length())
+        String sourceBasePath = sourcePath.substring(0, sourcePath.length() - details.relativeSourcePath.pathString.length())
         String sourceRelative = target.path.substring(sourceBasePath.length())
         String sourceBase = details.path.substring(0, details.path.indexOf(sourceRelative))
         String sourceRoot = new File("/$sourceBase", sourceRelative).path
