@@ -25,12 +25,13 @@ final class GradleUtils {
     }
 
     static Tuple2<String, String> relativizeSymlink(FileCopyDetails details, File target) {
+        File absoluteTarget = target.absoluteFile
         String sourcePath = details.file.path
         String sourceBasePath = sourcePath.substring(0, sourcePath.length() - details.relativeSourcePath.pathString.length())
-        String sourceRelative = target.path.substring(sourceBasePath.length())
+        String sourceRelative = absoluteTarget.path.substring(sourceBasePath.length())
         String sourceBase = details.path.substring(0, details.path.indexOf(sourceRelative))
         String sourceRoot = new File("/$sourceBase", sourceRelative).path
-        Path targetPath = JavaNIOUtils.readSymbolicLink(target.toPath())
+        Path targetPath = JavaNIOUtils.readSymbolicLink(absoluteTarget.toPath())
         if (targetPath.toString().startsWith(sourceBasePath)) {
             String targetRoot = new File("/$sourceBase", targetPath.toString().substring(sourceBasePath.length()))
             return new Tuple2(sourceRoot, targetRoot)
