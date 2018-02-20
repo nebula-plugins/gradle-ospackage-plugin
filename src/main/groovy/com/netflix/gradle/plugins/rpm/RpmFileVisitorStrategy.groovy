@@ -4,15 +4,13 @@ import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import org.gradle.api.file.FileCopyDetails
 import org.redline_rpm.Builder
 import org.redline_rpm.payload.Directive
-import org.vafer.jdeb.producers.DataProducerLink
-
-import java.nio.file.Path
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.getRootPath
 import static com.netflix.gradle.plugins.utils.GradleUtils.relativizeSymlink
 
 class RpmFileVisitorStrategy {
     protected final Builder builder
+    private final Set<Tuple2<String, String>> links = new LinkedHashSet<>()
 
     RpmFileVisitorStrategy(Builder builder) {
         this.builder = builder
@@ -23,12 +21,19 @@ class RpmFileVisitorStrategy {
             File file = details.file
             File parentLink = JavaNIOUtils.parentSymbolicLink(file)
             if (JavaNIOUtils.isSymbolicLink(details.file)) {
-                addLinkToBuilder(details, file)
+                def link = relativizeSymlink(details, file)
+                if (link != null) {
+                    addLinkToBuilder(link)
+                    return
+                }
             } else if (parentLink != null) {
-                addLinkToBuilder(details, parentLink)
-            } else {
-                addFileToBuilder(details, source, mode, dirmode, directive, uname, gname, addParents)
+                def link = relativizeSymlink(details, parentLink)
+                if (link != null) {
+                    addLinkToBuilder(link)
+                    return
+                }
             }
+            addFileToBuilder(details, source, mode, dirmode, directive, uname, gname, addParents)
         }
         catch (UnsupportedOperationException ignored) {
             // For file details that have filters, accessing the file throws this exception
@@ -40,8 +45,13 @@ class RpmFileVisitorStrategy {
         try {
             File file = details.file
             if (JavaNIOUtils.isSymbolicLink(details.file)) {
-                addLinkToBuilder(details, file)
-            } else {
+                def link = relativizeSymlink(details, file)
+                if (link != null) {
+                    addLinkToBuilder(link)
+                    return
+                }
+            }
+            if (JavaNIOUtils.parentSymbolicLink(file) == null) {
                 addDirectoryToBuilder(details, permissions, directive, uname, gname, addParents)
             }
         }
@@ -59,8 +69,9 @@ class RpmFileVisitorStrategy {
         builder.addDirectory(getRootPath(details), permissions, directive, uname, gname, addParents)
     }
 
-    private void addLinkToBuilder(FileCopyDetails details, File target) {
-        def link = relativizeSymlink(details, target)
-        builder.addLink(link.first, link.second)
+    private void addLinkToBuilder(Tuple2<String, String> link) {
+        if (links.add(link)) {
+            builder.addLink(link.first, link.second)
+        }
     }
 }

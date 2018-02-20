@@ -13,6 +13,7 @@ import static com.netflix.gradle.plugins.utils.GradleUtils.relativizeSymlink
 class DebFileVisitorStrategy {
     protected final List<DataProducer> dataProducers
     protected final List<DebCopyAction.InstallDir> installDirs
+    private final Set<Tuple2<String, String>> links = new LinkedHashSet<>()
 
     DebFileVisitorStrategy(List<DataProducer> dataProducers, List<DebCopyAction.InstallDir> installDirs) {
         this.dataProducers = dataProducers
@@ -24,12 +25,19 @@ class DebFileVisitorStrategy {
             File file = details.file
             File parentLink = JavaNIOUtils.parentSymbolicLink(file)
             if (JavaNIOUtils.isSymbolicLink(file)) {
-                addProducerLink(details, file)
+                def link = relativizeSymlink(details, file)
+                if (link != null) {
+                    addProducerLink(link)
+                    return
+                }
             } else if (parentLink != null) {
-                addProducerLink(details, parentLink)
-            } else {
-                addProducerFile(details, source, user, uid, group, gid, mode)
+                def link = relativizeSymlink(details, parentLink)
+                if (link != null) {
+                    addProducerLink(link)
+                    return
+                }
             }
+            addProducerFile(details, source, user, uid, group, gid, mode)
         }
         catch (UnsupportedOperationException ignored) {
             // For file details that have filters, accessing the file throws this exception
@@ -41,8 +49,13 @@ class DebFileVisitorStrategy {
         try {
             File file = details.file
             if (JavaNIOUtils.isSymbolicLink(file)) {
-                addProducerLink(details, file)
-            } else if (JavaNIOUtils.parentSymbolicLink(file) == null) {
+                def link = relativizeSymlink(details, file)
+                if (link != null) {
+                    addProducerLink(link)
+                    return
+                }
+            }
+            if (JavaNIOUtils.parentSymbolicLink(file) == null) {
                 addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
             }
         }
@@ -68,8 +81,9 @@ class DebFileVisitorStrategy {
         )
     }
 
-    private void addProducerLink(FileCopyDetails details, File target) {
-        def link = relativizeSymlink(details, target)
-        dataProducers << new DataProducerLink(link.first, link.second, true, null, null, null)
+    private void addProducerLink(Tuple2<String, String> link) {
+        if (links.add(link)) {
+            dataProducers << new DataProducerLink(link.first, link.second, true, null, null, null)
+        }
     }
 }

@@ -35,7 +35,7 @@ final class GradleUtils {
             String targetRoot = new File("/$sourceBase", targetPath.toString().substring(sourceBasePath.length()))
             return new Tuple2(sourceRoot, targetRoot)
         } else {
-            throw new IllegalStateException("Unable to relativize symbolic link for $sourceRelative to $targetPath, as they are not within the same directory structure. Exclude this path from the package and 'link' the directory instead")
+            return null
         }
     }
 }
