@@ -1,6 +1,5 @@
 package com.netflix.gradle.plugins.packaging
 
-import com.netflix.gradle.plugins.utils.FromConfigurationFactory
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.CopyProcessingSpec
@@ -44,9 +43,8 @@ public class ProjectPackagingExtension extends SystemPackagingExtension {
      * Special Use cases that involve Closure's which we want to wrap:
      */
     CopySpec from(Object sourcePath, Closure c) {
-        def preserveSymlinks = FromConfigurationFactory.preserveSymlinks(this)
         use(CopySpecEnhancement) {
-            return getDelegateCopySpec().from(sourcePath, c << preserveSymlinks)
+            return getDelegateCopySpec().from(sourcePath, c)
         }
     }
 

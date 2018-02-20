@@ -16,6 +16,7 @@
 
 package com.netflix.gradle.plugins.deb
 
+import com.google.common.base.Throwables
 import com.google.common.io.Files
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
@@ -1194,6 +1195,57 @@ class DebPluginTest extends ProjectSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
     def 'preserve symlinks without closure'() {
         given:
+        File packageDir = project.file("package")
+        packageDir.mkdirs()
+        File target = new File(packageDir,"my-script.sh")
+        target.createNewFile()
+        File file = new File(packageDir,'bin/my-symlink')
+        Files.createParentDirs(file)
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from 'package'
+        })
+        debTask.execute()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./bin/my-symlink')
+        packagedSymlink.isSymbolicLink()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
+    def 'preserve symlinks with closure'() {
+        given:
+        File packageDir = project.file("package")
+        packageDir.mkdirs()
+        File target = new File(packageDir,"my-script.sh")
+        target.createNewFile()
+        File file = new File(packageDir,'bin/my-symlink')
+        Files.createParentDirs(file)
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from('package') {
+                into '/lib'
+            }
+        })
+        debTask.execute()
+
+        then:
+        println(debTask.archivePath)
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./lib/bin/my-symlink')
+        packagedSymlink.isSymbolicLink()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/278")
+    def 'non relative symlinks throw exception'() {
+        given:
         Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
         File file = project.file('bin/my-symlink')
         Files.createParentDirs(file)
@@ -1207,23 +1259,48 @@ class DebPluginTest extends ProjectSpec {
         debTask.execute()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
-        def packagedSymlink = scan.getEntry('./my-symlink')
-        packagedSymlink.isSymbolicLink()
+        def e = thrown(TaskExecutionException)
+        Throwables.getRootCause(e).message.startsWith("Unable to relativize symbolic link for my-symlink ")
     }
 
-    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
-    def 'preserve symlinks with closure'() {
-        given:
-        Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
-        File file = project.file('bin/my-symlink')
-        Files.createParentDirs(file)
-        java.nio.file.Files.createSymbolicLink(file.toPath(), target)
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/278")
+    def 'preserve directory symlinks'() {
+        File packageDir = new File(projectDir,"package")
+        File source = new File(packageDir, "source")
+        source.mkdirs()
+        new File(source, "test.txt").createNewFile()
+        File target = new File(packageDir, "target")
+        target.mkdirs()
+        java.nio.file.Files.createSymbolicLink(new File(target, "source").toPath(), source.toPath())
 
         when:
         project.apply plugin: 'nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
-            from('bin') {
+            from('package')
+        })
+        debTask.execute()
+
+        then:
+        println(debTask.archivePath)
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./target/source')
+        packagedSymlink.isSymbolicLink()
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/278")
+    def 'preserve directory symlinks with closure'() {
+        File packageDir = new File(projectDir,"package")
+        File source = new File(packageDir, "source")
+        source.mkdirs()
+        new File(source, "test.txt").createNewFile()
+        File target = new File(packageDir, "target")
+        target.mkdirs()
+        java.nio.file.Files.createSymbolicLink(new File(target, "source").toPath(), source.toPath())
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from('package') {
                 into '/lib'
             }
         })
@@ -1232,7 +1309,7 @@ class DebPluginTest extends ProjectSpec {
         then:
         println(debTask.archivePath)
         def scan = new Scanner(debTask.archivePath)
-        def packagedSymlink = scan.getEntry('./lib/my-symlink')
+        def packagedSymlink = scan.getEntry('./lib/target/source')
         packagedSymlink.isSymbolicLink()
     }
 }

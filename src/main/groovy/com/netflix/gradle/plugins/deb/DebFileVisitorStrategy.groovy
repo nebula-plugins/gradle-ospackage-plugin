@@ -8,6 +8,7 @@ import org.vafer.jdeb.producers.DataProducerLink
 import java.nio.file.Path
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.getRootPath
+import static com.netflix.gradle.plugins.utils.GradleUtils.relativizeSymlink
 
 class DebFileVisitorStrategy {
     protected final List<DataProducer> dataProducers
@@ -16,6 +17,39 @@ class DebFileVisitorStrategy {
     DebFileVisitorStrategy(List<DataProducer> dataProducers, List<DebCopyAction.InstallDir> installDirs) {
         this.dataProducers = dataProducers
         this.installDirs = installDirs
+    }
+
+    void addFile(FileCopyDetails details, File source, String user, int uid, String group, int gid, int mode) {
+        try {
+            File file = details.file
+            File parentLink = JavaNIOUtils.parentSymbolicLink(file)
+            if (JavaNIOUtils.isSymbolicLink(file)) {
+                addProducerLink(details, file)
+            } else if (parentLink != null) {
+                addProducerLink(details, parentLink)
+            } else {
+                addProducerFile(details, source, user, uid, group, gid, mode)
+            }
+        }
+        catch (UnsupportedOperationException ignored) {
+            // For file details that have filters, accessing the file throws this exception
+            addProducerFile(details, source, user, uid, group, gid, mode)
+        }
+    }
+
+    void addDirectory(FileCopyDetails details, String user, int uid, String group, int gid, int mode) {
+        try {
+            File file = details.file
+            if (JavaNIOUtils.isSymbolicLink(file)) {
+                addProducerLink(details, file)
+            } else if (JavaNIOUtils.parentSymbolicLink(file) == null) {
+                addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
+            }
+        }
+        catch (UnsupportedOperationException ignored) {
+            // For file details that have filters, accessing the directory throws this exception
+            addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
+        }
     }
 
     protected void addProducerFile(FileCopyDetails fileDetails, File source, String user, int uid, String group, int gid, int mode) {
@@ -34,37 +68,8 @@ class DebFileVisitorStrategy {
         )
     }
 
-    void addFile(FileCopyDetails details, File source, String user, int uid, String group, int gid, int mode) {
-        try {
-            if(!JavaNIOUtils.isSymbolicLink(details.file.parentFile)) {
-                addProducerFile(details, source, user, uid, group, gid, mode)
-            }
-        }
-        catch(UnsupportedOperationException e) {
-            // For file details that have filters, accessing the file throws this exception
-            addProducerFile(details, source, user, uid, group, gid, mode)
-        }
-    }
-
-    void addDirectory(FileCopyDetails details, String user, int uid, String group, int gid, int mode) {
-        try {
-            if(JavaNIOUtils.isSymbolicLink(details.file)) {
-                addProducerLink(details)
-            }
-            else {
-                addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
-            }
-        }
-        catch(UnsupportedOperationException e) {
-            // For file details that have filters, accessing the directory throws this exception
-            addProducerDirectoryAndInstallDir(details, user, uid, group, gid, mode)
-        }
-    }
-
-    private void addProducerLink(FileCopyDetails details) {
-        String rootPath = getRootPath(details)
-        Path path = JavaNIOUtils.createPath(details.file.path)
-        Path target = JavaNIOUtils.readSymbolicLink(path)
-        dataProducers << new DataProducerLink(rootPath, target.toFile().path, true, null, null, null)
+    private void addProducerLink(FileCopyDetails details, File target) {
+        def link = relativizeSymlink(details, target)
+        dataProducers << new DataProducerLink(link.first, link.second, true, null, null, null)
     }
 }

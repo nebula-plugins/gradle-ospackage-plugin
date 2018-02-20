@@ -16,6 +16,11 @@ final class JavaNIOUtils {
         Files.isSymbolicLink(path)
     }
 
+    static File parentSymbolicLink(File file) {
+        File currentParent = file.parentFile
+        if (currentParent == null || isSymbolicLink(currentParent)) return currentParent else return parentSymbolicLink(currentParent)
+    }
+
     static Path readSymbolicLink(Path path) {
         Files.readSymbolicLink(path)
     }

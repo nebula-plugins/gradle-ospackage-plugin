@@ -1282,46 +1282,52 @@ class RpmPluginTest extends ProjectSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
     def 'preserve symlinks without closure'() {
         given:
-        Path target = JavaNIOUtils.createTempFile("file-to-symlink-to", "sh")
-        File file = project.file('bin/my-symlink')
+        File packageDir = project.file("package")
+        packageDir.mkdirs()
+        File target = new File(packageDir,"my-script.sh")
+        target.createNewFile()
+        File file = new File(packageDir,'bin/my-symlink')
         Files.createParentDirs(file)
-        JavaNIOUtils.createSymbolicLink(file, target.toFile())
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
 
         when:
         project.apply plugin: 'nebula.rpm'
 
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            from 'bin'
+            from 'package'
         })
         rpmTask.execute()
 
         then:
         def scan = Scanner.scan(rpmTask.getArchivePath())
-        def symlink = scan.files.find { it.name == 'my-symlink' }
+        def symlink = scan.files.find { it.name == './bin/my-symlink' }
         symlink.header.type == SYMLINK
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
     def 'preserve symlinks with closure'() {
         given:
-        Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
-        File file = project.file('bin/my-symlink')
+        File packageDir = project.file("package")
+        packageDir.mkdirs()
+        File target = new File(packageDir,"my-script.sh")
+        target.createNewFile()
+        File file = new File(packageDir,'bin/my-symlink')
         Files.createParentDirs(file)
-        java.nio.file.Files.createSymbolicLink(file.toPath(), target)
+        java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
 
         when:
         project.apply plugin: 'nebula.rpm'
 
         Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            from('bin') {
-                into 'lib'
+            from('package') {
+                into '/lib'
             }
         })
         rpmTask.execute()
 
         then:
         def scan = Scanner.scan(rpmTask.getArchivePath())
-        def symlink = scan.files.find { it.name == 'lib/my-symlink' }
+        def symlink = scan.files.find { it.name == './lib/bin/my-symlink' }
         symlink.header.type == SYMLINK
     }
 }
