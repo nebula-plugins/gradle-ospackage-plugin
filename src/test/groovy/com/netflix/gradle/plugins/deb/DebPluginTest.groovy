@@ -1314,4 +1314,29 @@ class DebPluginTest extends ProjectSpec {
         def packagedSymlink = scan.getEntry('./lib/target/source')
         packagedSymlink.isSymbolicLink()
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/278")
+    def 'preserve relative directory symlinks'() {
+        File packageDir = new File(projectDir,"package")
+        File source = new File(packageDir, "source")
+        source.mkdirs()
+        new File(source, "test.txt").createNewFile()
+        File target = new File(packageDir, "target")
+        target.mkdirs()
+        Path sourcePath = new File(target, "source").toPath()
+        java.nio.file.Files.createSymbolicLink(sourcePath, new File("../source").toPath())
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from('package')
+        })
+        debTask.execute()
+
+        then:
+        println(debTask.archivePath)
+        def scan = new Scanner(debTask.archivePath)
+        def packagedSymlink = scan.getEntry('./target/source')
+        packagedSymlink.isSymbolicLink()
+    }
 }
