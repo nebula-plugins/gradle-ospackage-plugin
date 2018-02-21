@@ -27,10 +27,12 @@ final class GradleUtils {
         String sourceBasePath = sourcePath.substring(0, sourcePath.length() - details.relativeSourcePath.pathString.length())
         String sourceRelative = target.path.substring(sourceBasePath.length())
         String sourceBase = details.path.substring(0, details.path.indexOf(sourceRelative))
-        String sourceRoot = new File("/$sourceBase", sourceRelative).path
+
         File targetFile = JavaNIOUtils.readSymbolicLink(target.toPath()).toFile()
         String targetPath = targetFile.isAbsolute() ? targetFile.path : new File(target.isDirectory() ? target.parentFile : target, targetFile.path).getCanonicalPath()
+
         if (targetPath.startsWith(sourceBasePath)) {
+            String sourceRoot = new File("/$sourceBase", sourceRelative).path
             String targetRoot = new File("/$sourceBase", targetPath.substring(sourceBasePath.length()))
             return new Tuple2(sourceRoot, targetRoot)
         } else {
