@@ -16,7 +16,6 @@
 
 package com.netflix.gradle.plugins.deb
 
-import com.google.common.base.Throwables
 import com.google.common.io.Files
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
@@ -1338,5 +1337,6 @@ class DebPluginTest extends ProjectSpec {
         def scan = new Scanner(debTask.archivePath)
         def packagedSymlink = scan.getEntry('./target/source')
         packagedSymlink.isSymbolicLink()
+        packagedSymlink.linkName == '../source'
     }
 }

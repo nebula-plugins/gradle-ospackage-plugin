@@ -20,14 +20,14 @@ class RpmFileVisitorStrategy {
         try {
             File file = details.file
             File parentLink = JavaNIOUtils.parentSymbolicLink(file)
-            if (JavaNIOUtils.isSymbolicLink(details.file)) {
-                def link = relativizeSymlink(details, file)
+            if (parentLink != null) {
+                def link = relativizeSymlink(details, parentLink)
                 if (link != null) {
                     addLinkToBuilder(link)
                     return
                 }
-            } else if (parentLink != null) {
-                def link = relativizeSymlink(details, parentLink)
+            } else if (JavaNIOUtils.isSymbolicLink(details.file)) {
+                def link = relativizeSymlink(details, file)
                 if (link != null) {
                     addLinkToBuilder(link)
                     return

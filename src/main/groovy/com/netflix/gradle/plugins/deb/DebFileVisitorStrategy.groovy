@@ -24,14 +24,14 @@ class DebFileVisitorStrategy {
         try {
             File file = details.file
             File parentLink = JavaNIOUtils.parentSymbolicLink(file)
-            if (JavaNIOUtils.isSymbolicLink(file)) {
-                def link = relativizeSymlink(details, file)
+            if (parentLink != null) {
+                def link = relativizeSymlink(details, parentLink)
                 if (link != null) {
                     addProducerLink(link)
                     return
                 }
-            } else if (parentLink != null) {
-                def link = relativizeSymlink(details, parentLink)
+            } else if (JavaNIOUtils.isSymbolicLink(file)) {
+                def link = relativizeSymlink(details, file)
                 if (link != null) {
                     addProducerLink(link)
                     return
