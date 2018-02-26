@@ -18,9 +18,11 @@ package com.netflix.gradle.plugins.application
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import org.gradle.api.tasks.application.CreateStartScripts
+
 /**
  * Combine the os-package with the Application plugin. Currently heavily opinionated to where
  * the code will live, though that is slightly configurable using the ospackage_application extension.
@@ -29,14 +31,13 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
  * <ul>
  *     <li>
  *       <pre>
+ *         apply plugin: 'org.springframework.boot'
  *         apply plugin: 'nebula.ospackage-application-spring-boot'
  *
- *         dependencies {
- *           compile 'org.springframework.boot:spring-boot-starter'
+ *         dependencies {*           compile 'org.springframework.boot:spring-boot-starter'
  *
  *           testCompile 'org.springframework.boot:spring-boot-starter-test'
- *         }
- *       </pre>
+ *}*       </pre>
  *     </li>
  *     <li>{@code $ ./gradlew buildDeb}</li>
  *     <li>{@code $ ./gradlew run}</li>
@@ -47,36 +48,41 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        project.plugins.apply(OspackageApplicationPlugin)
+
         if (!project.plugins.hasPlugin('org.springframework.boot')) {
             throw new IllegalStateException("The 'org.springframework.boot' plugin must be applied before applying this plugin")
         }
 
-        project.plugins.apply(OspackageApplicationPlugin)
+        // Spring Boot 2.0 configures an distribution that has everything we need
+        OspackageApplicationExtension extension = project.extensions.getByType(OspackageApplicationExtension)
+        if (project.distributions.findByName('boot') != null) {
+            extension.distribution = 'boot'
+            // See https://github.com/spring-projects/spring-boot/issues/12232
+            project.afterEvaluate {
+                project.distributions {
+                    boot {
+                        baseName = "${project.distributions.main.baseName}-boot"
+                    }
+                }
+            }
+        } else {
+            project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME).dependsOn('bootRepackage')
+            CreateStartScripts createStartScripts = project.tasks.getByName(ApplicationPlugin.TASK_START_SCRIPTS_NAME) as CreateStartScripts
+            createStartScripts.mainClassName = 'org.springframework.boot.loader.JarLauncher'
 
-        project.tasks.getByName(ApplicationPlugin.TASK_RUN_NAME) { task ->
-            task.dependsOn(project.tasks.bootRun)
-        }
-
-        project.tasks.getByName(ApplicationPlugin.TASK_START_SCRIPTS_NAME) { task ->
-            task.mainClassName('org.springframework.boot.loader.JarLauncher')
-        }
-
-        final jar = project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
-        jar.each { task ->
-            task.finalizedBy(project.tasks.bootRepackage)
-        }
-
-        // `ApplicationPlugin` automatically adds `runtimeClasspath` files to the distribution. We want most of that
-        // stripped out since we want just the fat jar that Spring produces.
-        project.afterEvaluate {
-            project.distributions {
-                main {
-                    contents {
-                        into('lib') {
-                            project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).files.findAll { file ->
-                                file.getName() != jar.outputs.files.singleFile.name
-                            }.each { file ->
-                                exclude file.name
+            // `ApplicationPlugin` automatically adds `runtimeClasspath` files to the distribution. We want most of that
+            // stripped out since we want just the fat jar that Spring produces.
+            project.afterEvaluate {
+                project.distributions {
+                    main {
+                        contents {
+                            into('lib') {
+                                project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).files.findAll { file ->
+                                    file.getName() != project.tasks.getByName(JavaPlugin.JAR_TASK_NAME).outputs.files.singleFile.name
+                                }.each { file ->
+                                    exclude file.name
+                                }
                             }
                         }
                     }

@@ -19,25 +19,13 @@ package com.netflix.gradle.plugins.application
 import com.google.common.base.Throwables
 import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
+import spock.lang.Unroll
 
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
-    def setup() {
-        buildFile << """
-            ${applyPlugin(SpringBootPlugin)}
-            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
-
-            repositories {
-                mavenCentral()
-            }
-            """
-    }
-
     def 'plugin throws exception if spring-boot plugin not applied'() {
-        buildFile.delete()
         buildFile << """
             ${applyPlugin(OspackageApplicationSpringBootPlugin)}
         """
@@ -49,31 +37,68 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         Throwables.getRootCause(result.failure).message == "The 'org.springframework.boot' plugin must be applied before applying this plugin"
     }
 
-    def 'application shows up in deb'() {
+    String buildScript(String bootVersion, File startScript) {
         writeHelloWorld('nebula.test')
-        buildFile << """
-            dependencies {
-                compile 'org.springframework.boot:spring-boot-starter:1.5.10.RELEASE'
+
+        return """
+            buildscript {
+                repositories {
+                    mavenCentral()
+                    maven { url 'https://repo.spring.io/milestone' }
+                }
+                dependencies {
+                    classpath 'org.springframework.boot:spring-boot-gradle-plugin:$bootVersion'
+                }
             }
+
+            apply plugin: 'org.springframework.boot'
+            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
+
+            mainClassName = 'nebula.test.HelloWorld'
+
+            repositories {
+                mavenCentral()
+                maven { url 'https://repo.spring.io/milestone' }
+            }
+
+            dependencies {
+                compile 'org.springframework.boot:spring-boot-starter:$bootVersion'
+            }
+
+            ospackage {
+                packageName = 'test'
+            }
+            
+            task runStartScript(type: Exec) {
+                commandLine '$startScript'
+            }
+            
+            runStartScript.dependsOn buildDeb
         """.stripIndent()
+    }
+
+    @Unroll
+    def 'application shows up in deb for boot #bootVersion'() {
+        final applicationDir = distribution.isEmpty() ? moduleName : "$moduleName-$distribution"
+        final startScript = "./opt/${applicationDir}/bin/${moduleName}"
+        buildFile << buildScript(bootVersion, null)
 
         when:
         runTasksSuccessfully('buildDeb')
 
         then:
-        final archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        final archivePath = file("build/distributions/test_unspecified_all.deb")
         final scanner = new Scanner(archivePath, new File("${getProjectDir()}/build/tmp/extract"))
 
-        final startScript = "./opt/${moduleName}/bin/${moduleName}"
-        final moduleJarName = "./opt/${moduleName}/lib/${moduleName}.jar"
+        final moduleJarName = "./opt/${applicationDir}/lib/${moduleName}.jar"
 
-        0755 == scanner.getEntry(startScript).mode
+        scanner.getEntry(startScript).mode == fileMode
 
         [
-            startScript,
-            "./opt/${moduleName}/bin/${moduleName}.bat",
-            moduleJarName].each {
-            scanner.getEntry("${it}").isFile()
+                startScript,
+                "./opt/${applicationDir}/bin/${moduleName}.bat",
+                moduleJarName].each {
+            assert scanner.getEntry("${it}").isFile()
         }
 
         final moduleJar = new ZipFile(scanner.getEntryFile(moduleJarName))
@@ -84,10 +109,35 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             tarArchiveEntry.name.endsWith('.jar') && tarArchiveEntry.name != moduleJarName
         }
         !scanner.controlContents.containsKey('./postinst')
+
+        where:
+        bootVersion      | distribution | fileMode
+        '1.5.10.RELEASE' | ''           | 0755
+        '2.0.0.RC2'      | 'boot'       | 0525
     }
 
-    def 'can customize destination'() {
-        writeHelloWorld('nebula.test')
+    @Unroll
+    def 'application runs for boot #bootVersion'() {
+        final applicationDir = distribution.isEmpty() ? moduleName : "$moduleName-$distribution"
+        final startScript = file("build/install/$applicationDir/bin/$moduleName")
+
+        buildFile << buildScript(bootVersion, startScript)
+
+        when:
+        def result = runTasksSuccessfully('runStartScript')
+
+        then:
+        result.standardOutput.contains('Hello Integration Test')
+
+        where:
+        bootVersion      | distribution
+        '1.5.10.RELEASE' | ''
+        '2.0.0.RC2'      | 'boot'
+    }
+
+    @Unroll
+    def 'can customize destination for boot #bootVersion'() {
+        buildFile << buildScript(bootVersion, null)
         buildFile << """
             applicationName = 'myapp'
 
@@ -100,18 +150,23 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        final archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        final appName = distribution.isEmpty() ? 'myapp' : "myapp-$distribution"
+        final archivePath = file("build/distributions/test_unspecified_all.deb")
         final scan = new Scanner(archivePath)
 
-        final startScript = "./usr/local/myapp/bin/myapp"
+        final startScript = "./usr/local/$appName/bin/myapp"
 
-        0755 == scan.getEntry(startScript).mode
+        scan.getEntry(startScript).mode == fileMode
 
-        [
-            startScript,
-            "./usr/local/myapp/bin/myapp.bat",
-            "./usr/local/myapp/lib/${moduleName}.jar"].each {
-            scan.getEntry("${it}").isFile()
+        [startScript,
+         "./usr/local/$appName/bin/myapp.bat",
+         "./usr/local/$appName/lib/${moduleName}.jar"].each {
+            assert scan.getEntry("${it}").isFile()
         }
+
+        where:
+        bootVersion      | distribution | fileMode
+        '1.5.10.RELEASE' | ''           | 0755
+        '2.0.0.RC2'      | 'boot'       | 0525
     }
 }

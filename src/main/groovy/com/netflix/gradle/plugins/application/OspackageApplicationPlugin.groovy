@@ -44,27 +44,26 @@ class OspackageApplicationPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         extension = project.extensions.create('ospackage_application', OspackageApplicationExtension)
-        ((IConventionAware) extension).conventionMapping.map('prefix') { '/opt'}
+        def conventionMapping = ((IConventionAware) extension).conventionMapping
+        conventionMapping.map('prefix') { '/opt' }
+        conventionMapping.map('distribution') { '' }
 
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
-        // sets the location to $prefix/baseName-appendix-classifier
-        project.tasks.distZip.version = ''
+        project.afterEvaluate {
+            final installTask = project.tasks.getByName("install${extension.distribution.capitalize()}Dist")
+            def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
+            packagingExt.from {
+                installTask.outputs.files.singleFile.parent
+            }
 
-        final installDist = project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME)
+            packagingExt.into(extension.getPrefix())
 
-        final packagingExt = project.extensions.getByType(ProjectPackagingExtension)
-        packagingExt.from {
-            installDist.outputs.files.singleFile.parent
-        }
-        packagingExt.into { // Using a closure here to delay evaluation of prefix
-            extension.getPrefix()
-        }
-
-        [Deb, Rpm].each { type ->
-            project.tasks.withType(type) { task ->
-                task.dependsOn(installDist)
+            [Deb, Rpm].each { type ->
+                project.tasks.withType(type) { task ->
+                    task.dependsOn(installTask)
+                }
             }
         }
     }

@@ -51,9 +51,6 @@ dependencies {
     }
 
     compile 'com.bmuschko:gradle-docker-plugin:3.2.1'
-
-    compileOnly 'org.springframework.boot:spring-boot-gradle-plugin:1.+'
-    testCompile 'org.springframework.boot:spring-boot-gradle-plugin:1.+'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'

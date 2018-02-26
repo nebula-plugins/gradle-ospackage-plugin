@@ -18,4 +18,6 @@ package com.netflix.gradle.plugins.application
 
 class OspackageApplicationExtension {
     String prefix
+
+    String distribution
 }
