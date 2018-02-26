@@ -51,6 +51,8 @@ dependencies {
     }
 
     compile 'com.bmuschko:gradle-docker-plugin:3.2.1'
+
+    compile 'org.springframework.boot:spring-boot-gradle-plugin:1.5.10.RELEASE'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
@@ -84,6 +86,13 @@ pluginBundle {
             displayName = 'Nebula OS Package Application Daemon Plugin'
             description = 'Creates daemontools setup to run output from application plugin'
             tags = ['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'daemon']
+        }
+
+        ospackageApplicationSpring {
+            id = 'nebula.ospackage-application-spring-boot'
+            displayName = 'Nebula OS Package Spring Application Plugin'
+            description = 'Packages output of application plugin into a debian or rpm'
+            tags = ['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'spring']
         }
 
         ospackageBase {
