@@ -16,22 +16,42 @@
 
 package com.netflix.gradle.plugins.application
 
+import com.google.common.base.Throwables
 import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
-    def 'application shows up in deb'() {
-        writeHelloWorld('nebula.test')
+    def setup() {
         buildFile << """
+            ${applyPlugin(SpringBootPlugin)}
+            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
+
             repositories {
                 mavenCentral()
             }
+            """
+    }
 
+    def 'plugin throws exception if spring-boot plugin not applied'() {
+        buildFile.delete()
+        buildFile << """
             ${applyPlugin(OspackageApplicationSpringBootPlugin)}
+        """
 
+        when:
+        def result = runTasks("help")
+
+        then:
+        Throwables.getRootCause(result.failure).message == "The 'org.springframework.boot' plugin must be applied before applying this plugin"
+    }
+
+    def 'application shows up in deb'() {
+        writeHelloWorld('nebula.test')
+        buildFile << """
             dependencies {
                 compile 'org.springframework.boot:spring-boot-starter:1.5.10.RELEASE'
             }
@@ -69,12 +89,6 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
     def 'can customize destination'() {
         writeHelloWorld('nebula.test')
         buildFile << """
-            repositories {
-                mavenCentral()
-            }
-
-            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
-
             applicationName = 'myapp'
 
             ospackage_application {
@@ -99,6 +113,5 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             "./usr/local/myapp/lib/${moduleName}.jar"].each {
             scan.getEntry("${it}").isFile()
         }
-
     }
 }

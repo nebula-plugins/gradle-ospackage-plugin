@@ -47,8 +47,11 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        if (!project.plugins.hasPlugin('org.springframework.boot')) {
+            throw new IllegalStateException("The 'org.springframework.boot' plugin must be applied before applying this plugin")
+        }
+
         project.plugins.apply(OspackageApplicationPlugin)
-        project.plugins.apply(SpringBootPlugin)
 
         project.tasks.getByName(ApplicationPlugin.TASK_RUN_NAME) { task ->
             task.dependsOn(project.tasks.bootRun)
