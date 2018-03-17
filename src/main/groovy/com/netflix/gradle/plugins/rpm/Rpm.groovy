@@ -28,8 +28,9 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
 class Rpm extends SystemPackagingTask {
-	@InputFile @Optional
-	File changeLogFile
+    @InputFile @Optional
+    File changeLogFile
+
     Rpm() {
         super()
         extension = 'rpm'
@@ -79,11 +80,11 @@ class Rpm extends SystemPackagingTask {
         exten.prefixes
     }
 
-	public File getChangeLogFile() {
-		return changeLogFile;
-	}
+    public File getChangeLogFile() {
+        return changeLogFile;
+    }
 
-	public void setChangeLogFile(File changeLogFile) {
-		this.changeLogFile = changeLogFile;
-	}
+    public void setChangeLogFile(File changeLogFile) {
+        this.changeLogFile = changeLogFile;
+    }
 }
