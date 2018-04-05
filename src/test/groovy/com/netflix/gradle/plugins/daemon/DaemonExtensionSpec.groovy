@@ -16,14 +16,18 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import org.gradle.api.internal.DefaultDomainObjectCollection
-import spock.lang.Specification
+import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectionFactory
+import nebula.test.IntegrationSpec
+import nebula.test.ProjectSpec
 
-class DaemonExtensionSpec extends Specification {
-    def definitionList = new DefaultDomainObjectCollection<DaemonDefinition>(DaemonDefinition, [])
-    DaemonExtension extension = new DaemonExtension( new DefaultDomainObjectCollection<DaemonDefinition>(DaemonDefinition, definitionList) )
+class DaemonExtensionSpec extends ProjectSpec {
 
     def 'configures on add'() {
+        given:
+        BackwardsCompatibleDomainObjectCollectionFactory factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion)
+        def definitionList = factory.create(DaemonDefinition)
+        DaemonExtension extension = new DaemonExtension(factory.create(DaemonDefinition, definitionList))
+
         when:
         extension.daemon {
             daemonName = 'foobar'
@@ -40,8 +44,8 @@ class DaemonExtensionSpec extends Specification {
         }
 
         then:
-        !definitionList.isEmpty()
-        def definition = definitionList.iterator().next()
+        !extension.daemons.isEmpty()
+        def definition = extension.daemons.iterator().next()
         definition.daemonName == 'foobar'
         definition.command == 'exit 0'
         definition.user == 'builds'
