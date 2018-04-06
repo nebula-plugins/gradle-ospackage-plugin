@@ -19,10 +19,13 @@ package com.netflix.gradle.plugins.daemon
 import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
+import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectionFactory
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.DefaultDomainObjectCollection
+import org.gradle.api.internal.collections.ElementSource
+import org.gradle.api.internal.collections.ListElementSource
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     Project project
@@ -48,9 +51,8 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
-        // TODO Use NamedContainerProperOrder so that we can create tasks for each definition as they appear
-        DomainObjectCollection<DaemonDefinition> daemonsList = new DefaultDomainObjectCollection<>(DaemonDefinition, []) // project.container(DaemonDefinition)
-        //List<DaemonDefinition> daemonsList = new LinkedList<DaemonDefinition>()
+        def factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion)
+        DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
 
         // Add daemon to project
@@ -58,7 +60,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
             extension.daemon(closure)
         }
 
-        daemonsList.all { DaemonDefinition definition ->
+        extension.daemons.all { DaemonDefinition definition ->
             // Check existing name
             def sameName = daemonsList.any { !it.is(definition) && it.daemonName == definition.daemonName }
             if (sameName) {
