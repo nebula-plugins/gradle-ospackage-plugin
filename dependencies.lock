@@ -59,7 +59,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -81,7 +81,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -103,7 +103,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -125,7 +125,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -193,7 +193,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -215,7 +215,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -237,7 +237,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -259,7 +259,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "6.4.0",
+            "locked": "6.4.4",
             "requested": "6.+"
         },
         "org.apache.commons:commons-lang3": {
