@@ -42,4 +42,8 @@ final class GradleUtils {
             return null
         }
     }
+
+    static String quotedIfPresent(String input) {
+        input == null ? null : "\'${input}\'"
+    }
 }

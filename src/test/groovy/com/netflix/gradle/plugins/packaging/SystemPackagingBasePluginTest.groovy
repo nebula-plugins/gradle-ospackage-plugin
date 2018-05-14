@@ -87,8 +87,8 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
             arch I386.name()
         })
 
-        debTask.execute()
-        rpmTask.execute()
+        debTask.copy()
+        rpmTask.copy()
 
         then:
         def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.getArchivePath())
