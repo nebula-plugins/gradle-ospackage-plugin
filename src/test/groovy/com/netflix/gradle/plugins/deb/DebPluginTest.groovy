@@ -44,7 +44,7 @@ class DebPluginTest extends ProjectSpec {
             from(appleFile.getParentFile())
         })
 
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -84,7 +84,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.getArchivePath())
@@ -165,7 +165,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildDeb.execute()
+        project.tasks.buildDeb.copy()
 
         then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_amd64.deb'))
@@ -208,7 +208,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -242,7 +242,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -285,7 +285,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.getArchivePath())
@@ -325,7 +325,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.getArchivePath())
@@ -367,7 +367,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.getArchivePath())
@@ -408,7 +408,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildDeb.execute()
+        project.tasks.buildDeb.copy()
 
         then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/extract'))
@@ -455,7 +455,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildDeb.execute()
+        project.tasks.buildDeb.copy()
 
         then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/extract'))
@@ -502,7 +502,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildDeb.execute()
+        project.tasks.buildDeb.copy()
 
         then:
         def scan = new Scanner(project.file('build/tmp/DebPluginTest/bleah_1.0-1_all.deb'), project.file('build/tmp/extract'))
@@ -531,7 +531,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -555,11 +555,10 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
-        TaskExecutionException ex = thrown()
-        IllegalArgumentException iex = ex.cause
+        IllegalArgumentException iex = thrown()
         'Deb packages with Architecture: all cannot declare Multi-Arch: same' == iex.message
     }
 
@@ -581,7 +580,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -607,7 +606,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -633,7 +632,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -659,7 +658,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -685,7 +684,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -711,7 +710,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -737,7 +736,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -782,7 +781,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         noExceptionThrown()
@@ -800,7 +799,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -825,7 +824,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -844,7 +843,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -864,7 +863,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         // Note: This test currently verifies the existence of a signature, but not the validity.
@@ -887,7 +886,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -914,7 +913,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -947,7 +946,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -974,7 +973,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1007,7 +1006,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         File debFile = debTask.getArchivePath()
@@ -1041,7 +1040,7 @@ class DebPluginTest extends ProjectSpec {
         })
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.getArchivePath())
@@ -1061,7 +1060,7 @@ class DebPluginTest extends ProjectSpec {
             packageName = 'semvertest'
         })
 
-        project.tasks.buildDeb.execute()
+        project.tasks.buildDeb.copy()
 
         expect:
         project.file("build/tmp/DebPluginTest/semvertest_${expected}_all.deb").exists()
@@ -1092,7 +1091,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.from(srcDir)
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1110,7 +1109,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1131,7 +1130,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1161,7 +1160,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1183,7 +1182,7 @@ class DebPluginTest extends ProjectSpec {
         }
 
         when:
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1207,7 +1206,7 @@ class DebPluginTest extends ProjectSpec {
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from 'package'
         })
-        debTask.execute()
+        debTask.copy()
 
         then:
         def scan = new Scanner(debTask.archivePath)
@@ -1233,7 +1232,7 @@ class DebPluginTest extends ProjectSpec {
                 into '/lib'
             }
         })
-        debTask.execute()
+        debTask.copy()
 
         then:
         println(debTask.archivePath)
@@ -1255,7 +1254,7 @@ class DebPluginTest extends ProjectSpec {
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from 'bin'
         })
-        debTask.execute()
+        debTask.copy()
 
         then:
         println(debTask.archivePath)
@@ -1279,7 +1278,7 @@ class DebPluginTest extends ProjectSpec {
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package')
         })
-        debTask.execute()
+        debTask.copy()
 
         then:
         println(debTask.archivePath)
@@ -1305,7 +1304,7 @@ class DebPluginTest extends ProjectSpec {
                 into '/lib'
             }
         })
-        debTask.execute()
+        debTask.copy()
 
         then:
         println(debTask.archivePath)
@@ -1330,7 +1329,7 @@ class DebPluginTest extends ProjectSpec {
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package')
         })
-        debTask.execute()
+        debTask.copy()
 
         then:
         println(debTask.archivePath)

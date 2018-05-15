@@ -60,7 +60,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
             instruction 'WORKDIR /tmp'
         }
 
-        task.execute()
+        task.copy()
 
         then:
         task.archivePath.exists()

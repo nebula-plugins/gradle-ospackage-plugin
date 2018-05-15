@@ -1,7 +1,10 @@
 package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
+import com.netflix.gradle.plugins.utils.GradleUtils
 import nebula.test.IntegrationSpec
+import spock.lang.Issue
+import spock.lang.Unroll
 
 class DebPluginLauncherSpec extends IntegrationSpec {
     def 'not up-to-date when specifying any value'() {
@@ -113,5 +116,33 @@ class DebPluginLauncherSpec extends IntegrationSpec {
 
         then:
         !wasUpToDate(':buildDeb')
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
+    @Unroll
+    def "Translates extension packageDescription '#description' to header entry for Debian task"() {
+        given:
+        buildFile << """
+apply plugin: 'nebula.ospackage'
+
+ospackage {
+    packageName = 'translates-extension-description'
+    packageDescription = ${GradleUtils.quotedIfPresent(description)}
+    version = '1.0'
+}
+"""
+
+        when:
+        runTasksSuccessfully('buildDeb')
+
+        then:
+        def scan = new Scanner(file('build/distributions/translates-extension-description_1.0_all.deb'))
+        scan.getHeaderEntry('Description') == headerEntry
+
+        where:
+        description             | headerEntry
+        'This is a description' | 'translates-extension-description\n This is a description'
+        ''                      | 'translates-extension-description'
+        null                    | 'translates-extension-description'
     }
 }

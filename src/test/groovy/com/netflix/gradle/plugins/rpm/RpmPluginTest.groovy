@@ -93,7 +93,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -152,7 +152,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/ObsoletesConflictsTest/testing-1.2-3.i386.rpm'))
@@ -183,129 +183,6 @@ class RpmPluginTest extends ProjectSpec {
         ['SuperSystem'] == distribution.values
     }
 
-
-    def 'projectNameDefault'() {
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        when:
-        project.apply plugin: 'nebula.rpm'
-
-        project.task([type: Rpm], 'buildRpm', {})
-
-        then:
-        'projectNameDefault' == project.buildRpm.packageName
-
-        when:
-        project.tasks.buildRpm.execute()
-
-        then:
-        noExceptionThrown()
-    }
-	
-	def 'file handle closed'() {
-
-		when:
-		project.apply plugin: 'nebula.rpm'
-		project.task([type: Rpm], 'buildRpm', {})
-		project.tasks.buildRpm.execute()
-		// see https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/200#issuecomment-244666158
-		// if file is not closed this will fail 
-		project.tasks.clean.execute()
-		then:
-		noExceptionThrown()
-	}
-
-    def 'category_on_spec'() {
-        project.version = '1.0.0'
-
-        File bananaFile = new File(projectDir, 'test/banana')
-        Files.createParentDirs(bananaFile)
-        bananaFile.text = 'banana'
-
-        File appleFile = new File(projectDir, 'src/apple')
-        Files.createParentDirs(appleFile)
-        appleFile.text = 'apple'
-
-        project.apply plugin: 'nebula.rpm'
-
-        def rpmTask = project.task([type: Rpm], 'buildRpm', {
-            addParentDirs = true
-            from(bananaFile.getParentFile()) {
-                into '/usr/share/myproduct/etc'
-                createDirectoryEntry false
-            }
-            from(appleFile.getParentFile()) {
-                into '/usr/local/myproduct/bin'
-                createDirectoryEntry true
-            }
-        })
-
-        when:
-        rpmTask.execute()
-
-        then:
-        // Evaluate response
-        def scanFiles = Scanner.scan(rpmTask.getArchivePath()).files
-
-        ['./usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'] == scanFiles*.name
-        [ DIR, DIR, FILE, DIR, DIR, FILE] == scanFiles*.type
-
-    }
-
-    def 'filter_expression'() {
-
-        project.version = '1.0.0'
-        File appleFile = new File(projectDir, 'src/apple')
-        Files.createParentDirs(appleFile)
-        appleFile.text = '{{BASE}}/apple'
-
-        project.apply plugin: 'nebula.rpm'
-
-        def rpmTask = (Rpm) project.task([type: Rpm], 'buildRpm') {
-            from(appleFile.getParentFile()) {
-                into '/usr/local/myproduct/bin'
-                filter({ line ->
-                    return line.replaceAll(/\{\{BASE\}\}/, '/usr/local/myproduct')
-                })
-            }
-        }
-
-        when:
-        rpmTask.execute()
-
-        then:
-        def scan = Scanner.scan(rpmTask.getArchivePath())
-        def scannerApple = scan.files.find { it.name =='./usr/local/myproduct/bin/apple'}
-        scannerApple.asString() == '/usr/local/myproduct/apple'
-    }
-
-    def 'usesArchivesBaseName'() {
-
-        // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
-        project.apply plugin: BasePlugin
-        project.archivesBaseName = 'foo'
-
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-
-        project.apply plugin: 'nebula.rpm'
-
-        when:
-        project.task([type: Rpm], 'buildRpm', {})
-
-        then:
-        'foo' == project.buildRpm.packageName
-
-        when:
-        project.tasks.buildRpm.execute()
-
-        then:
-        noExceptionThrown()
-    }
-
     def 'verifyValuesCanComeFromExtension'() {
 
         File srcDir = new File(projectDir, 'src')
@@ -334,48 +211,6 @@ class RpmPluginTest extends ProjectSpec {
         'DESCRIPTION' == rpmTask.packageDescription // From Project, even though extension could have a value
         2 == rpmTask.getAllLinks().size()
         2 == rpmTask.getAllDependencies().size()
-    }
-
-    def 'verifyCopySpecCanComeFromExtension'() {
-        setup:
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        new File(srcDir, 'apple').text = 'apple'
-
-        File etcDir = new File(projectDir, 'etc')
-        etcDir.mkdirs()
-        new File(etcDir, 'banana.conf').text = 'banana=true'
-
-        // Simulate SystemPackagingBasePlugin
-        project.apply plugin: 'nebula.rpm'
-        ProjectPackagingExtension parentExten = project.extensions.create('rpmParent', ProjectPackagingExtension, project)
-
-        // Configure
-        Rpm rpmTask = (Rpm) project.task([type: Rpm, name:'buildRpm']) {
-            release 3
-        }
-        project.version = '1.0'
-
-        rpmTask.from(srcDir) {
-            into('/usr/local/src')
-        }
-        parentExten.from(etcDir) {
-            createDirectoryEntry true
-            into('/conf/defaults')
-        }
-
-        // Execute
-        when:
-        rpmTask.execute()
-
-        then:
-        // Evaluate response
-        rpmTask.getArchivePath().exists()
-        println("Path to RPM: " + rpmTask.getArchivePath().getAbsoluteFile().toString())
-        def scan = Scanner.scan(rpmTask.getArchivePath())
-        // Parent will come first
-        ['./conf', './conf/defaults', './conf/defaults/banana.conf', './usr/local/src', './usr/local/src/apple'] == scan.files*.name
-        [DIR, DIR, FILE, DIR, FILE] == scan.files*.type
     }
 
     def 'differentUsersBetweenCopySpecs'() {
@@ -423,7 +258,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
@@ -482,7 +317,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
@@ -539,7 +374,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/userTest-2.0-2.i386.rpm'))
@@ -600,7 +435,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
@@ -633,7 +468,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
@@ -666,7 +501,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
@@ -701,7 +536,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/one-prefix-1.0-1.i386.rpm'))
@@ -734,7 +569,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/multi-prefix-1.0-1.i386.rpm'))
@@ -768,7 +603,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/multi-prefix-1.0-1.i386.rpm'))
@@ -808,7 +643,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -853,7 +688,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -882,7 +717,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -916,7 +751,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/has-epoch-1.0-1.i386.rpm'))
@@ -940,7 +775,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -968,7 +803,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -1015,55 +850,12 @@ class RpmPluginTest extends ProjectSpec {
             }
         }
 
-        task.execute()
+        task.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
         scan.files*.name == ['./usr', './usr/bin', './usr/bin/foo', './usr/bin/foo-1.2', './usr/bin/foo-1.2/foo.txt']
         scan.files*.type == [DIR, DIR, SYMLINK, DIR, FILE]
-    }
-
-    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/48")
-    def "Does not throw UnsupportedOperationException when copying external artifact with createDirectoryEntry option"() {
-        given:
-        String testCoordinates = 'com.netflix.nebula:a:1.0.0'
-        DependencyGraph graph = new DependencyGraph([testCoordinates])
-        File reposRootDir = new File(project.buildDir, 'repos')
-        GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
-        generator.generateTestMavenRepo()
-
-        project.apply plugin: 'nebula.rpm'
-
-        project.configurations {
-            myConf
-        }
-
-        project.dependencies {
-            myConf testCoordinates
-        }
-
-        project.repositories {
-            maven {
-                url {
-                    "file://$reposRootDir/mavenrepo"
-                }
-            }
-        }
-
-        Rpm rpmTask = project.task('buildRpm', type: Rpm) {
-            packageName = 'bleah'
-
-            from(project.configurations.myConf) {
-                createDirectoryEntry = true
-                into('root/lib')
-            }
-        }
-
-        when:
-        rpmTask.execute()
-
-        then:
-        noExceptionThrown()
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
@@ -1082,7 +874,7 @@ class RpmPluginTest extends ProjectSpec {
         }
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm'))
@@ -1111,7 +903,7 @@ class RpmPluginTest extends ProjectSpec {
         }
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm'))
@@ -1147,7 +939,7 @@ class RpmPluginTest extends ProjectSpec {
         }
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         Header header = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm')).format.header
@@ -1188,7 +980,7 @@ class RpmPluginTest extends ProjectSpec {
         }
 
         when:
-        rpmTask.execute()
+        rpmTask.copy()
 
         then:
         Header header = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0.noarch.rpm')).format.header
@@ -1208,7 +1000,7 @@ class RpmPluginTest extends ProjectSpec {
             packageName = 'semvertest'
         })
 
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         expect:
         project.file("build/tmp/RpmPluginTest/semvertest-${expected}.noarch.rpm").exists()
@@ -1236,7 +1028,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/providesTest-1.0.noarch.rpm'))
@@ -1269,7 +1061,7 @@ class RpmPluginTest extends ProjectSpec {
         })
 
         when:
-        project.tasks.buildRpm.execute()
+        project.tasks.buildRpm.copy()
 
         then:
         def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
@@ -1277,57 +1069,5 @@ class RpmPluginTest extends ProjectSpec {
         def POST_TRANS_HEADER_INDEX = 1152
         scan.format.header.entries[PRE_TRANS_HEADER_INDEX].values[0].contains('MyPreTransScript')
         scan.format.header.entries[POST_TRANS_HEADER_INDEX].values[0].contains('MyPostTransScript')
-    }
-
-    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
-    def 'preserve symlinks without closure'() {
-        given:
-        File packageDir = project.file("package")
-        packageDir.mkdirs()
-        File target = new File(packageDir,"my-script.sh")
-        target.createNewFile()
-        File file = new File(packageDir,'bin/my-symlink')
-        Files.createParentDirs(file)
-        java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
-
-        when:
-        project.apply plugin: 'nebula.rpm'
-
-        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            from 'package'
-        })
-        rpmTask.execute()
-
-        then:
-        def scan = Scanner.scan(rpmTask.getArchivePath())
-        def symlink = scan.files.find { it.name == './bin/my-symlink' }
-        symlink.header.type == SYMLINK
-    }
-
-    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/58")
-    def 'preserve symlinks with closure'() {
-        given:
-        File packageDir = project.file("package")
-        packageDir.mkdirs()
-        File target = new File(packageDir,"my-script.sh")
-        target.createNewFile()
-        File file = new File(packageDir,'bin/my-symlink')
-        Files.createParentDirs(file)
-        java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
-
-        when:
-        project.apply plugin: 'nebula.rpm'
-
-        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {
-            from('package') {
-                into '/lib'
-            }
-        })
-        rpmTask.execute()
-
-        then:
-        def scan = Scanner.scan(rpmTask.getArchivePath())
-        def symlink = scan.files.find { it.name == './lib/bin/my-symlink' }
-        symlink.header.type == SYMLINK
     }
 }
