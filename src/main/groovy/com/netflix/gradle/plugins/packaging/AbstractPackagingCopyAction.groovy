@@ -18,7 +18,6 @@ package com.netflix.gradle.plugins.packaging
 
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.copy.*
-import org.gradle.api.internal.tasks.SimpleWorkResult
 import org.gradle.api.tasks.WorkResult
 import org.gradle.api.tasks.WorkResults
 import org.gradle.internal.UncheckedException
@@ -46,12 +45,7 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         } catch (Exception e) {
             UncheckedException.throwAsUncheckedException(e)
         }
-        try {
-            // Gradle 4.2 and later
-            return WorkResults.didWork(true)
-        } catch (NoClassDefFoundError ignored) {
-            return new SimpleWorkResult(true)
-        }
+        return WorkResults.didWork(true)
     }
 
     // Not a static class
