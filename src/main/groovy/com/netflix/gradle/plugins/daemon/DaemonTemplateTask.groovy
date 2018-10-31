@@ -24,6 +24,7 @@ import org.gradle.api.tasks.TaskAction
  * Monster class that does everything.
  */
 class DaemonTemplateTask extends ConventionTask {
+
     //@Input
     Map<String, String> context
 
@@ -33,9 +34,12 @@ class DaemonTemplateTask extends ConventionTask {
     @Input
     File destDir
 
+    @Input
+    String templatesFolder
+
     @TaskAction
     def template() {
-        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), '/com/netflix/gradle/plugins/daemon')
+        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder())
         getTemplates().collect { String templateName ->
             templateHelper.generateFile(templateName, getContext())
         }

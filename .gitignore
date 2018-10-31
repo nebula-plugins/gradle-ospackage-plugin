@@ -5,6 +5,8 @@
 bin
 build
 gradle.properties
+.DS_STORE
+**/.DS_STORE
 
 out
 *.ipr
