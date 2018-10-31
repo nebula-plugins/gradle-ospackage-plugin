@@ -147,4 +147,48 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         !postInst.contains("/usr/sbin/update-rc.d")
     }
 
+    def 'custom templates'() {
+        buildFile << """
+            ${applyPlugin(OspackageDaemonPlugin)}
+            ${applyPlugin(SystemPackagingPlugin)}
+
+            daemonsTemplates.folder = '/com/netflix/gradle/plugins/daemon/custom'
+
+            daemon {
+                daemonName = 'foobar'
+                command = 'sleep infinity'
+            }
+            """.stripIndent()
+
+        when:
+        runTasksSuccessfully('buildDeb', 'buildRpm')
+
+        then:
+        new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()
+
+        def rpmTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildRpm/')
+        def rpmInitFile = new File(rpmTemplateDir, 'initd')
+        rpmInitFile.exists()
+        rpmInitFile.text.contains('''
+            # chkconfig: 345 85 15
+            # description: Control Script for foobar
+
+            . /etc/rc.d/init.d/functions'''.stripIndent())
+
+        new File(projectDir, "build/distributions/${moduleName}_unspecified_all.deb").exists()
+
+        def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
+        def debInitFile = new File(debTemplateDir, 'initd')
+        debInitFile.exists()
+        debInitFile.text.contains('''
+            ### BEGIN of CUSTOM SCRIPT INIT INFO
+            # Provides:          foobar
+            # Default-Start:     2 3 4 5
+            # Default-Stop:      0 1 6
+            # Required-Start:
+            # Required-Stop:
+            # Description: Control Script for foobar
+            ### END INIT INFO'''.stripIndent())
+    }
+
 }
