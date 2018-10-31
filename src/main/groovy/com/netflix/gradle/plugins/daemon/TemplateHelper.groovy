@@ -40,12 +40,21 @@ class TemplateHelper {
                 throw new IllegalArgumentException("Context key $key has a null value")
             }
         }
-        def template = getClass().getResourceAsStream("${templatePrefix}/${templateName}.tpl").newReader()
+        def template = getTemplateContent(templateName).newReader()
         def content = engine.createTemplate(template).make(context).toString()
         def contentFile = new File(destDir, templateName)
         destDir.mkdirs()
         contentFile.text = content
         return contentFile
+    }
+
+    private InputStream getTemplateContent(String templateName) {
+        try {
+            String path = "${templatePrefix}/${templateName}.tpl"
+            return getClass().getResourceAsStream(path) ?: new File(path).newInputStream()
+        } catch(Exception e) {
+            throw new FileNotFoundException("Could not find template $templateName in $templatePrefix")
+        }
     }
 
 }

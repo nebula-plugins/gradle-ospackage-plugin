@@ -18,8 +18,13 @@ package com.netflix.gradle.plugins.daemon
 
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
 import nebula.test.IntegrationSpec
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 
 class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
+
+    @Rule
+    public TemporaryFolder tmpFolder= new TemporaryFolder()
 
     def 'single daemon'() {
         buildFile << """
@@ -182,6 +187,61 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         debInitFile.exists()
         debInitFile.text.contains('''
             ### BEGIN of CUSTOM SCRIPT INIT INFO
+            # Provides:          foobar
+            # Default-Start:     2 3 4 5
+            # Default-Stop:      0 1 6
+            # Required-Start:
+            # Required-Stop:
+            # Description: Control Script for foobar
+            ### END INIT INFO'''.stripIndent())
+    }
+
+    def 'custom templates - non project folder'() {
+        File initd = tmpFolder.newFile('initd.tpl')
+        initd.text = """
+              #!/bin/sh
+### BEGIN of CUSTOM SCRIPT FROM LOCAL FOLDER INIT INFO
+# Provides:          \${daemonName}
+# Default-Start:     \${runLevels.join(" ")}
+# Default-Stop:      0 1 6
+# Required-Start:
+# Required-Stop:
+# Description: Control Script for \${daemonName}
+### END INIT INFO
+        """
+
+        File logRun = tmpFolder.newFile('log-run.tpl')
+        logRun.text = """
+             #!/bin/sh
+        """
+
+        File run = tmpFolder.newFile('run.tpl')
+        run.text = """
+             #!/bin/sh
+        """
+
+        buildFile << """
+            ${applyPlugin(OspackageDaemonPlugin)}
+            ${applyPlugin(SystemPackagingPlugin)}
+
+            daemonsTemplates.folder = '${tmpFolder.getRoot().path}'
+
+            daemon {
+                daemonName = 'foobar'
+                command = 'sleep infinity'
+            }
+            """.stripIndent()
+
+        when:
+        runTasksSuccessfully('buildDeb', 'buildRpm')
+
+        then:
+        new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()
+        def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
+        def debInitFile = new File(debTemplateDir, 'initd')
+        debInitFile.exists()
+        debInitFile.text.contains('''
+            ### BEGIN of CUSTOM SCRIPT FROM LOCAL FOLDER INIT INFO
             # Provides:          foobar
             # Default-Start:     2 3 4 5
             # Default-Stop:      0 1 6
