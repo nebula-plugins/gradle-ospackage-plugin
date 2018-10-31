@@ -26,11 +26,11 @@ class TemplateHelper {
     private final GStringTemplateEngine engine = new GStringTemplateEngine()
 
     File destDir
-    String templatePrefix
+    String templatesFolder
 
-    TemplateHelper(File destDir, String templatePrefix) {
+    TemplateHelper(File destDir, String templatesFolder) {
         this.destDir = destDir
-        this.templatePrefix = templatePrefix
+        this.templatesFolder = templatesFolder
     }
 
     File generateFile(String templateName, Map context) {
@@ -50,10 +50,10 @@ class TemplateHelper {
 
     private InputStream getTemplateContent(String templateName) {
         try {
-            String path = "${templatePrefix}/${templateName}.tpl"
+            String path = "${templatesFolder}/${templateName}.tpl"
             return getClass().getResourceAsStream(path) ?: new File(path).newInputStream()
         } catch(Exception e) {
-            throw new FileNotFoundException("Could not find template $templateName in $templatePrefix")
+            throw new FileNotFoundException("Could not find template $templateName in $templatesFolder")
         }
     }
 

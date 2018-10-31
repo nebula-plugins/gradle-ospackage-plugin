@@ -23,16 +23,13 @@ import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectio
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.DefaultDomainObjectCollection
-import org.gradle.api.internal.collections.ElementSource
-import org.gradle.api.internal.collections.ListElementSource
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
 
-    private final String DEFAULT_TEMPLATE_PREFIX = '/com/netflix/gradle/plugins/daemon'
+    private final String DEFAULT_TEMPLATES_FOLDER = '/com/netflix/gradle/plugins/daemon'
 
     Map<String,Object> toContext(DaemonDefinition definitionDefaults, DaemonDefinition definition) {
         return [
@@ -99,7 +96,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
                 def templateTask = project.tasks.create("${task.name}${cleanedName}Daemon", DaemonTemplateTask)
                 templateTask.conventionMapping.map('destDir') { outputDir }
-                templateTask.conventionMapping.map('templatesFolder') {  daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATE_PREFIX  }
+                templateTask.conventionMapping.map('templatesFolder') {  daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER  }
                 templateTask.conventionMapping.map('context') {
                     Map<String, String> context = toContext(defaults, definition)
                     context.daemonName = daemonName
