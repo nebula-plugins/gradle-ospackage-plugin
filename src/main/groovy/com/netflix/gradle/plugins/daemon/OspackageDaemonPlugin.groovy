@@ -23,6 +23,7 @@ import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectio
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.configuration.internal.UserCodeApplicationContext
 import org.gradle.internal.operations.BuildOperationExecutor
 
@@ -32,15 +33,13 @@ class OspackageDaemonPlugin implements Plugin<Project> {
     Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
-    private final BuildOperationExecutor buildOperationExecutor
-    private final UserCodeApplicationContext userCodeApplicationContext
+    private final CollectionCallbackActionDecorator collectionCallbackActionDecorator
 
     private final String DEFAULT_TEMPLATES_FOLDER = '/com/netflix/gradle/plugins/daemon'
 
     @Inject
-    OspackageDaemonPlugin(BuildOperationExecutor buildOperationExecutor, UserCodeApplicationContext userCodeApplicationContext) {
-        this.buildOperationExecutor = buildOperationExecutor
-        this.userCodeApplicationContext = userCodeApplicationContext
+    OspackageDaemonPlugin(CollectionCallbackActionDecorator collectionCallbackActionDecorator) {
+        this.collectionCallbackActionDecorator = collectionCallbackActionDecorator
     }
 
     Map<String,Object> toContext(DaemonDefinition definitionDefaults, DaemonDefinition definition) {
@@ -63,7 +62,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
-        def factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion, buildOperationExecutor, userCodeApplicationContext)
+        def factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion, collectionCallbackActionDecorator)
         DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)

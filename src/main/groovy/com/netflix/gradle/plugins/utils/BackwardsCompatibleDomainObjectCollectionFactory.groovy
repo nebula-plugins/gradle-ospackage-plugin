@@ -2,11 +2,8 @@ package com.netflix.gradle.plugins.utils
 
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.internal.CollectionCallbackActionDecorator
-import org.gradle.api.internal.DefaultCollectionCallbackActionDecorator
 import org.gradle.api.internal.DefaultDomainObjectCollection
 import org.gradle.api.internal.collections.ListElementSource
-import org.gradle.configuration.internal.UserCodeApplicationContext
-import org.gradle.internal.operations.BuildOperationExecutor
 import org.gradle.util.GradleVersion
 
 class BackwardsCompatibleDomainObjectCollectionFactory<T> {
@@ -15,9 +12,9 @@ class BackwardsCompatibleDomainObjectCollectionFactory<T> {
     private final GradleVersion gradleVersion
     private final CollectionCallbackActionDecorator callbackActionDecorator
 
-    BackwardsCompatibleDomainObjectCollectionFactory(String gradleVersion, BuildOperationExecutor buildOperationExecutor, UserCodeApplicationContext userCodeApplicationContext) {
+    BackwardsCompatibleDomainObjectCollectionFactory(String gradleVersion, CollectionCallbackActionDecorator collectionCallbackActionDecorator) {
         this.gradleVersion = GradleVersion.version(gradleVersion)
-        this.callbackActionDecorator = new DefaultCollectionCallbackActionDecorator(buildOperationExecutor, userCodeApplicationContext)
+        this.callbackActionDecorator = collectionCallbackActionDecorator
     }
 
     DomainObjectCollection<T> create(Class<T> klass) {
