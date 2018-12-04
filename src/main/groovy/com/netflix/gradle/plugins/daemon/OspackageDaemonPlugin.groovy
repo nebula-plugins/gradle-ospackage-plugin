@@ -19,13 +19,11 @@ package com.netflix.gradle.plugins.daemon
 import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
-import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectionFactory
+import com.netflix.gradle.plugins.utils.DomainObjectCollectionFactory
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.internal.CollectionCallbackActionDecorator
-import org.gradle.configuration.internal.UserCodeApplicationContext
-import org.gradle.internal.operations.BuildOperationExecutor
 
 import javax.inject.Inject
 
@@ -62,7 +60,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
-        def factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion, collectionCallbackActionDecorator)
+        def factory = new DomainObjectCollectionFactory<>(collectionCallbackActionDecorator)
         DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)
