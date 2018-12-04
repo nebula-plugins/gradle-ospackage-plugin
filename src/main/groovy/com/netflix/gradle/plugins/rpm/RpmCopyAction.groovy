@@ -196,7 +196,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 		
 		RandomAccessFile rpmFile 
 		try {
-			rpmFile = new RandomAccessFile( task.getArchivePath(), "rw")
+			rpmFile = new RandomAccessFile( task.getArchiveFile().get().asFile, "rw")
 			builder.build(rpmFile.getChannel())
 			logger.info 'Created rpm {}', rpmFile
 		} finally {
