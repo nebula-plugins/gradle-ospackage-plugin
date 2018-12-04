@@ -31,7 +31,7 @@ import org.gradle.api.provider.Property
 public abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
-    private final ObjectFactory objectFactory = project.objects
+    final ObjectFactory objectFactory = project.objects
 
     @Delegate
     @Nested
