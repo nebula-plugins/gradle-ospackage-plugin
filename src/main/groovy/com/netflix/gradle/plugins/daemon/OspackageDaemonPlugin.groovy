@@ -23,13 +23,25 @@ import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectio
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.configuration.internal.UserCodeApplicationContext
+import org.gradle.internal.operations.BuildOperationExecutor
+
+import javax.inject.Inject
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
+    private final BuildOperationExecutor buildOperationExecutor
+    private final UserCodeApplicationContext userCodeApplicationContext
 
     private final String DEFAULT_TEMPLATES_FOLDER = '/com/netflix/gradle/plugins/daemon'
+
+    @Inject
+    OspackageDaemonPlugin(BuildOperationExecutor buildOperationExecutor, UserCodeApplicationContext userCodeApplicationContext) {
+        this.buildOperationExecutor = buildOperationExecutor
+        this.userCodeApplicationContext = userCodeApplicationContext
+    }
 
     Map<String,Object> toContext(DaemonDefinition definitionDefaults, DaemonDefinition definition) {
         return [
@@ -51,7 +63,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
-        def factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion)
+        def factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion, buildOperationExecutor, userCodeApplicationContext)
         DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)
