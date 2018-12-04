@@ -250,7 +250,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         }
 
         DebMaker maker = new DebMaker(new GradleLoggerConsole(), dataProducers, null)
-        File debFile = task.getArchivePath()
+        File debFile = task.getArchiveFile().get().asFile
         maker.setControl(debianDir)
         maker.setDeb(debFile)
         if (StringUtils.isNotBlank(task.getSigningKeyId())

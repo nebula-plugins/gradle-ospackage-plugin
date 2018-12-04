@@ -6,15 +6,15 @@ import org.gradle.tooling.model.UnsupportedMethodException
 
 class SystemPackageDockerfile extends SystemPackagingTask {
     private final DockerfileInstructionManager dockerfileInstructionManager
+    private static final ARCHIVE_NAME = 'Dockerfile'
 
     SystemPackageDockerfile() {
-        archiveName = 'Dockerfile'
         dockerfileInstructionManager = new DockerfileInstructionManager()
     }
 
     @Override
     String assembleArchiveName() {
-        archiveName
+        ARCHIVE_NAME
     }
 
     @Override

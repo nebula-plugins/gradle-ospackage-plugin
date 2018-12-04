@@ -16,15 +16,16 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectionFactory
-import nebula.test.IntegrationSpec
+import com.netflix.gradle.plugins.utils.DomainObjectCollectionFactory
 import nebula.test.ProjectSpec
+import org.gradle.api.internal.CollectionCallbackActionDecorator
 
 class DaemonExtensionSpec extends ProjectSpec {
 
     def 'configures on add'() {
         given:
-        BackwardsCompatibleDomainObjectCollectionFactory factory = new BackwardsCompatibleDomainObjectCollectionFactory<>(project.gradle.gradleVersion)
+        def mockCollectionCallbackActionDecorator = Mock(CollectionCallbackActionDecorator)
+        DomainObjectCollectionFactory factory = new DomainObjectCollectionFactory<>(mockCollectionCallbackActionDecorator)
         def definitionList = factory.create(DaemonDefinition)
         DaemonExtension extension = new DaemonExtension(factory.create(DaemonDefinition, definitionList))
 

@@ -102,6 +102,6 @@ class Deb extends SystemPackagingTask {
 
     @OutputFile
     File getChangesFile() {
-        return new File(getArchivePath().path.replaceFirst('deb$', 'changes'))
+        return new File(getArchiveFile().get().asFile.path.replaceFirst('deb$', 'changes'))
     }
 }

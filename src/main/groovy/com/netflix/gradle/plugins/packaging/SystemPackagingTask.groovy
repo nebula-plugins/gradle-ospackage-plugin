@@ -17,14 +17,20 @@
 package com.netflix.gradle.plugins.packaging
 
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.redline_rpm.header.Architecture
+import org.gradle.api.provider.Property
 
-public abstract class SystemPackagingTask extends AbstractArchiveTask {
+abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
+
+    final ObjectFactory objectFactory = project.objects
 
     @Delegate
     @Nested
@@ -99,13 +105,25 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
 
         // Task Specific
         mapping.map('archiveName', { assembleArchiveName() })
+        mapping.map('archivePath', { determineArchivePath() })
+        mapping.map('archiveFile', { determineArchiveFile() })
     }
 
     String sanitizeVersion(String version) {
         version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
     }
 
-    abstract String assembleArchiveName();
+    abstract String assembleArchiveName()
+
+    Provider<RegularFile> determineArchiveFile() {
+        Property<RegularFile> regularFile = objectFactory.property(RegularFile)
+        regularFile.set(new DestinationFile(new File(getDestinationDirectory().get().asFile.path, assembleArchiveName())))
+        return regularFile
+    }
+
+    File determineArchivePath() {
+        return determineArchiveFile().get().asFile
+    }
 
     private static String getLocalHostName() {
         try {
@@ -295,4 +313,20 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         return this
     }
 
+    private static class DestinationFile implements RegularFile {
+        private final File file
+
+        DestinationFile(File file) {
+            this.file = file
+        }
+
+        String toString() {
+            return this.file.toString()
+        }
+
+        @Override
+        File getAsFile() {
+            return this.file
+        }
+    }
 }

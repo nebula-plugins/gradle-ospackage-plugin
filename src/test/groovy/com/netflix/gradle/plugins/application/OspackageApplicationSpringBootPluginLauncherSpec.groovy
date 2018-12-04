@@ -112,8 +112,9 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
         where:
         bootVersion      | distribution | fileMode
-        '1.5.10.RELEASE' | ''           | 0755
         '2.0.0.RC2'      | 'boot'       | 0525
+        '2.1.1.RELEASE'  | 'boot'       | 0755
+        '2.0.7.RELEASE'  | 'boot'       | 0755
     }
 
     @Unroll
