@@ -20,7 +20,6 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
-import org.gradle.api.internal.file.DefaultFilePropertyFactory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
@@ -28,7 +27,7 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.redline_rpm.header.Architecture
 import org.gradle.api.provider.Property
 
-public abstract class SystemPackagingTask extends AbstractArchiveTask {
+abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
     final ObjectFactory objectFactory = project.objects
@@ -114,7 +113,7 @@ public abstract class SystemPackagingTask extends AbstractArchiveTask {
         version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
     }
 
-    abstract String assembleArchiveName();
+    abstract String assembleArchiveName()
 
     Provider<RegularFile> determineArchiveFile() {
         Property<RegularFile> regularFile = objectFactory.property(RegularFile)
