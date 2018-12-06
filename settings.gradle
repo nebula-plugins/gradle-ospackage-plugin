@@ -1,3 +1,2 @@
 rootProject.name='gradle-ospackage-plugin'
-enableFeaturePreview('STABLE_PUBLISHING')
 
