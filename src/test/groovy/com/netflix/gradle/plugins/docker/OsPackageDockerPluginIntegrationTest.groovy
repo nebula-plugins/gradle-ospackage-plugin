@@ -1,7 +1,6 @@
 package com.netflix.gradle.plugins.docker
 
 import nebula.test.IntegrationSpec
-import spock.lang.Ignore
 import spock.lang.IgnoreIf
 
 class OsPackageDockerPluginIntegrationTest extends IntegrationSpec {
@@ -11,12 +10,11 @@ class OsPackageDockerPluginIntegrationTest extends IntegrationSpec {
         fork = true
     }
 
-    //@Ignore
     @IgnoreIf({ !OsPackageDockerPluginIntegrationTest.isDockerServerInfoUrlReachable() })
     def "Can create Dockerfile and build image from it"() {
         given:
         buildFile << """
-apply plugin: 'com.netflix.gradle.plugins.docker.OsPackageDockerPlugin'
+apply plugin: com.netflix.gradle.plugins.docker.OsPackageDockerPlugin
 
 repositories {
     mavenCentral()
