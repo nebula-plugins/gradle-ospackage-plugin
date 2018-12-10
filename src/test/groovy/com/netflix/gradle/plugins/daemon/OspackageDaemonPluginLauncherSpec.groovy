@@ -37,7 +37,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb', 'buildRpm')
+        runTasksSuccessfully('buildDeb', 'buildRpm', '--warning-mode', 'all')
 
         then:
         new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()

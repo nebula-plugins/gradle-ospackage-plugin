@@ -59,7 +59,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -81,7 +81,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -103,7 +103,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -125,7 +125,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -143,12 +143,12 @@
     },
     "jacocoAgent": {
         "org.jacoco:org.jacoco.agent": {
-            "locked": "0.8.1"
+            "locked": "0.8.2"
         }
     },
     "jacocoAnt": {
         "org.jacoco:org.jacoco.ant": {
-            "locked": "0.8.1"
+            "locked": "0.8.2"
         }
     },
     "runtime": {
@@ -193,7 +193,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -215,7 +215,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -237,7 +237,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {
@@ -259,7 +259,7 @@
             "requested": "3.2.1"
         },
         "com.netflix.nebula:nebula-test": {
-            "locked": "7.1.0",
+            "locked": "7.1.2",
             "requested": "7.+"
         },
         "org.apache.commons:commons-lang3": {

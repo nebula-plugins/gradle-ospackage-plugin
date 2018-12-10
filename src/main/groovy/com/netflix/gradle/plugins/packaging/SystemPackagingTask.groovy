@@ -116,7 +116,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     abstract String assembleArchiveName()
 
     Provider<RegularFile> determineArchiveFile() {
-        Property<RegularFile> regularFile = objectFactory.property(RegularFile)
+        Property<RegularFile> regularFile = objectFactory.fileProperty()
         regularFile.set(new DestinationFile(new File(getDestinationDirectory().get().asFile.path, assembleArchiveName())))
         return regularFile
     }
