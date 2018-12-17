@@ -17,19 +17,23 @@
 package com.netflix.gradle.plugins.daemon
 
 import nebula.test.ProjectSpec
+import org.gradle.api.Project
 
 class TemplateSyntaxSpec extends ProjectSpec {
 
     def 'each template validates'() {
-        when:
+        given:
+        Project p = Mock(Project)
         def plugin = new OspackageDaemonPlugin()
         def templates = ['initd', 'log-run', 'run']
-        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon')
+        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', p)
         DaemonDefinition definition = new DaemonDefinition()
         def context = plugin.toContext(plugin.getDefaultDaemonDefinition(false), definition)
         context['isRedhat'] = 'true'
         context['daemonName'] = 'foobar'
         context['command'] = 'foo'
+
+        when:
         templates.each {
             helper.generateFile(it, context)
         }
@@ -39,12 +43,15 @@ class TemplateSyntaxSpec extends ProjectSpec {
 
     }
     def 'template fails with a null'() {
-        when:
-        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon')
+        given:
+        Project p = Mock(Project)
+        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', p)
 
         def context = [:]
         context['isRedhat'] = true
         context['logUser'] = null
+
+        when:
         helper.generateFile('log-run', context)
 
         then:

@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.daemon
 
 import groovy.text.GStringTemplateEngine
+import org.gradle.api.Project
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -27,8 +28,10 @@ class TemplateHelper {
 
     File destDir
     String templatesFolder
+    Project project
 
-    TemplateHelper(File destDir, String templatesFolder) {
+    TemplateHelper(File destDir, String templatesFolder, Project project) {
+        this.project = project
         this.destDir = destDir
         this.templatesFolder = templatesFolder
     }
@@ -51,7 +54,7 @@ class TemplateHelper {
     private InputStream getTemplateContent(String templateName) {
         try {
             String path = "${templatesFolder}/${templateName}.tpl"
-            return getClass().getResourceAsStream(path) ?: new File(path).newInputStream()
+            return getClass().getResourceAsStream(path) ?: project.file(path).newInputStream()
         } catch(Exception e) {
             throw new FileNotFoundException("Could not find template $templateName in $templatesFolder")
         }
