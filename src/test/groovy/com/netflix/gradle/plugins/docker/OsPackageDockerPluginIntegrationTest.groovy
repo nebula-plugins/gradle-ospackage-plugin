@@ -14,7 +14,7 @@ class OsPackageDockerPluginIntegrationTest extends IntegrationSpec {
     def "Can create Dockerfile and build image from it"() {
         given:
         buildFile << """
-apply plugin: 'com.netflix.ospackage.docker'
+apply plugin: 'nebula.ospackage-docker'
 
 repositories {
     mavenCentral()

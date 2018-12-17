@@ -39,7 +39,7 @@ class DaemonTemplateTask extends ConventionTask {
 
     @TaskAction
     def template() {
-        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder())
+        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder(), project)
         getTemplates().collect { String templateName ->
             templateHelper.generateFile(templateName, getContext())
         }
