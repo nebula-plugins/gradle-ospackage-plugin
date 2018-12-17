@@ -1,5 +1,6 @@
 package com.netflix.gradle.plugins.daemon
 
+import org.gradle.api.Project
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -15,7 +16,9 @@ class TemplateHelperSpec extends Specification {
     public TemporaryFolder destinationFolder = new TemporaryFolder()
 
     def 'fails if file is not present'() {
-        TemplateHelper templateHelper = new TemplateHelper(destinationFolder.root, tmpFolder.root.path)
+        given:
+        Project p = Mock(Project)
+        TemplateHelper templateHelper = new TemplateHelper(destinationFolder.root, tmpFolder.root.path, p)
 
         when:
         templateHelper.generateFile("test", [:])
@@ -25,17 +28,21 @@ class TemplateHelperSpec extends Specification {
     }
 
     def 'generates files does not fail with valid templates'() {
+        Project p = Mock(Project)
         File initd = tmpFolder.newFile('initd.tpl')
         initd.text = """
               #!/bin/sh
         """
 
-        TemplateHelper templateHelper = new TemplateHelper(destinationFolder.root, tmpFolder.root.path)
+        TemplateHelper templateHelper = new TemplateHelper(destinationFolder.root, tmpFolder.root.path, p)
 
         when:
         templateHelper.generateFile("initd", [:])
 
         then:
+        interaction {
+            p.file(_) >> initd
+        }
         notThrown(FileNotFoundException)
     }
 }
