@@ -308,4 +308,42 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             ### END INIT INFO'''.stripIndent())
     }
 
+    def 'custom default values'() {
+        buildFile << """
+            ${applyPlugin(OspackageDaemonPlugin)}
+            ${applyPlugin(SystemPackagingPlugin)}
+
+            daemonsDefaultDefinition {
+                useExtensionDefaults = ${externalDefaults}
+                user = 'customuser'
+                logCommand = ''
+                logDir = ''
+                logUser = ''
+                runLevels = []
+                autoStart = true
+                startSequence = 0
+                stopSequence = 0
+            }
+
+            daemon {
+                daemonName = 'foobar'
+                command = 'sleep infinity'
+            }
+            """.stripIndent()
+
+        when:
+        runTasksSuccessfully('buildDeb', 'buildRpm')
+
+        then:
+        def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
+        def runScript = new File(debTemplateDir, 'run')
+        runScript.exists()
+        runScript.text.contains("exec setuidgid ${expectedDefaultUser} sleep infinity")
+
+        where:
+        externalDefaults | expectedDefaultUser
+        false            | 'root'
+        true             | 'customuser'
+    }
+
 }
