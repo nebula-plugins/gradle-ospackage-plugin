@@ -31,7 +31,9 @@ class OspackageDaemonPlugin implements Plugin<Project> {
     Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
+    DefaultDaemonDefinitionExtension defaultDefinition
     private final CollectionCallbackActionDecorator collectionCallbackActionDecorator
+
 
     private final String DEFAULT_TEMPLATES_FOLDER = '/com/netflix/gradle/plugins/daemon'
 
@@ -64,6 +66,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)
+        defaultDefinition = project.extensions.create('daemonsDefaultDefinition', DefaultDaemonDefinitionExtension)
 
         // Add daemon to project
         project.ext.daemon = { Closure closure ->
@@ -147,6 +150,9 @@ class OspackageDaemonPlugin implements Plugin<Project> {
     }
 
     def getDefaultDaemonDefinition(boolean isRedhat) {
-        new DaemonDefinition(null, null, 'root', 'multilog t ./main', "./main", "nobody", isRedhat ? [3, 4, 5] : [2, 3, 4, 5], Boolean.TRUE, 85, 15)
+        if (defaultDefinition.useExtensionDefaults)
+            defaultDefinition
+        else
+            new DaemonDefinition(null, null, 'root', 'multilog t ./main', "./main", "nobody", isRedhat ? [3, 4, 5] : [2, 3, 4, 5], Boolean.TRUE, 85, 15)
     }
 }
