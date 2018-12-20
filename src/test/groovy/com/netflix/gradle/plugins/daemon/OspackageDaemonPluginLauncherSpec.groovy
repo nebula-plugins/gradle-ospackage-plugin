@@ -351,4 +351,33 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         true             | 'customuser'
     }
 
+    def 'scripts can have custom location where they will be placed'() {
+        buildFile << """
+            ${applyPlugin(OspackageDaemonPlugin)}
+            ${applyPlugin(SystemPackagingPlugin)}
+
+            daemonsDefaultDefinition {
+                runScriptLocation = '/custom/\${daemonName}/run'
+                runLogScriptLocation = '/custom/\${daemonName}/log/run'
+                initDScriptLocation = '/custom/\${daemonName}/init.d'
+            }
+
+            daemon {
+              daemonName = "foobaz" // default = packageName
+              command = "sleep infinity" // required
+            }
+            """.stripIndent()
+
+        when:
+        runTasksSuccessfully('buildDeb')
+
+        then:
+        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
+
+        ['/custom/foobaz/run', '/custom/foobaz/log/run', '/custom/foobaz/init.d'].each {
+            assert scan.getEntry(".${it}").isFile()
+        }
+    }
+
 }
