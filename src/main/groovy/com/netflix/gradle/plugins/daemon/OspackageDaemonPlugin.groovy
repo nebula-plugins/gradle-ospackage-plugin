@@ -25,6 +25,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class OspackageDaemonPlugin implements Plugin<Project> {
+    public static final String POST_INSTALL_TEMPLATE = "postInstall"
     Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
@@ -103,9 +104,10 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     Map<String, String> context = toContext(defaults, definition)
                     context.daemonName = daemonName
                     context.isRedhat = isRedhat
+                    context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
                     context
                 }
-                templateTask.conventionMapping.map('templates') { mapping.keySet() }
+                templateTask.conventionMapping.map('templates') { mapping.keySet() + POST_INSTALL_TEMPLATE }
 
                 task.dependsOn(templateTask)
                 mapping.each { String templateName, String destPath ->
@@ -124,16 +126,8 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 }
 
                 task.doFirst {
-                    task.postInstall("[ -x /bin/touch ] && touch=/bin/touch || touch=/usr/bin/touch")
-                    task.postInstall("\$touch /service/${daemonName}/down")
-                    def ctx = templateTask.getContext()
-
-                    def installCmd = definition.installCmd ?: LegacyInstallCmd.create(ctx)
-
-                    if (ctx.autoStart) {
-                        task.postInstall(installCmd)
-                    }
-
+                    File postInstallCommand = new File(outputDir, POST_INSTALL_TEMPLATE)
+                    task.postInstall(postInstallCommand.text)
                 }
             }
         }

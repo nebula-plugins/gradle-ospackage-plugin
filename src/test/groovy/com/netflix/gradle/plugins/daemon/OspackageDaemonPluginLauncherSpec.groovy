@@ -222,6 +222,9 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
              #!/bin/sh
         """
 
+        File postInstall = new File(projectTemplates, 'postInstall.tpl')
+        postInstall.text = ""
+
         buildFile << """
             ${applyPlugin(OspackageDaemonPlugin)}
             ${applyPlugin(SystemPackagingPlugin)}
@@ -276,6 +279,8 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         run.text = """
              #!/bin/sh
         """
+
+        File postInstall = tmpFolder.newFile('postInstall.tpl')
 
         buildFile << """
             ${applyPlugin(OspackageDaemonPlugin)}
