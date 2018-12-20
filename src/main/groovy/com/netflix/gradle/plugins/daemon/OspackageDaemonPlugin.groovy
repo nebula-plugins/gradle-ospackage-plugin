@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.utils.BackwardsCompatibleDomainObjectCollectionFactory
+import groovy.text.GStringTemplateEngine
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -91,10 +92,11 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
                 def outputDir = new File(project.buildDir, "daemon/${cleanedName}/${task.name}")
 
-                def mapping = [
-                        'log-run': "/service/${daemonName}/log/run",
-                        'run': "/service/${daemonName}/run",
-                        'initd': isRedhat?"/etc/rc.d/init.d/${daemonName}":"/etc/init.d/${daemonName}"
+                def defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
+                def templatesWithFileOutput = [
+                        'log-run': defaultDefinition.runLogScriptLocation ?: "/service/\${daemonName}/log/run",
+                        'run': defaultDefinition.runScriptLocation ?: "/service/\${daemonName}/run",
+                        'initd': defaultDefinition.initDScriptLocation ?: defaultInitDScriptLocationTemplate
                 ]
 
                 def templateTask = project.tasks.create("${task.name}${cleanedName}Daemon", DaemonTemplateTask)
@@ -107,12 +109,12 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
                     context
                 }
-                templateTask.conventionMapping.map('templates') { mapping.keySet() + POST_INSTALL_TEMPLATE }
+                templateTask.conventionMapping.map('templates') { templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE }
 
                 task.dependsOn(templateTask)
-                mapping.each { String templateName, String destPath ->
+                templatesWithFileOutput.each { String templateName, String destPathTemplate ->
                     File rendered = new File(outputDir, templateName) // To be created by task, ok that it's not around yet
-
+                    String destPath = getDestPath(destPathTemplate, templateTask)
                     // Gradle CopySpec can't set the name of a file on the fly, we need to do a rename.
                     def slashIdx = destPath.lastIndexOf('/')
                     def destDir = destPath.substring(0,slashIdx)
@@ -131,6 +133,12 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 }
             }
         }
+    }
+
+    private String getDestPath(String destPathTemplate, def templateTask) {
+        GStringTemplateEngine engine = new GStringTemplateEngine()
+        def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext()).toString()
+        destPath
     }
 
     def getDefaultDaemonDefinition(boolean isRedhat) {
