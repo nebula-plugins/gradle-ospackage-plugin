@@ -33,6 +33,10 @@ contacts {
         moniker 'Rob Spieldenner'
         github 'rspieldenner'
     }
+    'roberto@perezalcolea.info' {
+        moniker 'Roberto Perez Alcolea'
+        github 'rpalcolea'
+    }
 }
 
 dependencies {
