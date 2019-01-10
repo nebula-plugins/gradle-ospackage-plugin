@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.utils.DomainObjectCollectionFactory
+import groovy.text.GStringTemplateEngine
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -28,10 +29,13 @@ import org.gradle.api.internal.CollectionCallbackActionDecorator
 import javax.inject.Inject
 
 class OspackageDaemonPlugin implements Plugin<Project> {
+    public static final String POST_INSTALL_TEMPLATE = "postInstall"
     Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
+    DefaultDaemonDefinitionExtension defaultDefinition
     private final CollectionCallbackActionDecorator collectionCallbackActionDecorator
+
 
     private final String DEFAULT_TEMPLATES_FOLDER = '/com/netflix/gradle/plugins/daemon'
 
@@ -64,6 +68,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)
+        defaultDefinition = project.extensions.create('daemonsDefaultDefinition', DefaultDaemonDefinitionExtension)
 
         // Add daemon to project
         project.ext.daemon = { Closure closure ->
@@ -97,10 +102,11 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
                 def outputDir = new File(project.buildDir, "daemon/${cleanedName}/${task.name}")
 
-                def mapping = [
-                        'log-run': "/service/${daemonName}/log/run",
-                        'run': "/service/${daemonName}/run",
-                        'initd': isRedhat?"/etc/rc.d/init.d/${daemonName}":"/etc/init.d/${daemonName}"
+                def defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
+                def templatesWithFileOutput = [
+                        'log-run': defaultDefinition.runLogScriptLocation ?: "/service/\${daemonName}/log/run",
+                        'run': defaultDefinition.runScriptLocation ?: "/service/\${daemonName}/run",
+                        'initd': defaultDefinition.initDScriptLocation ?: defaultInitDScriptLocationTemplate
                 ]
 
                 def templateTask = project.tasks.create("${task.name}${cleanedName}Daemon", DaemonTemplateTask)
@@ -110,14 +116,15 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     Map<String, String> context = toContext(defaults, definition)
                     context.daemonName = daemonName
                     context.isRedhat = isRedhat
+                    context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
                     context
                 }
-                templateTask.conventionMapping.map('templates') { mapping.keySet() }
+                templateTask.conventionMapping.map('templates') { templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE }
 
                 task.dependsOn(templateTask)
-                mapping.each { String templateName, String destPath ->
+                templatesWithFileOutput.each { String templateName, String destPathTemplate ->
                     File rendered = new File(outputDir, templateName) // To be created by task, ok that it's not around yet
-
+                    String destPath = getDestPath(destPathTemplate, templateTask)
                     // Gradle CopySpec can't set the name of a file on the fly, we need to do a rename.
                     def slashIdx = destPath.lastIndexOf('/')
                     def destDir = destPath.substring(0,slashIdx)
@@ -131,22 +138,23 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 }
 
                 task.doFirst {
-                    task.postInstall("[ -x /bin/touch ] && touch=/bin/touch || touch=/usr/bin/touch")
-                    task.postInstall("\$touch /service/${daemonName}/down")
-                    def ctx = templateTask.getContext()
-
-                    def installCmd = definition.installCmd ?: LegacyInstallCmd.create(ctx)
-
-                    if (ctx.autoStart) {
-                        task.postInstall(installCmd)
-                    }
-
+                    File postInstallCommand = new File(outputDir, POST_INSTALL_TEMPLATE)
+                    task.postInstall(postInstallCommand.text)
                 }
             }
         }
     }
 
+    private String getDestPath(String destPathTemplate, def templateTask) {
+        GStringTemplateEngine engine = new GStringTemplateEngine()
+        def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext()).toString()
+        destPath
+    }
+
     def getDefaultDaemonDefinition(boolean isRedhat) {
-        new DaemonDefinition(null, null, 'root', 'multilog t ./main', "./main", "nobody", isRedhat ? [3, 4, 5] : [2, 3, 4, 5], Boolean.TRUE, 85, 15)
+        if (defaultDefinition.useExtensionDefaults)
+            defaultDefinition
+        else
+            new DaemonDefinition(null, null, 'root', 'multilog t ./main', "./main", "nobody", isRedhat ? [3, 4, 5] : [2, 3, 4, 5], Boolean.TRUE, 85, 15)
     }
 }

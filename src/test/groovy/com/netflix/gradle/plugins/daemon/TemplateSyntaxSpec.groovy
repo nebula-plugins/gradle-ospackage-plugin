@@ -25,6 +25,7 @@ class TemplateSyntaxSpec extends ProjectSpec {
         given:
         Project p = Mock(Project)
         def plugin = new OspackageDaemonPlugin()
+        plugin .defaultDefinition = new DefaultDaemonDefinitionExtension()
         def templates = ['initd', 'log-run', 'run']
         def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', p)
         DaemonDefinition definition = new DaemonDefinition()
