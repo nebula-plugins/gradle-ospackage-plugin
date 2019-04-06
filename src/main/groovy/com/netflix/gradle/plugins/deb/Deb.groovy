@@ -55,6 +55,7 @@ class Deb extends SystemPackagingTask {
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
 
         // Could come from extension
+        mapping.map('fileType', { parentExten?.getFileType() })
         mapping.map('uid', { parentExten?.getUid()?:0 })
         mapping.map('gid', { (parentExten?.getGid())?:0 })
         mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })

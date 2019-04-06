@@ -153,7 +153,7 @@ class DebPluginTest extends ProjectSpec {
 
             from(srcDir.toString() + '/main/groovy') {
                 createDirectoryEntry true
-                //fileType = CONFIG | NOREPLACE
+                fileType = CONFIG | NOREPLACE
             }
 
             from(noParentsDir) {

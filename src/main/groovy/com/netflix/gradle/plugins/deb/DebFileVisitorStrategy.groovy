@@ -20,7 +20,7 @@ class DebFileVisitorStrategy {
         this.installDirs = installDirs
     }
 
-    void addFile(FileCopyDetails details, File source, String user, int uid, String group, int gid, int mode) {
+    void addFile(FileCopyDetails details, File source, String user, Directive directive, int uid, String group, int gid, int mode) {
         try {
             File file = details.file
             File parentLink = JavaNIOUtils.parentSymbolicLink(file)
