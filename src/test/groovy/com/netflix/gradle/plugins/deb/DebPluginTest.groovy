@@ -180,7 +180,10 @@ class DebPluginTest extends ProjectSpec {
         scan.controlContents['./conffiles'].eachLine {
             '/etc/init.d/served' == it
         }
-        
+        scan.controlContents['./conffiles'].eachLine {
+            '/opt/bleah/main/groovy' == it
+        }
+
         def file = scan.getEntry('./a/path/not/to/create/alone')
         file.isFile()
 
