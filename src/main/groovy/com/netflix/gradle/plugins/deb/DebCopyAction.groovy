@@ -107,6 +107,11 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         def inputFile = extractFile(fileDetails)
 
         Directive fileType = lookup(specToLookAt, 'fileType')
+        if (fileType == CONFIG) {
+            logger.debug "mark {} as configuration file", fileDetails.relativePath.pathString
+            task.configurationFile(fileDetails.relativePath.pathString)
+        }
+
         String user = lookup(specToLookAt, 'user') ?: task.user
         Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
         String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
@@ -114,7 +119,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
         int fileMode = fileDetails.mode
 
-        debFileVisitorStrategy.addFile(fileDetails, inputFile, user, fileType, uid, group, gid, fileMode)
+        debFileVisitorStrategy.addFile(fileDetails, inputFile, user, uid, group, gid, fileMode)
     }
 
     @Override
