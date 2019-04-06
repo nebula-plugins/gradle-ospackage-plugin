@@ -39,6 +39,7 @@ import org.vafer.jdeb.mapping.Mapper
 import org.vafer.jdeb.mapping.PermMapper
 import org.vafer.jdeb.producers.DataProducerLink
 import org.vafer.jdeb.producers.DataProducerPathTemplate
+import org.redline_rpm.payload.Directive
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 /**
