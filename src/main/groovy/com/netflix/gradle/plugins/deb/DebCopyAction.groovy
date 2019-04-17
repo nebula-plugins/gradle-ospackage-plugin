@@ -39,6 +39,7 @@ import org.vafer.jdeb.mapping.Mapper
 import org.vafer.jdeb.mapping.PermMapper
 import org.vafer.jdeb.producers.DataProducerLink
 import org.vafer.jdeb.producers.DataProducerPathTemplate
+import org.redline_rpm.payload.Directive
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 /**
@@ -105,6 +106,12 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
 
         def inputFile = extractFile(fileDetails)
+
+        Directive fileType = lookup(specToLookAt, 'fileType')
+        if (fileType == 'CONFIG') {
+            logger.debug "mark {} as configuration file", fileDetails.relativePath.pathString
+            task.configurationFile(fileDetails.relativePath.pathString)
+        }
 
         String user = lookup(specToLookAt, 'user') ?: task.user
         Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
