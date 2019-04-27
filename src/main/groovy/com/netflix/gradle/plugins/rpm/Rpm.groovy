@@ -18,6 +18,7 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
@@ -28,6 +29,7 @@ import org.redline_rpm.header.RpmType
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
+@CacheableTask
 class Rpm extends SystemPackagingTask {
     @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File changeLogFile
