@@ -20,6 +20,8 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
@@ -27,7 +29,7 @@ import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
 class Rpm extends SystemPackagingTask {
-    @InputFile @Optional
+    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File changeLogFile
 
     Rpm() {

@@ -4,6 +4,8 @@ import com.netflix.gradle.plugins.deb.control.MultiArch
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
@@ -47,7 +49,7 @@ class SystemPackagingExtension {
     @Input @Optional
     String signingKeyPassphrase
 
-    @InputFile @Optional
+    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File signingKeyRingFile
 
     // Metadata, some are probably specific to a type
@@ -158,13 +160,13 @@ class SystemPackagingExtension {
 
     // Scripts
 
-    @InputFile @Optional
+    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File preInstallFile
-    @InputFile @Optional
+    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File postInstallFile
-    @InputFile @Optional
+    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File preUninstallFile
-    @InputFile @Optional
+    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File postUninstallFile
 
     final List<Object> configurationFiles = []

@@ -284,6 +284,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
      * @return Collection of files
      */
     @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     @SkipWhenEmpty
     private final FileCollection getFakeFiles() {
         project.files('fake')
