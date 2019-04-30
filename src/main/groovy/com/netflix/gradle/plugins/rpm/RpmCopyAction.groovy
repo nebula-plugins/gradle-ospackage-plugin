@@ -61,7 +61,12 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         builder = new Builder()
         builder.setPackage task.packageName, task.version, task.release, task.epoch
         builder.setType task.type
-        builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.os
+        if (task.osName) {
+            builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.osName
+        } else {
+            builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.os
+        }
+
         builder.setGroup task.packageGroup
         builder.setBuildHost task.buildHost
         builder.setSummary task.summary
@@ -182,7 +187,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         includeStandardDefines ?
             String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
                 task.getArchString(),
-                task.os?.toString()?.toLowerCase() ?: '',
+                task.getOsString(),
                 task.getPackageName(),
                 task.getVersion(),
                 task.getRelease()) : null
