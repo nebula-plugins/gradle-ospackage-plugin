@@ -75,7 +75,6 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             builder.setPrefixes(task.allPrefixes as String[])
         }
         if (StringUtils.isNotBlank(task.getSigningKeyId())
-                && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
                 && task.getSigningKeyRingFile().exists()) {
             builder.setPrivateKeyId task.getSigningKeyId()
             builder.setPrivateKeyPassphrase task.getSigningKeyPassphrase()
