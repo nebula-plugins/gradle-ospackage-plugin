@@ -180,6 +180,12 @@ class SystemPackagingExtension {
     final List<Object> postUninstallCommands = []
 
     // RPM specific
+    final List<Trigger> triggerIn = []
+
+    final List<Trigger> triggerUn = []
+
+    final List<Trigger> triggerPostUn = []
+
     final List<Object> preTransCommands = []
 
     final List<Object> postTransCommands = []
@@ -338,6 +344,23 @@ class SystemPackagingExtension {
         preTransCommands << script
         return this
     }
+
+
+    def triggerIn(File script, String packageName, String version='', int flag=0) {
+        triggerIn << new Trigger(new Dependency(packageName, version, flag), script)
+        return this
+    }
+
+    def triggerUn(File script, String packageName, String version='', int flag=0) {
+        triggerUn << new Trigger(new Dependency(packageName, version, flag), script)
+        return this
+    }
+
+    def triggerPostUn(File script, String packageName, String version='', int flag=0) {
+        triggerPostUn << new Trigger(new Dependency(packageName, version, flag), script)
+        return this
+    }
+
 
     /**
      * For backwards compatibility
