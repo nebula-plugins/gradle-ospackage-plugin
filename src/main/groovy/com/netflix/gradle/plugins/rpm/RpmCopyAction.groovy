@@ -27,7 +27,9 @@ import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
 import org.redline_rpm.Builder
+import org.redline_rpm.IntString
 import org.redline_rpm.header.Architecture
+import org.redline_rpm.header.Flags
 import org.redline_rpm.header.Header.HeaderTag
 import org.redline_rpm.payload.Directive
 import org.slf4j.Logger
@@ -93,28 +95,55 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             }
             builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-            if (!task.allPreInstallCommands?.empty) {
-                builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
+        if (!task.allPreInstallCommands?.empty) {
+            builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
+        }
+        if (!task.allPostInstallCommands?.empty) {
+            builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
+        }
+        if (!task.allPreUninstallCommands?.empty) {
+            builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
+        }
+        if (!task.allPostUninstallCommands?.empty) {
+            builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
+        }
+            if (!task.allTriggerIn?.empty) {
+                task.allTriggerIn.each { trigger ->
+                    def dependencyMap= [:]
+                    dependencyMap.putAt(trigger.dependency.packageName,
+                            new IntString(trigger.dependency.flag, trigger.dependency.version))
+                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERIN)
+                }
             }
-            if (!task.allPostInstallCommands?.empty) {
-                builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
+
+            if (!task.allTriggerUn?.empty) {
+                task.allTriggerUn.each { trigger ->
+                    def dependencyMap= [:]
+                    dependencyMap.putAt(trigger.dependency.packageName,
+                            new IntString(trigger.dependency.flag, trigger.dependency.version))
+                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERUN)
+                }
             }
-            if (!task.allPreUninstallCommands?.empty) {
-                builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
+
+            if (!task.allTriggerPostUn?.empty) {
+                task.allTriggerPostUn.each { trigger ->
+                    def dependencyMap= [:]
+                    dependencyMap.putAt(trigger.dependency.packageName,
+                            new IntString(trigger.dependency.flag, trigger.dependency.version))
+                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERPOSTUN)
+                }
             }
-            if (!task.allPostUninstallCommands?.empty) {
-                builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
-            }
+
             if (!task.allPreTransCommands?.empty) {
-                // pretrans* scriptlets are special. They may be run in an
-                // environment where no shell exists. It's recommended that they
-                // be avoided where possible, but where not, written in Lua:
-                // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
-                builder.setPreTransScript(concat(task.allPreTransCommands))
-            }
-            if (!task.allPostTransCommands?.empty) {
-                builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
-            }
+            // pretrans* scriptlets are special. They may be run in an
+            // environment where no shell exists. It's recommended that they
+            // be avoided where possible, but where not, written in Lua:
+            // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
+            builder.setPreTransScript(concat(task.allPreTransCommands))
+        }
+        if (!task.allPostTransCommands?.empty) {
+            builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
+        }
 
             if (((Rpm) task).changeLogFile != null) {
                 builder.addChangelogFile(((Rpm) task).changeLogFile)
