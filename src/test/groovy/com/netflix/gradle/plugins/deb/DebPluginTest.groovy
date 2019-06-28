@@ -21,7 +21,6 @@ import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
-import org.gradle.api.tasks.TaskExecutionException
 import org.redline_rpm.header.Flags
 import spock.lang.Issue
 import spock.lang.Unroll
@@ -1338,4 +1337,31 @@ class DebPluginTest extends ProjectSpec {
         packagedSymlink.isSymbolicLink()
         packagedSymlink.linkName == '../source'
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/321")
+    def 'resolve symlinks outside build directory'() {
+        File outsideProjectDir = new File(projectDir.parentFile, projectDir.name + "-outside")
+        File source = new File(outsideProjectDir, "source")
+        if (outsideProjectDir.exists()) {
+            outsideProjectDir.deleteDir()
+        }
+        source.mkdirs()
+        def txtFile = new File(source, "test.txt")
+        txtFile.createNewFile()
+        File packageDir = new File(projectDir,"package")
+        java.nio.file.Files.createSymbolicLink(packageDir.toPath(), projectDir.toPath().relativize(outsideProjectDir.toPath()))
+
+        when:
+        project.apply plugin: 'nebula.deb'
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            from('package')
+        })
+        debTask.copy()
+
+        then:
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
+        scan.getEntry('./source/').isDirectory()
+        scan.getEntry("./source/test.txt").isFile()
+    }
+
 }
