@@ -313,4 +313,133 @@ class SystemPackagingExtensionTest extends Specification {
         Throwable t = thrown(IllegalStateException)
         t == SystemPackagingExtension.POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED
     }
+
+    def "Can define triggerIn with file and dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerIn(file, packageName)
+
+        then:
+        extension.triggerIn.size() == 1
+        Trigger trig = extension.triggerIn[0]
+        trig.command == file
+        trig.dependency.packageName == packageName
+        trig.dependency.version == ''
+        trig.dependency.flag == 0
+    }
+
+    def "Can not define triggerIn without file"() {
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerIn(null, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Trigger script is required. Expression: command. Values: command = null'
+    }
+
+
+    def "Can not define triggerIn with bad dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage,something'
+
+        when:
+        extension.triggerIn(file, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Package name (myPackage,something) can not include commas. Expression: packageName.contains(,)'
+    }
+
+    def "Can define triggerUn with file and dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerUn(file, packageName)
+
+        then:
+        extension.triggerUn.size() == 1
+        Trigger trig = extension.triggerUn[0]
+        trig.command == file
+        trig.dependency.packageName == packageName
+        trig.dependency.version == ''
+        trig.dependency.flag == 0
+    }
+
+    def "Can not define triggerUn without file"() {
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerUn(null, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Trigger script is required. Expression: command. Values: command = null'
+    }
+
+
+    def "Can not define triggerUn with bad dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage,something'
+
+        when:
+        extension.triggerUn(file, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Package name (myPackage,something) can not include commas. Expression: packageName.contains(,)'
+    }
+
+    def "Can define triggerPostUn with file and dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerPostUn(file, packageName)
+
+        then:
+        extension.triggerPostUn.size() == 1
+        Trigger trig = extension.triggerPostUn[0]
+        trig.command == file
+        trig.dependency.packageName == packageName
+        trig.dependency.version == ''
+        trig.dependency.flag == 0
+    }
+
+    def "Can not define triggerPostUn without file"() {
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerPostUn(null, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Trigger script is required. Expression: command. Values: command = null'
+    }
+
+
+    def "Can not define triggerPostUn with bad dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage,something'
+
+        when:
+        extension.triggerPostUn(file, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Package name (myPackage,something) can not include commas. Expression: packageName.contains(,)'
+    }
 }
