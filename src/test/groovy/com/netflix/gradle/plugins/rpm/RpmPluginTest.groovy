@@ -1081,4 +1081,43 @@ class RpmPluginTest extends ProjectSpec {
         }
         taskA.getDirectories() == taskB.getDirectories()
     }
+
+    def 'Add triggerIn, triggerUn, and triggerPostUn scripts'() {
+        given:
+        File triggerInScript = new File(projectDir, 'triggerinscript')
+        File triggerUnScript = new File(projectDir, 'triggerunscript')
+        File triggerPostUnScript = new File(projectDir, 'triggerpostunscript')
+        FileUtils.writeStringToFile(triggerInScript, 'MyTriggerInScript')
+        FileUtils.writeStringToFile(triggerUnScript, 'MyTriggerUnScript')
+        FileUtils.writeStringToFile(triggerPostUnScript, 'MyTriggerPostUnScript')
+
+        Project project = ProjectBuilder.builder().build()
+
+        project.apply plugin: 'nebula.rpm'
+
+        project.task([type: Rpm], 'buildRpm', {
+            destinationDir = project.file('build/tmp/RpmPluginTest')
+            destinationDir.mkdirs()
+
+            packageName = 'bleah'
+            version = '1.0'
+            release = '1'
+            arch = I386
+
+            triggerIn triggerInScript, 'the-package'
+            triggerUn triggerUnScript, 'the-package'
+            triggerPostUn triggerPostUnScript, 'the-pacakge'
+        })
+
+        when:
+        project.tasks.buildRpm.copy()
+
+        then:
+        def scan = Scanner.scan(project.file('build/tmp/RpmPluginTest/bleah-1.0-1.i386.rpm'))
+        def TRIGGER_SCRIPTS_HEADER_INDEX = 1065
+        def triggerScriptHeaders = scan.format.header.entries[TRIGGER_SCRIPTS_HEADER_INDEX]
+        triggerScriptHeaders.values[0].contains('MyTriggerInScript')
+        triggerScriptHeaders.values[1].contains('MyTriggerUnScript')
+        triggerScriptHeaders.values[2].contains('MyTriggerPostUnScript')
+    }
 }

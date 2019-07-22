@@ -9,6 +9,7 @@ class Trigger implements Serializable {
     final File command
 
     Trigger(Dependency dependency, File command) {
+        assert command, "Trigger script is required"
         this.dependency = dependency
         this.command = command
     }
