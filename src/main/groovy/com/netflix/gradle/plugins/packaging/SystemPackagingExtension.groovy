@@ -116,7 +116,10 @@ class SystemPackagingExtension {
 
     @Input @Optional
     Os os
-
+    
+    @Input @Optional
+    String osName
+    
     @Input @Optional
     RpmType type
 
