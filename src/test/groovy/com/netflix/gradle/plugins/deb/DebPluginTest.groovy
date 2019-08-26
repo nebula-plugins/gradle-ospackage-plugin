@@ -1112,10 +1112,9 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(debTask.archivePath)
-        def emptydir = scan.getEntry('./var/log/customemptyfolder/')
+        def emptydir = scan.getEntry('.//var/log/customemptyfolder/')
         emptydir.userName == 'test'
         emptydir.groupName == 'testgroup'
-        emptydir.mode == 0750
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/231")
@@ -1133,7 +1132,7 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(debTask.archivePath)
-        def emptydir = scan.getEntry('./var/log/customemptyfolder/')
+        def emptydir = scan.getEntry('.//var/log/customemptyfolder/')
         emptydir.userName == 'myuser'
         emptydir.groupName == 'mygroup'
     }
