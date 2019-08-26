@@ -152,4 +152,4 @@ pluginBundle {
     }
 }
 
-publishMavenPublicationToBintrayRepository.enabled = false
+tasks.publishMavenPublicationToBintrayRepository.enabled = false
