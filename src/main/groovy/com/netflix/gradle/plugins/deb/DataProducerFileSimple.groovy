@@ -3,7 +3,7 @@ package com.netflix.gradle.plugins.deb
 import groovy.transform.Canonical
 import org.vafer.jdeb.DataConsumer
 import org.vafer.jdeb.DataProducer
-import org.vafer.jdeb.shaded.compress.compress.archivers.tar.TarArchiveEntry
+import org.vafer.jdeb.shaded.commons.compress.archivers.tar.TarArchiveEntry
 
 @Canonical
 public class DataProducerFileSimple implements DataProducer {
