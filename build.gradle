@@ -39,6 +39,16 @@ contacts {
     }
 }
 
+dependencyLock {
+    includeTransitives = true
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.bouncycastle:bcpg-jdk15on:1.50'
+    }
+}
+
 dependencies {
     compile 'org.apache.commons:commons-lang3:3.1'
     compile('org.redline-rpm:redline:1.2.7') {
