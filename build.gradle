@@ -152,4 +152,9 @@ pluginBundle {
     }
 }
 
-tasks.publishMavenPublicationToBintrayRepository.enabled = false
+tasks.whenTaskAdded { Task task ->
+    if(task.name.contains("publishMavenPublicationToBintrayRepository")) {
+        task.enabled = false
+    }
+}
+
