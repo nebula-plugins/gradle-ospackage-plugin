@@ -15,7 +15,7 @@
  *
  */
 plugins {
-    id 'nebula.plugin-plugin' version '12.0.0'
+    id 'nebula.plugin-plugin' version '12.1.0'
 }
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -151,10 +151,3 @@ pluginBundle {
         }
     }
 }
-
-tasks.whenTaskAdded { Task task ->
-    if(task.name.contains("publishMavenPublicationToBintrayRepository")) {
-        task.enabled = false
-    }
-}
-
