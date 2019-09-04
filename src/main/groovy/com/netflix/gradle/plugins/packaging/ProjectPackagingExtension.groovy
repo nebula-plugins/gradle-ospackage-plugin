@@ -9,12 +9,14 @@ import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileTree
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.file.RelativePath
+import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopySpecInternal
 import org.gradle.api.internal.file.copy.DefaultCopySpec
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.specs.Spec
 import org.gradle.internal.reflect.Instantiator
+import org.gradle.util.GradleVersion
 
 import java.util.regex.Pattern
 
@@ -35,8 +37,12 @@ public class ProjectPackagingExtension extends SystemPackagingExtension {
     public ProjectPackagingExtension(Project project) {
         FileResolver resolver = ((ProjectInternal) project).getFileResolver();
         Instantiator instantiator = ((ProjectInternal) project).getServices().get(Instantiator.class);
-        delegateCopySpec = new DefaultCopySpec( resolver, instantiator);
-
+        if (GradleVersion.current().baseVersion >= GradleVersion.version("6.0")) {
+            FileCollectionFactory fileCollectionFactory = ((ProjectInternal) project).getServices().get(FileCollectionFactory.class);
+            delegateCopySpec = new DefaultCopySpec(resolver, fileCollectionFactory, instantiator);
+        } else {
+            delegateCopySpec = new DefaultCopySpec(resolver, instantiator);
+        }
     }
 
     /*
