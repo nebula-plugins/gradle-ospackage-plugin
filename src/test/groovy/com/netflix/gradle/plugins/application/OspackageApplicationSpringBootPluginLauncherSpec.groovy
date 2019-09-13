@@ -62,7 +62,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             }
 
             dependencies {
-                compile 'org.springframework.boot:spring-boot-starter:$bootVersion'
+                implementation 'org.springframework.boot:spring-boot-starter:$bootVersion'
             }
 
             ospackage {

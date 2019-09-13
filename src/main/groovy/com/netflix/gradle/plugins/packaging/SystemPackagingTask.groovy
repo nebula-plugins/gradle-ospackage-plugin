@@ -30,12 +30,14 @@ import org.gradle.api.provider.Property
 abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
+    @Internal
     final ObjectFactory objectFactory = project.objects
 
-    @Delegate
+    @Delegate(methodAnnotations = true)
     @Nested
     SystemPackagingExtension exten // Not File extension or ext list of properties, different kind of Extension
 
+    @Internal
     ProjectPackagingExtension parentExten
 
     // TODO Add conventions to pull from extension
@@ -54,7 +56,6 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
      * This should go into SystemPackagingExtension, but if we do, we won't be interacting correctly with the convention mapping.
      * @param arch
      */
-    @Input @Optional
     void setArch(Object arch) {
         setArchStr( (arch instanceof Architecture)?arch.name():arch.toString())
     }
@@ -76,7 +77,8 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         mapping.map('signingKeyId', { parentExten?.getSigningKeyId()?:'' })
         mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase()?:'' })
         mapping.map('signingKeyRingFile', {
-            parentExten?.getSigningKeyRingFile()?:new File(System.getProperty('user.home').toString(), '.gnupg/secring.gpg')
+            File defaultFile = new File(System.getProperty('user.home').toString(), '.gnupg/secring.gpg')
+            parentExten?.getSigningKeyRingFile() ?: (defaultFile.exists() ? defaultFile : null)
         })
         mapping.map('user', { parentExten?.getUser()?:getPackager() })
         mapping.map('maintainer', { parentExten?.getMaintainer()?:getPackager() })
@@ -246,7 +248,8 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
-    public String getArchString() {
+    @Internal
+    String getArchString() {
         return getArchStr()?.toLowerCase();
     }
 
@@ -259,7 +262,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
-    public AbstractCopyTask from(Object sourcePath, Closure c) {
+    AbstractCopyTask from(Object sourcePath, Closure c) {
         use(CopySpecEnhancement) {
             getMainSpec().from(sourcePath, c)
         }
@@ -267,7 +270,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
-    public AbstractArchiveTask into(Object destPath, Closure configureClosure) {
+    AbstractArchiveTask into(Object destPath, Closure configureClosure) {
         use(CopySpecEnhancement) {
             getMainSpec().into(destPath, configureClosure)
         }
@@ -286,12 +289,12 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     @SkipWhenEmpty
-    private final FileCollection getFakeFiles() {
+    FileCollection getFakeFiles() {
         project.files('fake')
     }
 
     @Override
-    public AbstractCopyTask exclude(Closure excludeSpec) {
+    AbstractCopyTask exclude(Closure excludeSpec) {
         use(CopySpecEnhancement) {
             getMainSpec().exclude(excludeSpec)
         }
@@ -299,7 +302,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
-    public AbstractCopyTask filter(Closure closure) {
+    AbstractCopyTask filter(Closure closure) {
         use(CopySpecEnhancement) {
             getMainSpec().filter(closure)
         }
@@ -307,7 +310,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
-    public AbstractCopyTask rename(Closure closure) {
+    AbstractCopyTask rename(Closure closure) {
         use(CopySpecEnhancement) {
             getMainSpec().rename(closure)
         }
