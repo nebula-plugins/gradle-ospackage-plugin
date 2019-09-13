@@ -34,7 +34,7 @@ import org.gradle.api.tasks.application.CreateStartScripts
  *         apply plugin: 'org.springframework.boot'
  *         apply plugin: 'nebula.ospackage-application-spring-boot'
  *
- *         dependencies {*           compile 'org.springframework.boot:spring-boot-starter'
+ *         dependencies {*           implementation 'org.springframework.boot:spring-boot-starter'
  *
  *           testCompile 'org.springframework.boot:spring-boot-starter-test'
  *}*       </pre>

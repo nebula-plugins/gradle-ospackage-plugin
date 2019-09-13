@@ -3,6 +3,7 @@ package com.netflix.gradle.plugins.packaging
 import com.netflix.gradle.plugins.deb.control.MultiArch
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -30,35 +31,16 @@ class SystemPackagingExtension {
     static final IllegalStateException POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostUninstall')
 
     // File name components
-    @Input @Optional
     String packageName
-
-    @Input @Optional
     String release
-
-    @Input @Optional
     String version
-
-    @Input @Optional
     Integer epoch
-
     // Package signing data
-    @Input @Optional
     String signingKeyId
-
-    @Input @Optional
     String signingKeyPassphrase
-
-    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
     File signingKeyRingFile
-
-    // Metadata, some are probably specific to a type
-    @Input @Optional
     String user
-
-    @Input @Optional
     String permissionGroup // Group is used by Gradle on tasks.
-
     /**
      * In Debian, this is the Section and has to be provided. Valid values are: admin, cli-mono, comm, database, debug,
      * devel, doc, editors, education, electronics, embedded, fonts, games, gnome, gnu-r, gnustep, graphics, hamradio,
@@ -67,91 +49,278 @@ class SystemPackagingExtension {
      * tex, text, utils, vcs, video, web, x11, xfce, zope. The section can be prefixed with contrib or non-free, if
      * not part of main.
      */
-    @Input @Optional
     String packageGroup
-
-    @Input @Optional
     String buildHost
-
-    @Input @Optional
     String summary
-
-    @Input @Optional
     String packageDescription
-
-    @Input @Optional
     String license
-
-    @Input @Optional
     String packager
-
-    @Input @Optional
     String distribution
-
-    @Input @Optional
     String vendor
-
-    @Input @Optional
     String url
-
-    @Input @Optional
     String sourcePackage
-
     // For Backward compatibility for those that passed in a Architecture object
     String archStr // This is what can be convention mapped and then referenced
+    Directive fileType
+    Boolean createDirectoryEntry
+    Boolean addParentDirs
+    Os os
+    RpmType type
+    List<String> prefixes = new ArrayList<String>()
+    // DEB Only
+    Integer uid
+    Integer gid
+    MultiArch multiArch
+    String maintainer
+    String uploaders
+    String priority
+    File preInstallFile
+    File postInstallFile
+    File preUninstallFile
+    File postUninstallFile
 
-    @Input @Optional
+    final List<Object> configurationFiles = []
+    final List<Object> preInstallCommands = []
+    final List<Object> postInstallCommands = []
+    final List<Object> preUninstallCommands = []
+    final List<Object> postUninstallCommands = []
+
+    // RPM specific
+    final List<Object> preTransCommands = []
+    final List<Object> postTransCommands = []
+    final List<Object> commonCommands = []
+
+    /**
+     * Can be of type String or File
+     */
+    final List<Object> supplementaryControlFiles = []
+
+    List<Link> links = new ArrayList<Link>()
+    List<Dependency> dependencies = new ArrayList<Dependency>()
+    List<Dependency> obsoletes = new ArrayList<Dependency>()
+    List<Dependency> conflicts = new ArrayList<Dependency>()
+    // Deb-specific special dependencies
+    List<Dependency> recommends = new ArrayList<Dependency>()
+    List<Dependency> suggests = new ArrayList<Dependency>()
+    List<Dependency> enhances = new ArrayList<Dependency>()
+    List<Dependency> preDepends = new ArrayList<Dependency>()
+    List<Dependency> breaks = new ArrayList<Dependency>()
+    List<Dependency> replaces = new ArrayList<Dependency>()
+    List<Dependency> provides = new ArrayList<Dependency>()
+    List<Directory> directories = new ArrayList<Directory>()
+
+    // DEB-specific user-defined fields
+    // https://www.debian.org/doc/debian-policy/ch-controlfields.html#s5.7
+    Map<String, String> customFields = [:]
+
+    @Input
+    @Optional
+    String getPackageName() {
+        return packageName
+    }
+
+    @Input
+    @Optional
+    String getRelease() {
+        return release
+    }
+
+    @Input
+    @Optional
+    String getVersion() {
+        return version
+    }
+
+    @Input
+    @Optional
+    Integer getEpoch() {
+        return epoch
+    }
+
+    @Input
+    @Optional
+    String getSigningKeyId() {
+        return signingKeyId
+    }
+
+    @Input
+    @Optional
+    String getSigningKeyPassphrase() {
+        return signingKeyPassphrase
+    }
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.ABSOLUTE)
+    File getSigningKeyRingFile() {
+        return signingKeyRingFile
+    }
+
+    @Input
+    @Optional
+    String getUser() {
+        return user
+    }
+
+    @Input
+    @Optional
+    String getPermissionGroup() {
+        return permissionGroup
+    }
+
+    @Input
+    @Optional
+    String getPackageGroup() {
+        return packageGroup
+    }
+
+    @Input
+    @Optional
+    String getBuildHost() {
+        return buildHost
+    }
+
+    @Input
+    @Optional
+    String getSummary() {
+        return summary
+    }
+
+    @Input
+    @Optional
+    String getPackageDescription() {
+        return packageDescription
+    }
+
+    @Input
+    @Optional
+    String getLicense() {
+        return license
+    }
+
+    @Input
+    @Optional
+    String getPackager() {
+        return packager
+    }
+
+    @Input
+    @Optional
+    String getDistribution() {
+        return distribution
+    }
+
+    @Input
+    @Optional
+    String getVendor() {
+        return vendor
+    }
+
+    @Input
+    @Optional
+    String getUrl() {
+        return url
+    }
+
+    @Input
+    @Optional
+    String getSourcePackage() {
+        return sourcePackage
+    }
+
+    @Input
+    @Optional
+    String getArchStr() {
+        return archStr
+    }
+
     void setArch(Object arch) {
         archStr = (arch instanceof Architecture) ? arch.name() : arch.toString()
     }
 
-    @Input @Optional
-    Directive fileType
+    @Input
+    @Optional
+    Directive getFileType() {
+        return fileType
+    }
 
-    @Input @Optional
-    Boolean createDirectoryEntry
+    @Input
+    @Optional
+    Boolean getCreateDirectoryEntry() {
+        return createDirectoryEntry
+    }
 
-    @Input @Optional
-    Boolean addParentDirs
+    @Input
+    @Optional
+    Boolean getAddParentDirs() {
+        return addParentDirs
+    }
 
-    @Input @Optional
-    Os os
+    @Input
+    @Optional
+    Os getOs() {
+        return os
+    }
 
-    @Input @Optional
-    RpmType type
+    @Input
+    @Optional
+    RpmType getType() {
+        return type
+    }
 
-    List<String> prefixes = new ArrayList<String>()
 
     def prefix(String prefixStr) {
         prefixes << prefixStr
         return this
     }
 
-    // DEB Only
+    @Input
+    @Optional
+    List<String> getPrefixes() {
+        return prefixes
+    }
 
-    @Input @Optional
-    Integer uid
+    @Input
+    @Optional
+    Integer getUid() {
+        return uid
+    }
 
-    @Input @Optional
-    Integer gid
+    @Input
+    @Optional
+    Integer getGid() {
+        return gid
+    }
 
-    @Input @Optional
-    MultiArch multiArch
+    @Input
+    @Optional
+    MultiArch getMultiArch() {
+        return multiArch
+    }
 
-    @Input @Optional
-    String maintainer
+    @Input
+    @Optional
+    String getMaintainer() {
+        return maintainer
+    }
 
-    @Input @Optional
-    String uploaders
+    @Input
+    @Optional
+    String getUploaders() {
+        return uploaders
+    }
 
-    @Input @Optional
-    String priority
+    @Input
+    @Optional
+    String getPriority() {
+        return priority
+    }
 
-    /**
-     * Can be of type String or File
-     */
-    @Input @Optional
-    final List<Object> supplementaryControlFiles = []
+    @Input
+    @Optional
+    List<Object> getSupplementaryControlFiles() {
+        return supplementaryControlFiles
+    }
 
     def supplementaryControl(Object file) {
         supplementaryControlFiles << file
@@ -159,32 +328,159 @@ class SystemPackagingExtension {
     }
 
     // Scripts
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getPreInstallFile() {
+        return preInstallFile
+    }
 
-    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
-    File preInstallFile
-    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
-    File postInstallFile
-    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
-    File preUninstallFile
-    @InputFile @Optional @PathSensitive(PathSensitivity.RELATIVE)
-    File postUninstallFile
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getPostInstallFile() {
+        return postInstallFile
+    }
 
-    final List<Object> configurationFiles = []
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getPreUninstallFile() {
+        return preUninstallFile
+    }
 
-    final List<Object> preInstallCommands = []
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getPostUninstallFile() {
+        return postUninstallFile
+    }
 
-    final List<Object> postInstallCommands = []
+    @Input
+    @Optional
+    List<Object> getConfigurationFiles() {
+        return configurationFiles
+    }
 
-    final List<Object> preUninstallCommands = []
+    @Input
+    @Optional
+    List<Object> getPreInstallCommands() {
+        return preInstallCommands
+    }
 
-    final List<Object> postUninstallCommands = []
+    @Input
+    @Optional
+    List<Object> getPostInstallCommands() {
+        return postInstallCommands
+    }
 
-    // RPM specific
-    final List<Object> preTransCommands = []
+    @Input
+    @Optional
+    List<Object> getPreUninstallCommands() {
+        return preUninstallCommands
+    }
 
-    final List<Object> postTransCommands = []
+    @Input
+    @Optional
+    List<Object> getPostUninstallCommands() {
+        return postUninstallCommands
+    }
 
-    final List<Object> commonCommands = []
+    @Input
+    @Optional
+    List<Object> getPreTransCommands() {
+        return preTransCommands
+    }
+
+    @Input
+    @Optional
+    List<Object> getPostTransCommands() {
+        return postTransCommands
+    }
+
+    @Input
+    @Optional
+    List<Object> getCommonCommands() {
+        return commonCommands
+    }
+
+    @Input
+    @Optional
+    List<Link> getLinks() {
+        return links
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getDependencies() {
+        return dependencies
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getObsoletes() {
+        return obsoletes
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getRecommends() {
+        return recommends
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getSuggests() {
+        return suggests
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getEnhances() {
+        return enhances
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getPreDepends() {
+        return preDepends
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getBreaks() {
+        return breaks
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getReplaces() {
+        return replaces
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getProvides() {
+        return provides
+    }
+
+    @Input
+    @Optional
+    List<Dependency> getConflicts() {
+        return conflicts
+    }
+
+    @Input
+    @Optional
+    List<Directory> getDirectories() {
+        return directories
+    }
+
+    @Input
+    @Optional
+    Map<String, String> getCustomFields() {
+        return customFields
+    }
 
     /**
      * For backwards compatibility
@@ -359,7 +655,8 @@ class SystemPackagingExtension {
 
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
 
-    List<Link> links = new ArrayList<Link>()
+
+
     Link link(String path, String target) {
         link(path, target, -1)
     }
@@ -373,17 +670,6 @@ class SystemPackagingExtension {
         link
     }
 
-    List<Dependency> dependencies = new ArrayList<Dependency>()
-    List<Dependency> obsoletes = new ArrayList<Dependency>()
-    List<Dependency> conflicts = new ArrayList<Dependency>()
-    // Deb-specific special dependencies
-    List<Dependency> recommends = new ArrayList<Dependency>()
-    List<Dependency> suggests = new ArrayList<Dependency>()
-    List<Dependency> enhances = new ArrayList<Dependency>()
-    List<Dependency> preDepends = new ArrayList<Dependency>()
-    List<Dependency> breaks = new ArrayList<Dependency>()
-    List<Dependency> replaces = new ArrayList<Dependency>()
-    List<Dependency> provides = new ArrayList<Dependency>()
 
     Dependency requires(String packageName, String version, int flag) {
         def dep = new Dependency(packageName, version, flag)
@@ -489,7 +775,6 @@ class SystemPackagingExtension {
         provides(packageName, '', 0)
     }
 
-    List<Directory> directories = new ArrayList<Directory>()
 
     Directory directory(String path) {
         Directory directory = directory(path, -1)
@@ -526,10 +811,6 @@ class SystemPackagingExtension {
         directories << directory
         directory
     }
-
-    // DEB-specific user-defined fields
-    // https://www.debian.org/doc/debian-policy/ch-controlfields.html#s5.7
-    Map<String, String> customFields = [:]
 
     def customField(String key, String val) {
         customFields[key] = val
