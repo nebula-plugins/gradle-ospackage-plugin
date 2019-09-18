@@ -29,6 +29,9 @@ class DaemonExtension {
     DaemonDefinition daemon(Closure configure) {
         DaemonDefinition definition = new DaemonDefinition()
         ConfigureUtil.configure(configure, definition)
+        if(daemons.contains(definition)) {
+            throw new IllegalArgumentException("Could not configure as duplicated daemons are present: ${definition?.daemonName}")
+        }
         daemons.add(definition)
         return definition
     }
