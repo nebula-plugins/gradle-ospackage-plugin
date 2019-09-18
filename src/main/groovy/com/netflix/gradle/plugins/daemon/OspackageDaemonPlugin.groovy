@@ -19,17 +19,13 @@ package com.netflix.gradle.plugins.daemon
 import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
-import com.netflix.gradle.plugins.utils.DomainObjectCollectionFactory
 import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
 import org.gradle.api.DomainObjectCollection
+import org.gradle.api.DomainObjectSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.internal.CollectionCallbackActionDecorator
-import org.gradle.api.tasks.AbstractCopyTask
-
-import javax.inject.Inject
+import org.gradle.util.WrapUtil
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     public static final String POST_INSTALL_TEMPLATE = "postInstall"
@@ -37,15 +33,9 @@ class OspackageDaemonPlugin implements Plugin<Project> {
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
     DefaultDaemonDefinitionExtension defaultDefinition
-    private final CollectionCallbackActionDecorator collectionCallbackActionDecorator
-
 
     private final String DEFAULT_TEMPLATES_FOLDER = '/com/netflix/gradle/plugins/daemon'
 
-    @Inject
-    OspackageDaemonPlugin(CollectionCallbackActionDecorator collectionCallbackActionDecorator) {
-        this.collectionCallbackActionDecorator = collectionCallbackActionDecorator
-    }
 
     Map<String,Object> toContext(DaemonDefinition definitionDefaults, DaemonDefinition definition) {
         return [
@@ -67,8 +57,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
-        DomainObjectCollectionFactory factory = new DomainObjectCollectionFactory<>(collectionCallbackActionDecorator)
-        DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
+        DomainObjectSet<DaemonDefinition> daemonsList = WrapUtil.toDomainObjectSet(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)
         defaultDefinition = project.extensions.create('daemonsDefaultDefinition', DefaultDaemonDefinitionExtension)
