@@ -21,6 +21,8 @@ plugins {
 
 description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
 
+compileGroovy.groovyOptions.configurationScript = file('src/groovyCompile/groovycConfig.groovy')
+
 contacts {
     'justin@halfempty.org' {
         moniker 'Justin Ryan'

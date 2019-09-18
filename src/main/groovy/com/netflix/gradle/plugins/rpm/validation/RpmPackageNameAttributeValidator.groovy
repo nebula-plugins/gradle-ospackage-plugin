@@ -1,7 +1,6 @@
 package com.netflix.gradle.plugins.rpm.validation
 
 import com.netflix.gradle.plugins.packaging.validation.SystemPackagingAttributeValidator
-
 class RpmPackageNameAttributeValidator implements SystemPackagingAttributeValidator {
     /**
      * Per <a href="http://fedoraproject.org/wiki/Packaging:NamingGuidelines#Common_Character_Set_for_Package_Naming">RPM manpage</a> a valid

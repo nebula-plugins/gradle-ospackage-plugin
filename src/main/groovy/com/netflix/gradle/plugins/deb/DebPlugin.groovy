@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.deb.control.MultiArch
 import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -28,7 +29,7 @@ class DebPlugin implements Plugin<Project> {
         project.plugins.apply(CommonPackagingPlugin.class)
 
         // Register class, so users don't have to add imports
-        project.ext.Deb = Deb.class
+        registerDebClass(project)
 
         // Some defaults, if not set by the user
         project.tasks.withType(Deb) { Deb task ->
@@ -36,6 +37,11 @@ class DebPlugin implements Plugin<Project> {
             DebPlugin.applyAliases(task) // DEB-specific aliases
             task.applyConventions()
         }
+    }
+
+    @CompileDynamic
+    private void registerDebClass(Project project) {
+        project.ext.Deb = Deb.class
     }
 
     def static applyAliases(def dynamicObjectAware) {

@@ -1,11 +1,13 @@
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 import java.lang.reflect.Field
 import java.lang.reflect.Modifier
 
+@CompileDynamic
 class AliasHelper {
     private static Logger logger = Logging.getLogger(AliasHelper);
 

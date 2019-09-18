@@ -18,6 +18,7 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
+import groovy.transform.CompileDynamic
 import org.redline_rpm.Builder
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Flags
@@ -27,6 +28,7 @@ import org.redline_rpm.payload.Directive
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+@CompileDynamic
 class RpmPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(CommonPackagingPlugin.class)

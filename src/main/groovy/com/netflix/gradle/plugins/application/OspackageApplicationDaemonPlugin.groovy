@@ -16,8 +16,10 @@
 
 package com.netflix.gradle.plugins.application
 
+import com.netflix.gradle.plugins.daemon.DaemonDefinition
 import com.netflix.gradle.plugins.daemon.DaemonExtension
 import com.netflix.gradle.plugins.daemon.OspackageDaemonPlugin
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
@@ -50,9 +52,7 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
 
         // Mechanism for user to configure daemon further
         List<Closure> daemonConfiguration = []
-        project.ext.applicationdaemon = { Closure closure ->
-            daemonConfiguration << closure
-        }
+        setApplicationDaemon(project, daemonConfiguration)
 
         // TODO Convention mapping on definition instead of afterEvaluate
         project.afterEvaluate {
@@ -60,15 +60,22 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
             def name = startScripts.applicationName
 
             // Add daemon to project
-            def daemonExt = project.extensions.getByType(DaemonExtension)
-            def definition = daemonExt.daemon {
-                daemonName = name
-                command = "${ospackageApplicationExtension.prefix}/${name}/bin/${name}"
+            DaemonExtension daemonExt = project.extensions.getByType(DaemonExtension)
+            def definition = daemonExt.daemon { DaemonDefinition daemonDefinition ->
+                daemonDefinition.setDaemonName(name)
+                daemonDefinition.setCommand("${ospackageApplicationExtension.prefix}/${name}/bin/${name}".toString())
             }
 
             daemonConfiguration.each { confClosure ->
                 ConfigureUtil.configure(confClosure, definition)
             }
+        }
+    }
+
+    @CompileDynamic
+    private void setApplicationDaemon(Project project, List<Closure> daemonConfiguration) {
+        project.ext.applicationdaemon = { Closure closure ->
+            daemonConfiguration << closure
         }
     }
 }

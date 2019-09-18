@@ -6,7 +6,7 @@ import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.shaded.commons.compress.archivers.tar.TarArchiveEntry
 
 @Canonical
-public class DataProducerFileSimple implements DataProducer {
+class DataProducerFileSimple implements DataProducer {
 
     String filename
     File file

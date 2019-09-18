@@ -16,6 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.copy.*
 import org.gradle.api.tasks.WorkResult
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory
 
 import java.lang.reflect.Field
 
-public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implements CopyAction {
+abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implements CopyAction {
     static final Logger logger = LoggerFactory.getLogger(AbstractPackagingCopyAction.class)
 
     T task
@@ -37,7 +38,7 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         this.task = task
     }
 
-    public WorkResult execute(CopyActionProcessingStream stream) {
+     WorkResult execute(CopyActionProcessingStream stream) {
         try {
             startVisit(this)
             stream.process(new StreamAction());
@@ -114,6 +115,7 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         // TODO Investigate, we seem to always set to true.
     }
 
+    @CompileDynamic
     String concat(Collection<Object> scripts) {
         String shebang
         StringBuilder result = new StringBuilder();
@@ -137,6 +139,7 @@ public abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask>
         result.toString()
     }
 
+    @CompileDynamic
     CopySpecInternal extractSpec(FileCopyDetailsInternal fileDetails) {
         if (fileDetails instanceof DefaultFileCopyDetails) {
             def startingClass = fileDetails.getClass() // It's in there somewhere

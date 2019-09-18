@@ -214,7 +214,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         task.getAllCustomFields().collectEntries { String key, String val ->
             // in the deb control file, header XB-Foo becomes Foo in the binary package
             ['XB-' + key.capitalize(), val]
-        }
+        } as Map<String, String>
     }
 
     @Override
@@ -252,7 +252,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         maintainerScriptsGenerator.generate(toContext())
 
         task.allSupplementaryControlFiles.each { supControl ->
-            File supControlFile = supControl instanceof File ? supControl : task.project.file(supControl)
+            File supControlFile = supControl instanceof File ? supControl as File : task.project.file(supControl)
             new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
         }
 

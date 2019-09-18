@@ -16,6 +16,7 @@
 
 package com.netflix.gradle.plugins.application
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
@@ -43,6 +44,7 @@ import org.gradle.api.tasks.application.CreateStartScripts
  *     <li>{@code $ ./gradlew run}</li>
  * </ul>
  */
+@CompileDynamic
 class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
     OspackageApplicationExtension extension
 

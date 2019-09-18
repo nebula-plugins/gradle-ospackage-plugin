@@ -1,7 +1,6 @@
 package com.netflix.gradle.plugins.deb.validation
 
 import com.netflix.gradle.plugins.packaging.validation.SystemPackagingAttributeValidator
-
 class DebVersionAttributeValidator implements SystemPackagingAttributeValidator {
     /**
      * Per <a href="http://manpages.ubuntu.com/manpages/quantal/man5/deb-version.5.html">Debian manpage</a> a valid

@@ -2,7 +2,7 @@ package com.netflix.gradle.plugins.deb
 
 import com.netflix.gradle.plugins.utils.FileSystemActions
 import groovy.transform.Canonical
-
+import groovy.transform.CompileDynamic
 class MaintainerScriptsGenerator {
     private final Deb task
     private final TemplateHelper templateHelper
@@ -24,7 +24,7 @@ class MaintainerScriptsGenerator {
             templateHelper.generateFile("conffiles", [files: configurationFiles] )
         }
 
-        def scripts = [
+        List<MaintainerScript> scripts = [
                 new MaintainerScript("preinst", task.preInstallFile, task.allPreInstallCommands),
                 new PostInstScript(task.postInstallFile, task.allPostInstallCommands, context),
                 new MaintainerScript("prerm", task.preUninstallFile, task.allPreUninstallCommands),
@@ -35,7 +35,8 @@ class MaintainerScriptsGenerator {
             if(script.file) {
                 fileSystem.copy(script.file, new File(destination, script.name))
             } else if (script.needsTemplateGeneration()) {
-                templateHelper.generateFile(script.name, context + [commands: installUtils + script.commands.collect { stripShebang(it) }])
+                Map<String, Object> commands = [commands: installUtils + script.commands.collect { stripShebang(it) }] as Map<String, Object>
+                templateHelper.generateFile(script.name, context + commands)
             }
         }
     }
@@ -46,8 +47,9 @@ class MaintainerScriptsGenerator {
      * @param script
      * @return
      */
+    @CompileDynamic
     private static String stripShebang(Object script) {
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder()
         script?.eachLine { line ->
             if (!line.matches('^#!.*$')) {
                 result.append line
@@ -55,7 +57,6 @@ class MaintainerScriptsGenerator {
             }
         }
         result.toString()
-
     }
 
     @Canonical
