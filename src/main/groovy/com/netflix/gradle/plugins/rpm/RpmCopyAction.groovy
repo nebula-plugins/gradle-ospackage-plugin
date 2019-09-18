@@ -21,6 +21,7 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
+import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
@@ -35,6 +36,7 @@ import java.nio.channels.FileChannel
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 
+@CompileDynamic
 class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     static final Logger logger = LoggerFactory.getLogger(RpmCopyAction.class)
 

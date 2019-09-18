@@ -1,10 +1,12 @@
 package com.netflix.gradle.plugins.utils
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.internal.CollectionCallbackActionDecorator
 import org.gradle.api.internal.DefaultDomainObjectCollection
 import org.gradle.api.internal.collections.ListElementSource
 
+@CompileDynamic
 class DomainObjectCollectionFactory<T> {
     private final CollectionCallbackActionDecorator callbackActionDecorator
 

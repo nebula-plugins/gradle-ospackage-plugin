@@ -21,8 +21,8 @@ class DockerCopyAction extends AbstractPackagingCopyAction<SystemPackageDockerfi
     protected void visitFile(FileCopyDetailsInternal fileDetails,def Object specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
 
-        def inputFile = extractFile(fileDetails)
-        def targetFile = "/$fileDetails.path"
+        File inputFile = extractFile(fileDetails)
+        String targetFile = "/$fileDetails.path"
         dockerfileInstructionManager.addInstruction("ADD $inputFile.name $targetFile")
     }
 

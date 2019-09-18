@@ -26,8 +26,8 @@ class DaemonExtension {
 
     // TBD Add defaults, like user name for all daemons
 
-    def daemon(Closure configure) {
-        def definition = new DaemonDefinition()
+    DaemonDefinition daemon(Closure configure) {
+        DaemonDefinition definition = new DaemonDefinition()
         ConfigureUtil.configure(configure, definition)
         daemons.add(definition)
         return definition

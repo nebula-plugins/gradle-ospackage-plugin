@@ -21,10 +21,13 @@ import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.utils.DomainObjectCollectionFactory
 import groovy.text.GStringTemplateEngine
+import groovy.transform.CompileDynamic
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.internal.CollectionCallbackActionDecorator
+import org.gradle.api.tasks.AbstractCopyTask
 
 import javax.inject.Inject
 
@@ -56,7 +59,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 autoStart: definition.autoStart != null? definition.autoStart : definitionDefaults.autoStart,
                 startSequence: definition.startSequence ?: definitionDefaults.startSequence,
                 stopSequence: definition.stopSequence ?: definitionDefaults.stopSequence
-        ]
+        ] as Map<String,Object>
     }
 
     @Override
@@ -64,16 +67,16 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
-        def factory = new DomainObjectCollectionFactory<>(collectionCallbackActionDecorator)
+        DomainObjectCollectionFactory factory = new DomainObjectCollectionFactory<>(collectionCallbackActionDecorator)
         DomainObjectCollection<DaemonDefinition> daemonsList = factory.create(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
         daemonTemplatesConfigExtension = project.extensions.create('daemonsTemplates', DaemonTemplatesConfigExtension)
         defaultDefinition = project.extensions.create('daemonsDefaultDefinition', DefaultDaemonDefinitionExtension)
 
         // Add daemon to project
-        project.ext.daemon = { Closure closure ->
+        addDaemonToProject(project, { Closure closure ->
             extension.daemon(closure)
-        }
+        })
 
         extension.daemons.all { DaemonDefinition definition ->
             // Check existing name
@@ -87,7 +90,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
             }
 
             project.tasks.withType(SystemPackagingTask) { SystemPackagingTask task ->
-                def isRedhat = task instanceof Rpm
+                boolean isRedhat = task instanceof Rpm
                 DaemonDefinition defaults = getDefaultDaemonDefinition(isRedhat)
 
                 // Calculate daemonName really early, but everything else can be done later.
@@ -100,20 +103,20 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 String cleanedName = daemonName.replaceAll("\\W", "").capitalize()
 
 
-                def outputDir = new File(project.buildDir, "daemon/${cleanedName}/${task.name}")
+                File outputDir = new File(project.buildDir, "daemon/${cleanedName}/${task.name}")
 
-                def defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
-                def templatesWithFileOutput = [
+                String defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
+                Map<String, String> templatesWithFileOutput = [
                         'log-run': defaultDefinition.runLogScriptLocation ?: "/service/\${daemonName}/log/run",
                         'run': defaultDefinition.runScriptLocation ?: "/service/\${daemonName}/run",
                         'initd': defaultDefinition.initDScriptLocation ?: defaultInitDScriptLocationTemplate
                 ]
 
-                def templateTask = project.tasks.create("${task.name}${cleanedName}Daemon", DaemonTemplateTask)
+                DaemonTemplateTask templateTask = project.tasks.create("${task.name}${cleanedName}Daemon".toString(), DaemonTemplateTask)
                 templateTask.conventionMapping.map('destDir') { outputDir }
                 templateTask.conventionMapping.map('templatesFolder') {  daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER  }
                 templateTask.conventionMapping.map('context') {
-                    Map<String, String> context = toContext(defaults, definition)
+                    Map<String,Object> context = toContext(defaults, definition)
                     context.daemonName = daemonName
                     context.isRedhat = isRedhat
                     context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
@@ -126,15 +129,10 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     File rendered = new File(outputDir, templateName) // To be created by task, ok that it's not around yet
                     String destPath = getDestPath(destPathTemplate, templateTask)
                     // Gradle CopySpec can't set the name of a file on the fly, we need to do a rename.
-                    def slashIdx = destPath.lastIndexOf('/')
-                    def destDir = destPath.substring(0,slashIdx)
-                    def destFile = destPath.substring(slashIdx+1)
-                    task.from(rendered) {
-                        into(destDir)
-                        rename('.*', destFile)
-                        fileMode 0555 // Since source files don't have the correct permissions
-                        user 'root'
-                    }
+                    int slashIdx = destPath.lastIndexOf('/')
+                    String destDir = destPath.substring(0,slashIdx)
+                    String destFile = destPath.substring(slashIdx+1)
+                    configureTask(task, rendered, destDir, destFile)
                 }
 
                 task.doFirst {
@@ -145,13 +143,28 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         }
     }
 
-    private String getDestPath(String destPathTemplate, def templateTask) {
+    @CompileDynamic
+    private void configureTask(SystemPackagingTask task, File rendered, String destDir, String destFile) {
+        task.from(rendered) {
+            into(destDir)
+            rename('.*', destFile)
+            fileMode 0555 // Since source files don't have the correct permissions
+            user 'root'
+        }
+    }
+
+    @CompileDynamic
+    private void addDaemonToProject(Project project, Closure closure) {
+        project.ext.daemon = closure
+    }
+
+    private String getDestPath(String destPathTemplate, DaemonTemplateTask templateTask) {
         GStringTemplateEngine engine = new GStringTemplateEngine()
         def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext()).toString()
         destPath
     }
 
-    def getDefaultDaemonDefinition(boolean isRedhat) {
+    DaemonDefinition getDefaultDaemonDefinition(boolean isRedhat) {
         if (defaultDefinition.useExtensionDefaults)
             defaultDefinition
         else

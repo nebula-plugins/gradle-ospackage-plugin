@@ -26,7 +26,7 @@ import org.gradle.api.logging.Logging
 /**
  * Create implicit tasks, which will inherit from the ospackage extension.
  */
-public class SystemPackagingPlugin implements Plugin<Project> {
+class SystemPackagingPlugin implements Plugin<Project> {
     private static Logger logger = Logging.getLogger(SystemPackagingPlugin);
 
     Project project
@@ -38,8 +38,8 @@ public class SystemPackagingPlugin implements Plugin<Project> {
         this.project = project
 
         project.plugins.apply(SystemPackagingBasePlugin.class)
-        debTask = project.task([type: Deb], 'buildDeb')
-        rpmTask = project.task([type: Rpm], 'buildRpm')
+        debTask = project.task([type: Deb], 'buildDeb') as Deb
+        rpmTask = project.task([type: Rpm], 'buildRpm') as Rpm
     }
 
 }

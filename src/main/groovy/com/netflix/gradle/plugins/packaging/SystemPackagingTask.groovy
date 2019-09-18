@@ -16,6 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.ConventionMapping
@@ -137,6 +138,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
 
     @Override
     @TaskAction
+    @CompileDynamic
     protected void copy() {
         use(CopySpecEnhancement) {
             super.copy()
@@ -262,6 +264,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
+    @CompileDynamic
     AbstractCopyTask from(Object sourcePath, Closure c) {
         use(CopySpecEnhancement) {
             getMainSpec().from(sourcePath, c)
@@ -270,6 +273,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
+    @CompileDynamic
     AbstractArchiveTask into(Object destPath, Closure configureClosure) {
         use(CopySpecEnhancement) {
             getMainSpec().into(destPath, configureClosure)
@@ -294,6 +298,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
+    @CompileDynamic
     AbstractCopyTask exclude(Closure excludeSpec) {
         use(CopySpecEnhancement) {
             getMainSpec().exclude(excludeSpec)
@@ -302,6 +307,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
+    @CompileDynamic
     AbstractCopyTask filter(Closure closure) {
         use(CopySpecEnhancement) {
             getMainSpec().filter(closure)
@@ -310,6 +316,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     @Override
+    @CompileDynamic
     AbstractCopyTask rename(Closure closure) {
         use(CopySpecEnhancement) {
             getMainSpec().rename(closure)

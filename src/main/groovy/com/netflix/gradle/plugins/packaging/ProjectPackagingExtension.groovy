@@ -1,5 +1,6 @@
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.CopyProcessingSpec
@@ -29,7 +30,8 @@ import java.util.regex.Pattern
  * CopySourceSpec's methods and the ones overriden in DelegatingCopySpec, even though that's perfectly valid
  * Java code. The theory is that it's some bug in groovyc.
  */
-public class ProjectPackagingExtension extends SystemPackagingExtension {
+@CompileDynamic
+class ProjectPackagingExtension extends SystemPackagingExtension {
 
     CopySpecInternal delegateCopySpec;
 

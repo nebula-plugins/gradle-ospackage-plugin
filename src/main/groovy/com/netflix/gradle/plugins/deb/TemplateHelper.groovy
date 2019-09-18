@@ -19,9 +19,9 @@ class TemplateHelper {
 
     File generateFile(String templateName, Map context) {
         logger.info("Generating ${templateName} file...")
-        def template = getClass().getResourceAsStream("${templatePrefix}/${templateName}.ftl").newReader()
-        def content = engine.createTemplate(template).make(context).toString()
-        def contentFile = new File(destDir, templateName)
+        BufferedReader template = getClass().getResourceAsStream("${templatePrefix}/${templateName}.ftl").newReader()
+        String content = engine.createTemplate(template).make(context).toString()
+        File contentFile = new File(destDir, templateName)
         destDir.mkdirs()
         contentFile.text = content
         return contentFile

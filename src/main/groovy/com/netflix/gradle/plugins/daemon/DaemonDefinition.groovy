@@ -17,7 +17,6 @@
 package com.netflix.gradle.plugins.daemon
 
 import groovy.transform.Canonical
-
 /**
  * Template variables. Fields start off empty an only at
  */

@@ -1,5 +1,6 @@
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.reflect.FieldUtils
 import org.redline_rpm.payload.Directive
 import org.gradle.api.file.CopySpec
@@ -24,6 +25,7 @@ import java.util.logging.Logger
  * assignment form "name = value".
  *
  */
+@CompileDynamic
 class CopySpecEnhancement {
     private static final Logger LOGGER = Logger.getLogger(CopySpecEnhancement.getName())
 

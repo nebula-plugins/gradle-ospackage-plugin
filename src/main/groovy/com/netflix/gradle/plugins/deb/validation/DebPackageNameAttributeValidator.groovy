@@ -1,7 +1,6 @@
 package com.netflix.gradle.plugins.deb.validation
 
 import com.netflix.gradle.plugins.packaging.validation.SystemPackagingAttributeValidator
-
 class DebPackageNameAttributeValidator implements SystemPackagingAttributeValidator {
     /**
      * Per <a href=" https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-Source">Debian manpage</a> a valid
