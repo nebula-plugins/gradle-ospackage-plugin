@@ -2,7 +2,7 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 cglib:cglib-nodep:3.2.2
-com.bmuschko:gradle-docker-plugin:3.2.1
+com.bmuschko:gradle-docker-plugin:5.1.0
 com.google.guava:guava:19.0
 com.netflix.nebula:nebula-test:7.3.0
 commons-io:commons-io:2.6

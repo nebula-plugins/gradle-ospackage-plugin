@@ -1,7 +1,7 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-com.bmuschko:gradle-docker-plugin:3.2.1
+com.bmuschko:gradle-docker-plugin:5.1.0
 commons-io:commons-io:2.6
 org.apache.ant:ant-launcher:1.10.6
 org.apache.ant:ant:1.10.6
