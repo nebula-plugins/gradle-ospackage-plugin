@@ -67,7 +67,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    implementation 'com.bmuschko:gradle-docker-plugin:latest.release'
+    implementation 'com.bmuschko:gradle-docker-plugin:3.2.1'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
