@@ -1,6 +1,6 @@
 package com.netflix.gradle.plugins.packaging
 
-class Directory {
+class Directory implements Serializable {
     String path
     int permissions = -1
     String user = null
