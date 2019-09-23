@@ -1070,4 +1070,15 @@ class RpmPluginTest extends ProjectSpec {
         scan.format.header.entries[PRE_TRANS_HEADER_INDEX].values[0].contains('MyPreTransScript')
         scan.format.header.entries[POST_TRANS_HEADER_INDEX].values[0].contains('MyPostTransScript')
     }
+
+    def 'equal task directories are equal'() {
+        expect:
+        def taskA = project.task('buildRpmA', type: Rpm) {
+            directory('test', 755)
+        }
+        def taskB = project.task('buildRpmB', type: Rpm) {
+            directory('test', 755)
+        }
+        taskA.getDirectories() == taskB.getDirectories()
+    }
 }

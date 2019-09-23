@@ -1,6 +1,9 @@
 package com.netflix.gradle.plugins.packaging
 
-class Directory {
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
+class Directory implements Serializable {
     String path
     int permissions = -1
     String user = null
