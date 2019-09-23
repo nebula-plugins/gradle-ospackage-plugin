@@ -111,10 +111,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         !scanner.controlContents.containsKey('./postinst')
 
         where:
-        bootVersion      | distribution | fileMode
-        '2.0.0.RC2'      | 'boot'       | 0525
-        '2.1.1.RELEASE'  | 'boot'       | 0755
-        '2.0.7.RELEASE'  | 'boot'       | 0755
+        bootVersion     | distribution | fileMode
+        '2.1.8.RELEASE' | 'boot'       | 0755
     }
 
     @Unroll
@@ -131,9 +129,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion      | distribution
-        '1.5.10.RELEASE' | ''
-        '2.0.0.RC2'      | 'boot'
+        bootVersion     | distribution
+        '2.1.8.RELEASE' | 'boot'
     }
 
     @Unroll
@@ -166,8 +163,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         }
 
         where:
-        bootVersion      | distribution | fileMode
-        '1.5.10.RELEASE' | ''           | 0755
-        '2.0.0.RC2'      | 'boot'       | 0525
+        bootVersion     | distribution | fileMode
+        '2.1.8.RELEASE' | 'boot'       | 493
     }
 }
