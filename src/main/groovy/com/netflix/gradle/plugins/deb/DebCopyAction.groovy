@@ -29,6 +29,7 @@ import org.apache.commons.lang3.time.DateFormatUtils
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.util.DeprecationLogger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.vafer.jdeb.Compression
@@ -301,50 +302,59 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
      * Map to be consumed by generateFile when transforming template
      */
     def Map toContext() {
-        [
-                name: task.getPackageName(),
-                version: task.getVersion(),
-                release: task.getRelease(),
-                maintainer: task.getMaintainer(),
-                uploaders: task.getUploaders(),
-                priority: task.getPriority(),
-                epoch: task.getEpoch(),
-                description: task.getPackageDescription() ?: '',
-                distribution: task.getDistribution(),
-                summary: task.getSummary(),
-                section: task.getPackageGroup(),
-                time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
-                provides: StringUtils.join(provides, ", "),
-                depends: StringUtils.join(dependencies, ", "),
-                url: task.getUrl(),
-                arch: task.getArchString(),
-                multiArch: getMultiArch(),
-                conflicts: StringUtils.join(conflicts, ", "),
-                recommends: StringUtils.join(recommends, ", "),
-                suggests: StringUtils.join(suggests, ", "),
-                enhances: StringUtils.join(enhances, ", " ),
-                preDepends: StringUtils.join(preDepends, ", "),
-                breaks: StringUtils.join(breaks, ", "),
-                replaces: StringUtils.join(replaces, ", "),
-                fullVersion: buildFullVersion(),
-                customFields: getCustomFields(),
+        Map context = [:]
+        DeprecationLogger.whileDisabled {
+            context = [
+                    name: task.getPackageName(),
+                    version: task.getVersion(),
+                    release: task.getRelease(),
+                    maintainer: task.getMaintainer(),
+                    uploaders: task.getUploaders(),
+                    priority: task.getPriority(),
+                    epoch: task.getEpoch(),
+                    description: task.getPackageDescription() ?: '',
+                    distribution: task.getDistribution(),
+                    summary: task.getSummary(),
+                    section: task.getPackageGroup(),
+                    time: DateFormatUtils.SMTP_DATETIME_FORMAT.format(new Date()),
+                    provides: StringUtils.join(provides, ", "),
+                    depends: StringUtils.join(dependencies, ", "),
+                    url: task.getUrl(),
+                    arch: task.getArchString(),
+                    multiArch: getMultiArch(),
+                    conflicts: StringUtils.join(conflicts, ", "),
+                    recommends: StringUtils.join(recommends, ", "),
+                    suggests: StringUtils.join(suggests, ", "),
+                    enhances: StringUtils.join(enhances, ", " ),
+                    preDepends: StringUtils.join(preDepends, ", "),
+                    breaks: StringUtils.join(breaks, ", "),
+                    replaces: StringUtils.join(replaces, ", "),
+                    fullVersion: buildFullVersion(),
+                    customFields: getCustomFields(),
 
-                // Uses install command for directory
-                dirs: installDirs.collect { InstallDir dir -> [install: installLineGenerator.generate(dir)] }
-        ]
+                    // Uses install command for directory
+                    dirs: installDirs.collect { InstallDir dir -> [install: installLineGenerator.generate(dir)] }
+            ]
+        }
+        return context
     }
 
     private String buildFullVersion() {
         StringBuilder fullVersion = new StringBuilder()
-        if (task.getEpoch() != 0) {
-            fullVersion <<= task.getEpoch()
-            fullVersion <<= ':'
-        }
-        fullVersion <<= task.getVersion()
 
-        if(task.getRelease()) {
-            fullVersion <<= '-'
-            fullVersion <<= task.getRelease()
+        DeprecationLogger.whileDisabled {
+            if (task.getEpoch() != 0) {
+                fullVersion <<= task.getEpoch()
+                fullVersion <<= ':'
+            }
+
+            fullVersion <<= task.getVersion()
+
+            if(task.getRelease()) {
+                fullVersion <<= '-'
+                fullVersion <<= task.getRelease()
+            }
+
         }
 
         fullVersion.toString()

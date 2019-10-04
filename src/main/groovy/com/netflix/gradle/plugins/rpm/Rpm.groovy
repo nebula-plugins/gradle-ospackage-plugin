@@ -23,6 +23,7 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.util.DeprecationLogger
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
@@ -36,16 +37,19 @@ class Rpm extends SystemPackagingTask {
 
     Rpm() {
         super()
-        extension = 'rpm'
+        archiveExtension.set 'rpm'
     }
 
     @Override
     String assembleArchiveName() {
         String name = getPackageName();
-        name += getVersion() ? "-${getVersion()}" : ''
-        name += getRelease() ? "-${getRelease()}" : ''
-        name += getArchString() ? ".${getArchString()}" : ''
-        name += getExtension() ? ".${getExtension()}" : ''
+        DeprecationLogger.whileDisabled {
+            name += getVersion() ? "-${getVersion()}" : ''
+            name += getRelease() ? "-${getRelease()}" : ''
+            name += getArchString() ? ".${getArchString()}" : ''
+            name += getArchiveExtension().getOrNull() ? ".${getArchiveExtension().getOrNull()}" : ''
+        }
+
         return name;
     }
 

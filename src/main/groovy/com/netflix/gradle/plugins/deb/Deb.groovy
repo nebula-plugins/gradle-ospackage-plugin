@@ -25,21 +25,25 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.util.DeprecationLogger
 
 @CacheableTask
 class Deb extends SystemPackagingTask {
     Deb() {
         super()
-        extension = 'deb'
+        archiveExtension.set 'deb'
     }
 
     @Override
     String assembleArchiveName() {
         String name = getPackageName();
-        name += getVersion() ? "_${getVersion()}" : ''
-        name += getRelease() ? "-${getRelease()}" : ''
-        name += getArchString() ? "_${getArchString()}" : ''
-        name += getExtension() ? ".${getExtension()}" : ''
+        DeprecationLogger.whileDisabled {
+            name += getVersion() ? "_${getVersion()}" : ''
+            name += getRelease() ? "-${getRelease()}" : ''
+            name += getArchString() ? "_${getArchString()}" : ''
+            name += getArchiveExtension().getOrNull() ? ".${getArchiveExtension().getOrNull()}" : ''
+        }
+
         return name;
     }
 

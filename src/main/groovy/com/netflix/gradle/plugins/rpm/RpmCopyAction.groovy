@@ -25,6 +25,7 @@ import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.util.DeprecationLogger
 import org.redline_rpm.Builder
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Header.HeaderTag
@@ -53,72 +54,74 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     @Override
     void startVisit(CopyAction action) {
         super.startVisit(action)
+        DeprecationLogger.whileDisabled {
 
-        assert task.getVersion() != null, 'RPM requires a version string'
-        if ([task.preInstallFile, task.postInstallFile, task.preUninstallFile, task.postUninstallFile].any()) {
-            logger.warn('At least one of (preInstallFile|postInstallFile|preUninstallFile|postUninstallFile) is defined ' +
-                    'and will be ignored for RPM builds')
-        }
+            assert task.getVersion() != null, 'RPM requires a version string'
+            if ([task.preInstallFile, task.postInstallFile, task.preUninstallFile, task.postUninstallFile].any()) {
+                logger.warn('At least one of (preInstallFile|postInstallFile|preUninstallFile|postUninstallFile) is defined ' +
+                        'and will be ignored for RPM builds')
+            }
 
-        builder = createBuilder()
-        builder.setPackage task.packageName, task.version, task.release, task.epoch
-        builder.setType task.type
-        builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.os
-        builder.setGroup task.packageGroup
-        builder.setBuildHost task.buildHost
-        builder.setSummary task.summary
-        builder.setDescription task.packageDescription ?: ''
-        builder.setLicense task.license
-        builder.setPackager task.packager
-        builder.setDistribution task.distribution
-        builder.setVendor task.vendor
-        builder.setUrl task.url
-        if (task.allPrefixes) {
-            builder.setPrefixes(task.allPrefixes as String[])
-        }
-        if (StringUtils.isNotBlank(task.getSigningKeyId())
-                && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
-                && task.getSigningKeyRingFile().exists()) {
-            builder.setPrivateKeyId task.getSigningKeyId()
-            builder.setPrivateKeyPassphrase task.getSigningKeyPassphrase()
-            builder.setPrivateKeyRingFile task.getSigningKeyRingFile()
-        }
+            builder = createBuilder()
+            builder.setPackage task.packageName, task.version, task.release, task.epoch
+            builder.setType task.type
+            builder.setPlatform Architecture.valueOf(task.archStr.toUpperCase()), task.os
+            builder.setGroup task.packageGroup
+            builder.setBuildHost task.buildHost
+            builder.setSummary task.summary
+            builder.setDescription task.packageDescription ?: ''
+            builder.setLicense task.license
+            builder.setPackager task.packager
+            builder.setDistribution task.distribution
+            builder.setVendor task.vendor
+            builder.setUrl task.url
+            if (task.allPrefixes) {
+                builder.setPrefixes(task.allPrefixes as String[])
+            }
+            if (StringUtils.isNotBlank(task.getSigningKeyId())
+                    && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
+                    && task.getSigningKeyRingFile().exists()) {
+                builder.setPrivateKeyId task.getSigningKeyId()
+                builder.setPrivateKeyPassphrase task.getSigningKeyPassphrase()
+                builder.setPrivateKeyRingFile task.getSigningKeyRingFile()
+            }
 
-        String sourcePackage = task.sourcePackage
-        if (!sourcePackage) {
-            // need a source package because createrepo will assume your package is a source package without it
-            sourcePackage = builder.defaultSourcePackage
-        }
-        builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
+            String sourcePackage = task.sourcePackage
+            if (!sourcePackage) {
+                // need a source package because createrepo will assume your package is a source package without it
+                sourcePackage = builder.defaultSourcePackage
+            }
+            builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-        if (!task.allPreInstallCommands?.empty) {
-            builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
-        }
-        if (!task.allPostInstallCommands?.empty) {
-            builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
-        }
-        if (!task.allPreUninstallCommands?.empty) {
-            builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
-        }
-        if (!task.allPostUninstallCommands?.empty) {
-            builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
-        }
-        if (!task.allPreTransCommands?.empty) {
-            // pretrans* scriptlets are special. They may be run in an
-            // environment where no shell exists. It's recommended that they
-            // be avoided where possible, but where not, written in Lua:
-            // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
-            builder.setPreTransScript(concat(task.allPreTransCommands))
-        }
-        if (!task.allPostTransCommands?.empty) {
-            builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
-        }
+            if (!task.allPreInstallCommands?.empty) {
+                builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
+            }
+            if (!task.allPostInstallCommands?.empty) {
+                builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
+            }
+            if (!task.allPreUninstallCommands?.empty) {
+                builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
+            }
+            if (!task.allPostUninstallCommands?.empty) {
+                builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
+            }
+            if (!task.allPreTransCommands?.empty) {
+                // pretrans* scriptlets are special. They may be run in an
+                // environment where no shell exists. It's recommended that they
+                // be avoided where possible, but where not, written in Lua:
+                // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
+                builder.setPreTransScript(concat(task.allPreTransCommands))
+            }
+            if (!task.allPostTransCommands?.empty) {
+                builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
+            }
 
-		if (((Rpm) task).changeLogFile != null){
-			builder.addChangelogFile(((Rpm) task).changeLogFile)
-		}
+            if (((Rpm) task).changeLogFile != null) {
+                builder.addChangelogFile(((Rpm) task).changeLogFile)
+            }
 
-        rpmFileVisitorStrategy = new RpmFileVisitorStrategy(builder)
+            rpmFileVisitorStrategy = new RpmFileVisitorStrategy(builder)
+        }
     }
 
     @Override
@@ -133,7 +136,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
         int fileMode = lookup(specToLookAt, 'fileMode') ?: fileDetails.mode
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : task.addParentDirs
+        boolean addParentsDir = specAddParentsDir != null ? specAddParentsDir : task.addParentDirs
 
         rpmFileVisitorStrategy.addFile(fileDetails, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
@@ -146,9 +149,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         }
         // Have to take booleans specially, since they would fail an elvis operator if set to false
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
-        boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : task.createDirectoryEntry
+        boolean createDirectoryEntry = specCreateDirectoryEntry != null ? specCreateDirectoryEntry : task.createDirectoryEntry
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
-        boolean addParentsDir = specAddParentsDir!=null ? specAddParentsDir : task.addParentDirs
+        boolean addParentsDir = specAddParentsDir != null ? specAddParentsDir : task.addParentDirs
 
         if (createDirectoryEntry) {
             logger.debug 'adding directory {}', dirDetails.relativePath.pathString
@@ -171,7 +174,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         builder.addDependency(dep.packageName, dep.flag, dep.version)
     }
 
-    @Override 
+    @Override
     protected void addConflict(Dependency dep) {
         builder.addConflicts(dep.packageName, dep.flag, dep.version)
     }
@@ -195,17 +198,17 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     @Override
     protected void end() {
-		
-		RandomAccessFile rpmFile 
-		try {
-			rpmFile = new RandomAccessFile( task.getArchiveFile().get().asFile, "rw")
-			builder.build(rpmFile.getChannel())
-			logger.info 'Created rpm {}', rpmFile
-		} finally {
-			if (rpmFile != null) {
-				rpmFile.close()
-			}	
-		}
+
+        RandomAccessFile rpmFile
+        try {
+            rpmFile = new RandomAccessFile(task.getArchiveFile().get().asFile, "rw")
+            builder.build(rpmFile.getChannel())
+            logger.info 'Created rpm {}', rpmFile
+        } finally {
+            if (rpmFile != null) {
+                rpmFile.close()
+            }
+        }
     }
 
     protected Builder createBuilder() {
@@ -213,19 +216,25 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     }
 
     String standardScriptDefines() {
-        includeStandardDefines ?
-            String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
-                task.getArchString(),
-                task.os?.toString()?.toLowerCase() ?: '',
-                task.getPackageName(),
-                task.getVersion(),
-                task.getRelease()) : null
+        String result
+        DeprecationLogger.whileDisabled {
+            result = includeStandardDefines ?
+                    String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
+                            task.getArchString(),
+                            task.os?.toString()?.toLowerCase() ?: '',
+                            task.getPackageName(),
+                            task.getVersion(),
+                            task.getRelease()) : null
+        }
+        return result
     }
 
     String scriptWithUtils(List<Object> utils, List<Object> scripts) {
         def l = []
         def stdDefines = standardScriptDefines()
-        if(stdDefines) l.add(stdDefines)
+        if (stdDefines) {
+            l.add(stdDefines)
+        }
         l.addAll(utils)
         l.addAll(scripts)
 

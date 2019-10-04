@@ -7,6 +7,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.util.DeprecationLogger
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType

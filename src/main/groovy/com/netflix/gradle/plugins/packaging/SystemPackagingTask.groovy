@@ -25,6 +25,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.util.DeprecationLogger
 import org.redline_rpm.header.Architecture
 import org.gradle.api.provider.Property
 
@@ -48,7 +49,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
 
         // I have no idea where Project came from
         parentExten = project.extensions.findByType(ProjectPackagingExtension)
-        if(parentExten) {
+        if (parentExten) {
             getRootSpec().with(parentExten.delegateCopySpec)
         }
     }
@@ -58,7 +59,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
      * @param arch
      */
     void setArch(Object arch) {
-        setArchStr( (arch instanceof Architecture)?arch.name():arch.toString())
+        setArchStr((arch instanceof Architecture) ? arch.name() : arch.toString())
     }
 
     // TODO Move outside task, since it's specific to a plugin
@@ -67,49 +68,53 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         // to pull from the parentExten. And only then would we fallback on some other value.
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
 
-        // Could come from extension
-        mapping.map('packageName', {
-            // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
-            parentExten?.getPackageName()?:getBaseName()
-        })
-        mapping.map('release', { parentExten?.getRelease()?:getClassifier() })
-        mapping.map('version', { sanitizeVersion(parentExten?.getVersion()?:project.getVersion().toString()) })
-        mapping.map('epoch', { parentExten?.getEpoch()?:0 })
-        mapping.map('signingKeyId', { parentExten?.getSigningKeyId()?:'' })
-        mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase()?:'' })
-        mapping.map('signingKeyRingFile', {
-            File defaultFile = new File(System.getProperty('user.home').toString(), '.gnupg/secring.gpg')
-            parentExten?.getSigningKeyRingFile() ?: (defaultFile.exists() ? defaultFile : null)
-        })
-        mapping.map('user', { parentExten?.getUser()?:getPackager() })
-        mapping.map('maintainer', { parentExten?.getMaintainer()?:getPackager() })
-        mapping.map('uploaders', { parentExten?.getUploaders()?:getPackager() })
-        mapping.map('permissionGroup', { parentExten?.getPermissionGroup()?:'' })
-        mapping.map('packageGroup', { parentExten?.getPackageGroup() })
-        mapping.map('buildHost', { parentExten?.getBuildHost()?: HOST_NAME })
-        mapping.map('summary', { parentExten?.getSummary()?:getPackageName() })
-        mapping.map('packageDescription', {
-            String packageDescription = parentExten?.getPackageDescription()?:project.getDescription()
-            packageDescription ?: ''
-        })
-        mapping.map('license', { parentExten?.getLicense()?:'' })
-        mapping.map('packager', { parentExten?.getPackager()?:System.getProperty('user.name', '')  })
-        mapping.map('distribution', { parentExten?.getDistribution()?:'' })
-        mapping.map('vendor', { parentExten?.getVendor()?:'' })
-        mapping.map('url', { parentExten?.getUrl()?:'' })
-        mapping.map('sourcePackage', { parentExten?.getSourcePackage()?:'' })
-        mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry()?:false })
-        mapping.map('priority', { parentExten?.getPriority()?:'optional' })
+        DeprecationLogger.whileDisabled {
 
-        mapping.map('preInstallFile', { parentExten?.getPreInstallFile() })
-        mapping.map('postInstallFile', { parentExten?.getPostInstallFile() })
-        mapping.map('preUninstallFile', { parentExten?.getPreUninstallFile() })
-        mapping.map('postUninstallFile', { parentExten?.getPostUninstallFile() })
 
-        // Task Specific
-        mapping.map('archiveName', { assembleArchiveName() })
-        mapping.map('archivePath', { determineArchivePath() })
-        mapping.map('archiveFile', { determineArchiveFile() })
+            // Could come from extension
+            mapping.map('packageName', {
+                // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
+                parentExten?.getPackageName() ?: getArchiveBaseName().getOrNull()
+            })
+            mapping.map('release', { parentExten?.getRelease() ?: getArchiveClassifier().getOrNull() })
+            mapping.map('version', { sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString()) })
+            mapping.map('epoch', { parentExten?.getEpoch() ?: 0 })
+            mapping.map('signingKeyId', { parentExten?.getSigningKeyId() ?: '' })
+            mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase() ?: '' })
+            mapping.map('signingKeyRingFile', {
+                File defaultFile = new File(System.getProperty('user.home').toString(), '.gnupg/secring.gpg')
+                parentExten?.getSigningKeyRingFile() ?: (defaultFile.exists() ? defaultFile : null)
+            })
+            mapping.map('user', { parentExten?.getUser() ?: getPackager() })
+            mapping.map('maintainer', { parentExten?.getMaintainer() ?: getPackager() })
+            mapping.map('uploaders', { parentExten?.getUploaders() ?: getPackager() })
+            mapping.map('permissionGroup', { parentExten?.getPermissionGroup() ?: '' })
+            mapping.map('packageGroup', { parentExten?.getPackageGroup() })
+            mapping.map('buildHost', { parentExten?.getBuildHost() ?: HOST_NAME })
+            mapping.map('summary', { parentExten?.getSummary() ?: getPackageName() })
+            mapping.map('packageDescription', {
+                String packageDescription = parentExten?.getPackageDescription() ?: project.getDescription()
+                packageDescription ?: ''
+            })
+            mapping.map('license', { parentExten?.getLicense() ?: '' })
+            mapping.map('packager', { parentExten?.getPackager() ?: System.getProperty('user.name', '') })
+            mapping.map('distribution', { parentExten?.getDistribution() ?: '' })
+            mapping.map('vendor', { parentExten?.getVendor() ?: '' })
+            mapping.map('url', { parentExten?.getUrl() ?: '' })
+            mapping.map('sourcePackage', { parentExten?.getSourcePackage() ?: '' })
+            mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry() ?: false })
+            mapping.map('priority', { parentExten?.getPriority() ?: 'optional' })
+
+            mapping.map('preInstallFile', { parentExten?.getPreInstallFile() })
+            mapping.map('postInstallFile', { parentExten?.getPostInstallFile() })
+            mapping.map('preUninstallFile', { parentExten?.getPreUninstallFile() })
+            mapping.map('postUninstallFile', { parentExten?.getPostUninstallFile() })
+
+            // Task Specific
+            mapping.map('archiveName', { assembleArchiveName() })
+            mapping.map('archivePath', { determineArchivePath() })
+            mapping.map('archiveFile', { determineArchiveFile() })
+        }
     }
 
     String sanitizeVersion(String version) {
@@ -145,42 +150,50 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllConfigurationFiles() {
-        return getConfigurationFiles() + (parentExten?.getConfigurationFiles()?: [])
+        return getConfigurationFiles() + (parentExten?.getConfigurationFiles() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllPreInstallCommands() {
         return getPreInstallCommands() + (parentExten?.getPreInstallCommands() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllPostInstallCommands() {
         return getPostInstallCommands() + (parentExten?.getPostInstallCommands() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllPreUninstallCommands() {
         return getPreUninstallCommands() + (parentExten?.getPreUninstallCommands() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllPostUninstallCommands() {
         return getPostUninstallCommands() + (parentExten?.getPostUninstallCommands() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllPreTransCommands() {
         return getPreTransCommands() + (parentExten?.getPreTransCommands() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllPostTransCommands() {
         return getPostTransCommands() + (parentExten?.getPostTransCommands() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllCommonCommands() {
         return getCommonCommands() + (parentExten?.getCommonCommands() ?: [])
     }
@@ -188,39 +201,44 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     /**
      * @return supplementary control files consisting of a combination of Strings and Files
      */
-    @Input @Optional
+    @Input
+    @Optional
     List<Object> getAllSupplementaryControlFiles() {
         return getSupplementaryControlFiles() + (parentExten?.getSupplementaryControlFiles() ?: [])
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Link> getAllLinks() {
-        if(parentExten) {
+        if (parentExten) {
             return getLinks() + parentExten.getLinks()
         } else {
             return getLinks()
         }
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Dependency> getAllDependencies() {
-        if(parentExten) {
+        if (parentExten) {
             return getDependencies() + parentExten.getDependencies()
         } else {
             return getDependencies()
         }
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     def getAllPrefixes() {
-        if(parentExten) {
+        if (parentExten) {
             return (getPrefixes() + parentExten.getPrefixes()).unique()
         } else {
             return getPrefixes()
         }
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Dependency> getAllProvides() {
         if (parentExten) {
             return parentExten.getProvides() + getProvides()
@@ -229,7 +247,8 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Dependency> getAllObsoletes() {
         if (parentExten) {
             return getObsoletes() + parentExten.getObsoletes()
@@ -238,7 +257,8 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     List<Dependency> getAllConflicts() {
         if (parentExten) {
             return getConflicts() + parentExten.getConflicts()

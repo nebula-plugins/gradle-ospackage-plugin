@@ -84,7 +84,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, null)
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasksSuccessfully('buildDeb', '--warning-mode', 'all')
 
         then:
         final archivePath = file("build/distributions/test_unspecified_all.deb")
@@ -123,7 +123,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, startScript)
 
         when:
-        def result = runTasksSuccessfully('runStartScript')
+        def result = runTasksSuccessfully('runStartScript', '--warning-mode', 'all')
 
         then:
         result.standardOutput.contains('Hello Integration Test')

@@ -72,12 +72,12 @@ ospackage {
 apply plugin: 'nebula.rpm'
 
 task buildRpm(type: Rpm) {
-    version = '1'
+    version '1'
 }
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(file('build/distributions/projectNameDefault-1.noarch.rpm'))
@@ -303,13 +303,13 @@ apply plugin: 'nebula.rpm'
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
-    version = '3'
+    version '3'
     from 'package'
 }
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-3.noarch.rpm'))
@@ -332,7 +332,7 @@ apply plugin: 'nebula.rpm'
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
-    version = '4'
+    version '4'
     from('package') {
         into '/lib'
     }
@@ -340,7 +340,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-4.noarch.rpm'))
