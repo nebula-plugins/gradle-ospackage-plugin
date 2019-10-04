@@ -4,6 +4,7 @@ import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.packaging.validation.SystemPackagingAttributeValidator
 import com.netflix.gradle.plugins.packaging.validation.SystemPackagingTaskPropertiesValidator
 import org.gradle.api.InvalidUserDataException
+import org.gradle.util.DeprecationLogger
 
 class DebTaskPropertiesValidator implements SystemPackagingTaskPropertiesValidator<Deb> {
     private final SystemPackagingAttributeValidator versionValidator = new DebVersionAttributeValidator()
@@ -11,12 +12,14 @@ class DebTaskPropertiesValidator implements SystemPackagingTaskPropertiesValidat
 
     @Override
     void validate(Deb task) {
-        if(task.getVersion() != 'unspecified' && !versionValidator.validate(task.getVersion())) {
-            throw new InvalidUserDataException(versionValidator.getErrorMessage(task.getVersion()))
-        }
+        DeprecationLogger.whileDisabled {
+            if(task.getVersion() != 'unspecified' && !versionValidator.validate(task.getVersion())) {
+                throw new InvalidUserDataException(versionValidator.getErrorMessage(task.getVersion()))
+            }
 
-        if(!packageNameValidator.validate(task.getPackageName())) {
-            throw new InvalidUserDataException(packageNameValidator.getErrorMessage(task.getPackageName()))
+            if(!packageNameValidator.validate(task.getPackageName())) {
+                throw new InvalidUserDataException(packageNameValidator.getErrorMessage(task.getPackageName()))
+            }
         }
     }
 }

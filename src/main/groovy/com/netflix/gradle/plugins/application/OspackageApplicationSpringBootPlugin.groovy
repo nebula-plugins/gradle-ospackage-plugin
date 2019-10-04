@@ -20,9 +20,11 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.application.CreateStartScripts
+import org.gradle.util.GradleVersion
 
 /**
  * Combine the os-package with the Application plugin. Currently heavily opinionated to where
@@ -64,7 +66,11 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
             project.afterEvaluate {
                 project.distributions {
                     boot {
-                        baseName = "${project.distributions.main.baseName}-boot"
+                        if(GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
+                            baseName = "${project.distributions.main.baseName}-boot"
+                        } else {
+                            getDistributionBaseName().set "${project.distributions.main.getDistributionBaseName().getOrNull()}-boot"
+                        }
                     }
                 }
             }
@@ -91,5 +97,7 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                 }
             }
         }
+
+
     }
 }
