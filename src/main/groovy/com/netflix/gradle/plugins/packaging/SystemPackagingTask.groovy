@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import groovy.transform.CompileDynamic
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.ConventionMapping
@@ -52,6 +53,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         if (parentExten) {
             getRootSpec().with(parentExten.delegateCopySpec)
         }
+        setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
     }
 
     /**
