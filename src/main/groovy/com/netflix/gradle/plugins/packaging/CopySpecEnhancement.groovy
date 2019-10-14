@@ -39,7 +39,7 @@ class CopySpecEnhancement {
 
         LOGGER.info("Adding $fieldName to ${directSpec}")
         directSpec.metaClass["get${fieldName.capitalize()}"] = { value }
-        spec.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
+        spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
     }
     static void user(CopySpec spec, String user) {
         appendFieldToCopySpec(spec, 'user', user)

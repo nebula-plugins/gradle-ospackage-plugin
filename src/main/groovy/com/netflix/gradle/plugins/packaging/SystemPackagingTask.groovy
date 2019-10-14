@@ -46,7 +46,6 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     // TODO Add conventions to pull from extension
     SystemPackagingTask() {
         super()
-        super.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
         exten = new SystemPackagingExtension()
 
         // I have no idea where Project came from
@@ -54,9 +53,15 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         if (parentExten) {
             getRootSpec().with(parentExten.delegateCopySpec)
         }
-        this.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
+
+        configureDuplicateStrategy()
     }
 
+    private void configureDuplicateStrategy() {
+        setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
+        rootSpec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
+        mainSpec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
+    }
     /**
      * This should go into SystemPackagingExtension, but if we do, we won't be interacting correctly with the convention mapping.
      * @param arch
@@ -152,6 +157,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
             super.copy()
         }
     }
+
 
     @Input
     @Optional

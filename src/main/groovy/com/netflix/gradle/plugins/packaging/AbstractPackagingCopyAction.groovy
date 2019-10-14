@@ -37,13 +37,13 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
 
     protected AbstractPackagingCopyAction(T task) {
         this.task = task
-        this.task.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
     }
 
-     WorkResult execute(CopyActionProcessingStream stream) {
+    @Override
+    WorkResult execute(CopyActionProcessingStream stream) {
         try {
             startVisit(this)
-            stream.process(new StreamAction());
+            stream.process(new StreamAction())
             endVisit()
         } catch (Exception e) {
             UncheckedException.throwAsUncheckedException(e)
@@ -76,7 +76,9 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
 
     void startVisit(CopyAction action) {
         // Delay reading destinationDir until we start executing
+        task.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
         tempDir = task.getTemporaryDir()
+
     }
 
     void endVisit() {
@@ -155,6 +157,7 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
             Field field = DefaultCopySpec.DefaultCopySpecResolver.class.getDeclaredField('this$0')
             field.setAccessible(true)
             CopySpecInternal spec = field.get(specResolver)
+            spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
             return spec
         } else {
             return null

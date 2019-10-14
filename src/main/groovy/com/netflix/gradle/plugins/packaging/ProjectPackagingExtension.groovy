@@ -46,7 +46,7 @@ class ProjectPackagingExtension extends SystemPackagingExtension {
             delegateCopySpec = new DefaultCopySpec(resolver, instantiator);
         }
         //Handles Copying or archiving duplicate paths with the default duplicates strategy has been deprecated. This is scheduled to be removed in Gradle 7.0.
-        delegateCopySpec.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
+        delegateCopySpec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
     }
 
     /*
