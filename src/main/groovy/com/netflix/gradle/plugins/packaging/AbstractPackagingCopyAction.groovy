@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import groovy.transform.CompileDynamic
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.internal.file.CopyActionProcessingStreamAction
 import org.gradle.api.internal.file.copy.*
 import org.gradle.api.tasks.WorkResult
@@ -36,6 +37,7 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
 
     protected AbstractPackagingCopyAction(T task) {
         this.task = task
+        this.task.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
     }
 
      WorkResult execute(CopyActionProcessingStream stream) {

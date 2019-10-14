@@ -2,6 +2,7 @@ package com.netflix.gradle.plugins.packaging
 
 import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.reflect.FieldUtils
+import org.gradle.api.file.DuplicatesStrategy
 import org.redline_rpm.payload.Directive
 import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.file.copy.CopySpecWrapper
@@ -38,6 +39,7 @@ class CopySpecEnhancement {
 
         LOGGER.info("Adding $fieldName to ${directSpec}")
         directSpec.metaClass["get${fieldName.capitalize()}"] = { value }
+        spec.setDuplicatesStrategy(DuplicatesStrategy.INHERIT)
     }
     static void user(CopySpec spec, String user) {
         appendFieldToCopySpec(spec, 'user', user)
