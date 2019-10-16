@@ -48,13 +48,13 @@ dependencyLock {
 
 configurations.all {
     resolutionStrategy {
-        force 'org.bouncycastle:bcpg-jdk15on:1.50'
+        force 'org.bouncycastle:bcpg-jdk15on:1.62'
     }
 }
 
 dependencies {
     implementation 'org.apache.commons:commons-lang3:3.1'
-    api('org.redline-rpm:redline:1.2.7') {
+    api('org.redline-rpm:redline:1.2.9') {
         // Where logging goes is a runtime decision
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
