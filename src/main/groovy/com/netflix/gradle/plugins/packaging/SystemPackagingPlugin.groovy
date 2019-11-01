@@ -20,26 +20,19 @@ import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.rpm.Rpm
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 
 /**
  * Create implicit tasks, which will inherit from the ospackage extension.
  */
 class SystemPackagingPlugin implements Plugin<Project> {
-    private static Logger logger = Logging.getLogger(SystemPackagingPlugin);
-
     Project project
-    Deb debTask
-    Rpm rpmTask
-
     void apply(Project project) {
 
         this.project = project
 
         project.plugins.apply(SystemPackagingBasePlugin.class)
-        debTask = project.task([type: Deb], 'buildDeb') as Deb
-        rpmTask = project.task([type: Rpm], 'buildRpm') as Rpm
+        project.tasks.register('buildDeb', Deb)
+        project.tasks.register('buildRpm', Rpm)
     }
 
 }
