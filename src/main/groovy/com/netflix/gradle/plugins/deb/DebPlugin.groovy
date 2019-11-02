@@ -21,7 +21,6 @@ import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
 import groovy.transform.CompileDynamic
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -33,14 +32,11 @@ class DebPlugin implements Plugin<Project> {
         registerDebClass(project)
 
         // Some defaults, if not set by the user
-        project.tasks.withType(Deb).configureEach(new Action<Deb>() {
-            @Override
-            void execute(Deb deb) {
-                RpmPlugin.applyAliases(deb) // RPM Specific aliases
-                DebPlugin.applyAliases(deb) // DEB-specific aliases
-                deb.applyConventions()
-            }
-        })
+        project.tasks.withType(Deb) { Deb task ->
+            RpmPlugin.applyAliases(task) // RPM Specific aliases
+            DebPlugin.applyAliases(task) // DEB-specific aliases
+            task.applyConventions()
+        }
     }
 
     @CompileDynamic

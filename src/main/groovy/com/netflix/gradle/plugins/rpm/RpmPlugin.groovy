@@ -19,7 +19,6 @@ package com.netflix.gradle.plugins.rpm
 import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
 import groovy.transform.CompileDynamic
-import org.gradle.api.Action
 import org.redline_rpm.Builder
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Flags
@@ -45,13 +44,11 @@ class RpmPlugin implements Plugin<Project> {
         }
 
         // Some defaults, if not set by the user
-        project.tasks.withType(Rpm).configureEach(new Action<Rpm>() {
-            @Override
-            void execute(Rpm rpm) {
-                RpmPlugin.applyAliases(rpm) // RPM Specific aliases
-                rpm.applyConventions()
-            }
-        })
+        project.tasks.withType(Rpm) { Rpm task ->
+            RpmPlugin.applyAliases(task) // RPM Specific aliases
+            task.applyConventions()
+        }
+
     }
 
     def static applyAliases(def dynamicObjectAware) {
