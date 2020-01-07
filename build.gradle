@@ -15,7 +15,7 @@
  *
  */
 plugins {
-    id 'nebula.plugin-plugin' version '13.2.0'
+    id 'nebula.plugin-plugin' version '14.0.2'
     id 'java-library'
 }
 
