@@ -21,11 +21,11 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
+import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
-import org.gradle.util.DeprecationLogger
 import org.redline_rpm.Builder
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Header.HeaderTag
@@ -54,7 +54,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     @Override
     void startVisit(CopyAction action) {
         super.startVisit(action)
-        DeprecationLogger.whileDisabled {
+        DeprecationLoggerUtils.whileDisabled {
 
             assert task.getVersion() != null, 'RPM requires a version string'
             if ([task.preInstallFile, task.postInstallFile, task.preUninstallFile, task.postUninstallFile].any()) {
@@ -217,7 +217,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     String standardScriptDefines() {
         String result
-        DeprecationLogger.whileDisabled {
+        DeprecationLoggerUtils.whileDisabled {
             result = includeStandardDefines ?
                     String.format(" RPM_ARCH=%s \n RPM_OS=%s \n RPM_PACKAGE_NAME=%s \n RPM_PACKAGE_VERSION=%s \n RPM_PACKAGE_RELEASE=%s \n\n",
                             task.getArchString(),
