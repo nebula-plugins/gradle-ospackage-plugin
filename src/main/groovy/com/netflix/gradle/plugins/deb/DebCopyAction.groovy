@@ -23,13 +23,13 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.utils.ApacheCommonsFileSystemActions
+import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
-import org.gradle.util.DeprecationLogger
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.vafer.jdeb.Compression
@@ -303,7 +303,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
      */
     def Map toContext() {
         Map context = [:]
-        DeprecationLogger.whileDisabled {
+        DeprecationLoggerUtils.whileDisabled {
             context = [
                     name: task.getPackageName(),
                     version: task.getVersion(),
@@ -342,7 +342,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     private String buildFullVersion() {
         StringBuilder fullVersion = new StringBuilder()
 
-        DeprecationLogger.whileDisabled {
+        DeprecationLoggerUtils.whileDisabled {
             if (task.getEpoch() != 0) {
                 fullVersion <<= task.getEpoch()
                 fullVersion <<= ':'

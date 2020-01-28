@@ -16,6 +16,7 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
@@ -26,7 +27,6 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
-import org.gradle.util.DeprecationLogger
 import org.redline_rpm.header.Architecture
 import org.gradle.api.provider.Property
 
@@ -76,7 +76,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         // to pull from the parentExten. And only then would we fallback on some other value.
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
 
-        DeprecationLogger.whileDisabled {
+        DeprecationLoggerUtils.whileDisabled {
 
 
             // Could come from extension
@@ -122,6 +122,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
             mapping.map('archiveName', { assembleArchiveName() })
             mapping.map('archivePath', { determineArchivePath() })
             mapping.map('archiveFile', { determineArchiveFile() })
+            mapping.map('archiveVersion', { determineArchiveVersion() })
         }
     }
 
@@ -135,6 +136,13 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         Property<RegularFile> regularFile = objectFactory.fileProperty()
         regularFile.set(new DestinationFile(new File(getDestinationDirectory().get().asFile.path, assembleArchiveName())))
         return regularFile
+    }
+
+    Provider<String> determineArchiveVersion() {
+        String version = sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString())
+        Property<String> archiveVersion = objectFactory.property(String)
+        archiveVersion.set(version)
+        return archiveVersion
     }
 
     File determineArchivePath() {
