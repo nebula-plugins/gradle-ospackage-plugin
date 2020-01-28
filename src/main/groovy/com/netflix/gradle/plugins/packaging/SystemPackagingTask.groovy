@@ -122,6 +122,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
             mapping.map('archiveName', { assembleArchiveName() })
             mapping.map('archivePath', { determineArchivePath() })
             mapping.map('archiveFile', { determineArchiveFile() })
+            mapping.map('archiveVersion', { determineArchiveVersion() })
         }
     }
 
@@ -135,6 +136,13 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         Property<RegularFile> regularFile = objectFactory.fileProperty()
         regularFile.set(new DestinationFile(new File(getDestinationDirectory().get().asFile.path, assembleArchiveName())))
         return regularFile
+    }
+
+    Provider<String> determineArchiveVersion() {
+        String version = sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString())
+        Property<String> archiveVersion = objectFactory.property(String)
+        archiveVersion.set(version)
+        return archiveVersion
     }
 
     File determineArchivePath() {
