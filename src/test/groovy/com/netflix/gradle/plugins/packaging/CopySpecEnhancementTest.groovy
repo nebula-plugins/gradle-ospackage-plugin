@@ -20,7 +20,9 @@ class CopySpecEnhancementTest {
         TestFiles.getPatternSetFactory()
     }] as FileResolver
     private final Instantiator instantiator = DirectInstantiator.INSTANCE
-    private final FileCollectionFactory factory = [:] as FileCollectionFactory
+    private final FileCollectionFactory factory = [configurableFiles: {
+        null
+    }] as FileCollectionFactory
 
     def spec = createDefaultCopySpec()
 
