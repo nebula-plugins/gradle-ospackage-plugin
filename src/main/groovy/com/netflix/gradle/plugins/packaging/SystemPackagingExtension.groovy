@@ -3,11 +3,11 @@ package com.netflix.gradle.plugins.packaging
 import com.netflix.gradle.plugins.deb.control.MultiArch
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.redline_rpm.header.Architecture
+import org.redline_rpm.header.Flags
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
 import org.redline_rpm.payload.Directive
@@ -769,6 +769,10 @@ class SystemPackagingExtension {
         def dep = new Dependency(packageName, version, flag)
         provides.add(dep)
         dep
+    }
+
+    Dependency provides(String packageName, String version) {
+        provides(packageName, version, Flags.EQUAL)
     }
 
     Dependency provides(String packageName) {

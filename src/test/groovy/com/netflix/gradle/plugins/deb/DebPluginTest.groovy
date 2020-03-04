@@ -1097,6 +1097,25 @@ class DebPluginTest extends ProjectSpec {
         'someVirtualPackage, someOtherVirtualPackage' == scan.getHeaderEntry('Provides')
     }
 
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/365")
+    def 'Can specify provides with version'() {
+        given:
+        project.apply plugin: 'nebula.deb'
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {
+            packageName = 'allows-multiple-provides-with-versions'
+            provides 'virtualPackageA', '1.2.3'
+            provides 'virtualPackageB'
+        })
+
+        when:
+        debTask.copy()
+
+        then:
+        def scan = new Scanner(debTask.archivePath)
+        'virtualPackageA (= 1.2.3), virtualPackageB' == scan.getHeaderEntry('Provides')
+    }
+
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/115")
     def 'directory construct'() {
         given:
