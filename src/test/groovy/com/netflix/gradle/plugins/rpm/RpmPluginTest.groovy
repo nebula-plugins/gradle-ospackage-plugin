@@ -16,26 +16,21 @@
 
 package com.netflix.gradle.plugins.rpm
 
-import com.google.common.io.Files
+
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
-import nebula.test.dependencies.DependencyGraph
-import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.BasePlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.redline_rpm.header.Header
 import org.redline_rpm.header.Signature
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
-
-import java.nio.file.Path
 
 import static org.redline_rpm.header.Flags.*
 import static org.redline_rpm.header.Header.HeaderTag.*
@@ -1104,9 +1099,9 @@ class RpmPluginTest extends ProjectSpec {
             release = '1'
             arch = I386
 
-            triggerIn triggerInScript, 'the-package'
-            triggerUn triggerUnScript, 'the-package'
-            triggerPostUn triggerPostUnScript, 'the-pacakge'
+            triggerInstall triggerInScript, 'the-package'
+            triggerUninstall triggerUnScript, 'the-package'
+            triggerPostUninstall triggerPostUnScript, 'the-pacakge'
         })
 
         when:

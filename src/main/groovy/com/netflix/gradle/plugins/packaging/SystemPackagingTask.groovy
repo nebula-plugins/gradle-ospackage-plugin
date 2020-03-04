@@ -200,19 +200,19 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Input
     @Optional
     List<Trigger> getAllTriggerIn() {
-        return getTriggerIn() + (parentExten?.getTriggerIn() ?: [])
+        return getTriggerInstallCommands() + (parentExten?.getTriggerInstallCommands() ?: [])
     }
 
     @Input
     @Optional
     List<Trigger> getAllTriggerUn() {
-        return getTriggerUn() + (parentExten?.getTriggerUn() ?: [])
+        return getTriggerUninstallCommands() + (parentExten?.getTriggerUninstallCommands() ?: [])
     }
 
     @Input
     @Optional
     List<Trigger> getAllTriggerPostUn() {
-        return getTriggerPostUn() + (parentExten?.getTriggerPostUn() ?: [])
+        return getTriggerPostUninstallCommands() + (parentExten?.getTriggerPostUninstallCommands() ?: [])
     }
 
     @Input

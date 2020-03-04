@@ -320,11 +320,11 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage'
 
         when:
-        extension.triggerIn(file, packageName)
+        extension.triggerInstall(file, packageName)
 
         then:
-        extension.triggerIn.size() == 1
-        Trigger trig = extension.triggerIn[0]
+        extension.triggerInstallCommands.size() == 1
+        Trigger trig = extension.triggerInstallCommands[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -336,7 +336,7 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage'
 
         when:
-        extension.triggerIn(null, packageName)
+        extension.triggerInstall(null, packageName)
 
         then:
         Throwable t = thrown(AssertionError)
@@ -350,7 +350,7 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage,something'
 
         when:
-        extension.triggerIn(file, packageName)
+        extension.triggerInstall(file, packageName)
 
         then:
         Throwable t = thrown(AssertionError)
@@ -363,11 +363,11 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage'
 
         when:
-        extension.triggerUn(file, packageName)
+        extension.triggerUninstall(file, packageName)
 
         then:
-        extension.triggerUn.size() == 1
-        Trigger trig = extension.triggerUn[0]
+        extension.triggerUninstallCommands.size() == 1
+        Trigger trig = extension.triggerUninstallCommands[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -379,7 +379,7 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage'
 
         when:
-        extension.triggerUn(null, packageName)
+        extension.triggerUninstall(null, packageName)
 
         then:
         Throwable t = thrown(AssertionError)
@@ -393,7 +393,7 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage,something'
 
         when:
-        extension.triggerUn(file, packageName)
+        extension.triggerUninstall(file, packageName)
 
         then:
         Throwable t = thrown(AssertionError)
@@ -406,11 +406,11 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage'
 
         when:
-        extension.triggerPostUn(file, packageName)
+        extension.triggerPostUninstall(file, packageName)
 
         then:
-        extension.triggerPostUn.size() == 1
-        Trigger trig = extension.triggerPostUn[0]
+        extension.triggerPostUninstallCommands.size() == 1
+        Trigger trig = extension.triggerPostUninstallCommands[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -422,7 +422,7 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage'
 
         when:
-        extension.triggerPostUn(null, packageName)
+        extension.triggerPostUninstall(null, packageName)
 
         then:
         Throwable t = thrown(AssertionError)
@@ -436,7 +436,7 @@ class SystemPackagingExtensionTest extends Specification {
         String packageName = 'myPackage,something'
 
         when:
-        extension.triggerPostUn(file, packageName)
+        extension.triggerPostUninstall(file, packageName)
 
         then:
         Throwable t = thrown(AssertionError)
