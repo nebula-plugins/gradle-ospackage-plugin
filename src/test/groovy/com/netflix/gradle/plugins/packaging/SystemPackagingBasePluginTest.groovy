@@ -5,8 +5,8 @@ import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.rpm.Scanner
 import nebula.test.ProjectSpec
 import org.apache.commons.io.FileUtils
-import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
+import spock.lang.Issue
 
 import static org.redline_rpm.header.Header.HeaderTag.*
 
@@ -108,5 +108,34 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         'execute-both-tasks' == Scanner.getHeaderEntryString(rpmScanner, PROVIDENAME)
         ['./opt/bleah', './opt/bleah/apple'] == rpmScanner.files*.name
 
+    }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/365")
+    def 'provides in ospackage propagates to rpm and deb'() {
+        given:
+        project.version = '1.0.0'
+
+        when:
+        project.apply plugin: 'nebula.ospackage-base'
+
+        project.ospackage {
+            release '1'
+            provides 'virtualPackageA', '1.2.3'
+            provides 'virtualPackageB'
+        }
+
+        Deb debTask = project.task([type: Deb], 'buildDeb', {})
+        Rpm rpmTask = project.task([type: Rpm], 'buildRpm', {})
+
+        debTask.copy()
+        rpmTask.copy()
+
+        then:
+        def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.getArchivePath())
+        'virtualPackageA (= 1.2.3), virtualPackageB' == debScanner.getHeaderEntry('Provides')
+
+        def rpmScanner = Scanner.scan(rpmTask.getArchivePath())
+        [project.name, 'virtualPackageA', 'virtualPackageB'] == Scanner.getHeaderEntry(rpmScanner, PROVIDENAME).values
+        ['0:1.0.0-1', '1.2.3', ''] == Scanner.getHeaderEntry(rpmScanner, PROVIDEVERSION).values
     }
 }

@@ -159,7 +159,11 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
     @Override
     protected void addProvides(Dependency dep) {
-        provides << dep.packageName
+        String providesString = dep.packageName
+        if (dep.version) {
+            providesString += " (= ${dep.version})"
+        }
+        provides << providesString
     }
 
     @Override
