@@ -313,4 +313,133 @@ class SystemPackagingExtensionTest extends Specification {
         Throwable t = thrown(IllegalStateException)
         t == SystemPackagingExtension.POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED
     }
+
+    def "Can define triggerIn with file and dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerInstall(file, packageName)
+
+        then:
+        extension.triggerInstallCommands.size() == 1
+        Trigger trig = extension.triggerInstallCommands[0]
+        trig.command == file
+        trig.dependency.packageName == packageName
+        trig.dependency.version == ''
+        trig.dependency.flag == 0
+    }
+
+    def "Can not define triggerIn without file"() {
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerInstall(null, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Trigger script is required. Expression: command. Values: command = null'
+    }
+
+
+    def "Can not define triggerIn with bad dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage,something'
+
+        when:
+        extension.triggerInstall(file, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Package name (myPackage,something) can not include commas. Expression: packageName.contains(,)'
+    }
+
+    def "Can define triggerUn with file and dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerUninstall(file, packageName)
+
+        then:
+        extension.triggerUninstallCommands.size() == 1
+        Trigger trig = extension.triggerUninstallCommands[0]
+        trig.command == file
+        trig.dependency.packageName == packageName
+        trig.dependency.version == ''
+        trig.dependency.flag == 0
+    }
+
+    def "Can not define triggerUn without file"() {
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerUninstall(null, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Trigger script is required. Expression: command. Values: command = null'
+    }
+
+
+    def "Can not define triggerUn with bad dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage,something'
+
+        when:
+        extension.triggerUninstall(file, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Package name (myPackage,something) can not include commas. Expression: packageName.contains(,)'
+    }
+
+    def "Can define triggerPostUn with file and dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerPostUninstall(file, packageName)
+
+        then:
+        extension.triggerPostUninstallCommands.size() == 1
+        Trigger trig = extension.triggerPostUninstallCommands[0]
+        trig.command == file
+        trig.dependency.packageName == packageName
+        trig.dependency.version == ''
+        trig.dependency.flag == 0
+    }
+
+    def "Can not define triggerPostUn without file"() {
+        given:
+        String packageName = 'myPackage'
+
+        when:
+        extension.triggerPostUninstall(null, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Trigger script is required. Expression: command. Values: command = null'
+    }
+
+
+    def "Can not define triggerPostUn with bad dependency"() {
+        given:
+        File file = new File('/tmp/some-file')
+        String packageName = 'myPackage,something'
+
+        when:
+        extension.triggerPostUninstall(file, packageName)
+
+        then:
+        Throwable t = thrown(AssertionError)
+        t.message == 'Package name (myPackage,something) can not include commas. Expression: packageName.contains(,)'
+    }
 }

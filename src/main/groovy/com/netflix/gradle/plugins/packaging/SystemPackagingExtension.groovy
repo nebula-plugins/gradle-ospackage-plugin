@@ -25,10 +25,16 @@ class SystemPackagingExtension {
     static final IllegalStateException MULTIPLE_POSTINSTALL_FILES = multipleFilesDefined('PostInstall')
     static final IllegalStateException MULTIPLE_PREUNINSTALL_FILES = multipleFilesDefined('PreUninstall')
     static final IllegalStateException MULTIPLE_POSTUNINSTALL_FILES = multipleFilesDefined('PostUninstall')
+    static final IllegalStateException MULTIPLE_TRIGGERINSTALL_FILES = multipleFilesDefined('TriggerInstall')
+    static final IllegalStateException MULTIPLE_TRIGGERUNINSTALL_FILES = multipleFilesDefined('TriggerUninstall')
+    static final IllegalStateException MULTIPLE_TRIGGERPOSTUNINSTALL_FILES = multipleFilesDefined('TriggerPostUninstall')
     static final IllegalStateException PREINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PreInstall')
     static final IllegalStateException POSTINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostInstall')
     static final IllegalStateException PREUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PreUninstall')
     static final IllegalStateException POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('PostUninstall')
+    static final IllegalStateException TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('TriggerInstall')
+    static final IllegalStateException TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('TriggerUninstall')
+    static final IllegalStateException TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('TriggerPostUninstall')
 
     // File name components
     String packageName
@@ -78,6 +84,9 @@ class SystemPackagingExtension {
     File postInstallFile
     File preUninstallFile
     File postUninstallFile
+    File triggerInstallFile
+    File triggerUninstallFile
+    File triggerPostUninstallFile
 
     final List<Object> configurationFiles = []
     final List<Object> preInstallCommands = []
@@ -86,6 +95,9 @@ class SystemPackagingExtension {
     final List<Object> postUninstallCommands = []
 
     // RPM specific
+    final List<Trigger> triggerInstallCommands = []
+    final List<Trigger> triggerUninstallCommands = []
+    final List<Trigger> triggerPostUninstallCommands = []
     final List<Object> preTransCommands = []
     final List<Object> postTransCommands = []
     final List<Object> commonCommands = []
@@ -356,6 +368,27 @@ class SystemPackagingExtension {
         return postUninstallFile
     }
 
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getTriggerInstallFile() {
+        return triggerInstallFile
+    }
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getTriggerUninstallFile() {
+        return triggerUninstallFile
+    }
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    File getTriggerPostUninstallFile() {
+        return triggerPostUninstallFile
+    }
+
     @Input
     @Optional
     List<Object> getConfigurationFiles() {
@@ -384,6 +417,24 @@ class SystemPackagingExtension {
     @Optional
     List<Object> getPostUninstallCommands() {
         return postUninstallCommands
+    }
+
+    @Input
+    @Optional
+    List<Trigger> getTriggerInstallCommands() {
+        return triggerInstallCommands
+    }
+
+    @Input
+    @Optional
+    List<Trigger> getTriggerUninstallCommands() {
+        return triggerUninstallCommands
+    }
+
+    @Input
+    @Optional
+    List<Trigger> getTriggerPostUninstallCommands() {
+        return triggerPostUninstallCommands
     }
 
     @Input
@@ -615,6 +666,66 @@ class SystemPackagingExtension {
         if(postUninstallFile) { throw MULTIPLE_POSTUNINSTALL_FILES }
         if(postUninstallCommands) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         postUninstallFile = script
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setTriggerInstall(File script, String packageName, String version='', int flag=0) {
+        triggerInstall(script, packageName, version, flag)
+    }
+
+    def triggerInstall(File script, String packageName, String version='', int flag=0) {
+        if(triggerInstallFile) { throw TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerInstallCommands << new Trigger(new Dependency(packageName, version, flag), script)
+        return this
+    }
+
+    def triggerInstallFile(File script) {
+        if(triggerInstallFile) { throw MULTIPLE_TRIGGERINSTALL_FILES }
+        if(triggerInstallCommands) { throw TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerInstallFile = script
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setTriggerUninstall(File script, String packageName, String version='', int flag=0) {
+        triggerUninstall(script, packageName, version, flag)
+    }
+
+    def triggerUninstall(File script, String packageName, String version='', int flag=0) {
+        if(triggerUninstallFile) { throw TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerUninstallCommands << new Trigger(new Dependency(packageName, version, flag), script)
+        return this
+    }
+
+    def triggerUninstallFile(File script) {
+        if(triggerUninstallFile) { throw MULTIPLE_TRIGGERUNINSTALL_FILES }
+        if(triggerUninstallCommands) { throw TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerUninstallFile = script
+    }
+
+    /**
+     * For backwards compatibility
+     * @param script
+     */
+    def setTriggerPostUninstall(File script, String packageName, String version='', int flag=0) {
+        triggerPostUninstall(script, packageName, version, flag)
+    }
+
+    def triggerPostUninstall(File script, String packageName, String version='', int flag=0) {
+        if(triggerPostUninstallFile) { throw TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerPostUninstallCommands << new Trigger(new Dependency(packageName, version, flag), script)
+        return this
+    }
+
+    def triggerPostUninstallFile(File script) {
+        if(triggerPostUninstallFile) { throw MULTIPLE_TRIGGERPOSTUNINSTALL_FILES }
+        if(triggerUninstallCommands) { throw TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerPostUninstallFile = script
     }
 
     /**
