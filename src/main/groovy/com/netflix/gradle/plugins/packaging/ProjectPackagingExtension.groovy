@@ -16,6 +16,10 @@ import org.gradle.api.internal.file.copy.CopySpecInternal
 import org.gradle.api.internal.file.copy.DefaultCopySpec
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.specs.Spec
+import org.gradle.api.tasks.util.PatternSet
+import org.gradle.api.tasks.util.internal.PatternSets
+import org.gradle.api.tasks.util.internal.PatternSpecFactory
+import org.gradle.internal.Factory
 import org.gradle.internal.reflect.Instantiator
 import org.gradle.util.GradleVersion
 
@@ -39,7 +43,11 @@ class ProjectPackagingExtension extends SystemPackagingExtension {
     public ProjectPackagingExtension(Project project) {
         FileResolver resolver = ((ProjectInternal) project).getFileResolver();
         Instantiator instantiator = ((ProjectInternal) project).getServices().get(Instantiator.class);
-        if (GradleVersion.current().baseVersion >= GradleVersion.version("6.0")) {
+        if (GradleVersion.current().baseVersion >= GradleVersion.version("6.4") || GradleVersion.current().version.startsWith('6.4')) {
+            FileCollectionFactory fileCollectionFactory = ((ProjectInternal) project).getServices().get(FileCollectionFactory.class);
+            Factory<PatternSet> patternSetFactory =  new PatternSets.PatternSetFactory(PatternSpecFactory.INSTANCE)
+            delegateCopySpec = new DefaultCopySpec(fileCollectionFactory, instantiator, patternSetFactory);
+        } else if (GradleVersion.current().baseVersion >= GradleVersion.version("6.0")) {
             FileCollectionFactory fileCollectionFactory = ((ProjectInternal) project).getServices().get(FileCollectionFactory.class);
             delegateCopySpec = new DefaultCopySpec(resolver, fileCollectionFactory, instantiator);
         } else {
