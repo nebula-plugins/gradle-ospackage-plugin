@@ -68,6 +68,7 @@ dependencies {
     }
 
     implementation 'com.bmuschko:gradle-docker-plugin:3.2.1'
+    testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'

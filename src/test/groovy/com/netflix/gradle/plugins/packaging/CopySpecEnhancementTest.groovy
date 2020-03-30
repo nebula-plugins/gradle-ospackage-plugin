@@ -6,6 +6,7 @@ import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.DefaultCopySpec
 import org.gradle.api.tasks.util.PatternSet
 import org.gradle.api.tasks.util.internal.PatternSets
+import org.gradle.api.tasks.util.internal.PatternSpecFactory
 import org.gradle.internal.Factory
 import org.gradle.internal.reflect.DirectInstantiator
 import org.gradle.internal.reflect.Instantiator
@@ -23,11 +24,13 @@ class CopySpecEnhancementTest {
     private final FileCollectionFactory factory = [configurableFiles: {
         null
     }] as FileCollectionFactory
-
+    private final Factory<PatternSet> patternSetFactory =  new PatternSets.PatternSetFactory(PatternSpecFactory.INSTANCE)
     def spec = createDefaultCopySpec()
 
     private DefaultCopySpec createDefaultCopySpec() {
-        if (GradleVersion.current().baseVersion >= GradleVersion.version("6.0")) {
+        if (GradleVersion.current().baseVersion >= GradleVersion.version("6.4") || GradleVersion.current().version.startsWith('6.4')) {
+            new DefaultCopySpec(factory, instantiator, patternSetFactory);
+        } else if (GradleVersion.current().baseVersion >= GradleVersion.version("6.0")) {
             new DefaultCopySpec(fileResolver, factory, instantiator);
         } else {
             new DefaultCopySpec(fileResolver, instantiator);

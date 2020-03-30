@@ -3,9 +3,11 @@
 # This file is expected to be part of source control.
 cglib:cglib-nodep:3.2.2
 com.bmuschko:gradle-docker-plugin:3.2.1
+com.github.stefanbirkner:system-rules:1.19.0
 com.google.guava:guava:19.0
-com.netflix.nebula:nebula-test:7.6.0
+com.netflix.nebula:nebula-test:7.8.6
 commons-io:commons-io:2.6
+junit:junit-dep:4.11
 junit:junit:4.12
 org.apache.ant:ant-launcher:1.10.6
 org.apache.ant:ant:1.10.6

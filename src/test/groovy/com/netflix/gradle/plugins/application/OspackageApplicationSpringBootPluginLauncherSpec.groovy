@@ -19,12 +19,19 @@ package com.netflix.gradle.plugins.application
 import com.google.common.base.Throwables
 import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
+import org.junit.Rule
+import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
 
 import java.util.jar.Manifest
 import java.util.zip.ZipFile
 
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
+
+    //TODO: remove this once @Optional is removed from https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-tools/spring-boot-gradle-plugin/src/main/java/org/springframework/boot/gradle/tasks/application/CreateBootStartScripts.java#L33
+    @Rule
+    public final ProvideSystemProperty myPropertyHasMyValue = new ProvideSystemProperty("ignoreDeprecations", "true")
+
     def 'plugin throws exception if spring-boot plugin not applied'() {
         buildFile << """
             ${applyPlugin(OspackageApplicationSpringBootPlugin)}
@@ -84,7 +91,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, null)
 
         when:
-        runTasksSuccessfully('buildDeb', '--warning-mode', 'all')
+        runTasksSuccessfully('buildDeb')
 
         then:
         final archivePath = file("build/distributions/test_unspecified_all.deb")
@@ -123,7 +130,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, startScript)
 
         when:
-        def result = runTasksSuccessfully('runStartScript', '--warning-mode', 'all')
+        def result = runTasksSuccessfully('runStartScript')
 
         then:
         result.standardOutput.contains('Hello Integration Test')
