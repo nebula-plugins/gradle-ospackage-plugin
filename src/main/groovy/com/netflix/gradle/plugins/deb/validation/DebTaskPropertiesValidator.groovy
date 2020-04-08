@@ -13,7 +13,7 @@ class DebTaskPropertiesValidator implements SystemPackagingTaskPropertiesValidat
     @Override
     void validate(Deb task) {
         DeprecationLoggerUtils.whileDisabled {
-            if(task.getVersion() != 'unspecified' && !versionValidator.validate(task.getVersion())) {
+            if(!versionValidator.validate(task.getVersion())) {
                 throw new InvalidUserDataException(versionValidator.getErrorMessage(task.getVersion()))
             }
 
