@@ -30,7 +30,7 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
         def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
 
         0755 == scan.getEntry("./opt/${moduleName}/bin/${moduleName}").mode
@@ -57,7 +57,7 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
         def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
 
         0755 == scan.getEntry("./usr/local/myapp/bin/myapp").mode

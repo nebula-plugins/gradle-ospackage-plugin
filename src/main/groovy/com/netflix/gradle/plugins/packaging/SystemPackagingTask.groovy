@@ -127,7 +127,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     String sanitizeVersion(String version) {
-        version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
+        version == 'unspecified' ? '0' : version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
     }
 
     abstract String assembleArchiveName()
