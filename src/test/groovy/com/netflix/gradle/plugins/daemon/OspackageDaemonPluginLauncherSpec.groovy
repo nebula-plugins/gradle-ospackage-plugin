@@ -40,7 +40,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb', 'buildRpm', '--warning-mode', 'all')
 
         then:
-        new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()
+        new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
 
         def rpmTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildRpm/')
         def rpmInitFile = new File(rpmTemplateDir, 'initd')
@@ -51,7 +51,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
 
             . /etc/rc.d/init.d/functions'''.stripIndent())
 
-        new File(projectDir, "build/distributions/${moduleName}_unspecified_all.deb").exists()
+        new File(projectDir, "build/distributions/${moduleName}_0_all.deb").exists()
 
         def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
         def debInitFile = new File(debTemplateDir, 'initd')
@@ -103,7 +103,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
 
         then:
         // DEB
-        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
         def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
 
         0555 == scan.getEntry('./service/foobar/run').mode
@@ -120,7 +120,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         !scan.controlContents['./postinst'].contains("/usr/sbin/update-rc.d fooqux") // no autostart
 
         // RPM
-        def rpmScan = com.netflix.gradle.plugins.rpm.Scanner.scan(file("build/distributions/${moduleName}-unspecified.noarch.rpm"))
+        def rpmScan = com.netflix.gradle.plugins.rpm.Scanner.scan(file("build/distributions/${moduleName}-0.noarch.rpm"))
         def files = rpmScan.files.collect { it.name }
         files.any { it == './etc/rc.d/init.d/foobar' }
         files.any { it == './service/foobar/run' }
@@ -143,7 +143,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
         def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
 
         scan.controlContents.containsKey('./postinst')
@@ -169,7 +169,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb', 'buildRpm')
 
         then:
-        new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()
+        new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
 
         def rpmTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildRpm/')
         def rpmInitFile = new File(rpmTemplateDir, 'initd')
@@ -180,7 +180,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
 
             . /etc/rc.d/init.d/functions'''.stripIndent())
 
-        new File(projectDir, "build/distributions/${moduleName}_unspecified_all.deb").exists()
+        new File(projectDir, "build/distributions/${moduleName}_0_all.deb").exists()
 
         def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
         def debInitFile = new File(debTemplateDir, 'initd')
@@ -241,7 +241,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb', 'buildRpm')
 
         then:
-        new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()
+        new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
         def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
         def debInitFile = new File(debTemplateDir, 'initd')
         debInitFile.exists()
@@ -298,7 +298,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb', 'buildRpm')
 
         then:
-        new File(projectDir, "build/distributions/${moduleName}-unspecified.noarch.rpm").exists()
+        new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
         def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
         def debInitFile = new File(debTemplateDir, 'initd')
         debInitFile.exists()
@@ -372,7 +372,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
         def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
 
         ['/custom/foobaz/run', '/custom/foobaz/log/run', '/custom/foobaz/init.d'].each {

@@ -31,7 +31,7 @@ class OspackageApplicationDaemonPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        def archivePath = file("build/distributions/${moduleName}_unspecified_all.deb")
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
         def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
 
         ["/service/${moduleName}/run", "/etc/init.d/${moduleName}", "/opt/${moduleName}/lib/${moduleName}.jar", "/opt/${moduleName}/bin/${moduleName}"].each {

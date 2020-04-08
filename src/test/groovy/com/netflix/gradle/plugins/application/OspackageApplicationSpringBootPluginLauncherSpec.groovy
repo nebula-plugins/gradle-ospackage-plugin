@@ -87,7 +87,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb', '--warning-mode', 'all')
 
         then:
-        final archivePath = file("build/distributions/test_unspecified_all.deb")
+        final archivePath = file("build/distributions/test_0_all.deb")
         final scanner = new Scanner(archivePath, new File("${getProjectDir()}/build/tmp/extract"))
 
         final moduleJarName = "./opt/${applicationDir}/lib/${moduleName}.jar"
@@ -149,7 +149,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
         then:
         final appName = distribution.isEmpty() ? 'myapp' : "myapp-$distribution"
-        final archivePath = file("build/distributions/test_unspecified_all.deb")
+        final archivePath = file("build/distributions/test_0_all.deb")
         final scan = new Scanner(archivePath)
 
         final startScript = "./usr/local/$appName/bin/myapp"
