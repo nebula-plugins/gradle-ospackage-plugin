@@ -85,7 +85,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
                 parentExten?.getPackageName() ?: getArchiveBaseName().getOrNull()
             })
             mapping.map('release', { parentExten?.getRelease() ?: getArchiveClassifier().getOrNull() })
-            mapping.map('version', { sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString()) })
+            mapping.map('version', { doSomething() })
             mapping.map('epoch', { parentExten?.getEpoch() ?: 0 })
             mapping.map('signingKeyId', { parentExten?.getSigningKeyId() ?: '' })
             mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase() ?: '' })
@@ -126,6 +126,9 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    private String doSomething() {
+        sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString())
+    }
     String sanitizeVersion(String version) {
         version == 'unspecified' ? '0' : version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
     }

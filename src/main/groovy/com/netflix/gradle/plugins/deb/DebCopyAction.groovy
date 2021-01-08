@@ -307,10 +307,9 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
      */
     def Map toContext() {
         Map context = [:]
-        DeprecationLoggerUtils.whileDisabled {
             context = [
                     name: task.getPackageName(),
-                    version: task.getVersion(),
+                    version: task.getArchiveVersion().get(),
                     release: task.getRelease(),
                     maintainer: task.getMaintainer(),
                     uploaders: task.getUploaders(),
@@ -339,7 +338,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
                     // Uses install command for directory
                     dirs: installDirs.collect { InstallDir dir -> [install: installLineGenerator.generate(dir)] }
             ]
-        }
+
         return context
     }
 
