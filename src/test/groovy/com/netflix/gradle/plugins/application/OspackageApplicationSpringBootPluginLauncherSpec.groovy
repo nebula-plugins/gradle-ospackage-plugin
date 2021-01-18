@@ -118,8 +118,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         !scanner.controlContents.containsKey('./postinst')
 
         where:
-        bootVersion     | distribution | fileMode
-        '2.1.8.RELEASE' | 'boot'       | 0755
+        bootVersion | distribution | fileMode
+        '2.4.2'     | 'boot'       | 0755
     }
 
     @Unroll
@@ -136,8 +136,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion     | distribution
-        '2.1.8.RELEASE' | 'boot'
+        bootVersion | distribution
+        '2.4.2'     | 'boot'
     }
 
     @Unroll
@@ -170,7 +170,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         }
 
         where:
-        bootVersion     | distribution | fileMode
-        '2.1.8.RELEASE' | 'boot'       | 493
+        bootVersion | distribution | fileMode
+        '2.4.2'     | 'boot'       | 493
     }
 }
