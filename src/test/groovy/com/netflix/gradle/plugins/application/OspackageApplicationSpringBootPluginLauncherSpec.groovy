@@ -19,19 +19,9 @@ package com.netflix.gradle.plugins.application
 import com.google.common.base.Throwables
 import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
-import org.junit.Rule
-import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
 
-import java.util.jar.Manifest
-import java.util.zip.ZipFile
-
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
-
-    //TODO: remove this once @Optional is removed from https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-tools/spring-boot-gradle-plugin/src/main/java/org/springframework/boot/gradle/tasks/application/CreateBootStartScripts.java#L33
-    @Rule
-    public final ProvideSystemProperty myPropertyHasMyValue = new ProvideSystemProperty("ignoreDeprecations", "true")
-
     def 'plugin throws exception if spring-boot plugin not applied'() {
         buildFile << """
             ${applyPlugin(OspackageApplicationSpringBootPlugin)}
@@ -86,7 +76,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
     @Unroll
     def 'application shows up in deb for boot #bootVersion'() {
-        final applicationDir = distribution.isEmpty() ? moduleName : "$moduleName-$distribution"
+        final applicationDir = "$moduleName-boot"
         final startScript = "./opt/${applicationDir}/bin/${moduleName}"
         buildFile << buildScript(bootVersion, null)
 
@@ -100,7 +90,6 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         final moduleJarName = "./opt/${applicationDir}/lib/${moduleName}.jar"
 
         scanner.getEntry(startScript).mode == fileMode
-
         [
                 startScript,
                 "./opt/${applicationDir}/bin/${moduleName}.bat",
@@ -108,23 +97,16 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             assert scanner.getEntry("${it}").isFile()
         }
 
-        final moduleJar = new ZipFile(scanner.getEntryFile(moduleJarName))
-        final manifest = new Manifest(moduleJar.getInputStream(moduleJar.getEntry('META-INF/MANIFEST.MF')))
-        manifest.getMainAttributes().getValue('Main-Class') == 'org.springframework.boot.loader.JarLauncher'
-
-        !scanner.dataContents.keySet().find { tarArchiveEntry ->
-            tarArchiveEntry.name.endsWith('.jar') && tarArchiveEntry.name != moduleJarName
-        }
         !scanner.controlContents.containsKey('./postinst')
 
         where:
-        bootVersion | distribution | fileMode
-        '2.4.2'     | 'boot'       | 0755
+        bootVersion | fileMode
+        '2.4.2'     | 0755
     }
 
     @Unroll
     def 'application runs for boot #bootVersion'() {
-        final applicationDir = distribution.isEmpty() ? moduleName : "$moduleName-$distribution"
+        final applicationDir = "$moduleName-boot"
         final startScript = file("build/install/$applicationDir/bin/$moduleName")
 
         buildFile << buildScript(bootVersion, startScript)
@@ -136,8 +118,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion | distribution
-        '2.4.2'     | 'boot'
+        bootVersion | _
+        '2.4.2'     | _
     }
 
     @Unroll
@@ -155,7 +137,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         runTasksSuccessfully('buildDeb')
 
         then:
-        final appName = distribution.isEmpty() ? 'myapp' : "myapp-$distribution"
+        final appName = "myapp-boot"
         final archivePath = file("build/distributions/test_0_all.deb")
         final scan = new Scanner(archivePath)
 
@@ -170,7 +152,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         }
 
         where:
-        bootVersion | distribution | fileMode
-        '2.4.2'     | 'boot'       | 493
+        bootVersion | fileMode
+        '2.4.2'     | 493
     }
 }

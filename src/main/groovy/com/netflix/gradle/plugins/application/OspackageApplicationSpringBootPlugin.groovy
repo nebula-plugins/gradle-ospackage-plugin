@@ -58,14 +58,16 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
             throw new IllegalStateException("The 'org.springframework.boot' plugin must be applied before applying this plugin")
         }
 
-        // Spring Boot 2.0 configures an distribution that has everything we need
+        // Spring Boot 2.0 configures distributions that have everything we need
         OspackageApplicationExtension extension = project.extensions.getByType(OspackageApplicationExtension)
         if (project.distributions.findByName('boot') != null) {
-            extension.distribution = 'boot'
-            // See https://github.com/spring-projects/spring-boot/issues/12232
+            // Use the main distribution and configure it to have the same baseName as the boot distribution
+            project.jar {
+                enabled = true
+            }
             project.afterEvaluate {
                 project.distributions {
-                    boot {
+                    main {
                         if(GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
                             baseName = "${project.distributions.main.baseName}-boot"
                         } else {
