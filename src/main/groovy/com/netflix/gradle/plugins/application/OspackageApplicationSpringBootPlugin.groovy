@@ -75,6 +75,10 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                         }
                     }
                 }
+                // Allow the springBoot extension configuration to propagate to the application plugin
+                if (!project.application.mainClass.isPresent()) {
+                    project.application.mainClass.set(project.springBoot.mainClassName)
+                }
             }
         } else {
             project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME).dependsOn('bootRepackage')
