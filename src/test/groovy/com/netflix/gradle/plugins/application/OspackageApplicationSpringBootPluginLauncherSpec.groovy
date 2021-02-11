@@ -123,6 +123,31 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
     }
 
     @Unroll
+    def 'application runs for boot #bootVersion when mainClassName configured using springBoot extension'() {
+        final applicationDir = "$moduleName-boot"
+        final startScript = file("build/install/$applicationDir/bin/$moduleName")
+
+        buildFile << buildScript(bootVersion, startScript)
+        buildFile << """
+        mainClassName = null
+
+        springBoot {
+            mainClassName = 'nebula.test.HelloWorld'
+        }
+        """
+
+        when:
+        def result = runTasksSuccessfully('runStartScript')
+
+        then:
+        result.standardOutput.contains('Hello Integration Test')
+
+        where:
+        bootVersion | _
+        '2.4.2'     | _
+    }
+
+    @Unroll
     def 'can customize destination for boot #bootVersion'() {
         buildFile << buildScript(bootVersion, null)
         buildFile << """
