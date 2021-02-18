@@ -75,9 +75,16 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                         }
                     }
                 }
-                // Allow the springBoot extension configuration to propagate to the application plugin
-                if (!project.application.mainClass.isPresent()) {
-                    project.application.mainClass.set(project.springBoot.mainClassName)
+                try {
+                    // Allow the springBoot extension configuration to propagate to the application plugin
+                    if (!project.application.mainClass.isPresent()) {
+                        project.application.mainClass.set(project.springBoot.mainClassName)
+                    }
+                } catch (MissingPropertyException ignore) {
+                    // Releases prior to Gradle 6.4
+                    if (project.application.mainClassName == null) {
+                        project.application.mainClassName = project.springBoot.mainClassName
+                    }
                 }
             }
         } else {
