@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.application
 
 import groovy.transform.CompileDynamic
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
@@ -24,6 +25,7 @@ import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.application.CreateStartScripts
+import org.gradle.tooling.BuildException
 import org.gradle.util.GradleVersion
 
 /**
@@ -75,15 +77,23 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                         }
                     }
                 }
-                try {
+
+                if(GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
+                    // Allow the springBoot extension configuration to propagate to the application plugin
+                    if (project.application.mainClassName == null) {
+                        project.application.mainClassName = project.springBoot.mainClassName
+                    }
+                    if(!project.application.mainClassName) {
+                        throw new GradleException("mainClassName should be configured in order to generate a valid debian file. Ex. mainClassName = 'com.netflix.app.MyApp'")
+                    }
+                } else {
                     // Allow the springBoot extension configuration to propagate to the application plugin
                     if (!project.application.mainClass.isPresent()) {
                         project.application.mainClass.set(project.springBoot.mainClassName)
                     }
-                } catch (MissingPropertyException ignore) {
-                    // Releases prior to Gradle 6.4
-                    if (project.application.mainClassName == null) {
-                        project.application.mainClassName = project.springBoot.mainClassName
+
+                    if(!project.application.mainClass.isPresent()) {
+                        throw new GradleException("mainClass should be configured in order to generate a valid debian file. Ex. mainClass = 'com.netflix.app.MyApp'")
                     }
                 }
             }

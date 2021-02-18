@@ -19,9 +19,15 @@ package com.netflix.gradle.plugins.application
 import com.google.common.base.Throwables
 import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
+import org.junit.Rule
+import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
 
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
+
+    @Rule
+    public final ProvideSystemProperty ignoreDeprecations = new ProvideSystemProperty("ignoreDeprecations", "true")
+
     def 'plugin throws exception if spring-boot plugin not applied'() {
         buildFile << """
             ${applyPlugin(OspackageApplicationSpringBootPlugin)}
@@ -179,5 +185,49 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         where:
         bootVersion | fileMode
         '2.4.2'     | 493
+    }
+
+    @Unroll
+    def 'application fails if mainClass is not present'() {
+        final applicationDir = "$moduleName-boot"
+        final startScript = file("build/install/$applicationDir/bin/$moduleName")
+
+        buildFile << buildScript(bootVersion, startScript)
+        buildFile << """
+        mainClassName = null
+        mainClass.set(null)
+        """
+
+        when:
+        def result = runTasksWithFailure('runStartScript')
+
+        then:
+        result.standardError.contains("mainClass should be configured in order to generate a valid debian file. Ex. mainClass = 'com.netflix.app.MyApp'")
+
+        where:
+        bootVersion | _
+        '2.4.2'     | _
+    }
+
+    @Unroll
+    def 'application fails if mainClassName is not present (old versions of Gradle)'() {
+        final applicationDir = "$moduleName-boot"
+        final startScript = file("build/install/$applicationDir/bin/$moduleName")
+
+        gradleVersion = '6.3'
+        buildFile << buildScript(bootVersion, startScript)
+        buildFile << """
+        mainClassName = null
+        """
+
+        when:
+        def result = runTasksWithFailure('runStartScript')
+
+        then:
+        result.standardError.contains("mainClassName should be configured in order to generate a valid debian file. Ex. mainClassName = 'com.netflix.app.MyApp'")
+
+        where:
+        bootVersion | _
+        '2.4.2'     | _
     }
 }
