@@ -93,7 +93,7 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                     }
 
                     if(!project.application.mainClass.isPresent()) {
-                        throw new GradleException("mainClass should be configured in order to generate a valid debian file. Ex. mainClass = 'com.netflix.app.MyApp'")
+                        throw new GradleException("mainClass should be configured in order to generate a valid debian file. Ex. mainClass.set('com.netflix.app.MyApp')")
                     }
                 }
             }

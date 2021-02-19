@@ -202,7 +202,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         def result = runTasksWithFailure('runStartScript')
 
         then:
-        result.standardError.contains("mainClass should be configured in order to generate a valid debian file. Ex. mainClass = 'com.netflix.app.MyApp'")
+        result.standardError.contains("mainClass should be configured in order to generate a valid debian file. Ex. mainClass.set('com.netflix.app.MyApp')")
 
         where:
         bootVersion | _
