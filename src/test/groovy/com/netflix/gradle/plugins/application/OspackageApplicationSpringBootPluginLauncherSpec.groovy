@@ -23,6 +23,9 @@ import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
 
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
     @Rule
@@ -67,6 +70,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             dependencies {
                 implementation 'org.springframework.boot:spring-boot-starter:$bootVersion'
             }
+            
+            bootJar.mustRunAfter jar
 
             ospackage {
                 packageName = 'test'
@@ -87,7 +92,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, null)
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasksSuccessfully('build', 'buildDeb')
 
         then:
         final archivePath = file("build/distributions/test_0_all.deb")
@@ -103,11 +108,21 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             assert scanner.getEntry("${it}").isFile()
         }
 
+        //make sure we don't have boot jar in debian
+        def jarFile = new JarFile(scanner.getEntryFile(moduleJarName))
+        ! isBootJar(jarFile)
+
         !scanner.controlContents.containsKey('./postinst')
 
         where:
         bootVersion | fileMode
         '2.4.2'     | 0755
+    }
+
+    private boolean isBootJar(JarFile jarFile) {
+        jarFile.entries().any {
+            it.name.contains("BOOT-INF")
+        }
     }
 
     @Unroll

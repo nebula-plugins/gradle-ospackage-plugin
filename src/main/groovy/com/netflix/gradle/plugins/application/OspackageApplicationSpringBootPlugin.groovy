@@ -68,6 +68,13 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                 enabled = true
             }
             project.afterEvaluate {
+                project.bootJar {
+                    if(GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
+                        classifier = "boot"
+                    } else {
+                        archiveClassifier = "boot"
+                    }
+                }
                 project.distributions {
                     main {
                         if(GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
