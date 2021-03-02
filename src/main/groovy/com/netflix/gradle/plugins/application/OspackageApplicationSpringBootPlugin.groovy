@@ -61,7 +61,6 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
         }
 
         // Spring Boot 2.0 configures distributions that have everything we need
-        OspackageApplicationExtension extension = project.extensions.getByType(OspackageApplicationExtension)
         if (project.distributions.findByName('boot') != null) {
             // Use the main distribution and configure it to have the same baseName as the boot distribution
             project.jar {
@@ -69,7 +68,7 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
             }
             project.afterEvaluate {
                 project.bootJar {
-                    if(GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
+                    if (GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
                         classifier = "boot"
                     } else {
                         archiveClassifier = "boot"
@@ -77,7 +76,7 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                 }
                 project.distributions {
                     main {
-                        if(GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
+                        if (GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
                             baseName = "${project.distributions.main.baseName}-boot"
                         } else {
                             getDistributionBaseName().set "${project.distributions.main.getDistributionBaseName().getOrNull()}-boot"
@@ -85,22 +84,23 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                     }
                 }
 
-                if(GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
-                    // Allow the springBoot extension configuration to propagate to the application plugin
+                // Allow the springBoot extension configuration to propagate to the application plugin
+                if (GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
                     if (project.application.mainClassName == null) {
                         project.application.mainClassName = project.springBoot.mainClassName
                     }
-                    if(!project.application.mainClassName) {
-                        throw new GradleException("mainClassName should be configured in order to generate a valid debian file. Ex. mainClassName = 'com.netflix.app.MyApp'")
-                    }
                 } else {
-                    // Allow the springBoot extension configuration to propagate to the application plugin
                     if (!project.application.mainClass.isPresent()) {
                         project.application.mainClass.set(project.springBoot.mainClassName)
                     }
+                }
+            }
 
-                    if(!project.application.mainClass.isPresent()) {
-                        throw new GradleException("mainClass should be configured in order to generate a valid debian file. Ex. mainClass.set('com.netflix.app.MyApp')")
+            // Workaround for https://github.com/gradle/gradle/issues/16371
+            if (GradleVersion.current().baseVersion >= GradleVersion.version('6.4').baseVersion) {
+                project.tasks.getByName("startScripts").doFirst {
+                    if (!project.application.mainClass.isPresent()) {
+                        throw new GradleException("mainClass should be configured in order to generate a valid start script. i.e. mainClass.set('com.netflix.app.MyApp')")
                     }
                 }
             }

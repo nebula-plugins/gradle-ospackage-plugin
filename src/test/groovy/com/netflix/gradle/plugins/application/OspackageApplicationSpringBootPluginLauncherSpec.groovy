@@ -23,7 +23,6 @@ import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
 
-import java.util.jar.JarEntry
 import java.util.jar.JarFile
 
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
@@ -80,8 +79,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
             task runStartScript(type: Exec) {
                 commandLine '$startScript'
             }
-            
-            runStartScript.dependsOn buildDeb
+
+            runStartScript.dependsOn installDist
         """.stripIndent()
     }
 
@@ -110,7 +109,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
         //make sure we don't have boot jar in debian
         def jarFile = new JarFile(scanner.getEntryFile(moduleJarName))
-        ! isBootJar(jarFile)
+        !isBootJar(jarFile)
 
         !scanner.controlContents.containsKey('./postinst')
 
@@ -210,14 +209,14 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, startScript)
         buildFile << """
         mainClassName = null
-        mainClass.set(null)
+        application.mainClass.set(null)
         """
 
         when:
-        def result = runTasksWithFailure('runStartScript')
+        def result = runTasksWithFailure('installDist')
 
         then:
-        result.standardError.contains("mainClass should be configured in order to generate a valid debian file. Ex. mainClass.set('com.netflix.app.MyApp')")
+        result.standardError.contains("mainClass should be configured in order to generate a valid distribution. i.e. mainClass.set('com.netflix.app.MyApp')")
 
         where:
         bootVersion | _
@@ -236,10 +235,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         """
 
         when:
-        def result = runTasksWithFailure('runStartScript')
+        def result = runTasksWithFailure('installDist')
 
         then:
-        result.standardError.contains("mainClassName should be configured in order to generate a valid debian file. Ex. mainClassName = 'com.netflix.app.MyApp'")
+        result.standardError.contains("No value has been specified for property 'mainClassName'")
 
         where:
         bootVersion | _
