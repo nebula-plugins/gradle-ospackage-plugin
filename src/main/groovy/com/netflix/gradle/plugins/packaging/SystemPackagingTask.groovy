@@ -167,7 +167,10 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     @CompileDynamic
     protected void copy() {
         use(CopySpecEnhancement) {
-           super.copy()
+            CopyActionExecuter copyActionExecuter = this.createCopyActionExecuter();
+            CopyAction copyAction = this.createCopyAction();
+            WorkResult didWork = copyActionExecuter.execute(this.rootSpec, copyAction);
+            this.setDidWork(didWork.getDidWork());
         }
     }
 
