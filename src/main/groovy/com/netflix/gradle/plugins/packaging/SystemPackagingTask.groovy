@@ -23,6 +23,8 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
+import org.gradle.api.internal.file.copy.CopyAction
+import org.gradle.api.internal.file.copy.CopyActionExecuter
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
@@ -165,7 +167,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     @CompileDynamic
     protected void copy() {
         use(CopySpecEnhancement) {
-            super.copy()
+           super.copy()
         }
     }
 
