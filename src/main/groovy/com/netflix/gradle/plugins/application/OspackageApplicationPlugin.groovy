@@ -19,6 +19,7 @@ package com.netflix.gradle.plugins.application
 import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
+import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -61,14 +62,17 @@ class OspackageApplicationPlugin implements Plugin<Project> {
 
             packagingExt.into(extension.getPrefix())
 
-            [Deb, Rpm].each { Class type ->
-                project.tasks.withType(type).configureEach(new Action<Task>() {
-                    @Override
-                    void execute(Task task) {
-                        task.dependsOn(installTask)
-                    }
-                })
-            }
+            linkInstallToPackageTask(project, Deb, installTask)
+            linkInstallToPackageTask(project, Rpm, installTask)
         }
+    }
+
+    private <T extends Class> void linkInstallToPackageTask(Project project, T type, Task installTask) {
+        project.tasks.withType(type).configureEach(new Action<SystemPackagingTask>() {
+            @Override
+            void execute(SystemPackagingTask task) {
+                task.dependsOn(installTask)
+            }
+        })
     }
 }

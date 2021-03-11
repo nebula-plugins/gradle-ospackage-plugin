@@ -314,6 +314,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
     }
 
     def 'custom default values'() {
+        settingsFile.text = """rootProject.name = \"custom-defaults\""""
         buildFile << """
             ${applyPlugin(OspackageDaemonPlugin)}
             ${applyPlugin(SystemPackagingPlugin)}
