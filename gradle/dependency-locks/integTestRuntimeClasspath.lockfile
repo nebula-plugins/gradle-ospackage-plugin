@@ -4,8 +4,7 @@
 cglib:cglib-nodep:3.2.2
 com.bmuschko:gradle-docker-plugin:3.2.1
 com.github.stefanbirkner:system-rules:1.19.0
-com.google.guava:guava:19.0
-com.netflix.nebula:nebula-test:7.8.6
+com.netflix.nebula:nebula-test:9.0.0
 commons-io:commons-io:2.6
 junit:junit-dep:4.11
 junit:junit:4.12
