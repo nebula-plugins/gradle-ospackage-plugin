@@ -16,7 +16,6 @@
 
 package com.netflix.gradle.plugins.application
 
-import com.google.common.base.Throwables
 import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
 import org.junit.Rule
@@ -39,7 +38,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         def result = runTasks("help")
 
         then:
-        Throwables.getRootCause(result.failure).message == "The 'org.springframework.boot' plugin must be applied before applying this plugin"
+        result.failure.getCause().getCause().getCause().message == "The 'org.springframework.boot' plugin must be applied before applying this plugin"
     }
 
     String buildScript(String bootVersion, File startScript) {

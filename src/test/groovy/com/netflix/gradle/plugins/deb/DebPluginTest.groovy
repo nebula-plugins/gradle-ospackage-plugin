@@ -16,7 +16,6 @@
 
 package com.netflix.gradle.plugins.deb
 
-import com.google.common.io.Files
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
@@ -32,7 +31,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = 1.0
 
         File appleFile = new File(project.buildDir, 'src/apple')
-        Files.createParentDirs(appleFile)
+        FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
         when:
@@ -298,7 +297,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = 1.0
 
         File scriptDir = new File(projectDir, 'src')
-        Files.createParentDirs(scriptDir)
+        FileUtils.forceMkdirParent(scriptDir)
         scriptDir.mkdir()
 
         File preinstallScript = new File(scriptDir, 'preinstall')
@@ -308,7 +307,7 @@ class DebPluginTest extends ProjectSpec {
         postinstallScript.text = "#!/bin/bash\necho Postinstall"
 
         File appleFile = new File(project.buildDir, 'src/apple')
-        Files.createParentDirs(appleFile)
+        FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
         project.apply plugin: 'nebula.deb'
@@ -336,7 +335,7 @@ class DebPluginTest extends ProjectSpec {
         project.version = 1.0
 
         File scriptDir = new File(project.buildDir, 'src')
-        Files.createParentDirs(scriptDir)
+        FileUtils.forceMkdirParent(scriptDir)
         scriptDir.mkdir()
 
         File installScript = new File(scriptDir, 'install')
@@ -349,7 +348,7 @@ class DebPluginTest extends ProjectSpec {
         postinstallScript.text = "echo Postinstall"
 
         File appleFile = new File(project.buildDir, 'src/apple')
-        Files.createParentDirs(appleFile)
+        FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
         project.apply plugin: 'nebula.deb'
@@ -1189,7 +1188,7 @@ class DebPluginTest extends ProjectSpec {
         given:
         File nodeModules = new File(projectDir, 'node_modules')
         File file = new File(nodeModules, "memoizee/node_modules/es5-ext/string/#/at.js")
-        Files.createParentDirs(file)
+        FileUtils.forceMkdirParent(file)
         file.text = "dummy"
         project.apply plugin: 'nebula.deb'
         Deb debTask = project.task('buildDeb', type: Deb) {
@@ -1215,7 +1214,7 @@ class DebPluginTest extends ProjectSpec {
         File target = new File(packageDir,"my-script.sh")
         target.createNewFile()
         File file = new File(packageDir,'bin/my-symlink')
-        Files.createParentDirs(file)
+        FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
 
         when:
@@ -1239,7 +1238,7 @@ class DebPluginTest extends ProjectSpec {
         File target = new File(packageDir,"my-script.sh")
         target.createNewFile()
         File file = new File(packageDir,'bin/my-symlink')
-        Files.createParentDirs(file)
+        FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
 
         when:
@@ -1263,7 +1262,7 @@ class DebPluginTest extends ProjectSpec {
         given:
         Path target = java.nio.file.Files.createTempFile("file-to-symlink-to", "sh")
         File file = project.file('bin/my-symlink')
-        Files.createParentDirs(file)
+        FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target)
 
         when:

@@ -1,6 +1,5 @@
 package com.netflix.gradle.plugins.rpm
 
-import com.google.common.io.Files
 import com.netflix.gradle.plugins.utils.GradleUtils
 import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraph
@@ -106,11 +105,11 @@ task buildRpm(type: Rpm) {
     def 'category_on_spec'() {
         given:
         File bananaFile = new File(projectDir, 'test/banana')
-        Files.createParentDirs(bananaFile)
+        FileUtils.forceMkdirParent(bananaFile)
         bananaFile.text = 'banana'
 
         File appleFile = new File(projectDir, 'src/apple')
-        Files.createParentDirs(appleFile)
+        FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
         buildFile << """
@@ -147,7 +146,7 @@ task buildRpm(type: Rpm) {
     def 'filter_expression'() {
         given:
         File appleFile = new File(projectDir, 'src/apple')
-        Files.createParentDirs(appleFile)
+        FileUtils.forceMkdirParent(appleFile)
         appleFile.text = '{{BASE}}/apple'
 
         buildFile << """
@@ -296,7 +295,7 @@ task buildRpm(type: Rpm) {
         File target = new File(packageDir,"my-script.sh")
         target.createNewFile()
         File file = new File(packageDir,'bin/my-symlink')
-        Files.createParentDirs(file)
+        FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
 apply plugin: 'nebula.rpm'
@@ -325,7 +324,7 @@ task buildRpm(type: Rpm) {
         File target = new File(packageDir,"my-script.sh")
         target.createNewFile()
         File file = new File(packageDir,'bin/my-symlink')
-        Files.createParentDirs(file)
+        FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
 apply plugin: 'nebula.rpm'

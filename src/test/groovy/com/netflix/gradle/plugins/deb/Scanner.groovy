@@ -1,12 +1,12 @@
 package com.netflix.gradle.plugins.deb
 
-import com.google.common.io.Files
 import org.apache.commons.compress.archivers.ArchiveStreamFactory
 import org.apache.commons.compress.archivers.ar.ArArchiveEntry
 import org.apache.commons.compress.archivers.ar.ArArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
+import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 
 public class Scanner {
@@ -127,7 +127,7 @@ public class Scanner {
             File outputFile = null
             if(outputDir != null) {
                 outputFile = new File(outputDir, entry.getName()).getCanonicalFile()
-                Files.createParentDirs(outputFile);
+                FileUtils.forceMkdirParent(outputFile);
 
                 if(entry.isFile()) {
                     final OutputStream outputFileStream = new FileOutputStream(outputFile);
