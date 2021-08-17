@@ -21,6 +21,7 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.copy.CopyAction
@@ -29,8 +30,11 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.util.GradleVersion
 import org.redline_rpm.header.Architecture
 import org.gradle.api.provider.Property
+
+import java.util.concurrent.Callable
 
 abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
@@ -76,11 +80,10 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     protected void applyConventions() {
         // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
         // to pull from the parentExten. And only then would we fallback on some other value.
+
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
 
         DeprecationLoggerUtils.whileDisabled {
-
-
             // Could come from extension
             mapping.map('packageName', {
                 // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
@@ -121,10 +124,25 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
             mapping.map('postUninstallFile', { parentExten?.getPostUninstallFile() })
 
             // Task Specific
-            mapping.map('archiveName', { assembleArchiveName() })
-            mapping.map('archivePath', { determineArchivePath() })
-            mapping.map('archiveFile', { determineArchiveFile() })
-            mapping.map('archiveVersion', { determineArchiveVersion() })
+            if(GradleVersion.current().compareTo(GradleVersion.version("7.0.0")) >= 0) {
+                getArchiveFileName().convention(project.provider(new Callable<String>() {
+                    @Override
+                    String call() throws Exception {
+                        return assembleArchiveName();
+                    }
+                }))
+                getArchiveVersion().convention(project.provider(new Callable<String>() {
+                    @Override
+                    String call() throws Exception {
+                        return determineArchiveVersion();
+                    }
+                }))
+            } else {
+                mapping.map('archiveFile', { determineArchiveFile() })
+                mapping.map('archiveName', { assembleArchiveName() })
+                mapping.map('archivePath', { determineArchivePath() })
+                mapping.map('archiveVersion', { determineArchiveVersion() })
+            }
         }
     }
 
