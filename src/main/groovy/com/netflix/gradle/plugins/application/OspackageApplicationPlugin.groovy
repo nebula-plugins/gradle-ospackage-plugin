@@ -21,6 +21,7 @@ import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
+import groovy.transform.CompileDynamic
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -67,6 +68,7 @@ class OspackageApplicationPlugin implements Plugin<Project> {
         }
     }
 
+    @CompileDynamic
     private <T extends Class> void linkInstallToPackageTask(Project project, T type, Task installTask) {
         project.tasks.withType(type).configureEach(new Action<SystemPackagingTask>() {
             @Override

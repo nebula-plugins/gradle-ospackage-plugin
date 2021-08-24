@@ -128,15 +128,10 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
                 getArchiveFileName().convention(project.provider(new Callable<String>() {
                     @Override
                     String call() throws Exception {
-                        return assembleArchiveName();
+                        return assembleArchiveName()
                     }
                 }))
-                getArchiveVersion().convention(project.provider(new Callable<String>() {
-                    @Override
-                    String call() throws Exception {
-                        return determineArchiveVersion();
-                    }
-                }))
+                getArchiveVersion().convention(determineArchiveVersion())
             } else {
                 mapping.map('archiveFile', { determineArchiveFile() })
                 mapping.map('archiveName', { assembleArchiveName() })
