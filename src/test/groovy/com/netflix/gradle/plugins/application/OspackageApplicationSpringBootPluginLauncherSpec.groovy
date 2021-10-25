@@ -21,6 +21,7 @@ import nebula.test.IntegrationSpec
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
+import spock.lang.IgnoreIf
 
 import java.util.jar.JarFile
 
@@ -222,6 +223,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         '2.4.2'     | _
     }
 
+    @IgnoreIf({ jvm.isJava17() })
     @Unroll
     def 'application fails if mainClassName is not present (old versions of Gradle)'() {
         final applicationDir = "$moduleName-boot"
