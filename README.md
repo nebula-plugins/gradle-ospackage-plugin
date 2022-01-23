@@ -20,27 +20,10 @@ Refer to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/nebula.osp
 
 The project wiki contains the [full documentation](https://github.com/nebula-plugins/gradle-ospackage-plugin/wiki) for the plugin.
 
-# Gradle Compatibility Tested
-
-Built with Oracle JDK8
-Tested with Oracle JDK8
-
-| Gradle Version | Works |
-| :------------: | :---: |
-| 4.10          | yes   |
-| 5.0            | yes   |
-| 5.1            | yes   |
-| 5.2            | yes   |
-| 5.3            | yes   |
-| 5.4            | yes   |
-| 5.5            | yes   |
-| 5.6            | yes   |
-
-
 LICENSE
 =======
 
-Copyright 2014-2019 Netflix, Inc.
+Copyright 2014-2022 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
