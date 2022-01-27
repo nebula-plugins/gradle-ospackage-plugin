@@ -85,14 +85,21 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                 }
 
                 // Allow the springBoot extension configuration to propagate to the application plugin
+                def mainClass = project.objects.property(String)
+                try {
+                    mainClass.set(project.springBoot.mainClass)
+                } catch (Exception ignore) {
+                    mainClass.set(project.springBoot.mainClassName)
+                }
+                if (!mainClass.isPresent()) {
+                    mainClass.set(project.application.mainClassName)
+                }
                 if (GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
                     if (project.application.mainClassName == null) {
-                        project.application.mainClassName = project.springBoot.mainClassName
+                        project.application.mainClassName = mainClass.getOrNull() // Fail only when startScripts runs
                     }
                 } else {
-                    if (!project.application.mainClass.isPresent()) {
-                        project.application.mainClass.set(project.springBoot.mainClassName)
-                    }
+                    project.application.mainClass.convention(mainClass)
                 }
             }
 
