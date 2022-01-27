@@ -20,13 +20,13 @@ import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
+import spock.lang.Shared
 import spock.lang.Unroll
 import spock.lang.IgnoreIf
 
 import java.util.jar.JarFile
 
 class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
-
     @Rule
     public final ProvideSystemProperty ignoreDeprecations = new ProvideSystemProperty("ignoreDeprecations", "true")
 
@@ -97,9 +97,9 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         final archivePath = file("build/distributions/test_0_all.deb")
         final scanner = new Scanner(archivePath, new File("${getProjectDir()}/build/tmp/extract"))
 
-        final moduleJarName = "./opt/${applicationDir}/lib/${moduleName}.jar"
+        final moduleJarName = "./opt/${applicationDir}/lib/${moduleName}${moduleSuffix}.jar"
 
-        scanner.getEntry(startScript).mode == fileMode
+        scanner.getEntry(startScript).mode == 0755
         [
                 startScript,
                 "./opt/${applicationDir}/bin/${moduleName}.bat",
@@ -114,8 +114,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         !scanner.controlContents.containsKey('./postinst')
 
         where:
-        bootVersion | fileMode
-        '2.4.2'     | 0755
+        bootVersion | moduleSuffix
+        '2.4.0'     | ''
+        '2.5.0'     | '-plain'
+        '2.6.0'     | '-plain'
     }
 
     private boolean isBootJar(JarFile jarFile) {
@@ -132,14 +134,13 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, startScript)
 
         when:
-        def result = runTasksSuccessfully('runStartScript')
+        def result = runTasks('runStartScript')
 
         then:
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion | _
-        '2.4.2'     | _
+        bootVersion << ['2.4.0', '2.5.0', '2.6.0']
     }
 
     @Unroll
@@ -163,8 +164,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion | _
-        '2.4.2'     | _
+        bootVersion << ['2.4.0', '2.5.0', '2.6.0']
     }
 
     @Unroll
@@ -188,21 +188,23 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
         final startScript = "./usr/local/$appName/bin/myapp"
 
-        scan.getEntry(startScript).mode == fileMode
+        scan.getEntry(startScript).mode == 493
 
         [startScript,
          "./usr/local/$appName/bin/myapp.bat",
-         "./usr/local/$appName/lib/${moduleName}.jar"].each {
+         "./usr/local/$appName/lib/${moduleName}${moduleSuffix}.jar"].each {
             assert scan.getEntry("${it}").isFile()
         }
 
         where:
-        bootVersion | fileMode
-        '2.4.2'     | 493
+        bootVersion | moduleSuffix
+        '2.4.0'     | ''
+        '2.5.0'     | '-plain'
+        '2.6.0'     | '-plain'
     }
 
     @Unroll
-    def 'application fails if mainClass is not present'() {
+    def 'application fails if mainClass is not present for #bootVersion'() {
         final applicationDir = "$moduleName-boot"
         final startScript = file("build/install/$applicationDir/bin/$moduleName")
 
@@ -219,8 +221,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardError.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass.set('com.netflix.app.MyApp')")
 
         where:
-        bootVersion | _
-        '2.4.2'     | _
+        bootVersion << ['2.4.0', '2.5.0', '2.6.0']
     }
 
     @IgnoreIf({ jvm.isJava17() })
@@ -242,7 +243,6 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardError.contains("No value has been specified for property 'mainClassName'")
 
         where:
-        bootVersion | _
-        '2.4.2'     | _
+        bootVersion << ['2.4.0']
     }
 }
