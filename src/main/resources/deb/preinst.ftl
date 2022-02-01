@@ -1,7 +1,7 @@
 #!/bin/sh -e
 
 case "\$1" in
-    install)
+    install|upgrade)
         <% commands.each {command -> %>
         <%= command %>
         <% } %>
