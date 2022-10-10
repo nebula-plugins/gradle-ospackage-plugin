@@ -23,7 +23,7 @@ import org.codehaus.groovy.runtime.StackTraceUtils
 class OspackageDaemonPluginSpec extends PluginProjectSpec {
     @Override
     String getPluginName() {
-        'nebula.ospackage-daemon'
+        'com.netflix.nebula.ospackage-daemon'
     }
 
     def 'if no daemonName is assigned use the name of the project'() {

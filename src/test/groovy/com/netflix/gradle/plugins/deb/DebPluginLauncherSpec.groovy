@@ -123,7 +123,7 @@ class DebPluginLauncherSpec extends IntegrationSpec {
     def "Translates extension packageDescription '#description' to header entry for Debian task"() {
         given:
         buildFile << """
-apply plugin: 'nebula.ospackage'
+apply plugin: 'com.netflix.nebula.ospackage'
 
 ospackage {
     packageName = 'translates-extension-description'

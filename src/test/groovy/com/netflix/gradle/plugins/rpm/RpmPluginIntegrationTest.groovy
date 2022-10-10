@@ -18,7 +18,7 @@ class RpmPluginIntegrationTest extends IntegrationSpec {
 
             given:
         buildFile << '''
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 task buildRpm(type: Rpm) {
     packageName = 'rpmIsUpToDate'
@@ -41,7 +41,7 @@ task buildRpm(type: Rpm) {
     def "Translates extension packageDescription '#description' to header entry for RPM task"() {
         given:
         buildFile << """
-apply plugin: 'nebula.ospackage'
+apply plugin: 'com.netflix.nebula.ospackage'
 
 ospackage {
     packageName = 'bleah'
@@ -68,7 +68,7 @@ ospackage {
     def 'projectNameDefault'() {
         given:
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 task buildRpm(type: Rpm) {
     version '1'
@@ -88,7 +88,7 @@ task buildRpm(type: Rpm) {
     def 'file handle closed'() {
         given:
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 task buildRpm(type: Rpm) {
 }
@@ -113,7 +113,7 @@ task buildRpm(type: Rpm) {
         appleFile.text = 'apple'
 
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 version = '1.0.0'
 
@@ -150,7 +150,7 @@ task buildRpm(type: Rpm) {
         appleFile.text = '{{BASE}}/apple'
 
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 version = '1.0.0'
 
@@ -181,7 +181,7 @@ task buildRpm(type: Rpm) {
         // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
         buildFile << """
 apply plugin: BasePlugin
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 archivesBaseName = 'foo'
 version = '1'
@@ -210,7 +210,7 @@ task buildRpm(type: Rpm) {
 
         // Simulate SystemPackagingBasePlugin
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 def parentExten = project.extensions.create('rpmParent', com.netflix.gradle.plugins.packaging.ProjectPackagingExtension, project)
 
@@ -254,7 +254,7 @@ task buildRpm(type: Rpm) {
 
         when:
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 configurations {
     myConf
@@ -298,7 +298,7 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
@@ -327,7 +327,7 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
-apply plugin: 'nebula.rpm'
+apply plugin: 'com.netflix.nebula.rpm'
 
 task buildRpm(type: Rpm) {
     packageName = 'example'

@@ -37,7 +37,7 @@ import org.gradle.util.GradleVersion
  *     <li>
  *       <pre>
  *         apply plugin: 'org.springframework.boot'
- *         apply plugin: 'nebula.ospackage-application-spring-boot'
+ *         apply plugin: 'com.netflix.nebula.ospackage-application-spring-boot'
  *
  *         dependencies {*           implementation 'org.springframework.boot:spring-boot-starter'
  *

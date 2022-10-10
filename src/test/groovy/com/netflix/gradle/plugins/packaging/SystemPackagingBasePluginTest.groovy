@@ -17,7 +17,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         srcDir.mkdirs()
 
         when:
-        project.apply plugin: 'nebula.ospackage-base'
+        project.apply plugin: 'com.netflix.nebula.ospackage-base'
 
         project.ospackage {
             release '3'
@@ -39,7 +39,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
         when:
-        project.apply plugin: 'nebula.ospackage-base'
+        project.apply plugin: 'com.netflix.nebula.ospackage-base'
 
         project.ospackage {
             release = 3
@@ -116,7 +116,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         project.version = '1.0.0'
 
         when:
-        project.apply plugin: 'nebula.ospackage-base'
+        project.apply plugin: 'com.netflix.nebula.ospackage-base'
 
         project.ospackage {
             release '1'

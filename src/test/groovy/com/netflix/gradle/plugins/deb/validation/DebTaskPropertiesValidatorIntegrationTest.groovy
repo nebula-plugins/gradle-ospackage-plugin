@@ -9,7 +9,7 @@ class DebTaskPropertiesValidatorIntegrationTest extends ProjectSpec {
     DebTaskPropertiesValidator validator = new DebTaskPropertiesValidator()
 
     def setup() {
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
     }
 
     def 'can execute Deb task with valid version and package name'() {

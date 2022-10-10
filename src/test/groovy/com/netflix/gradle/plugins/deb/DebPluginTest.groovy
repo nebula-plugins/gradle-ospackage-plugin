@@ -35,7 +35,7 @@ class DebPluginTest extends ProjectSpec {
         appleFile.text = 'apple'
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             release = '1'
@@ -52,7 +52,7 @@ class DebPluginTest extends ProjectSpec {
 
     def 'outputs declared'() {
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             packageName 'testpkg'
@@ -70,7 +70,7 @@ class DebPluginTest extends ProjectSpec {
         String testDir = "${project.buildDir.path}/testdir"
         File srcDir = new File(testDir, 'a')
         srcDir.mkdirs()
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             packageName 'postinsttestdeb'
@@ -121,7 +121,7 @@ class DebPluginTest extends ProjectSpec {
         noParentsDir.mkdirs()
         FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         project.task([type: Deb], 'buildDeb', {
             destinationDir = project.file('build/tmp/DebPluginTest')
@@ -198,7 +198,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'project-name-default'
@@ -232,7 +232,7 @@ class DebPluginTest extends ProjectSpec {
         pearFile.setWritable(false, false)
         pearFile.setWritable(true, true)
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'permissions-default-to-filesystem'
@@ -274,7 +274,7 @@ class DebPluginTest extends ProjectSpec {
         def customPostRmContents = '#!/usr/bin/env ruby\nputs "Uninstallation Completed." '
         FileUtils.writeStringToFile(customPostRm, customPostRmContents)
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
             preInstallFile customPreInst
             postInstallFile customPostInst
@@ -310,7 +310,7 @@ class DebPluginTest extends ProjectSpec {
         FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
             packageName = 'generate-scripts'
@@ -351,7 +351,7 @@ class DebPluginTest extends ProjectSpec {
         FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = (Deb) project.task([type: Deb], 'buildDeb', {
             packageName = 'generate-scripts-that-append-install-util'
@@ -388,7 +388,7 @@ class DebPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(subfolder1Dir, 'abc.html'), abcHtml1Content)
         FileUtils.writeStringToFile(new File(subfolder2Dir, 'abc.html'), abcHtml2Content)
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         project.task([type: Deb], 'buildDeb', {
             destinationDir = project.file('build/tmp/DebPluginTest')
@@ -433,7 +433,7 @@ class DebPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(subfolder1Dir, 'abc1.html'), abcHtml1Content)
         FileUtils.writeStringToFile(new File(subfolder2Dir, 'abc2.html'), abcHtml2Content)
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         project.task([type: Deb], 'buildDeb', {
@@ -480,7 +480,7 @@ class DebPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(subfolder1Dir, 'abc.html'), abcHtml1Content)
         FileUtils.writeStringToFile(new File(subfolder2Dir, 'abc.html'), abcHtml2Content)
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         project.task([type: Deb], 'buildDeb', {
@@ -519,7 +519,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -543,7 +543,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -566,7 +566,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -592,7 +592,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -618,7 +618,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -644,7 +644,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -670,7 +670,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -696,7 +696,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -722,7 +722,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -752,7 +752,7 @@ class DebPluginTest extends ProjectSpec {
         GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
         generator.generateTestMavenRepo()
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         project.configurations {
             myConf
@@ -788,7 +788,7 @@ class DebPluginTest extends ProjectSpec {
     @Unroll
     def "Handles release flag in version header if value '#providedRelease' assigned to release property"() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'my-package'
@@ -813,7 +813,7 @@ class DebPluginTest extends ProjectSpec {
 
     def 'Handle version when using epoch'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'my-package'
@@ -831,7 +831,7 @@ class DebPluginTest extends ProjectSpec {
 
     def 'Does not include signature file if signing is not fully configured'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'my-package'
@@ -850,7 +850,7 @@ class DebPluginTest extends ProjectSpec {
 
     def 'Includes signature file'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'my-package'
@@ -876,7 +876,7 @@ class DebPluginTest extends ProjectSpec {
     @Unroll
     def "Translates package description '#description' to header entry"() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'translates-package-description'
@@ -903,7 +903,7 @@ class DebPluginTest extends ProjectSpec {
     @Unroll
     def "Translates project description '#description' to header entry"() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.description = description
 
         Deb debTask = project.task('buildDeb', type: Deb) {
@@ -932,7 +932,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'user-group-packages-files'
@@ -962,7 +962,7 @@ class DebPluginTest extends ProjectSpec {
         FileUtils.writeStringToFile(new File(srcDir,'changelog'), 'This is a changelog file')
         FileUtils.writeStringToFile(new File(srcDir,'something'), 'This is a something file')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'supplementary-files-in-debian-control'
@@ -986,7 +986,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -1027,7 +1027,7 @@ class DebPluginTest extends ProjectSpec {
         noParentsDir.mkdirs()
         FileUtils.writeStringToFile(new File(noParentsDir, 'alone'), 'alone')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             packageName = 'bleah'
@@ -1049,7 +1049,7 @@ class DebPluginTest extends ProjectSpec {
     @Unroll
     def 'handle semantic versions with dashes and metadata (+) expect #version to be #expected'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = version
 
         project.task([type: Deb], 'buildDeb', {
@@ -1078,7 +1078,7 @@ class DebPluginTest extends ProjectSpec {
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         project.version = '1.0'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
@@ -1099,7 +1099,7 @@ class DebPluginTest extends ProjectSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/365")
     def 'Can specify provides with version'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
 
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             packageName = 'allows-multiple-provides-with-versions'
@@ -1118,7 +1118,7 @@ class DebPluginTest extends ProjectSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/115")
     def 'directory construct'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task('buildDeb', type: Deb) {
             user 'test'
             permissionGroup 'testgroup'
@@ -1138,7 +1138,7 @@ class DebPluginTest extends ProjectSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/231")
     def 'directory construct with owner and group'() {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task('buildDeb', type: Deb) {
             user 'test'
             permissionGroup 'testgroup'
@@ -1169,7 +1169,7 @@ class DebPluginTest extends ProjectSpec {
 
     def 'add alternative dependencies' () {
         given:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task('buildDeb', type: Deb) {
             requires('depA', '1.0').or('depB', '2.0', Flags.GREATER | Flags.EQUAL)
             requires('depC', '3.0').or('depD')
@@ -1190,7 +1190,7 @@ class DebPluginTest extends ProjectSpec {
         File file = new File(nodeModules, "memoizee/node_modules/es5-ext/string/#/at.js")
         FileUtils.forceMkdirParent(file)
         file.text = "dummy"
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task('buildDeb', type: Deb) {
             user 'test'
             permissionGroup 'testgroup'
@@ -1218,7 +1218,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from 'package'
         })
@@ -1242,7 +1242,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package') {
                 into '/lib'
@@ -1266,7 +1266,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(file.toPath(), target)
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from 'bin'
         })
@@ -1290,7 +1290,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(new File(target, "source").toPath(), source.toPath())
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package')
         })
@@ -1314,7 +1314,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(new File(target, "source").toPath(), source.toPath())
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package') {
                 into '/lib'
@@ -1341,7 +1341,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(sourcePath, new File("../source").toPath())
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package')
         })
@@ -1369,7 +1369,7 @@ class DebPluginTest extends ProjectSpec {
         java.nio.file.Files.createSymbolicLink(packageDir.toPath(), projectDir.toPath().relativize(outsideProjectDir.toPath()))
 
         when:
-        project.apply plugin: 'nebula.deb'
+        project.apply plugin: 'com.netflix.nebula.deb'
         Deb debTask = project.task([type: Deb], 'buildDeb', {
             from('package')
         })

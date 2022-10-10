@@ -88,70 +88,70 @@ pluginBundle {
 gradlePlugin {
     plugins {
         ospackage {
-            id = 'nebula.ospackage'
+            id = 'com.netflix.nebula.ospackage'
             displayName = 'Nebula OS Package'
             description = project.description
             implementationClass = 'com.netflix.gradle.plugins.packaging.SystemPackagingPlugin'
         }
 
         ospackageApplication {
-            id = 'nebula.ospackage-application'
+            id = 'com.netflix.nebula.ospackage-application'
             displayName = 'Nebula OS Package Application Plugin'
             description = 'Packages output of application plugin into a debian or rpm'
             implementationClass = 'com.netflix.gradle.plugins.application.OspackageApplicationPlugin'
         }
 
         ospackageApplicationDaemon {
-            id = 'nebula.ospackage-application-daemon'
+            id = 'com.netflix.nebula.ospackage-application-daemon'
             displayName = 'Nebula OS Package Application Daemon Plugin'
             description = 'Creates daemontools setup to run output from application plugin'
             implementationClass = 'com.netflix.gradle.plugins.application.OspackageApplicationDaemonPlugin'
         }
 
         ospackageApplicationSpring {
-            id = 'nebula.ospackage-application-spring-boot'
+            id = 'com.netflix.nebula.ospackage-application-spring-boot'
             displayName = 'Nebula OS Package Spring Application Plugin'
             description = 'Packages output of application plugin into a debian or rpm'
             implementationClass = 'com.netflix.gradle.plugins.application.OspackageApplicationSpringBootPlugin'
         }
 
         ospackageBase {
-            id = 'nebula.ospackage-base'
+            id = 'com.netflix.nebula.ospackage-base'
             displayName = 'Nebula OS Package Base'
             description = 'Setup base publishing for OS packages'
             implementationClass = 'com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin'
         }
 
         ospackageDaemon {
-            id = 'nebula.ospackage-daemon'
+            id = 'com.netflix.nebula.ospackage-daemon'
             displayName = 'Nebula OS Package Daemon Plugin'
             description = 'Create daemontools runner'
             implementationClass = 'com.netflix.gradle.plugins.daemon.OspackageDaemonPlugin'
         }
 
         ospackageDocker {
-            id = 'nebula.ospackage-docker'
+            id = 'com.netflix.nebula.ospackage-docker'
             displayName = 'Nebula OS Package Docker'
             description = 'Create docker images from ospackage block'
             implementationClass = 'com.netflix.gradle.plugins.docker.OsPackageDockerPlugin'
         }
 
         ospackageDockerBase {
-            id = 'nebula.ospackage-docker-base'
+            id = 'com.netflix.nebula.ospackage-docker-base'
             displayName = 'Nebula OS Package Docker Base'
             description = 'Setup base publishing for docker images'
             implementationClass = 'com.netflix.gradle.plugins.docker.OsPackageDockerBasePlugin'
         }
 
         deb {
-            id = 'nebula.deb'
+            id = 'com.netflix.nebula.deb'
             displayName = 'Nebula Debian Packaging Plugin'
             description = 'Create debian system packages'
             implementationClass = 'com.netflix.gradle.plugins.deb.DebPlugin'
         }
 
         rpm {
-            id = 'nebula.rpm'
+            id = 'com.netflix.nebula.rpm'
             displayName = 'Nebula RPM Packaging Plugin'
             description = 'Create RPM system packages'
             implementationClass = 'com.netflix.gradle.plugins.rpm.RpmPlugin'

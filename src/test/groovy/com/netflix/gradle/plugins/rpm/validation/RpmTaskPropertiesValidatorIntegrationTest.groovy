@@ -9,7 +9,7 @@ class RpmTaskPropertiesValidatorIntegrationTest extends ProjectSpec {
     RpmTaskPropertiesValidator validator = new RpmTaskPropertiesValidator()
 
     def setup() {
-        project.apply plugin: 'nebula.rpm'
+        project.apply plugin: 'com.netflix.nebula.rpm'
     }
 
     def 'can execute Rpm task with valid version and package name'() {

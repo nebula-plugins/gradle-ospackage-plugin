@@ -16,7 +16,7 @@ class SystemPackagingPluginTest extends ProjectSpec {
         srcDir.mkdirs()
 
         when:
-        project.apply plugin: 'nebula.ospackage'
+        project.apply plugin: 'com.netflix.nebula.ospackage'
 
         then:
         project.getPlugins().getPlugin(SystemPackagingPlugin) != null
@@ -43,7 +43,7 @@ class SystemPackagingPluginTest extends ProjectSpec {
         new File(srcDir, 'a.java').text = "public class A { }"
 
         when:
-        project.apply plugin: 'nebula.ospackage'
+        project.apply plugin: 'com.netflix.nebula.ospackage'
 
         def ext = project.getExtensions().getByType(ProjectPackagingExtension)
         ext.from(srcDir)
