@@ -14,7 +14,7 @@ documentation. All the plugins are pure-java and don't require any local native 
 
 # Quick Start
 
-Refer to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/nebula.ospackage) for instructions on how to apply the main plugin.
+Refer to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.netflix.nebula.ospackage) for instructions on how to apply the main plugin.
 
 # Documentation
 
