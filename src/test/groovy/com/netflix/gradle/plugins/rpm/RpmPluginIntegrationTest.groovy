@@ -346,4 +346,35 @@ task buildRpm(type: Rpm) {
         def symlink = scan.files.find { it.name == './lib/bin/my-symlink' }
         symlink.header.type == SYMLINK
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/416")
+    def 'directory entries in ospackage extension propagates to rpm and deb'() {
+        given:
+        File bananaFile = new File(projectDir, 'test/banana')
+        FileUtils.forceMkdirParent(bananaFile)
+        bananaFile.text = 'banana'
+
+        buildFile << """
+apply plugin: 'com.netflix.nebula.rpm'
+apply plugin: 'com.netflix.nebula.ospackage-base'
+version = '1.0.0'
+
+ospackage {
+    directory('/usr/share/myproduct/from-extension')
+}
+task buildRpm(type: Rpm) {
+    packageName = 'sample'    
+    directory('/usr/share/myproduct/from-task')
+}
+"""
+        when:
+        runTasksSuccessfully('buildRpm')
+
+        then:
+        // Evaluate response
+        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+
+        ['./usr/share/myproduct/from-extension', './usr/share/myproduct/from-task'] == scanFiles*.name
+        [ DIR, DIR] == scanFiles*.type
+    }
 }

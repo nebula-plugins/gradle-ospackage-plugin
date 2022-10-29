@@ -323,6 +323,16 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
+    @Input
+    @Optional
+    List<Directory> getAllDirectories() {
+        if (parentExten) {
+            return getDirectories() + parentExten.getDirectories()
+        } else {
+            return getDirectories()
+        }
+    }
+
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
