@@ -19,12 +19,12 @@ package com.netflix.gradle.plugins.application
 import com.netflix.gradle.plugins.daemon.DaemonDefinition
 import com.netflix.gradle.plugins.daemon.DaemonExtension
 import com.netflix.gradle.plugins.daemon.OspackageDaemonPlugin
+import com.netflix.gradle.plugins.utils.ConfigureUtil
 import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.tasks.application.CreateStartScripts
-import org.gradle.util.ConfigureUtil
 
 /**
  * Combine the nebula-ospackage-application with the nebula-ospackage-daemon plugin. As with the nebula-ospackage-application,

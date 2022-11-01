@@ -16,9 +16,9 @@
 
 package com.netflix.gradle.plugins.daemon
 
+import com.netflix.gradle.plugins.utils.ConfigureUtil
 import groovy.transform.Canonical
 import org.gradle.api.DomainObjectCollection
-import org.gradle.util.ConfigureUtil
 
 @Canonical
 class DaemonExtension {
