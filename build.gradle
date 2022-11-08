@@ -15,7 +15,7 @@
  *
  */
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '19.0.1'
+    id 'com.netflix.nebula.plugin-plugin' version '19.0.2'
     id 'java-library'
 }
 
