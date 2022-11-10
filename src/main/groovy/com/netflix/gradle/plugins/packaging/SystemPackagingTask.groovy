@@ -31,11 +31,13 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.util.GradleVersion
+import org.gradle.work.DisableCachingByDefault
 import org.redline_rpm.header.Architecture
 import org.gradle.api.provider.Property
 
 import java.util.concurrent.Callable
 
+@DisableCachingByDefault
 abstract class SystemPackagingTask extends AbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
