@@ -144,7 +144,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     }
 
     private String doSomething() {
-        sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString())
+        sanitizeVersion(parentExten?.getVersion() ?: getArchiveVersion().getOrNull().toString())
     }
     String sanitizeVersion(String version) {
         version == 'unspecified' ? '0' : version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
