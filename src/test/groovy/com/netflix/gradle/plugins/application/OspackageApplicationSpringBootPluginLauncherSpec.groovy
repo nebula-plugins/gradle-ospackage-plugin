@@ -115,9 +115,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
         where:
         bootVersion | moduleSuffix
-        '2.4.0'     | ''
-        '2.5.0'     | '-plain'
         '2.6.0'     | '-plain'
+        '2.7.0'     | '-plain'
     }
 
     private boolean isBootJar(JarFile jarFile) {
@@ -140,7 +139,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion << ['2.4.0', '2.5.0', '2.6.0']
+        bootVersion << ['2.6.0', '2.7.0']
     }
 
     @Unroll
@@ -164,7 +163,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardOutput.contains('Hello Integration Test')
 
         where:
-        bootVersion << ['2.4.0', '2.5.0', '2.6.0']
+        bootVersion << ['2.6.0', '2.7.0']
     }
 
     @Unroll
@@ -198,9 +197,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
 
         where:
         bootVersion | moduleSuffix
-        '2.4.0'     | ''
-        '2.5.0'     | '-plain'
         '2.6.0'     | '-plain'
+        '2.7.0'     | '-plain'
     }
 
     @Unroll
@@ -221,7 +219,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         result.standardError.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass.set('com.netflix.app.MyApp')")
 
         where:
-        bootVersion << ['2.4.0', '2.5.0', '2.6.0']
+        bootVersion << ['2.6.0', '2.7.0']
     }
 
     @IgnoreIf({ jvm.isJava17() })

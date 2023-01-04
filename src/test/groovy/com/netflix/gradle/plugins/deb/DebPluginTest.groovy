@@ -124,8 +124,9 @@ class DebPluginTest extends ProjectSpec {
         project.apply plugin: 'com.netflix.nebula.deb'
 
         project.task([type: Deb], 'buildDeb', {
-            destinationDir = project.file('build/tmp/DebPluginTest')
-            destinationDir.mkdirs()
+            File destination = project.file('build/tmp/DebPluginTest')
+            destination.mkdirs()
+            destinationDirectory.set(project.file('build/tmp/DebPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -391,8 +392,9 @@ class DebPluginTest extends ProjectSpec {
         project.apply plugin: 'com.netflix.nebula.deb'
 
         project.task([type: Deb], 'buildDeb', {
-            destinationDir = project.file('build/tmp/DebPluginTest')
-            destinationDir.mkdirs()
+            File destination = project.file('build/tmp/DebPluginTest')
+            destination.mkdirs()
+            destinationDirectory.set(project.file('build/tmp/DebPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -437,8 +439,9 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         project.task([type: Deb], 'buildDeb', {
-            destinationDir = project.file('build/tmp/DebPluginTest')
-            destinationDir.mkdirs()
+            File destination = project.file('build/tmp/DebPluginTest')
+            destination.mkdirs()
+            destinationDirectory.set(project.file('build/tmp/DebPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -484,8 +487,9 @@ class DebPluginTest extends ProjectSpec {
         project.version = '1.0'
 
         project.task([type: Deb], 'buildDeb', {
-            destinationDir = project.file('build/tmp/DebPluginTest')
-            destinationDir.mkdirs()
+            File destination = project.file('build/tmp/DebPluginTest')
+            destination.mkdirs()
+            destinationDirectory.set(project.file('build/tmp/DebPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -1053,8 +1057,9 @@ class DebPluginTest extends ProjectSpec {
         project.version = version
 
         project.task([type: Deb], 'buildDeb', {
-            destinationDir = project.file('build/tmp/DebPluginTest')
-            destinationDir.mkdirs()
+            File destination = project.file('build/tmp/DebPluginTest')
+            destination.mkdirs()
+            destinationDirectory.set(project.file('build/tmp/DebPluginTest'))
             packageName = 'semvertest'
         })
 

@@ -17,6 +17,9 @@ class RpmPluginIntegrationTest extends IntegrationSpec {
     def "rpm task is marked up-to-date when setting arch or os property"() {
 
             given:
+            File libDir = new File(projectDir, 'lib')
+            libDir.mkdirs()
+            new File(libDir, 'a.java').text = "public class A { }"
         buildFile << '''
 apply plugin: 'com.netflix.nebula.rpm'
 
@@ -24,6 +27,9 @@ task buildRpm(type: Rpm) {
     packageName = 'rpmIsUpToDate'
     arch = NOARCH
     os = LINUX
+     from('lib') {
+            into 'lib'
+    }
 }
 '''
         when:
@@ -40,6 +46,9 @@ task buildRpm(type: Rpm) {
     @Unroll
     def "Translates extension packageDescription '#description' to header entry for RPM task"() {
         given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
         buildFile << """
 apply plugin: 'com.netflix.nebula.ospackage'
 
@@ -47,6 +56,9 @@ ospackage {
     packageName = 'bleah'
     packageDescription = ${GradleUtils.quotedIfPresent(description)}
     version = '1.0'
+    from('lib') {
+            into 'lib'
+    }
 }
 """
 
@@ -67,11 +79,17 @@ ospackage {
 
     def 'projectNameDefault'() {
         given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
         buildFile << """
 apply plugin: 'com.netflix.nebula.rpm'
 
 task buildRpm(type: Rpm) {
     version '1'
+    from('lib') {
+            into 'lib'
+    }
 }
 """
 
@@ -175,7 +193,7 @@ task buildRpm(type: Rpm) {
     }
 
     def 'usesArchivesBaseName'() {
-        File srcDir = new File(projectDir, 'src')
+        File srcDir = new File(projectDir, 'lib')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
         // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
@@ -187,6 +205,9 @@ archivesBaseName = 'foo'
 version = '1'
 
 task buildRpm(type: Rpm) {
+    from('lib') {
+            into 'lib'
+    }
 }
 """
         when:

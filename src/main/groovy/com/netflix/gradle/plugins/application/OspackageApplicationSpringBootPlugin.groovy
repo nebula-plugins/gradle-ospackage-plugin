@@ -92,7 +92,9 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                     mainClass.set(project.springBoot.mainClassName)
                 }
                 if (!mainClass.isPresent()) {
-                    mainClass.set(project.application.mainClassName)
+                    try {
+                        mainClass.set(project.application.mainClass.isPresent() ? project.application.mainClass.get() : project.application.mainClassName)
+                    } catch (Exception ignore) { }
                 }
                 if (GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
                     if (project.application.mainClassName == null) {

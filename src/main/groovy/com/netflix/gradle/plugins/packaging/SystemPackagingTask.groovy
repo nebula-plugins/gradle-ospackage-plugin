@@ -21,7 +21,6 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.copy.CopyAction
@@ -38,7 +37,7 @@ import org.gradle.api.provider.Property
 import java.util.concurrent.Callable
 
 @DisableCachingByDefault
-abstract class SystemPackagingTask extends AbstractArchiveTask {
+abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
     @Internal
@@ -92,7 +91,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
                 parentExten?.getPackageName() ?: getArchiveBaseName().getOrNull()
             })
             mapping.map('release', { parentExten?.getRelease() ?: getArchiveClassifier().getOrNull() })
-            mapping.map('version', { doSomething() })
+            mapping.map('version', { sanitizeVersion() })
             mapping.map('epoch', { parentExten?.getEpoch() ?: 0 })
             mapping.map('signingKeyId', { parentExten?.getSigningKeyId() ?: '' })
             mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase() ?: '' })
@@ -143,10 +142,11 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
         }
     }
 
-    private String doSomething() {
+    private String sanitizeVersion() {
         sanitizeVersion(parentExten?.getVersion() ?: project.getVersion().toString())
     }
-    String sanitizeVersion(String version) {
+
+    private String sanitizeVersion(String version) {
         version == 'unspecified' ? '0' : version.replaceAll(/\+.*/, '').replaceAll(/-/, '~')
     }
 
@@ -180,7 +180,7 @@ abstract class SystemPackagingTask extends AbstractArchiveTask {
     @Override
     @TaskAction
     @CompileDynamic
-    protected void copy() {
+    void copy() {
         use(CopySpecEnhancement) {
             CopyActionExecuter copyActionExecuter = this.createCopyActionExecuter();
             CopyAction copyAction = this.createCopyAction();

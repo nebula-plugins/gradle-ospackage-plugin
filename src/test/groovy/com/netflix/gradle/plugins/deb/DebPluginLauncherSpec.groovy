@@ -122,6 +122,11 @@ class DebPluginLauncherSpec extends IntegrationSpec {
     @Unroll
     def "Translates extension packageDescription '#description' to header entry for Debian task"() {
         given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
+
+
         buildFile << """
 apply plugin: 'com.netflix.nebula.ospackage'
 
@@ -129,11 +134,16 @@ ospackage {
     packageName = 'translates-extension-description'
     packageDescription = ${GradleUtils.quotedIfPresent(description)}
     version = '1.0'
+    from('lib') {
+            into 'lib'
+    }
 }
+
+
 """
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasksSuccessfully('buildDeb', '-i')
 
         then:
         def scan = new Scanner(file('build/distributions/translates-extension-description_1.0_all.deb'))

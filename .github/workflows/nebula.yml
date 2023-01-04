@@ -46,15 +46,7 @@ jobs:
             - ${{ runner.os }}-gradlewrapper-
       - name: Gradle build
         run: ./gradlew --info --stacktrace build
-      - name: Post-success actions
-        if: success()
-        run: ./gradlew jacocoTestReport coveralls
-        env:
-          CI_NAME: github_actions
-          CI_BUILD_NUMBER: ${{ github.sha }}
-          CI_BUILD_URL: 'https://github.com/${{ github.repository }}'
-          CI_BRANCH: ${{ github.ref }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: validation
