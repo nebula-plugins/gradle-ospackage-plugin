@@ -26,10 +26,18 @@ jobs:
     name: Gradle Build without Publish
     steps:
       - uses: actions/checkout@v1
-      - name: Setup jdk
-        uses: actions/setup-java@v1
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
         with:
+          distribution: 'zulu'
+          java-version: '8'
+          java-package: jdk
+      - name: Setup jdk
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
           java-version: ${{ matrix.java }}
+          java-package: jdk
       - uses: actions/cache@v1
         id: gradle-cache
         with:
@@ -46,7 +54,8 @@ jobs:
             - ${{ runner.os }}-gradlewrapper-
       - name: Gradle build
         run: ./gradlew --info --stacktrace build
-
+        env:
+          JDK_VERSION_FOR_TESTS: ${{ matrix.java }}
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: validation
