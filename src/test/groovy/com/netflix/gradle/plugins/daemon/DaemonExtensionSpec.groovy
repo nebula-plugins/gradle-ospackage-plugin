@@ -17,7 +17,7 @@
 package com.netflix.gradle.plugins.daemon
 
 import nebula.test.ProjectSpec
-import org.gradle.util.WrapUtil
+import com.netflix.gradle.plugins.utils.WrapUtil
 
 class DaemonExtensionSpec extends ProjectSpec {
 
