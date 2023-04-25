@@ -214,7 +214,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         def result = runTasksWithFailure('installDist')
 
         then:
-        result.standardError.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass.set('com.netflix.app.MyApp')")
+        result.standardError.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
 
         where:
         bootVersion << ['2.7.0']

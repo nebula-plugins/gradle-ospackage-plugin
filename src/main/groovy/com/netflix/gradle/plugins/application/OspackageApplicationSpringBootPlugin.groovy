@@ -21,11 +21,10 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
-import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.application.CreateStartScripts
-import org.gradle.tooling.BuildException
 import org.gradle.util.GradleVersion
 
 /**
@@ -50,7 +49,6 @@ import org.gradle.util.GradleVersion
  */
 @CompileDynamic
 class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
-    OspackageApplicationExtension extension
 
     @Override
     void apply(Project project) {
@@ -60,18 +58,18 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
             throw new IllegalStateException("The 'org.springframework.boot' plugin must be applied before applying this plugin")
         }
 
-        // Spring Boot 2.0 configures distributions that have everything we need
+        // Spring Boot 2.0 configured distributions that have everything we need
         if (project.distributions.findByName('boot') != null) {
             // Use the main distribution and configure it to have the same baseName as the boot distribution
-            project.jar {
+            project.tasks.named(JavaPlugin.JAR_TASK_NAME) {
                 enabled = true
             }
             project.afterEvaluate {
-                project.bootJar {
+                project.tasks.named('bootJar').configure {
                     if (GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
-                        classifier = "boot"
+                        classifier = 'boot'
                     } else {
-                        archiveClassifier = "boot"
+                        archiveClassifier = 'boot'
                     }
                 }
                 project.distributions {
@@ -94,7 +92,8 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                 if (!mainClass.isPresent()) {
                     try {
                         mainClass.set(project.application.mainClass.isPresent() ? project.application.mainClass.get() : project.application.mainClassName)
-                    } catch (Exception ignore) { }
+                    } catch (Exception ignore) {
+                    }
                 }
                 if (GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
                     if (project.application.mainClassName == null) {
@@ -107,20 +106,25 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
 
             // Workaround for https://github.com/gradle/gradle/issues/16371
             if (GradleVersion.current().baseVersion >= GradleVersion.version('6.4').baseVersion) {
-                project.tasks.getByName("startScripts").doFirst {
-                    if (!project.application.mainClass.isPresent()) {
-                        throw new GradleException("mainClass should be configured in order to generate a valid start script. i.e. mainClass.set('com.netflix.app.MyApp')")
+                project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure {
+                    doFirst {
+                        if (!project.application.mainClass.isPresent()) {
+                            throw new GradleException("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
+                        }
                     }
                 }
             }
         } else {
-            project.tasks.getByName(DistributionPlugin.TASK_INSTALL_NAME).dependsOn('bootRepackage')
-            CreateStartScripts createStartScripts = project.tasks.getByName(ApplicationPlugin.TASK_START_SCRIPTS_NAME) as CreateStartScripts
-            createStartScripts.mainClassName = 'org.springframework.boot.loader.JarLauncher'
-
-            // `ApplicationPlugin` automatically adds `runtimeClasspath` files to the distribution. We want most of that
-            // stripped out since we want just the fat jar that Spring produces.
             project.afterEvaluate {
+                project.tasks.named(DistributionPlugin.TASK_INSTALL_NAME).configure {
+                    it.dependsOn('bootRepackage')
+                }
+                project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure { CreateStartScripts createStartScripts ->
+                    createStartScripts.mainClassName = 'org.springframework.boot.loader.JarLauncher'
+                }
+
+                // `ApplicationPlugin` automatically adds `runtimeClasspath` files to the distribution. We want most of that
+                // stripped out since we want just the fat jar that Spring produces.
                 project.distributions {
                     main {
                         contents {
@@ -136,7 +140,6 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                 }
             }
         }
-
-
     }
+
 }
