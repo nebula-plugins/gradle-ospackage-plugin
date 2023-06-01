@@ -193,6 +193,7 @@ task buildRpm(type: Rpm) {
     }
 
     def 'usesArchivesBaseName'() {
+        System.setProperty('ignoreDeprecations', 'true')
         File srcDir = new File(projectDir, 'lib')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')

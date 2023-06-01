@@ -23,7 +23,9 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
         writeHelloWorld('nebula.test')
         buildFile << """
             ${applyPlugin(OspackageApplicationPlugin)}
-            mainClassName = 'nebula.test.HelloWorld'
+            application {
+                mainClass = 'nebula.test.HelloWorld'
+            }
         """.stripIndent()
 
         when:
@@ -46,11 +48,13 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
         writeHelloWorld('nebula.test')
         buildFile << """
             ${applyPlugin(OspackageApplicationPlugin)}
-            mainClassName = 'nebula.test.HelloWorld'
             ospackage_application {
                 prefix = '/usr/local'
             }
-            applicationName = 'myapp'
+            application {
+               mainClass = 'nebula.test.HelloWorld'
+               applicationName = 'myapp'
+            }
         """.stripIndent()
 
         when:

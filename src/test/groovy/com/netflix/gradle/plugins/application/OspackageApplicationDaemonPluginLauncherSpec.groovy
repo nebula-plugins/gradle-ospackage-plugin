@@ -24,7 +24,9 @@ class OspackageApplicationDaemonPluginLauncherSpec extends IntegrationSpec {
         writeHelloWorld('nebula.test')
         buildFile << """
             ${applyPlugin(OspackageApplicationDaemonPlugin)}
-            mainClassName = 'nebula.test.HelloWorld'
+            application {
+                mainClass = 'nebula.test.HelloWorld'
+            }
         """.stripIndent()
 
         when:
