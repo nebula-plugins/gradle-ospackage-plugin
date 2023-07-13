@@ -91,7 +91,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 String cleanedName = daemonName.replaceAll("\\W", "").capitalize()
 
 
-                File outputDir = new File(project.buildDir, "daemon/${cleanedName}/${task.name}")
+                File outputDir = new File(project.layout.buildDirectory.getAsFile().get(), "daemon/${cleanedName}/${task.name}")
 
                 String defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
                 Map<String, String> templatesWithFileOutput = [
