@@ -119,7 +119,7 @@ class RpmPluginTest extends ProjectSpec {
     def 'obsoletesAndConflicts'() {
 
         Project project = ProjectBuilder.builder().build()
-        File buildDir = project.buildDir
+        File buildDir = project.layout.buildDirectory.getAsFile().get()
         File srcDir = new File(buildDir, 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
@@ -273,7 +273,7 @@ class RpmPluginTest extends ProjectSpec {
     def 'differentGroupsBetweenCopySpecs'() {
         Project project = ProjectBuilder.builder().build()
 
-        File buildDir = project.buildDir
+        File buildDir = project.layout.buildDirectory.getAsFile().get()
         File srcDir1 = new File(buildDir, 'src1')
         File srcDir2 = new File(buildDir, 'src2')
         File srcDir3 = new File(buildDir, 'src3')

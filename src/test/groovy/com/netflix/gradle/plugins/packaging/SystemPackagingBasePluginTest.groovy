@@ -34,7 +34,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         project.version = '1.0.0'
         project.description = 'Test Description'
 
-        File srcDir = new File(project.buildDir, 'src')
+        File srcDir = new File(project.layout.buildDirectory.getAsFile().get(), 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 
@@ -65,7 +65,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         project.version = '1.0.0'
         project.description = 'Test Description'
 
-        File srcDir = new File(project.buildDir, 'src')
+        File srcDir = new File(project.layout.buildDirectory.getAsFile().get(), 'src')
         srcDir.mkdirs()
         FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
 

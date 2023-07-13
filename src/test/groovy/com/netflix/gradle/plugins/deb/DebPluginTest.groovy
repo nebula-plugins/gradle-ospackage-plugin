@@ -30,7 +30,7 @@ class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {
         project.version = 1.0
 
-        File appleFile = new File(project.buildDir, 'src/apple')
+        File appleFile = new File(project.layout.buildDirectory.getAsFile().get(), 'src/apple')
         FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
@@ -67,7 +67,7 @@ class DebPluginTest extends ProjectSpec {
 
     def 'createDirectoryEntry generates postinst install line'() {
         given:
-        String testDir = "${project.buildDir.path}/testdir"
+        String testDir = "${project.layout.buildDirectory.getAsFile().get().path}/testdir"
         File srcDir = new File(testDir, 'a')
         srcDir.mkdirs()
         project.apply plugin: 'com.netflix.nebula.deb'
@@ -307,7 +307,7 @@ class DebPluginTest extends ProjectSpec {
         File postinstallScript = new File(scriptDir, 'postinstall')
         postinstallScript.text = "#!/bin/bash\necho Postinstall"
 
-        File appleFile = new File(project.buildDir, 'src/apple')
+        File appleFile = new File(project.layout.buildDirectory.getAsFile().get(), 'src/apple')
         FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
@@ -335,7 +335,7 @@ class DebPluginTest extends ProjectSpec {
     def 'generateScriptsThatAppendInstallUtil'() {
         project.version = 1.0
 
-        File scriptDir = new File(project.buildDir, 'src')
+        File scriptDir = new File(project.layout.buildDirectory.getAsFile().get(), 'src')
         FileUtils.forceMkdirParent(scriptDir)
         scriptDir.mkdir()
 
@@ -348,7 +348,7 @@ class DebPluginTest extends ProjectSpec {
         File postinstallScript = new File(scriptDir, 'postinstall')
         postinstallScript.text = "echo Postinstall"
 
-        File appleFile = new File(project.buildDir, 'src/apple')
+        File appleFile = new File(project.layout.buildDirectory.getAsFile().get(), 'src/apple')
         FileUtils.forceMkdirParent(appleFile)
         appleFile.text = 'apple'
 
@@ -752,7 +752,7 @@ class DebPluginTest extends ProjectSpec {
         given:
         String testCoordinates = 'com.netflix.nebula:a:1.0.0'
         DependencyGraph graph = new DependencyGraph([testCoordinates])
-        File reposRootDir = new File(project.buildDir, 'repos')
+        File reposRootDir = new File(project.layout.buildDirectory.getAsFile().get(), 'repos')
         GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
         generator.generateTestMavenRepo()
 
