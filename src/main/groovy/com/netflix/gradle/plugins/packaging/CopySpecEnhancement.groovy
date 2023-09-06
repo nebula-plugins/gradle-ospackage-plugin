@@ -49,6 +49,14 @@ class CopySpecEnhancement {
         user(spec, userArg)
     }
 
+    static void setgid(CopySpec spec, boolean setgid) {
+        appendFieldToCopySpec(spec, 'setgid', setgid)
+    }
+
+    static void setSetgid(CopySpec spec, boolean setgid) {
+        setgid(spec, setgid)
+    }
+
     static void permissionGroup(CopySpec spec, String permissionGroup) {
         appendFieldToCopySpec(spec, 'permissionGroup', permissionGroup)
     }
