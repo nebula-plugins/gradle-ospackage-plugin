@@ -220,7 +220,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         bootVersion << ['2.7.0']
     }
 
-    @IgnoreIf({ jvm.isJava17() || jvm.isJava20() })
+    @IgnoreIf({ jvm.isJava17() || jvm.isJava21() })
     @Unroll
     def 'application fails if mainClassName is not present (old versions of Gradle)'() {
         final applicationDir = "$moduleName-boot"
