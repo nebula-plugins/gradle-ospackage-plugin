@@ -47,7 +47,7 @@ class SystemPackagingExtension {
     File signingKeyRingFile
     String user
     String permissionGroup // Group is used by Gradle on tasks.
-    Boolean setgid
+    boolean setgid
 
     /**
      * In Debian, this is the Section and has to be provided. Valid values are: admin, cli-mono, comm, database, debug,

@@ -131,20 +131,21 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         def specCreateDirectoryEntry = lookup(specToLookAt, 'createDirectoryEntry')
         boolean createDirectoryEntry = specCreateDirectoryEntry!=null ? specCreateDirectoryEntry : task.createDirectoryEntry
         if (createDirectoryEntry) {
-
             logger.debug "adding directory {}", dirDetails.relativePath.pathString
             String user = lookup(specToLookAt, 'user') ?: task.user
             Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
             Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
-            Boolean setgid = lookup(specToLookAt, 'setgid') ?: task.setgid
+            Boolean setgid = lookup(specToLookAt, 'setgid')
 
-            int fileMode = FilePermissionUtil.getUnixPermission(dirDetails)
-
-            if (setgid) {
-                fileMode = fileMode | 02000
+            int dirMode = FilePermissionUtil.getUnixPermission(dirDetails)
+            if (setgid == null) {
+                setgid = task.setgid
             }
-            debFileVisitorStrategy.addDirectory(dirDetails, user, uid, group, gid, fileMode)
+            if (setgid) {
+                dirMode = dirMode | 02000
+            }
+            debFileVisitorStrategy.addDirectory(dirDetails, user, uid, group, gid, dirMode)
         }
     }
 
