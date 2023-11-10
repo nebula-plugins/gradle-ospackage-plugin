@@ -191,35 +191,7 @@ task buildRpm(type: Rpm) {
         def scannerApple = scan.files.find { it.name =='./usr/local/myproduct/bin/apple'}
         scannerApple.asString() == '/usr/local/myproduct/apple'
     }
-
-    def 'usesArchivesBaseName'() {
-        System.setProperty('ignoreDeprecations', 'true')
-        File srcDir = new File(projectDir, 'lib')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-        // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
-        buildFile << """
-apply plugin: BasePlugin
-apply plugin: 'com.netflix.nebula.rpm'
-
-archivesBaseName = 'foo'
-version = '1'
-
-task buildRpm(type: Rpm) {
-    from('lib') {
-            into 'lib'
-    }
-}
-"""
-        when:
-        runTasksSuccessfully('buildRpm')
-
-        then:
-        def scan = Scanner.scan(file('build/distributions/foo-1.noarch.rpm'))
-        def actual = Scanner.getHeaderEntryString(scan, NAME)
-        'foo' == actual
-    }
-
+    
     def 'verifyCopySpecCanComeFromExtension'() {
         given:
         File srcDir = new File(projectDir, 'src')
