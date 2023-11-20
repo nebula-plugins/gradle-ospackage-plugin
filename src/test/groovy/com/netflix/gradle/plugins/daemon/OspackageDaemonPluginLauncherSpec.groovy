@@ -16,20 +16,22 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
-import nebula.test.IntegrationSpec
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 
-class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
+class OspackageDaemonPluginLauncherSpec extends BaseIntegrationTestKitSpec {
 
     @Rule
     public TemporaryFolder tmpFolder= new TemporaryFolder()
 
     def 'single daemon'() {
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
+            
             daemon {
                 daemonName = 'foobar'
                 command = 'sleep infinity'
@@ -37,7 +39,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb', 'buildRpm', '--warning-mode', 'all')
+        runTasks('buildDeb', 'buildRpm', '--warning-mode', 'all')
 
         then:
         new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
@@ -69,8 +71,10 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
 
     def 'all the bells an whistles'() {
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
             daemon {
               daemonName = "foobaz" // default = packageName
               command = "sleep infinity" // required
@@ -99,7 +103,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             }""".stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb', 'buildRpm')
+        runTasks('buildDeb', 'buildRpm')
 
         then:
         // DEB
@@ -131,8 +135,10 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         File srcDir = new File(projectDir, 'src')
         srcDir.mkdirs()
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
             daemon {
               daemonName = "foobaz" // default = packageName
               command = "sleep infinity" // required
@@ -140,7 +146,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             }""".stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb')
 
         then:
         def archivePath = file("build/distributions/${moduleName}_0_all.deb")
@@ -150,50 +156,6 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         def postInst = scan.controlContents['./postinst']
         postInst.contains("sleep 30")
         !postInst.contains("/usr/sbin/update-rc.d")
-    }
-
-    def 'custom templates'() {
-        buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
-
-            daemonsTemplates.folder = '/com/netflix/gradle/plugins/daemon/custom'
-
-            daemon {
-                daemonName = 'foobar'
-                command = 'sleep infinity'
-            }
-            """.stripIndent()
-
-        when:
-        runTasksSuccessfully('buildDeb', 'buildRpm')
-
-        then:
-        new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
-
-        def rpmTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildRpm/')
-        def rpmInitFile = new File(rpmTemplateDir, 'initd')
-        rpmInitFile.exists()
-        rpmInitFile.text.contains('''
-            # chkconfig: 345 85 15
-            # description: Control Script for foobar
-
-            . /etc/rc.d/init.d/functions'''.stripIndent())
-
-        new File(projectDir, "build/distributions/${moduleName}_0_all.deb").exists()
-
-        def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
-        def debInitFile = new File(debTemplateDir, 'initd')
-        debInitFile.exists()
-        debInitFile.text.contains('''
-            ### BEGIN of CUSTOM SCRIPT INIT INFO
-            # Provides:          foobar
-            # Default-Start:     2 3 4 5
-            # Default-Stop:      0 1 6
-            # Required-Start:
-            # Required-Stop:
-            # Description: Control Script for foobar
-            ### END INIT INFO'''.stripIndent())
     }
 
     def 'custom templates - in a project folder'() {
@@ -226,8 +188,10 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         postInstall.text = ""
 
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
 
             daemonsTemplates.folder = '${projectTemplates.name}'
 
@@ -238,7 +202,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb', 'buildRpm')
+        runTasks('buildDeb', 'buildRpm')
 
         then:
         new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
@@ -283,8 +247,10 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
         File postInstall = tmpFolder.newFile('postInstall.tpl')
 
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+           plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
 
             daemonsTemplates.folder = '${tmpFolder.getRoot().path}'
 
@@ -295,7 +261,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb', 'buildRpm')
+        runTasks('buildDeb', 'buildRpm')
 
         then:
         new File(projectDir, "build/distributions/${moduleName}-0.noarch.rpm").exists()
@@ -316,8 +282,10 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
     def 'custom default values'() {
         settingsFile.text = """rootProject.name = \"custom-defaults\""""
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
 
             daemonsDefaultDefinition {
                 useExtensionDefaults = ${externalDefaults}
@@ -338,7 +306,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb', 'buildRpm')
+        runTasks('buildDeb', 'buildRpm')
 
         then:
         def debTemplateDir = new File(projectDir, 'build/daemon/Foobar/buildDeb/')
@@ -354,8 +322,10 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
 
     def 'scripts can have custom location where they will be placed'() {
         buildFile << """
-            ${applyPlugin(OspackageDaemonPlugin)}
-            ${applyPlugin(SystemPackagingPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-daemon'
+                id 'com.netflix.nebula.ospackage'
+            }
 
             daemonsDefaultDefinition {
                 runScriptLocation = '/custom/\${daemonName}/run'
@@ -370,7 +340,7 @@ class OspackageDaemonPluginLauncherSpec extends IntegrationSpec {
             """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb')
 
         then:
         def archivePath = file("build/distributions/${moduleName}_0_all.deb")

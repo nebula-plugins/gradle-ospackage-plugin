@@ -16,20 +16,22 @@
 
 package com.netflix.gradle.plugins.application
 
-import nebula.test.IntegrationSpec
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 
-class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
+class OspackageApplicationPluginLauncherSpec extends BaseIntegrationTestKitSpec {
     def 'application shows up in deb'() {
         writeHelloWorld('nebula.test')
         buildFile << """
-            ${applyPlugin(OspackageApplicationPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-application'
+            } 
             application {
                 mainClass = 'nebula.test.HelloWorld'
             }
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb')
 
         then:
         def archivePath = file("build/distributions/${moduleName}_0_all.deb")
@@ -47,7 +49,9 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
     def 'can customize destination'() {
         writeHelloWorld('nebula.test')
         buildFile << """
-            ${applyPlugin(OspackageApplicationPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-application'
+            }
             ospackage_application {
                 prefix = '/usr/local'
             }
@@ -58,7 +62,7 @@ class OspackageApplicationPluginLauncherSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb')
 
         then:
         def archivePath = file("build/distributions/${moduleName}_0_all.deb")

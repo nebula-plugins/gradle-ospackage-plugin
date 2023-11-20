@@ -16,21 +16,24 @@
 
 package com.netflix.gradle.plugins.application
 
-import nebula.test.IntegrationSpec
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 
-class OspackageApplicationDaemonPluginLauncherSpec extends IntegrationSpec {
+class OspackageApplicationDaemonPluginLauncherSpec extends BaseIntegrationTestKitSpec {
 
     def 'daemon script from application'() {
         writeHelloWorld('nebula.test')
         buildFile << """
-            ${applyPlugin(OspackageApplicationDaemonPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-application-daemon'
+            } 
+
             application {
                 mainClass = 'nebula.test.HelloWorld'
             }
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb')
 
         then:
         def archivePath = file("build/distributions/${moduleName}_0_all.deb")
