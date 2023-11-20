@@ -20,7 +20,6 @@ import com.netflix.gradle.plugins.deb.Scanner
 import nebula.test.IntegrationSpec
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
-import spock.lang.Shared
 import spock.lang.Unroll
 import spock.lang.IgnoreIf
 
