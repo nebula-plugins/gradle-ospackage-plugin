@@ -1,10 +1,11 @@
 package com.netflix.gradle.plugins.rpm
 
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.utils.GradleUtils
-import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Issue
 import spock.lang.Unroll
 
@@ -12,7 +13,7 @@ import static org.redline_rpm.header.Header.HeaderTag.DESCRIPTION
 import static org.redline_rpm.header.Header.HeaderTag.NAME
 import static org.redline_rpm.payload.CpioHeader.*
 
-class RpmPluginIntegrationTest extends IntegrationSpec {
+class RpmPluginIntegrationTest extends BaseIntegrationTestKitSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/82")
     def "rpm task is marked up-to-date when setting arch or os property"() {
 
@@ -21,7 +22,9 @@ class RpmPluginIntegrationTest extends IntegrationSpec {
             libDir.mkdirs()
             new File(libDir, 'a.java').text = "public class A { }"
         buildFile << '''
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     packageName = 'rpmIsUpToDate'
@@ -33,13 +36,13 @@ task buildRpm(type: Rpm) {
 }
 '''
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         and:
-        def result = runTasksSuccessfully('buildRpm')
+        def result = runTasks('buildRpm')
 
         then:
-        result.wasUpToDate(':buildRpm')
+        result.task(':buildRpm').outcome == TaskOutcome.UP_TO_DATE
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
@@ -50,7 +53,9 @@ task buildRpm(type: Rpm) {
         libDir.mkdirs()
         new File(libDir, 'a.java').text = "public class A { }"
         buildFile << """
-apply plugin: 'com.netflix.nebula.ospackage'
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
 
 ospackage {
     packageName = 'bleah'
@@ -63,7 +68,7 @@ ospackage {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         def scan = Scanner.scan(file('build/distributions/bleah-1.0.noarch.rpm'))
@@ -83,7 +88,9 @@ ospackage {
         libDir.mkdirs()
         new File(libDir, 'a.java').text = "public class A { }"
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     version '1'
@@ -94,7 +101,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(file('build/distributions/projectNameDefault-1.noarch.rpm'))
@@ -106,18 +113,19 @@ task buildRpm(type: Rpm) {
     def 'file handle closed'() {
         given:
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
-
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 task buildRpm(type: Rpm) {
 }
 """
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // see https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/200#issuecomment-244666158
         // if file is not closed this will fail
-        runTasksSuccessfully('clean')
+        runTasks('clean')
     }
 
     def 'category_on_spec'() {
@@ -131,7 +139,9 @@ task buildRpm(type: Rpm) {
         appleFile.text = 'apple'
 
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 version = '1.0.0'
 
@@ -150,7 +160,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // Evaluate response
@@ -168,7 +178,9 @@ task buildRpm(type: Rpm) {
         appleFile.text = '{{BASE}}/apple'
 
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 version = '1.0.0'
 
@@ -184,7 +196,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         def scan = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm'))
@@ -204,7 +216,9 @@ task buildRpm(type: Rpm) {
 
         // Simulate SystemPackagingBasePlugin
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 def parentExten = project.extensions.create('rpmParent', com.netflix.gradle.plugins.packaging.ProjectPackagingExtension, project)
 
@@ -224,7 +238,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // Evaluate response
@@ -248,7 +262,9 @@ task buildRpm(type: Rpm) {
 
         when:
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 configurations {
     myConf
@@ -277,7 +293,7 @@ task buildRpm(type: Rpm) {
 """
 
         then:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
     }
 
 
@@ -292,7 +308,9 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
@@ -302,7 +320,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-3.noarch.rpm'))
@@ -321,7 +339,9 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
@@ -333,7 +353,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-4.noarch.rpm'))
