@@ -16,8 +16,8 @@
 
 package com.netflix.gradle.plugins.application
 
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.deb.Scanner
-import nebula.test.IntegrationSpec
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
@@ -25,38 +25,32 @@ import spock.lang.IgnoreIf
 
 import java.util.jar.JarFile
 
-class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
+class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTestKitSpec {
     @Rule
     public final ProvideSystemProperty ignoreDeprecations = new ProvideSystemProperty("ignoreDeprecations", "true")
 
     def 'plugin throws exception if spring-boot plugin not applied'() {
         buildFile << """
-            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
+            plugins {
+                id 'com.netflix.nebula.ospackage-application-spring-boot'
+            } 
         """
 
         when:
-        def result = runTasks("help")
+        def result = runTasksAndFail("help")
 
         then:
-        result.failure.getCause().getCause().getCause().message == "The 'org.springframework.boot' plugin must be applied before applying this plugin"
+        result.output.contains("The 'org.springframework.boot' plugin must be applied before applying this plugin")
     }
 
     String buildScript(String bootVersion, File startScript) {
         writeHelloWorld('nebula.test')
 
         return """
-            buildscript {
-                repositories {
-                    mavenCentral()
-                    maven { url 'https://repo.spring.io/milestone' }
-                }
-                dependencies {
-                    classpath 'org.springframework.boot:spring-boot-gradle-plugin:$bootVersion'
-                }
+            plugins {
+                id 'org.springframework.boot' version '$bootVersion'
+                id 'com.netflix.nebula.ospackage-application-spring-boot'
             }
-
-            apply plugin: 'org.springframework.boot'
-            ${applyPlugin(OspackageApplicationSpringBootPlugin)}
 
             mainClassName = 'nebula.test.HelloWorld'
 
@@ -90,7 +84,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         buildFile << buildScript(bootVersion, null)
 
         when:
-        runTasksSuccessfully('build', 'buildDeb')
+        runTasks('build', 'buildDeb')
 
         then:
         final archivePath = file("build/distributions/test_0_all.deb")
@@ -134,7 +128,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         def result = runTasks('runStartScript')
 
         then:
-        result.standardOutput.contains('Hello Integration Test')
+        result.output.contains('Hello Integration Test')
 
         where:
         bootVersion << ['2.7.0']
@@ -155,10 +149,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         """
 
         when:
-        def result = runTasksSuccessfully('runStartScript')
+        def result = runTasks('runStartScript')
 
         then:
-        result.standardOutput.contains('Hello Integration Test')
+        result.output.contains('Hello Integration Test')
 
         where:
         bootVersion << ['2.7.0']
@@ -176,7 +170,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         """.stripIndent()
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb')
 
         then:
         final appName = "myapp-boot"
@@ -210,10 +204,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         """
 
         when:
-        def result = runTasksWithFailure('installDist')
+        def result = runTasksAndFail('installDist')
 
         then:
-        result.standardError.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
+        result.output.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
 
         where:
         bootVersion << ['2.7.0']
@@ -232,10 +226,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends IntegrationSpec {
         """
 
         when:
-        def result = runTasksWithFailure('installDist')
+        def result = runTasksAndFail('installDist')
 
         then:
-        result.standardError.contains("No value has been specified for property 'mainClassName'")
+        result.output.contains("No value has been specified for property 'mainClassName'")
 
         where:
         bootVersion << ['2.4.0']
