@@ -33,6 +33,7 @@ class Deb extends SystemPackagingTask {
     Deb() {
         super()
         archiveExtension.set 'deb'
+        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     @Override

@@ -31,6 +31,10 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault
 class DaemonTemplateTask extends ConventionTask {
 
+    DaemonTemplateTask() {
+        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+    }
+
     @Internal
     Map<String, String> context
 

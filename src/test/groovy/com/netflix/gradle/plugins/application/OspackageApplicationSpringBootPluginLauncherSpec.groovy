@@ -29,6 +29,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
     @Rule
     public final ProvideSystemProperty ignoreDeprecations = new ProvideSystemProperty("ignoreDeprecations", "true")
 
+    def setup() {
+        disableConfigurationCache() // org.gradle.api.tasks.application.CreateStartScript does not support config cache and it is used in Spring Boot plugin in these tests
+    }
+
     def 'plugin throws exception if spring-boot plugin not applied'() {
         buildFile << """
             plugins {

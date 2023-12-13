@@ -9,6 +9,11 @@ import javax.annotation.Nullable
 @DisableCachingByDefault
 abstract class OsPackageAbstractArchiveTask extends AbstractArchiveTask {
 
+    OsPackageAbstractArchiveTask() {
+        super()
+        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+    }
+
     void setVersion(@Nullable String version) {
         archiveVersion.convention(version)
         archiveVersion.set(version)
