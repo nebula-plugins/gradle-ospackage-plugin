@@ -62,6 +62,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
         }
 
         configureDuplicateStrategy()
+        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     private void configureDuplicateStrategy() {
