@@ -196,7 +196,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     @Override
     protected void addLink(Link link) {
-        builder.addLink link.path, link.target, link.permissions
+        def user = link.user ?: task.user
+        def permissionGroup = link.permissionGroup ?: task.permissionGroup
+        builder.addLink(link.path, link.target, link.permissions, user, permissionGroup)
     }
 
     @Override
