@@ -327,6 +327,16 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
         }
     }
 
+    @Input
+    @Optional
+    List<Directory> getAllDirectories() {
+        if (parentExten) {
+            return getDirectories() + parentExten.getDirectories()
+        } else {
+            return getDirectories()
+        }
+    }
+
     @Override
     abstract AbstractPackagingCopyAction createCopyAction()
 
