@@ -391,7 +391,6 @@ task buildRpm(type: Rpm) {
         ['./usr/share/myproduct/from-extension', './usr/share/myproduct/from-task'] == scanFiles*.name
         [ DIR, DIR] == scanFiles*.type
     }
-}
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/246")
     def 'addParentDirs in ospackage extension propagates to rpm and deb'() {
