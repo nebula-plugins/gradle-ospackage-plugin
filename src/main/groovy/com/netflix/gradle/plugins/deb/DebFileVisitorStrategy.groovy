@@ -5,8 +5,6 @@ import org.gradle.api.file.FileCopyDetails
 import org.vafer.jdeb.DataProducer
 import org.vafer.jdeb.producers.DataProducerLink
 
-import java.nio.file.Path
-
 import static com.netflix.gradle.plugins.utils.GradleUtils.getRootPath
 import static com.netflix.gradle.plugins.utils.GradleUtils.relativizeSymlink
 

@@ -31,6 +31,7 @@ class DataProducerFileSimple implements DataProducer {
         entry.groupId = gid
         entry.mode = mode
         entry.size = file.size()
+        entry.modTime = file.lastModified()
         entry
     }
 }

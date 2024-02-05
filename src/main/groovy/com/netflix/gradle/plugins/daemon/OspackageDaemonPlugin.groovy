@@ -19,13 +19,12 @@ package com.netflix.gradle.plugins.daemon
 import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
+import com.netflix.gradle.plugins.utils.WrapUtil
 import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
-import org.gradle.api.DomainObjectCollection
 import org.gradle.api.DomainObjectSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.util.WrapUtil
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     public static final String POST_INSTALL_TEMPLATE = "postInstall"
@@ -92,7 +91,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 String cleanedName = daemonName.replaceAll("\\W", "").capitalize()
 
 
-                File outputDir = new File(project.buildDir, "daemon/${cleanedName}/${task.name}")
+                File outputDir = new File(project.layout.buildDirectory.getAsFile().get(), "daemon/${cleanedName}/${task.name}")
 
                 String defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
                 Map<String, String> templatesWithFileOutput = [

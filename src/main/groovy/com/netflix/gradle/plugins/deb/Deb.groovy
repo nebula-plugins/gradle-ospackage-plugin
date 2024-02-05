@@ -25,12 +25,15 @@ import org.gradle.api.internal.IConventionAware
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.work.DisableCachingByDefault
 
 
+@DisableCachingByDefault
 class Deb extends SystemPackagingTask {
     Deb() {
         super()
         archiveExtension.set 'deb'
+        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     @Override

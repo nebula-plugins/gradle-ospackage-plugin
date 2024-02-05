@@ -186,7 +186,10 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: task.fileType
             String user = lookup(specToLookAt, 'user') ?: task.user
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
-
+            String setgid = lookup(specToLookAt, 'setgid') ?: task.setgid
+            if (setgid) {
+                dirMode = dirMode | 02000
+            }
             rpmFileVisitorStrategy.addDirectory(dirDetails, dirMode, directive, user, group, addParentsDir)
         }
     }

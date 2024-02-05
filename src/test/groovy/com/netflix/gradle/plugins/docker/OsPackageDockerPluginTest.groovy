@@ -49,7 +49,7 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         project.apply plugin: 'com.netflix.nebula.ospackage-docker'
 
         SystemPackageDockerfile task = project.tasks.getByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME) {
-            destinationDir = destDir
+            destinationDirectory.set(destDir)
             instruction "FROM ubuntu:14.04"
             instruction "MAINTAINER John Doe 'john.doe@netflix.com'"
 

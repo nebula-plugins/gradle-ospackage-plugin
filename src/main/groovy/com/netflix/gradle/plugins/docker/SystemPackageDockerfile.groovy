@@ -3,7 +3,9 @@ package com.netflix.gradle.plugins.docker
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.tooling.model.UnsupportedMethodException
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault
 class SystemPackageDockerfile extends SystemPackagingTask {
     private final DockerfileInstructionManager dockerfileInstructionManager
     private static final ARCHIVE_NAME = 'Dockerfile'

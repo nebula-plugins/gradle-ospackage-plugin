@@ -107,7 +107,7 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
             addProvides(provides)
         }
 
-        task.directories.each { directory ->
+        for (Directory directory: task.getAllDirectories()) {
             logger.debug "adding directory {}", directory.path
             addDirectory(directory)
         }

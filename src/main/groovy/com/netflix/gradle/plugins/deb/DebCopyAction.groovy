@@ -80,7 +80,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         dataProducers = []
         installDirs = []
         provides = []
-        debianDir = new File(task.project.buildDir, "debian")
+        debianDir = new File(task.project.layout.buildDirectory.getAsFile().get(), "debian")
         debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
         maintainerScriptsGenerator = new MaintainerScriptsGenerator(debTask, new TemplateHelper(debianDir, '/deb'), debianDir, new ApacheCommonsFileSystemActions())
         installLineGenerator = new InstallLineGenerator()
@@ -135,9 +135,12 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
             Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
             Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
+            String setgid = lookup(specToLookAt, 'setgid') ?: task.setgid
 
             int fileMode = dirDetails.mode
-
+            if (setgid) {
+                fileMode = fileMode | 02000
+            }
             debFileVisitorStrategy.addDirectory(dirDetails, user, uid, group, gid, fileMode)
         }
     }

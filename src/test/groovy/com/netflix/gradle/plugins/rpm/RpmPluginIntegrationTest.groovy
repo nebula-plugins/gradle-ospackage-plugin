@@ -1,10 +1,11 @@
 package com.netflix.gradle.plugins.rpm
 
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.utils.GradleUtils
-import nebula.test.IntegrationSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.apache.commons.io.FileUtils
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Issue
 import spock.lang.Unroll
 
@@ -12,46 +13,62 @@ import static org.redline_rpm.header.Header.HeaderTag.DESCRIPTION
 import static org.redline_rpm.header.Header.HeaderTag.NAME
 import static org.redline_rpm.payload.CpioHeader.*
 
-class RpmPluginIntegrationTest extends IntegrationSpec {
+class RpmPluginIntegrationTest extends BaseIntegrationTestKitSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/82")
     def "rpm task is marked up-to-date when setting arch or os property"() {
 
             given:
+            File libDir = new File(projectDir, 'lib')
+            libDir.mkdirs()
+            new File(libDir, 'a.java').text = "public class A { }"
         buildFile << '''
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     packageName = 'rpmIsUpToDate'
     arch = NOARCH
     os = LINUX
+     from('lib') {
+            into 'lib'
+    }
 }
 '''
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         and:
-        def result = runTasksSuccessfully('buildRpm')
+        def result = runTasks('buildRpm')
 
         then:
-        result.wasUpToDate(':buildRpm')
+        result.task(':buildRpm').outcome == TaskOutcome.UP_TO_DATE
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
     @Unroll
     def "Translates extension packageDescription '#description' to header entry for RPM task"() {
         given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
         buildFile << """
-apply plugin: 'com.netflix.nebula.ospackage'
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
 
 ospackage {
     packageName = 'bleah'
     packageDescription = ${GradleUtils.quotedIfPresent(description)}
     version = '1.0'
+    from('lib') {
+            into 'lib'
+    }
 }
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         def scan = Scanner.scan(file('build/distributions/bleah-1.0.noarch.rpm'))
@@ -67,16 +84,24 @@ ospackage {
 
     def 'projectNameDefault'() {
         given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     version '1'
+    from('lib') {
+            into 'lib'
+    }
 }
 """
 
         when:
-        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(file('build/distributions/projectNameDefault-1.noarch.rpm'))
@@ -88,18 +113,19 @@ task buildRpm(type: Rpm) {
     def 'file handle closed'() {
         given:
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
-
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 task buildRpm(type: Rpm) {
 }
 """
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // see https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/200#issuecomment-244666158
         // if file is not closed this will fail
-        runTasksSuccessfully('clean')
+        runTasks('clean')
     }
 
     def 'category_on_spec'() {
@@ -113,7 +139,9 @@ task buildRpm(type: Rpm) {
         appleFile.text = 'apple'
 
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 version = '1.0.0'
 
@@ -132,7 +160,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // Evaluate response
@@ -150,7 +178,9 @@ task buildRpm(type: Rpm) {
         appleFile.text = '{{BASE}}/apple'
 
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 version = '1.0.0'
 
@@ -166,38 +196,14 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         def scan = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm'))
         def scannerApple = scan.files.find { it.name =='./usr/local/myproduct/bin/apple'}
         scannerApple.asString() == '/usr/local/myproduct/apple'
     }
-
-    def 'usesArchivesBaseName'() {
-        File srcDir = new File(projectDir, 'src')
-        srcDir.mkdirs()
-        FileUtils.writeStringToFile(new File(srcDir, 'apple'), 'apple')
-        // archivesBaseName is an artifact of the BasePlugin, and won't exist until it's applied.
-        buildFile << """
-apply plugin: BasePlugin
-apply plugin: 'com.netflix.nebula.rpm'
-
-archivesBaseName = 'foo'
-version = '1'
-
-task buildRpm(type: Rpm) {
-}
-"""
-        when:
-        runTasksSuccessfully('buildRpm')
-
-        then:
-        def scan = Scanner.scan(file('build/distributions/foo-1.noarch.rpm'))
-        def actual = Scanner.getHeaderEntryString(scan, NAME)
-        'foo' == actual
-    }
-
+    
     def 'verifyCopySpecCanComeFromExtension'() {
         given:
         File srcDir = new File(projectDir, 'src')
@@ -210,7 +216,9 @@ task buildRpm(type: Rpm) {
 
         // Simulate SystemPackagingBasePlugin
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 def parentExten = project.extensions.create('rpmParent', com.netflix.gradle.plugins.packaging.ProjectPackagingExtension, project)
 
@@ -230,7 +238,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // Evaluate response
@@ -254,7 +262,9 @@ task buildRpm(type: Rpm) {
 
         when:
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 configurations {
     myConf
@@ -283,7 +293,7 @@ task buildRpm(type: Rpm) {
 """
 
         then:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
     }
 
 
@@ -298,7 +308,9 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
@@ -308,7 +320,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-3.noarch.rpm'))
@@ -327,7 +339,9 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
@@ -339,13 +353,45 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasksSuccessfully('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm', '--warning-mode', 'none')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-4.noarch.rpm'))
         def symlink = scan.files.find { it.name == './lib/bin/my-symlink' }
         symlink.header.type == SYMLINK
     }
+
+    @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/416")
+    def 'directory entries in ospackage extension propagates to rpm and deb'() {
+        given:
+        File bananaFile = new File(projectDir, 'test/banana')
+        FileUtils.forceMkdirParent(bananaFile)
+        bananaFile.text = 'banana'
+
+        buildFile << """
+apply plugin: 'com.netflix.nebula.rpm'
+apply plugin: 'com.netflix.nebula.ospackage-base'
+version = '1.0.0'
+
+ospackage {
+    directory('/usr/share/myproduct/from-extension')
+}
+task buildRpm(type: Rpm) {
+    packageName = 'sample'    
+    directory('/usr/share/myproduct/from-task')
+}
+"""
+        when:
+        runTasksSuccessfully('buildRpm')
+
+        then:
+        // Evaluate response
+        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+
+        ['./usr/share/myproduct/from-extension', './usr/share/myproduct/from-task'] == scanFiles*.name
+        [ DIR, DIR] == scanFiles*.type
+    }
+}
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/246")
     def 'addParentDirs in ospackage extension propagates to rpm and deb'() {

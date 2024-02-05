@@ -23,11 +23,17 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 /**
  * Monster class that does everything.
  */
+@DisableCachingByDefault
 class DaemonTemplateTask extends ConventionTask {
+
+    DaemonTemplateTask() {
+        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+    }
 
     @Internal
     Map<String, String> context

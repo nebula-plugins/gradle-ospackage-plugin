@@ -1,57 +1,63 @@
 package com.netflix.gradle.plugins.deb
 
-import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
+import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.utils.GradleUtils
-import nebula.test.IntegrationSpec
+import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Issue
 import spock.lang.Unroll
 
-class DebPluginLauncherSpec extends IntegrationSpec {
+class DebPluginLauncherSpec extends BaseIntegrationTestKitSpec {
     def 'not up-to-date when specifying any value'() {
         when:
         writeHelloWorld('nebula.test')
-        buildFile << applyPlugin(SystemPackagingPlugin)
         buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
             ospackage {
             }
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def results = runTasks('buildDeb')
 
         then:
-        !wasUpToDate(':buildDeb')
+        results.task(':buildDeb').outcome != TaskOutcome.UP_TO_DATE
     }
 
     def 'not up-to-date when specifying a value and not files'() {
         when:
-        buildFile << applyPlugin(SystemPackagingPlugin)
         buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
             buildDeb {
                 summary 'No copy spec values, but still not up to date'
             }
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def results = runTasks('buildDeb')
 
         then:
-        !wasUpToDate(':buildDeb')
+        results.task(':buildDeb').outcome != TaskOutcome.UP_TO_DATE
     }
 
     def 'not up-to-date when specifying a value on task'() {
         when:
         // Run once with a file
         writeHelloWorld('nebula.test')
-        buildFile << applyPlugin(SystemPackagingPlugin)
         buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
             buildDeb {
                 from('src')
             }
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def results = runTasks('buildDeb')
 
         then:
-        !wasUpToDate(':buildDeb')
+        results.task(':buildDeb').outcome != TaskOutcome.UP_TO_DATE
 
         when:
         // Nothing changing
@@ -59,10 +65,10 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             // Adding nothing.
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def secondResult = runTasks('buildDeb')
 
         then:
-        wasUpToDate(':buildDeb')
+        secondResult.task(':buildDeb').outcome == TaskOutcome.UP_TO_DATE
 
         when:
         // Adding a non-file input
@@ -72,26 +78,29 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def thirdResult = runTasks('buildDeb')
 
         then:
-        !wasUpToDate(':buildDeb')
+        thirdResult.task(':buildDeb').outcome != TaskOutcome.UP_TO_DATE
     }
+
     def 'not up-to-date when specifying a value on extension'() {
         when:
         // Run once with a file
         writeHelloWorld('nebula.test')
-        buildFile << applyPlugin(SystemPackagingPlugin)
         buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
             buildDeb {
                 from('src')
             }
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def results = runTasks('buildDeb')
 
         then:
-        !wasUpToDate(':buildDeb') // Need to run once with a file input
+        results.task(':buildDeb').outcome != TaskOutcome.UP_TO_DATE // Need to run once with a file input
 
         when:
         // Nothing changing
@@ -99,10 +108,10 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             // Adding nothing.
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def secondResult = runTasks('buildDeb')
 
         then:
-        wasUpToDate(':buildDeb')
+        secondResult.task(':buildDeb').outcome == TaskOutcome.UP_TO_DATE
 
         when:
         // Adding a non-file input
@@ -112,28 +121,40 @@ class DebPluginLauncherSpec extends IntegrationSpec {
             }
         '''.stripIndent()
 
-        runTasksSuccessfully('buildDeb')
+        def thirdResult = runTasks('buildDeb')
 
         then:
-        !wasUpToDate(':buildDeb')
+        thirdResult.task(':buildDeb').outcome != TaskOutcome.UP_TO_DATE
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/104")
     @Unroll
     def "Translates extension packageDescription '#description' to header entry for Debian task"() {
         given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
+
+
         buildFile << """
-apply plugin: 'com.netflix.nebula.ospackage'
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
 
 ospackage {
     packageName = 'translates-extension-description'
     packageDescription = ${GradleUtils.quotedIfPresent(description)}
     version = '1.0'
+    from('lib') {
+            into 'lib'
+    }
 }
+
+
 """
 
         when:
-        runTasksSuccessfully('buildDeb')
+        runTasks('buildDeb', '-i')
 
         then:
         def scan = new Scanner(file('build/distributions/translates-extension-description_1.0_all.deb'))
