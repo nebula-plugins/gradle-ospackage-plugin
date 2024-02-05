@@ -71,7 +71,10 @@ class Rpm extends SystemPackagingTask {
 
         // Could come from extension
         mapping.map('fileType', { parentExten?.getFileType() })
-        mapping.map('addParentDirs', { parentExten?.getAddParentDirs()?:true })
+        mapping.map('addParentDirs', {
+            // beware the Elvis operator in Groovy ...
+            parentExten?.getAddParentDirs() != null ? parentExten?.getAddParentDirs() : true
+        })        
         mapping.map('archStr', {
             parentExten?.getArchStr()?:Architecture.NOARCH.name()
         })
