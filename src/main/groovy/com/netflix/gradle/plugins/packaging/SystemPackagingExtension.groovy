@@ -777,14 +777,24 @@ class SystemPackagingExtension {
 
 
     Link link(String path, String target) {
-        link(path, target, -1)
+        link(path, target, -1, null, null)
     }
 
     Link link(String path, String target, int permissions) {
+        link(path, target, permissions, null, null)
+    }
+
+    Link link(String path, String target, String user, String permissionGroup) {
+        link(path, target, -1, user, permissionGroup)
+    }
+
+    Link link(String path, String target, int permissions, String user, String permissionGroup) {
         Link link = new Link()
         link.path = path
         link.target = target
         link.permissions = permissions
+        link.user = user
+        link.permissionGroup = permissionGroup
         links.add(link)
         link
     }

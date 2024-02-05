@@ -23,4 +23,6 @@ class Link implements Serializable {
     String path
     String target
     int permissions = -1
+    String user = null
+    String permissionGroup = null
 }
