@@ -368,28 +368,42 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(bananaFile)
         bananaFile.text = 'banana'
 
+        debug = true
+
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
-apply plugin: 'com.netflix.nebula.ospackage-base'
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
+
 version = '1.0.0'
 
 ospackage {
     directory('/usr/share/myproduct/from-extension')
 }
-task buildRpm(type: Rpm) {
+
+buildRpm {
     packageName = 'sample'    
     directory('/usr/share/myproduct/from-task')
+
+    from(${GradleUtils.quotedIfPresent(bananaFile.getParentFile().path)}) {
+        into '/usr/share/myproduct/etc'     
+    }
 }
 """
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // Evaluate response
-        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+        def rpmFile = file('build/distributions/sample-1.0.0.noarch.rpm')
+        rpmFile.exists()
+        rpmFile.length() > 0
 
-        ['./usr/share/myproduct/from-extension', './usr/share/myproduct/from-task'] == scanFiles*.name
-        [ DIR, DIR] == scanFiles*.type
+        def scanFiles = Scanner.scan(rpmFile).files
+
+        def dirEntries = scanFiles.findAll { it.name == './usr/share/myproduct/from-extension' || it.name == './usr/share/myproduct/from-task' }
+        dirEntries.size() == 2
+        dirEntries.every { it.type == DIR }
     }
 
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/246")
@@ -400,14 +414,17 @@ task buildRpm(type: Rpm) {
         bananaFile.text = 'banana'
 
         buildFile << """
-apply plugin: 'com.netflix.nebula.rpm'
-apply plugin: 'com.netflix.nebula.ospackage-base'
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
+
 version = '1.0.0'
 
 ospackage {
     addParentDirs false
 }
-task buildRpm(type: Rpm) {
+
+buildRpm {
     packageName = 'sample'
     
     from(${GradleUtils.quotedIfPresent(bananaFile.getParentFile().path)}) {
@@ -416,7 +433,7 @@ task buildRpm(type: Rpm) {
 }
 """
         when:
-        runTasksSuccessfully('buildRpm')
+        runTasks('buildRpm')
 
         then:
         // Evaluate response
