@@ -135,7 +135,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
             Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
             Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
-            String setgid = lookup(specToLookAt, 'setgid') ?: task.setgid
+            Boolean setgid = lookup(specToLookAt, 'setgid') ?: task.setgid
 
             int fileMode = dirDetails.mode
             if (setgid) {
