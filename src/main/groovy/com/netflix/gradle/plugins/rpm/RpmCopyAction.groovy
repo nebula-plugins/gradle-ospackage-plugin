@@ -22,6 +22,7 @@ import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import com.netflix.gradle.plugins.utils.FilePermissionUtil
 import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
@@ -161,7 +162,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         String user = lookup(specToLookAt, 'user') ?: task.user
         String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
 
-        int fileMode = lookup(specToLookAt, 'fileMode') ?: fileDetails.mode
+        int fileMode =  FilePermissionUtil.getFileMode(specToLookAt) ?: FilePermissionUtil.getUnixPermission(fileDetails)
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir != null ? specAddParentsDir : task.addParentDirs
 
@@ -182,7 +183,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
         if (createDirectoryEntry) {
             logger.debug 'adding directory {}', dirDetails.relativePath.pathString
-            int dirMode = lookup(specToLookAt, 'dirMode') ?: dirDetails.mode
+            int dirMode = lookup(specToLookAt, 'dirMode') ?: FilePermissionUtil.getUnixPermission(dirDetails)
             Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: task.fileType
             String user = lookup(specToLookAt, 'user') ?: task.user
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup

@@ -24,12 +24,14 @@ import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.utils.ApacheCommonsFileSystemActions
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import com.netflix.gradle.plugins.utils.FilePermissionUtil
 import groovy.transform.Canonical
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
 import org.gradle.api.GradleException
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.util.GradleVersion
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.vafer.jdeb.Compression
@@ -119,7 +121,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
         Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
 
-        int fileMode = fileDetails.mode
+        int fileMode = FilePermissionUtil.getUnixPermission(fileDetails)
 
         debFileVisitorStrategy.addFile(fileDetails, inputFile, user, uid, group, gid, fileMode)
     }
@@ -137,7 +139,8 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
             Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
             Boolean setgid = lookup(specToLookAt, 'setgid') ?: task.setgid
 
-            int fileMode = dirDetails.mode
+            int fileMode = FilePermissionUtil.getUnixPermission(dirDetails)
+
             if (setgid) {
                 fileMode = fileMode | 02000
             }
