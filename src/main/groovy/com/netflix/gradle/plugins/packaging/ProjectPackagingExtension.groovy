@@ -1,5 +1,6 @@
 package com.netflix.gradle.plugins.packaging
 
+import com.netflix.gradle.plugins.utils.FilePermissionUtil
 import groovy.transform.CompileDynamic
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -259,19 +260,21 @@ class ProjectPackagingExtension extends SystemPackagingExtension {
 //    }
 
     public Integer getFileMode() {
-        return getDelegateCopySpec().getFileMode();
+        return FilePermissionUtil.getFileMode(getDelegateCopySpec())
     }
 
     public CopyProcessingSpec setFileMode(Integer mode) {
-        return getDelegateCopySpec().setFileMode(mode);
+        FilePermissionUtil.setFilePermission(getDelegateCopySpec(), mode)
+        return getDelegateCopySpec()
     }
 
     public Integer getDirMode() {
-        return getDelegateCopySpec().getDirMode();
+        return FilePermissionUtil.getDirMode(getDelegateCopySpec())
     }
 
     public CopyProcessingSpec setDirMode(Integer mode) {
-        return getDelegateCopySpec().setDirMode(mode);
+        FilePermissionUtil.setDirPermission(getDelegateCopySpec(), mode)
+        return getDelegateCopySpec()
     }
 
     public Set<String> getIncludes() {

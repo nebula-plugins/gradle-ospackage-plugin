@@ -360,18 +360,25 @@ class RpmPluginTest extends ProjectSpec {
             os          = LINUX
 
             into '/tiny'
-            fileMode 0555
+
+            filePermissions {
+                unix(0555)
+            }
 
             from(srcDir1) {
                 // should be default group
             }
 
             from(srcDir2) {
-                fileMode 0666
+                filePermissions {
+                    unix(0666)
+                }
             }
 
             from(srcDir3) {
-                fileMode 0555
+                filePermissions {
+                    unix(0555)
+                }
             }
         })
 

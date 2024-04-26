@@ -19,6 +19,7 @@ package com.netflix.gradle.plugins.daemon
 import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
+import com.netflix.gradle.plugins.utils.FilePermissionUtil
 import com.netflix.gradle.plugins.utils.WrapUtil
 import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
@@ -136,7 +137,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         task.from(rendered) {
             into(destDir)
             rename('.*', destFile)
-            fileMode 0555 // Since source files don't have the correct permissions
+            FilePermissionUtil.setFilePermission(it, 0555)
             user 'root'
         }
     }
