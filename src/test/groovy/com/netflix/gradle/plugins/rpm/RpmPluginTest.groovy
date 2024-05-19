@@ -37,7 +37,6 @@ import static org.redline_rpm.header.Flags.*
 import static org.redline_rpm.header.Header.HeaderTag.*
 import static org.redline_rpm.payload.CpioHeader.*
 
-@Ignore
 class RpmPluginTest extends ProjectSpec {
     def 'files'() {
         Project project = ProjectBuilder.builder().build()
@@ -55,7 +54,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
 
             packageName = 'bleah'
@@ -232,7 +231,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'userTest'
             version     = '2.0'
@@ -291,7 +290,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
             packageName = 'userTest'
             version     = '2.0'
             release     = '2'
@@ -350,7 +349,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'userTest'
             version     = '2.0'
@@ -432,7 +431,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'one-prefix'
             version = '1.0'
@@ -464,7 +463,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'one-prefix'
             version = '1.0'
@@ -498,7 +497,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'one-prefix'
             version = '1.0'
@@ -533,7 +532,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'one-prefix'
             version = '1.0'
@@ -568,7 +567,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'multi-prefix'
             version = '1.0'
@@ -604,7 +603,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'multi-prefix'
             version = '1.0'
@@ -645,7 +644,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -684,7 +683,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -721,7 +720,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -756,7 +755,7 @@ class RpmPluginTest extends ProjectSpec {
         def rpmTask = project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'has-epoch'
             version = '1.0'
@@ -786,7 +785,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -811,7 +810,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -859,7 +858,7 @@ class RpmPluginTest extends ProjectSpec {
         Task task = project.task('buildRpm', type: Rpm) {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -889,7 +888,7 @@ class RpmPluginTest extends ProjectSpec {
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             version = '1.0'
             packageName = 'bleah'
@@ -920,7 +919,7 @@ class RpmPluginTest extends ProjectSpec {
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             version = '1.0'
             packageName = 'bleah'
@@ -952,7 +951,7 @@ class RpmPluginTest extends ProjectSpec {
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             version = '1.0'
             packageName = 'bleah'
@@ -987,7 +986,7 @@ class RpmPluginTest extends ProjectSpec {
         Rpm rpmTask = project.task('buildRpm', type: Rpm) {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             version = '1.0'
             packageName = 'bleah'
@@ -1023,7 +1022,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
             packageName = 'semvertest'
         })
 
@@ -1049,7 +1048,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
             packageName = 'providesTest'
             provides 'foo'
             provides 'bar'
@@ -1078,7 +1077,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
@@ -1127,7 +1126,7 @@ class RpmPluginTest extends ProjectSpec {
         project.task([type: Rpm], 'buildRpm', {
             File destination = project.file('build/tmp/RpmPluginTest')
             destination.mkdirs()
-            destinationDirectory.set(project.file('build/tmp/RpmPlugintest'))
+            destinationDirectory.set(project.file('build/tmp/RpmPluginTest'))
 
             packageName = 'bleah'
             version = '1.0'
