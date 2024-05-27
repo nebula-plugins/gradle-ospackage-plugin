@@ -17,10 +17,10 @@ class RpmPluginIntegrationTest extends BaseIntegrationTestKitSpec {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/82")
     def "rpm task is marked up-to-date when setting arch or os property"() {
 
-            given:
-            File libDir = new File(projectDir, 'lib')
-            libDir.mkdirs()
-            new File(libDir, 'a.java').text = "public class A { }"
+        given:
+        File libDir = new File(projectDir, 'lib')
+        libDir.mkdirs()
+        new File(libDir, 'a.java').text = "public class A { }"
         buildFile << '''
 plugins {
     id 'com.netflix.nebula.rpm'
@@ -167,7 +167,7 @@ task buildRpm(type: Rpm) {
         def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
 
         ['./usr/local/myproduct', './usr/local/myproduct/bin', './usr/local/myproduct/bin/apple', './usr/share/myproduct', './usr/share/myproduct/etc', './usr/share/myproduct/etc/banana'] == scanFiles*.name
-        [ DIR, DIR, FILE, DIR, DIR, FILE] == scanFiles*.type
+        [DIR, DIR, FILE, DIR, DIR, FILE] == scanFiles*.type
 
     }
 
@@ -200,10 +200,10 @@ task buildRpm(type: Rpm) {
 
         then:
         def scan = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm'))
-        def scannerApple = scan.files.find { it.name =='./usr/local/myproduct/bin/apple'}
+        def scannerApple = scan.files.find { it.name == './usr/local/myproduct/bin/apple' }
         scannerApple.asString() == '/usr/local/myproduct/apple'
     }
-    
+
     def 'verifyCopySpecCanComeFromExtension'() {
         given:
         File srcDir = new File(projectDir, 'src')
@@ -302,9 +302,9 @@ task buildRpm(type: Rpm) {
         given:
         File packageDir = directory("package")
         packageDir.mkdirs()
-        File target = new File(packageDir,"my-script.sh")
+        File target = new File(packageDir, "my-script.sh")
         target.createNewFile()
-        File file = new File(packageDir,'bin/my-symlink')
+        File file = new File(packageDir, 'bin/my-symlink')
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
@@ -320,7 +320,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasks('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-3.noarch.rpm'))
@@ -333,9 +333,9 @@ task buildRpm(type: Rpm) {
         given:
         File packageDir = directory("package")
         packageDir.mkdirs()
-        File target = new File(packageDir,"my-script.sh")
+        File target = new File(packageDir, "my-script.sh")
         target.createNewFile()
-        File file = new File(packageDir,'bin/my-symlink')
+        File file = new File(packageDir, 'bin/my-symlink')
         FileUtils.forceMkdirParent(file)
         java.nio.file.Files.createSymbolicLink(file.toPath(), target.toPath())
         buildFile << """
@@ -353,7 +353,7 @@ task buildRpm(type: Rpm) {
 """
 
         when:
-        runTasks('buildRpm', '--warning-mode', 'none')
+        runTasks('buildRpm')
 
         then:
         def scan = Scanner.scan(this.file('build/distributions/example-4.noarch.rpm'))
@@ -440,6 +440,94 @@ buildRpm {
         def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
 
         ['./usr/share/myproduct/etc/banana'] == scanFiles*.name
-        [ FILE] == scanFiles*.type
-    }	
+        [FILE] == scanFiles*.type
+    }
+
+    def 'setgid can be set in rpm and deb'() {
+        given:
+        File emptyFolder = new File(projectDir, 'test/someFolder/sub')
+        emptyFolder.mkdirs()
+        buildFile << """
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
+
+version = '1.0.0'
+
+ospackage {
+    addParentDirs false
+}
+
+buildRpm {
+    packageName = 'sample'
+    
+    from(${GradleUtils.quotedIfPresent(emptyFolder.parentFile.path)}) {
+        createDirectoryEntry = true
+        setgid = ${setgidValue}
+        dirPermissions {
+            unix(0644)
+        }
+        into '/usr/share/myproduct/etc/'     
+    }
+}
+"""
+        when:
+        runTasks('buildRpm')
+
+        then:
+        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+
+        ['./usr/share/myproduct/etc/sub'] == scanFiles*.name
+        [DIR] == scanFiles*.type
+        [expectedPermissions] == scanFiles*.permissions
+
+        where:
+        setgidValue | expectedPermissions
+        true        | 1444
+        false       | 0644
+    }
+
+    def 'setgid in ospackage extension propagates to rpm and deb'() {
+        given:
+        File emptyFolder = new File(projectDir, 'test/someFolder/sub')
+        emptyFolder.mkdirs()
+        buildFile << """
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
+
+version = '1.0.0'
+
+ospackage {
+    addParentDirs false
+    setgid = ${setgidValue}
+}
+
+buildRpm {
+    packageName = 'sample'
+    
+    from(${GradleUtils.quotedIfPresent(emptyFolder.parentFile.path)}) {
+        createDirectoryEntry = true
+        dirPermissions {
+            unix(0644)
+        }
+        into '/usr/share/myproduct/etc/'     
+    }
+}
+"""
+        when:
+        runTasks('buildRpm', '--warning-mode', 'all', '--stacktrace')
+
+        then:
+        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+
+        ['./usr/share/myproduct/etc/sub'] == scanFiles*.name
+        [DIR] == scanFiles*.type
+        [expectedPermissions] == scanFiles*.permissions
+
+        where:
+        setgidValue | expectedPermissions
+        true        | 1444
+        false       | 0644
+    }
 }
