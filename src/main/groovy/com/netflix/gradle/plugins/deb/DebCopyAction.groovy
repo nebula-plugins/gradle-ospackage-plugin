@@ -120,8 +120,15 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         Integer uid = (Integer) lookup(specToLookAt, 'uid') ?: task.uid ?: 0
         String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
         Integer gid = (Integer) lookup(specToLookAt, 'gid') ?: task.gid ?: 0
+        Boolean setuid = lookup(specToLookAt, 'setuid')
 
         int fileMode = FilePermissionUtil.getUnixPermission(fileDetails)
+        if (setuid == null) {
+            setuid = task.setuid
+        }
+        if (setuid) {
+            fileMode = fileMode | 04000
+        }
 
         debFileVisitorStrategy.addFile(fileDetails, inputFile, user, uid, group, gid, fileMode)
     }

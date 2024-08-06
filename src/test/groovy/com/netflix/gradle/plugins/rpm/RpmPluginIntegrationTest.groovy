@@ -530,4 +530,92 @@ buildRpm {
         true        | 1444
         false       | 0644
     }
+
+    def 'setuid can be set in rpm and deb'() {
+        given:
+        File bananaFile = new File(projectDir, 'test/banana')
+        FileUtils.forceMkdirParent(bananaFile)
+        bananaFile.text = 'banana'
+        buildFile << """
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
+
+version = '1.0.0'
+
+ospackage {
+    addParentDirs false
+}
+
+buildRpm {
+    packageName = 'sample'
+    
+    from(${GradleUtils.quotedIfPresent(bananaFile.getParentFile().path)}) {
+        setuid = ${setuidValue}
+        filePermissions {
+            unix(0755)
+        }
+        into '/usr/share/myproduct/etc/'     
+    }
+}
+"""
+        when:
+        runTasks('buildRpm')
+
+        then:
+        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+
+        ['./usr/share/myproduct/etc/banana'] == scanFiles*.name
+        [FILE] == scanFiles*.type
+        [expectedPermissions] == scanFiles*.permissions
+
+        where:
+        setuidValue | expectedPermissions
+        true        | 04755
+        false       | 00755
+    }
+
+    def 'setgid in ospackage extension propagates to rpm and deb'() {
+        given:
+        File bananaFile = new File(projectDir, 'test/banana')
+        FileUtils.forceMkdirParent(bananaFile)
+        bananaFile.text = 'banana'
+        buildFile << """
+plugins {
+    id 'com.netflix.nebula.ospackage'
+}
+
+version = '1.0.0'
+
+ospackage {
+    addParentDirs false
+    setuid = ${setuidValue}
+}
+
+buildRpm {
+    packageName = 'sample'
+    
+    from(${GradleUtils.quotedIfPresent(bananaFile.getParentFile().path)}) {
+        filePermissions {
+            unix(0755)
+        }
+        into '/usr/share/myproduct/etc/'     
+    }
+}
+"""
+        when:
+        runTasks('buildRpm', '--warning-mode', 'all', '--stacktrace')
+
+        then:
+        def scanFiles = Scanner.scan(file('build/distributions/sample-1.0.0.noarch.rpm')).files
+
+        ['./usr/share/myproduct/etc/banana'] == scanFiles*.name
+        [FILE] == scanFiles*.type
+        [expectedPermissions] == scanFiles*.permissions
+
+        where:
+        setuidValue | expectedPermissions
+        true        | 04755
+        false       | 00755
+    }
 }

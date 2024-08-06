@@ -48,6 +48,7 @@ class SystemPackagingExtension {
     String user
     String permissionGroup // Group is used by Gradle on tasks.
     boolean setgid
+    boolean setuid
 
     /**
      * In Debian, this is the Section and has to be provided. Valid values are: admin, cli-mono, comm, database, debug,
@@ -186,6 +187,12 @@ class SystemPackagingExtension {
     @Optional
     Boolean getSetgid() {
         return setgid
+    }
+
+    @Input
+    @Optional
+    Boolean getSetuid() {
+        return setuid
     }
 
     @Input
