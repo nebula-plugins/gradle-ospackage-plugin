@@ -1,6 +1,6 @@
 package com.netflix.gradle.plugins.utils
 
-import org.apache.commons.io.FileUtils
+import org.vafer.jdeb.shaded.commons.io.FileUtils
 
 class ApacheCommonsFileSystemActions implements FileSystemActions {
     @Override

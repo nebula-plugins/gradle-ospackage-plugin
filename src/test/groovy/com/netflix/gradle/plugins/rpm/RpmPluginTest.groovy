@@ -20,7 +20,7 @@ package com.netflix.gradle.plugins.rpm
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
-import org.apache.commons.io.FileUtils
+import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project

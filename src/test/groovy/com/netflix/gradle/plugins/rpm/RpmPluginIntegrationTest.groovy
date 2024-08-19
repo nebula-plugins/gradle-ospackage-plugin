@@ -4,7 +4,7 @@ import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.utils.GradleUtils
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.apache.commons.io.FileUtils
+import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Issue
 import spock.lang.Unroll

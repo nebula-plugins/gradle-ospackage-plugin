@@ -6,8 +6,8 @@ import org.apache.commons.compress.archivers.ar.ArArchiveInputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
+import org.vafer.jdeb.shaded.commons.io.FileUtils
+import org.vafer.jdeb.shaded.commons.io.IOUtils
 
 public class Scanner {
     static final String CONTROL_GZ_FILE = 'control.tar.gz'

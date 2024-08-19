@@ -1,7 +1,7 @@
 package com.netflix.gradle.plugins.docker
 
 import nebula.test.ProjectSpec
-import org.apache.commons.io.FileUtils
+import org.vafer.jdeb.shaded.commons.io.FileUtils
 
 class OsPackageDockerPluginTest extends ProjectSpec {
 

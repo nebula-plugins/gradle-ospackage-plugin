@@ -19,7 +19,7 @@ package com.netflix.gradle.plugins.deb
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.apache.commons.io.FileUtils
+import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.redline_rpm.header.Flags
 import spock.lang.Issue
 import spock.lang.Unroll
@@ -1135,7 +1135,7 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(debTask.archivePath)
-        def emptydir = scan.getEntry('.//var/log/customemptyfolder/')
+        def emptydir = scan.getEntry('./var/log/customemptyfolder/')
         emptydir.userName == 'test'
         emptydir.groupName == 'testgroup'
     }
@@ -1155,7 +1155,7 @@ class DebPluginTest extends ProjectSpec {
 
         then:
         def scan = new Scanner(debTask.archivePath)
-        def emptydir = scan.getEntry('.//var/log/customemptyfolder/')
+        def emptydir = scan.getEntry('./var/log/customemptyfolder/')
         emptydir.userName == 'myuser'
         emptydir.groupName == 'mygroup'
     }
