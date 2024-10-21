@@ -105,6 +105,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
             mapping.map('uploaders', { parentExten?.getUploaders() ?: getPackager() })
             mapping.map('permissionGroup', { parentExten?.getPermissionGroup() ?: '' })
             mapping.map('setgid', { parentExten?.getSetgid() ?: false })
+            mapping.map('setuid', { parentExten?.getSetuid() ?: false })
             mapping.map('packageGroup', { parentExten?.getPackageGroup() })
             mapping.map('buildHost', { parentExten?.getBuildHost() ?: HOST_NAME })
             mapping.map('summary', { parentExten?.getSummary() ?: getPackageName() })
