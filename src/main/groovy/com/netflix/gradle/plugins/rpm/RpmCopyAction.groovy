@@ -161,6 +161,13 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
 
         int fileMode =  FilePermissionUtil.getFileMode(specToLookAt) ?: FilePermissionUtil.getUnixPermission(fileDetails)
+        Boolean setuid = lookup(specToLookAt, 'setuid')
+        if (setuid == null) {
+            setuid = task.setuid
+        }
+        if (setuid) {
+            fileMode = fileMode | 04000
+        }
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir != null ? specAddParentsDir : task.addParentDirs
 
