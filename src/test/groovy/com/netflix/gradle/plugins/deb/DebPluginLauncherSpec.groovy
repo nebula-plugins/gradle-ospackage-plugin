@@ -31,7 +31,7 @@ class DebPluginLauncherSpec extends BaseIntegrationTestKitSpec {
                 id 'com.netflix.nebula.ospackage'
             }
             buildDeb {
-                summary 'No copy spec values, but still not up to date'
+                summary = 'No copy spec values, but still not up to date'
             }
         '''.stripIndent()
 

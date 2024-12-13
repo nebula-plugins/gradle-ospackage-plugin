@@ -93,7 +93,7 @@ plugins {
 }
 
 task buildRpm(type: Rpm) {
-    version '1'
+    version = '1'
     from('lib') {
             into 'lib'
     }
@@ -225,7 +225,7 @@ def parentExten = project.extensions.create('rpmParent', com.netflix.gradle.plug
 version = '1.0'
 
 task buildRpm(type: Rpm) {
-    packageName 'example'
+    packageName = 'example'
     from(${GradleUtils.quotedIfPresent(srcDir.path)}) {
         into('/usr/local/src')
     }
@@ -276,9 +276,8 @@ dependencies {
 
 repositories {
     maven {
-        url {
-            "file://${reposRootDir}/mavenrepo"
-        }
+        url = "file://${reposRootDir}/mavenrepo"
+        
     }
 }
 
@@ -314,7 +313,7 @@ plugins {
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
-    version '3'
+    version = '3'
     from 'package'
 }
 """
@@ -345,7 +344,7 @@ plugins {
 
 task buildRpm(type: Rpm) {
     packageName = 'example'
-    version '4'
+    version = '4'
     from('package') {
         into '/lib'
     }
@@ -421,7 +420,7 @@ plugins {
 version = '1.0.0'
 
 ospackage {
-    addParentDirs false
+    addParentDirs = false
 }
 
 buildRpm {
@@ -455,7 +454,7 @@ plugins {
 version = '1.0.0'
 
 ospackage {
-    addParentDirs false
+    addParentDirs = false
 }
 
 buildRpm {
@@ -499,7 +498,7 @@ plugins {
 version = '1.0.0'
 
 ospackage {
-    addParentDirs false
+    addParentDirs = false
     setgid = ${setgidValue}
 }
 
