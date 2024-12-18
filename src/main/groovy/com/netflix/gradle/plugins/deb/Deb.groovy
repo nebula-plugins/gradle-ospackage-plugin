@@ -20,7 +20,6 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
-import org.gradle.api.Project
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
@@ -30,7 +29,6 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
 
 import javax.inject.Inject
-
 
 @DisableCachingByDefault
 class Deb extends SystemPackagingTask {
