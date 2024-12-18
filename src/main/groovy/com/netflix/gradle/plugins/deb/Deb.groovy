@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.tasks.Input
@@ -27,11 +28,14 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.work.DisableCachingByDefault
 
+import javax.inject.Inject
 
 @DisableCachingByDefault
 class Deb extends SystemPackagingTask {
-    Deb() {
-        super()
+
+    @Inject
+    Deb(ProjectLayout projectLayout) {
+        super(projectLayout)
         archiveExtension.set 'deb'
         notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
@@ -51,7 +55,7 @@ class Deb extends SystemPackagingTask {
 
     @Override
     AbstractPackagingCopyAction createCopyAction() {
-        return new DebCopyAction(this)
+        return new DebCopyAction(this, new File(projectLayout.buildDirectory.getAsFile().get(), "debian"))
     }
 
     @Override
