@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFile
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
@@ -50,11 +51,14 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     @Internal
     ProjectPackagingExtension parentExten
 
+    @Internal
+    ProjectLayout projectLayout
+
     // TODO Add conventions to pull from extension
-    SystemPackagingTask() {
+    SystemPackagingTask(ProjectLayout projectLayout) {
         super()
         exten = new SystemPackagingExtension()
-
+        this.projectLayout = projectLayout
         // I have no idea where Project came from
         parentExten = project.extensions.findByType(ProjectPackagingExtension)
         if (parentExten) {

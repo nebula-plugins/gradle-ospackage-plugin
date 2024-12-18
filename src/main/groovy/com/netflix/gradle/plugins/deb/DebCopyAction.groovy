@@ -68,7 +68,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
     private final MaintainerScriptsGenerator maintainerScriptsGenerator
     private final InstallLineGenerator installLineGenerator
 
-    DebCopyAction(Deb debTask) {
+    DebCopyAction(Deb debTask, File debianDir) {
         super(debTask)
         debTaskPropertiesValidator.validate(debTask)
         dependencies = []
@@ -82,7 +82,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         dataProducers = []
         installDirs = []
         provides = []
-        debianDir = new File(task.project.layout.buildDirectory.getAsFile().get(), "debian")
+        this.debianDir = debianDir
         debFileVisitorStrategy = new DebFileVisitorStrategy(dataProducers, installDirs)
         maintainerScriptsGenerator = new MaintainerScriptsGenerator(debTask, new TemplateHelper(debianDir, '/deb'), debianDir, new ApacheCommonsFileSystemActions())
         installLineGenerator = new InstallLineGenerator()

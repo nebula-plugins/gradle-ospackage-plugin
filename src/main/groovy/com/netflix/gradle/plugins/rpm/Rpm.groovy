@@ -19,6 +19,7 @@ package com.netflix.gradle.plugins.rpm
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
@@ -30,6 +31,8 @@ import org.redline_rpm.header.RpmType
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
 
+import javax.inject.Inject
+
 @DisableCachingByDefault
 class Rpm extends SystemPackagingTask {
     @InputFile
@@ -37,8 +40,9 @@ class Rpm extends SystemPackagingTask {
     @PathSensitive(PathSensitivity.NONE)
     File changeLogFile
 
-    Rpm() {
-        super()
+    @Inject
+    Rpm(ProjectLayout projectLayout) {
+        super(projectLayout)
         archiveExtension.set 'rpm'
         notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
