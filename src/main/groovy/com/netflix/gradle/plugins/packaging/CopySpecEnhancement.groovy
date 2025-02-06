@@ -57,6 +57,14 @@ class CopySpecEnhancement {
         setgid(spec, setgid)
     }
 
+    static void setuid(CopySpec spec, boolean setuid) {
+        appendFieldToCopySpec(spec, 'setuid', setuid)
+    }
+
+    static void setSetuid(CopySpec spec, boolean setuid) {
+        setuid(spec, setuid)
+    }
+
     static void permissionGroup(CopySpec spec, String permissionGroup) {
         appendFieldToCopySpec(spec, 'permissionGroup', permissionGroup)
     }
