@@ -15,6 +15,7 @@ import org.gradle.api.internal.file.FileCollectionFactory
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.copy.CopySpecInternal
 import org.gradle.api.internal.file.copy.DefaultCopySpec
+import org.gradle.api.internal.provider.PropertyFactory
 import org.gradle.api.internal.project.ProjectInternal
 import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.util.PatternSet
@@ -44,7 +45,12 @@ class ProjectPackagingExtension extends SystemPackagingExtension {
     public ProjectPackagingExtension(Project project) {
         FileResolver resolver = ((ProjectInternal) project).getFileResolver();
         Instantiator instantiator = ((ProjectInternal) project).getServices().get(Instantiator.class);
-        if (GradleVersion.current().baseVersion >= GradleVersion.version("8.3") || GradleVersion.current().version.startsWith('8.3')) {
+        if (GradleVersion.current().baseVersion >= GradleVersion.version("8.13") || GradleVersion.current().version.startsWith('8.13')) {
+            FileCollectionFactory fileCollectionFactory = ((ProjectInternal) project).getServices().get(FileCollectionFactory.class);
+            PropertyFactory propertyFactory = ((ProjectInternal) project).getServices().get(PropertyFactory.class);
+            Factory<PatternSet> patternSetFactory =  new PatternSets.PatternSetFactory(PatternSpecFactory.INSTANCE)
+            delegateCopySpec = new DefaultCopySpec(fileCollectionFactory, propertyFactory, instantiator, patternSetFactory);
+        } else if (GradleVersion.current().baseVersion >= GradleVersion.version("8.3") || GradleVersion.current().version.startsWith('8.3')) {
             FileCollectionFactory fileCollectionFactory = ((ProjectInternal) project).getServices().get(FileCollectionFactory.class);
             Factory<PatternSet> patternSetFactory =  new PatternSets.PatternSetFactory(PatternSpecFactory.INSTANCE)
             delegateCopySpec = new DefaultCopySpec(fileCollectionFactory, project.objects, instantiator, patternSetFactory);
