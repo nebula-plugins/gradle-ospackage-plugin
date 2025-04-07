@@ -388,7 +388,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     @SkipWhenEmpty
     FileCollection getFakeFiles() {
-        project.files('fake')
+        projectLayout.files('fake')
     }
 
     @Override
