@@ -19,6 +19,7 @@ package com.netflix.gradle.plugins.deb
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
+import org.redline_rpm.payload.Directive
 import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.redline_rpm.header.Flags
 import spock.lang.Issue
@@ -152,12 +153,12 @@ class DebPluginTest extends ProjectSpec {
 
             from(srcDir.toString() + '/main/groovy') {
                 createDirectoryEntry true
-                fileType = CONFIG
             }
 
             from(noParentsDir) {
                 addParentDirs = false
                 into '/a/path/not/to/create'
+                fileType Directive.CONFIG
             }
 
             link('/opt/bleah/banana', '/opt/bleah/apple')
@@ -176,10 +177,8 @@ class DebPluginTest extends ProjectSpec {
         'amd64' == scan.getHeaderEntry('Architecture')
         'optional' == scan.getHeaderEntry('Priority')
 
-        scan.controlContents['./conffiles'].eachLine {
-            '/etc/init.d/served' == it || '/opt/bleah/main/groovy' == it
-        }
-        
+        scan.controlContents['./conffiles'].readLines() == ['/etc/init.d/served', 'a/path/not/to/create/alone']
+
         def file = scan.getEntry('./a/path/not/to/create/alone')
         file.isFile()
 
