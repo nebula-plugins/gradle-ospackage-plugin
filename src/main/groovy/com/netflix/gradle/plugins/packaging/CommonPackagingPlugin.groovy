@@ -16,14 +16,20 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
+import org.redline_rpm.payload.Directive
 
+@CompileDynamic
 class CommonPackagingPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(BasePlugin.class)
 
+        Directive.metaClass.or = { Directive other ->
+            new Directive(delegate.flag | other.flag)
+        }
         // Used to be used to add metaClass properties to CopySpec, but now it's done with CopySpecEnhancement
     }
 }

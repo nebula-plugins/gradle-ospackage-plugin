@@ -40,10 +40,6 @@ class RpmPlugin implements Plugin<Project> {
             format.getLead().getName() + "-src.rpm"
         }
 
-        Directive.metaClass.or = { Directive other ->
-            new Directive(delegate.flag | other.flag)
-        }
-
         // Some defaults, if not set by the user
         project.tasks.withType(Rpm).configureEach(new Action<Rpm>() {
             @Override

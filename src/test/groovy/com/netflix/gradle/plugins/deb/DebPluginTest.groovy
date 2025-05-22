@@ -19,9 +19,8 @@ package com.netflix.gradle.plugins.deb
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.redline_rpm.payload.Directive
-import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.redline_rpm.header.Flags
+import org.vafer.jdeb.shaded.commons.io.FileUtils
 import spock.lang.Issue
 import spock.lang.Unroll
 
@@ -158,7 +157,7 @@ class DebPluginTest extends ProjectSpec {
             from(noParentsDir) {
                 addParentDirs = false
                 into '/a/path/not/to/create'
-                fileType Directive.CONFIG
+                fileType CONFIG | NOREPLACE
             }
 
             link('/opt/bleah/banana', '/opt/bleah/apple')
