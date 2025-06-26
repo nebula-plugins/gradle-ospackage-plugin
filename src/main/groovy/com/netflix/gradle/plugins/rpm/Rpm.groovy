@@ -19,6 +19,7 @@ package com.netflix.gradle.plugins.rpm
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import groovy.transform.CompileDynamic
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
@@ -34,7 +35,8 @@ import org.gradle.api.internal.IConventionAware
 import javax.inject.Inject
 
 @DisableCachingByDefault
-class Rpm extends SystemPackagingTask {
+@CompileDynamic
+abstract class Rpm extends SystemPackagingTask {
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.NONE)

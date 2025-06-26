@@ -72,7 +72,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         project.getPlugins().apply(SystemPackagingBasePlugin.class)
 
         when:
-        ProjectPackagingExtension ext = project.getConvention().getByType(ProjectPackagingExtension)
+        ProjectPackagingExtension ext = project.getExtensions().getByType(ProjectPackagingExtension)
         ext.with {
             provides project.name
             release = 3
@@ -91,7 +91,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         rpmTask.copy()
 
         then:
-        def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.getArchivePath())
+        def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.archiveFile.get().asFile)
         debScanner.getHeaderEntry('Version').endsWith("-3")
         'awesomesauce' == debScanner.getHeaderEntry('Depends')
         'execute-both-tasks' == debScanner.getHeaderEntry('Provides')
@@ -101,7 +101,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         def file = debScanner.getEntry('./opt/bleah/apple')
         file.isFile()
 
-        def rpmScanner = Scanner.scan(rpmTask.getArchivePath())
+        def rpmScanner = Scanner.scan(rpmTask.archiveFile.get().asFile)
         '3' == Scanner.getHeaderEntryString(rpmScanner, RELEASE)
         Scanner.getHeaderEntryString(rpmScanner, REQUIRENAME).contains('awesomesauce')
         'i386' == Scanner.getHeaderEntryString(rpmScanner, ARCH)
@@ -131,10 +131,10 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         rpmTask.copy()
 
         then:
-        def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.getArchivePath())
+        def debScanner = new com.netflix.gradle.plugins.deb.Scanner(debTask.archiveFile.get().asFile)
         'virtualPackageA (= 1.2.3), virtualPackageB' == debScanner.getHeaderEntry('Provides')
 
-        def rpmScanner = Scanner.scan(rpmTask.getArchivePath())
+        def rpmScanner = Scanner.scan(rpmTask.archiveFile.get().asFile)
         [project.name, 'virtualPackageA', 'virtualPackageB'] == Scanner.getHeaderEntry(rpmScanner, PROVIDENAME).values
         ['0:1.0.0-1', '1.2.3', ''] == Scanner.getHeaderEntry(rpmScanner, PROVIDEVERSION).values
     }
