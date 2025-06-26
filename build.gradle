@@ -15,7 +15,7 @@
  *
  */
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '21.3.3'
+    id 'com.netflix.nebula.plugin-plugin' version '22.0.2'
     id 'java-library'
 }
 
@@ -46,7 +46,7 @@ dependencies {
         // Where logging goes is a runtime decision
         exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     }
-    api('org.vafer:jdeb:1.10') {
+    api('org.vafer:jdeb:1.14') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'
         exclude group: 'org.apache.maven', module: 'maven-plugin-api'
@@ -64,10 +64,6 @@ def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
 
 tasks.withType(Javadoc) {
     options.links(javaApiUrl, groovyApiUrl)
-}
-
-test {
-    maxHeapSize = '384m'
 }
 
 gradlePlugin {

@@ -1,5 +1,6 @@
 package com.netflix.gradle.plugins.packaging
 
+import groovy.transform.CompileDynamic
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.work.DisableCachingByDefault
@@ -7,6 +8,7 @@ import org.gradle.work.DisableCachingByDefault
 import javax.annotation.Nullable
 
 @DisableCachingByDefault
+@CompileDynamic
 abstract class OsPackageAbstractArchiveTask extends AbstractArchiveTask {
 
     OsPackageAbstractArchiveTask() {

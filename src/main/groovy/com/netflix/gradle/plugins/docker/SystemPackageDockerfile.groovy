@@ -9,7 +9,7 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 @DisableCachingByDefault
-class SystemPackageDockerfile extends SystemPackagingTask {
+abstract class SystemPackageDockerfile extends SystemPackagingTask {
     private final DockerfileInstructionManager dockerfileInstructionManager
     private static final ARCHIVE_NAME = 'Dockerfile'
 

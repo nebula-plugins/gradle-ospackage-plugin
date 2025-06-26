@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import groovy.transform.CompileDynamic
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.internal.IConventionAware
@@ -31,7 +32,8 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 
 @DisableCachingByDefault
-class Deb extends SystemPackagingTask {
+@CompileDynamic
+abstract class Deb extends SystemPackagingTask {
 
     @Inject
     Deb(ProjectLayout projectLayout) {

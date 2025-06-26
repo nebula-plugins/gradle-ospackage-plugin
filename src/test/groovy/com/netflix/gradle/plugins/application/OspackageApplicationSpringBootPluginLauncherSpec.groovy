@@ -56,7 +56,9 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
                 id 'com.netflix.nebula.ospackage-application-spring-boot'
             }
 
-            mainClassName = 'nebula.test.HelloWorld'
+            application {
+                mainClass = 'nebula.test.HelloWorld'
+            }
 
             repositories {
                 mavenCentral()
@@ -78,6 +80,12 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
             }
 
             runStartScript.dependsOn installDist
+            
+            java {
+                toolchain {
+                    languageVersion = JavaLanguageVersion.of(17)
+                }
+            }
         """.stripIndent()
     }
 
@@ -112,7 +120,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
 
         where:
         bootVersion | moduleSuffix
-        '2.7.0'     | '-plain'
+        '3.5.2'     | '-plain'
     }
 
     private boolean isBootJar(JarFile jarFile) {
@@ -135,20 +143,23 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         result.output.contains('Hello Integration Test')
 
         where:
-        bootVersion << ['2.7.0']
+        bootVersion << ['3.5.2']
     }
 
     @Unroll
-    def 'application runs for boot #bootVersion when mainClassName configured using springBoot extension'() {
+    def 'application runs for boot #bootVersion when mainClass configured using springBoot extension'() {
         final applicationDir = "$moduleName-boot"
         final startScript = file("build/install/$applicationDir/bin/$moduleName")
 
         buildFile << buildScript(bootVersion, startScript)
         buildFile << """
-        mainClassName = null
+        
+        application {
+            mainClass = null
+        }
 
         springBoot {
-            mainClassName = 'nebula.test.HelloWorld'
+            mainClass = 'nebula.test.HelloWorld'
         }
         """
 
@@ -159,14 +170,14 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         result.output.contains('Hello Integration Test')
 
         where:
-        bootVersion << ['2.7.0']
+        bootVersion << ['3.5.2']
     }
 
     @Unroll
     def 'can customize destination for boot #bootVersion'() {
         buildFile << buildScript(bootVersion, null)
         buildFile << """
-            applicationName = 'myapp'
+            application.applicationName = 'myapp'
 
             ospackage_application {
                 prefix = '/usr/local'
@@ -193,7 +204,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
 
         where:
         bootVersion | moduleSuffix
-        '2.7.0'     | '-plain'
+        '3.5.2'     | '-plain'
     }
 
     @Unroll
@@ -203,7 +214,6 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
 
         buildFile << buildScript(bootVersion, startScript)
         buildFile << """
-        mainClassName = null
         application.mainClass.set(null)
         """
 
@@ -214,28 +224,6 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         result.output.contains("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
 
         where:
-        bootVersion << ['2.7.0']
-    }
-
-    @IgnoreIf({ jvm.isJava17() || jvm.isJava21() })
-    @Unroll
-    def 'application fails if mainClassName is not present (old versions of Gradle)'() {
-        final applicationDir = "$moduleName-boot"
-        final startScript = file("build/install/$applicationDir/bin/$moduleName")
-
-        gradleVersion = '6.3'
-        buildFile << buildScript(bootVersion, startScript)
-        buildFile << """
-        mainClassName = null
-        """
-
-        when:
-        def result = runTasksAndFail('installDist')
-
-        then:
-        result.output.contains("No value has been specified for property 'mainClassName'")
-
-        where:
-        bootVersion << ['2.4.0']
+        bootVersion << ['3.5.2']
     }
 }

@@ -45,7 +45,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         debFile != null
         debFile.exists()
     }
@@ -85,7 +85,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.getArchivePath())
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def postinst = scan.controlContents['./postinst']
         postinst.contains("ec install")
         postinst.contains("/subdir/a")
@@ -210,7 +210,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         debFile != null
 
     }
@@ -244,7 +244,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
 
         def scan = new Scanner(debFile)
 
@@ -287,7 +287,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.getArchivePath())
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.controlContents['./preinst'].contains(customPreInstContents)
         scan.controlContents['./postinst'].contains(customPostInstContents)
         scan.controlContents['./prerm'].contains(customPreRmContents)
@@ -327,7 +327,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.getArchivePath())
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.controlContents['./preinst'].contains("echo Preinstall")
         scan.controlContents['./postinst'].contains("echo Postinstall")
     }
@@ -369,7 +369,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.getArchivePath())
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.controlContents['./preinst'].contains("echo Preinstall")
         scan.controlContents['./preinst'].contains("echo Installing")
         scan.controlContents['./postinst'].contains("echo Postinstall")
@@ -536,7 +536,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foreign' == scan.getHeaderEntry('Multi-Arch')
     }
@@ -585,7 +585,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Conflicts')
     }
@@ -611,7 +611,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Recommends')
     }
@@ -637,7 +637,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Suggests')
     }
@@ -663,7 +663,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Enhances')
     }
@@ -689,7 +689,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Pre-Depends')
     }
@@ -715,7 +715,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Breaks')
     }
@@ -741,7 +741,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'foo, bar (>= 1.0), baz (<= 2.0)' ==  scan.getHeaderEntry('Replaces')
     }
@@ -804,7 +804,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.getHeaderEntry('Version') == versionHeader
 
         where:
@@ -829,7 +829,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.getHeaderEntry('Version') == '1:42.1.0'
     }
 
@@ -848,7 +848,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         !scan.getSigned()
     }
 
@@ -871,7 +871,7 @@ class DebPluginTest extends ProjectSpec {
         // Note: This test currently verifies the existence of a signature, but not the validity.
         //       To verify the validity will require more intensive inspection of the DEB package, a mechanism
         //       for which can hopefully be added to jDeb.
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.getSigned()
     }
 
@@ -891,7 +891,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.getHeaderEntry('Description') == headerEntry
 
         where:
@@ -918,7 +918,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.getHeaderEntry('Description') == headerEntry
 
         where:
@@ -951,7 +951,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def appleFile = scan.getEntry('./apple')
         appleFile
         appleFile.userName == 'me'
@@ -978,7 +978,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         scan.getControl('./changelog')
         scan.getControl('./something')
     }
@@ -1011,7 +1011,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        File debFile = debTask.getArchivePath()
+        File debFile = debTask.archiveFile.get().asFile
         def scan = new Scanner(debFile)
         'someVal' == scan.getHeaderEntry('SomeKey')
         'bar' == scan.getHeaderEntry('Foo')
@@ -1045,7 +1045,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.getArchivePath())
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
 
         scan.controlContents['./conffiles'] == '/etc/init.d/served\n/etc/init.d/served2\n'
     }
@@ -1097,7 +1097,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         'someVirtualPackage, someOtherVirtualPackage' == scan.getHeaderEntry('Provides')
     }
 
@@ -1116,7 +1116,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         'virtualPackageA (= 1.2.3), virtualPackageB' == scan.getHeaderEntry('Provides')
     }
 
@@ -1134,7 +1134,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def emptydir = scan.getEntry('./var/log/customemptyfolder/')
         emptydir.userName == 'test'
         emptydir.groupName == 'testgroup'
@@ -1154,7 +1154,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def emptydir = scan.getEntry('./var/log/customemptyfolder/')
         emptydir.userName == 'myuser'
         emptydir.groupName == 'mygroup'
@@ -1184,7 +1184,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         'depA (1.0) | depB (>= 2.0), depC (3.0) | depD' ==  scan.getHeaderEntry('Depends')
     }
 
@@ -1206,7 +1206,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def entry = scan.getEntry('./node_modules/memoizee/node_modules/es5-ext/string/#/at.js')
         entry.isFile()
     }
@@ -1230,7 +1230,7 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        def scan = new Scanner(debTask.archivePath)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def packagedSymlink = scan.getEntry('./bin/my-symlink')
         packagedSymlink.isSymbolicLink()
     }
@@ -1256,8 +1256,8 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        println(debTask.archivePath)
-        def scan = new Scanner(debTask.archivePath)
+        println(debTask.archiveFile.get().asFile)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def packagedSymlink = scan.getEntry('./lib/bin/my-symlink')
         packagedSymlink.isSymbolicLink()
     }
@@ -1278,8 +1278,8 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        println(debTask.archivePath)
-        def scan = new Scanner(debTask.archivePath)
+        println(debTask.archiveFile.get().asFile)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def packagedSymlink = scan.getEntry('./my-symlink')
         !packagedSymlink.isSymbolicLink()
     }
@@ -1302,8 +1302,8 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        println(debTask.archivePath)
-        def scan = new Scanner(debTask.archivePath)
+        println(debTask.archiveFile.get().asFile)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def packagedSymlink = scan.getEntry('./target/source')
         packagedSymlink.isSymbolicLink()
     }
@@ -1328,8 +1328,8 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        println(debTask.archivePath)
-        def scan = new Scanner(debTask.archivePath)
+        println(debTask.archiveFile.get().asFile)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def packagedSymlink = scan.getEntry('./lib/target/source')
         packagedSymlink.isSymbolicLink()
     }
@@ -1353,8 +1353,8 @@ class DebPluginTest extends ProjectSpec {
         debTask.copy()
 
         then:
-        println(debTask.archivePath)
-        def scan = new Scanner(debTask.archivePath)
+        println(debTask.archiveFile.get().asFile)
+        def scan = new Scanner(debTask.archiveFile.get().asFile)
         def packagedSymlink = scan.getEntry('./target/source')
         packagedSymlink.isSymbolicLink()
         packagedSymlink.linkName == '../source'
