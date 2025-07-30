@@ -23,7 +23,6 @@ import org.gradle.api.Project
 import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.application.CreateStartScripts
 import org.gradle.util.GradleVersion
 
@@ -54,85 +53,95 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(OspackageApplicationPlugin)
 
-        if (!project.plugins.hasPlugin('org.springframework.boot')) {
-            throw new IllegalStateException("The 'org.springframework.boot' plugin must be applied before applying this plugin")
+        project.afterEvaluate {
+            if (!project.plugins.hasPlugin('org.springframework.boot')) {
+                project.logger.error("The '{}' plugin requires the '{}' plugin.",
+                        "com.netflix.nebula.ospackage-application-spring-boot",
+                        "org.springframework.boot")
+                throw new RuntimeException("The 'com.netflix.nebula.ospackage-application-spring-boot' plugin requires the 'org.springframework.boot' plugin.")
+            }
         }
 
-        // Spring Boot 2.0 configured distributions that have everything we need
-        if (project.distributions.findByName('boot') != null) {
-            // Use the main distribution and configure it to have the same baseName as the boot distribution
-            project.tasks.named(JavaPlugin.JAR_TASK_NAME) {
-                enabled = true
-            }
-            project.afterEvaluate {
-                project.tasks.named('bootJar').configure {
-                    if (GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
-                        classifier = 'boot'
-                    } else {
-                        archiveClassifier = 'boot'
-                    }
+        project.plugins.withId("org.springframework.boot") {
+            // Spring Boot 2.0+ configured distributions that have everything we need
+            if (project.distributions.findByName('boot') != null) {
+                project.logger.info("Spring Boot 2+ detected")
+                // Use the main distribution and configure it to have the same baseName as the boot distribution
+                project.tasks.named(JavaPlugin.JAR_TASK_NAME) {
+                    enabled = true
                 }
-                project.distributions {
-                    main {
+                project.afterEvaluate {
+                    project.tasks.named('bootJar').configure {
                         if (GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
-                            baseName = "${project.distributions.main.baseName}-boot"
+                            classifier = 'boot'
                         } else {
-                            getDistributionBaseName().set "${project.distributions.main.getDistributionBaseName().getOrNull()}-boot"
+                            archiveClassifier = 'boot'
                         }
                     }
-                }
+                    project.distributions {
+                        main {
+                            if (GradleVersion.current().baseVersion < GradleVersion.version('6.0').baseVersion) {
+                                baseName = "${project.distributions.main.baseName}-boot"
+                            } else {
+                                getDistributionBaseName().set "${project.distributions.main.getDistributionBaseName().getOrNull()}-boot"
+                            }
+                        }
+                    }
 
-                // Allow the springBoot extension configuration to propagate to the application plugin
-                def mainClass = project.objects.property(String)
-                try {
-                    mainClass.set(project.springBoot.mainClass)
-                } catch (Exception ignore) {
-                    mainClass.set(project.springBoot.mainClassName)
-                }
-                if (!mainClass.isPresent()) {
+                    // Allow the springBoot extension configuration to propagate to the application plugin
+                    def mainClass = project.objects.property(String)
                     try {
-                        mainClass.set(project.application.mainClass.isPresent() ? project.application.mainClass.get() : project.application.mainClassName)
+                        mainClass.set(project.springBoot.mainClass)
                     } catch (Exception ignore) {
+                        mainClass.set(project.springBoot.mainClassName)
+                    }
+                    if (!mainClass.isPresent()) {
+                        try {
+                            mainClass.set(project.application.mainClass.isPresent() ? project.application.mainClass.get() : project.application.mainClassName)
+                        } catch (Exception ignore) {
+                        }
+                    }
+                    if (GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
+                        if (project.application.mainClassName == null) {
+                            project.application.mainClassName = mainClass.getOrNull()
+                            // Fail only when startScripts runs
+                        }
+                    } else {
+                        project.application.mainClass.convention(mainClass)
                     }
                 }
-                if (GradleVersion.current().baseVersion < GradleVersion.version('6.4').baseVersion) {
-                    if (project.application.mainClassName == null) {
-                        project.application.mainClassName = mainClass.getOrNull() // Fail only when startScripts runs
-                    }
-                } else {
-                    project.application.mainClass.convention(mainClass)
-                }
-            }
 
-            // Workaround for https://github.com/gradle/gradle/issues/16371
-            if (GradleVersion.current().baseVersion >= GradleVersion.version('6.4').baseVersion) {
-                project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure {
-                    doFirst {
-                        if (!project.application.mainClass.isPresent()) {
-                            throw new GradleException("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
+                // Workaround for https://github.com/gradle/gradle/issues/16371
+                if (GradleVersion.current().baseVersion >= GradleVersion.version('6.4').baseVersion) {
+                    project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure {
+                        doFirst {
+                            if (!project.application.mainClass.isPresent()) {
+                                throw new GradleException("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
+                            }
                         }
                     }
                 }
-            }
-        } else {
-            project.afterEvaluate {
-                project.tasks.named(DistributionPlugin.TASK_INSTALL_NAME).configure {
-                    it.dependsOn('bootRepackage')
-                }
-                project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure { CreateStartScripts createStartScripts ->
-                    createStartScripts.mainClassName = 'org.springframework.boot.loader.JarLauncher'
-                }
+            } else {
+                project.logger.info("Spring Boot 1 detected")
+                project.afterEvaluate {
+                    project.tasks.named(DistributionPlugin.TASK_INSTALL_NAME).configure {
+                        it.dependsOn('bootRepackage')
+                    }
+                    project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure { CreateStartScripts createStartScripts ->
+                        createStartScripts.mainClassName = 'org.springframework.boot.loader.JarLauncher'
+                    }
 
-                // `ApplicationPlugin` automatically adds `runtimeClasspath` files to the distribution. We want most of that
-                // stripped out since we want just the fat jar that Spring produces.
-                project.distributions {
-                    main {
-                        contents {
-                            into('lib') {
-                                project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).files.findAll { file ->
-                                    file.getName() != project.tasks.getByName(JavaPlugin.JAR_TASK_NAME).outputs.files.singleFile.name
-                                }.each { file ->
-                                    exclude file.name
+                    // `ApplicationPlugin` automatically adds `runtimeClasspath` files to the distribution. We want most of that
+                    // stripped out since we want just the fat jar that Spring produces.
+                    project.distributions {
+                        main {
+                            contents {
+                                into('lib') {
+                                    project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).files.findAll { file ->
+                                        file.getName() != project.tasks.getByName(JavaPlugin.JAR_TASK_NAME).outputs.files.singleFile.name
+                                    }.each { file ->
+                                        exclude file.name
+                                    }
                                 }
                             }
                         }
@@ -141,5 +150,4 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
             }
         }
     }
-
 }

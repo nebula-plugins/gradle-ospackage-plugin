@@ -17,11 +17,11 @@
 package com.netflix.gradle.plugins.application
 
 import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
+import com.netflix.gradle.plugins.SupportedGradleVersions
 import com.netflix.gradle.plugins.deb.Scanner
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
 import spock.lang.Unroll
-import spock.lang.IgnoreIf
 
 import java.util.jar.JarFile
 
@@ -30,7 +30,8 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
     public final ProvideSystemProperty ignoreDeprecations = new ProvideSystemProperty("ignoreDeprecations", "true")
 
     def setup() {
-        disableConfigurationCache() // org.gradle.api.tasks.application.CreateStartScript does not support config cache and it is used in Spring Boot plugin in these tests
+        disableConfigurationCache()
+        // org.gradle.api.tasks.application.CreateStartScript does not support config cache and it is used in Spring Boot plugin in these tests
     }
 
     def 'plugin throws exception if spring-boot plugin not applied'() {
@@ -44,7 +45,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         def result = runTasksAndFail("help")
 
         then:
-        result.output.contains("The 'org.springframework.boot' plugin must be applied before applying this plugin")
+        result.output.contains("The 'com.netflix.nebula.ospackage-application-spring-boot' plugin requires the 'org.springframework.boot' plugin.")
     }
 
     String buildScript(String bootVersion, File startScript) {
@@ -90,13 +91,15 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
     }
 
     @Unroll
-    def 'application shows up in deb for boot #bootVersion'() {
+    def 'application shows up in deb for boot #bootVersion and gradle #testGradleVersion'() {
         final applicationDir = "$moduleName-boot"
         final startScript = "./opt/${applicationDir}/bin/${moduleName}"
         buildFile << buildScript(bootVersion, null)
 
         when:
-        runTasks('build', 'buildDeb')
+        forwardOutput = true
+        gradleVersion = testGradleVersion
+        runTasks('build', 'buildDeb', "--stacktrace")
 
         then:
         final archivePath = file("build/distributions/test_0_all.deb")
@@ -119,8 +122,10 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         !scanner.controlContents.containsKey('./postinst')
 
         where:
-        bootVersion | moduleSuffix
-        '3.5.2'     | '-plain'
+        bootVersion | testGradleVersion                  | moduleSuffix
+        '3.5.2'     | SupportedGradleVersions.GRADLE_MAX | '-plain'
+        '3.5.2'     | SupportedGradleVersions.GRADLE_MIN | '-plain'
+        '2.7.18'    | SupportedGradleVersions.GRADLE_MIN | '-plain'
     }
 
     private boolean isBootJar(JarFile jarFile) {
@@ -137,6 +142,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         buildFile << buildScript(bootVersion, startScript)
 
         when:
+        forwardOutput = true
         def result = runTasks('runStartScript')
 
         then:
