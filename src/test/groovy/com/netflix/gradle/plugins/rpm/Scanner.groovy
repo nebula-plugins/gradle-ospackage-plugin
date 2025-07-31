@@ -70,7 +70,7 @@ class Scanner {
             header = new CpioHeader()
             total = header.read(wrapper, total)
             final int fileSize = header.getFileSize()
-            boolean includingContents = includeContents&&header.type==8
+            boolean includingContents = includeContents&&(header.type==8||header.type==10)
             if (!header.isLast()) {
                 ByteBuffer descriptor = includingContents?Util.fill(wrapper, fileSize):null
                 files += new ScannerFile(header, descriptor)
