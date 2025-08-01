@@ -1,3 +1,5 @@
+import org.gradle.api.attributes.plugin.GradlePluginApiVersion
+
 /*
  * Copyright 2014-2019 Netflix, Inc.
  *
@@ -64,6 +66,20 @@ def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
 
 tasks.withType(Javadoc) {
     options.links(javaApiUrl, groovyApiUrl)
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations.named("runtimeClasspath") {
+    attributes {
+        attribute(
+                GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE as Attribute<GradlePluginApiVersion>,
+                objects.named(GradlePluginApiVersion, "8.6") as GradlePluginApiVersion)
+    }
 }
 
 gradlePlugin {
