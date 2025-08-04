@@ -37,7 +37,7 @@ class RpmPlugin implements Plugin<Project> {
         project.ext.Rpm = Rpm.class
 
         Builder.metaClass.getDefaultSourcePackage() {
-            format.getLead().getName() + "-src.rpm"
+            format.getLead().getName() + ".src.rpm"
         }
 
         Directive.metaClass.or = { Directive other ->
