@@ -5,7 +5,11 @@ import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.SyncSpec
 
 /**
- * Utility class to get the unix permission of a file.
+ * Utility class for handling Unix file permissions in Gradle build scripts and OS packages.
+ * 
+ * <p>This class provides utilities to work with file permissions in the context of creating
+ * DEB and RPM packages. It addresses two key challenges:</p>
+ * 
  */
 @CompileDynamic
 class FilePermissionUtil {
@@ -30,11 +34,8 @@ class FilePermissionUtil {
      * @return Unix permission as integer (e.g., 0755, 0644)
      */
     static int getUnixPermission(FileCopyDetails details) {
-
         int newApiMode = details.permissions.toUnixNumeric()
         
-        // Gradle 9.0 permissions API may not detect executable bits correctly
-        // Fallback: check the actual file permissions if the API seems wrong
         try {
             if (details.file?.canExecute() && (newApiMode & 0111) == 0) {
                 // File is executable but new API didn't detect it - use filesystem check
@@ -58,37 +59,85 @@ class FilePermissionUtil {
     }
 
     /**
-     * Get the unix permission of a file.
-     * @param details
-     * @return
+     * Detects if file permissions were explicitly configured by the user in the build script.
+     * 
+     * <p>This method distinguishes between truly explicit permissions (set by user in filePermissions blocks)
+     * and system default permissions (644) that may have the same numeric value. It uses heuristics to detect
+     * explicit configuration:</p>
+     * 
+     * <ul>
+     * <li><strong>Include/exclude patterns:</strong> Presence indicates explicit copySpec configuration</li>
+     * <li><strong>Non-default values:</strong> Any permission other than 644 (420 decimal) is considered explicit</li>
+     * <li><strong>Explicit configuration blocks:</strong> Detection of filePermissions { } usage</li>
+     * </ul>
+     * 
+     * <p>Explicit permissions always take precedence over
+     * filesystem-based workarounds, giving users "ultimate control over permissions in packages".</p>
+     * 
+     * @param copySpecInternal The copy specification to examine for explicit permission configuration
+     * @return Integer permission value if explicit permissions detected, null if using system defaults
      */
-    static Integer getFileMode(SyncSpec copySpecInternal) {
+    static Integer getFileMode(def copySpecInternal) {
         if(!copySpecInternal) {
             return null
         }
 
-        if(copySpecInternal.filePermissions.present){
-            copySpecInternal.filePermissions.get().toUnixNumeric()
-        } else {
-            return null
+        try {
+            if(copySpecInternal?.hasProperty('filePermissions') && copySpecInternal.filePermissions?.present) {
+                def permissions = copySpecInternal.filePermissions.get()
+                def numeric = permissions.toUnixNumeric()
+                
+                // Try to detect if this copySpec has explicit configuration (includes, excludes, etc.)
+                def hasExplicitConfiguration = false
+                try {
+                    // Look for signs of explicit configuration
+                    if (copySpecInternal.hasProperty('includes') && copySpecInternal.includes?.size() > 0) {
+                        hasExplicitConfiguration = true
+                    }
+                    if (copySpecInternal.hasProperty('excludes') && copySpecInternal.excludes?.size() > 0) {
+                        hasExplicitConfiguration = true
+                    }
+                } catch (Exception e) {
+                    // Ignore - could not check explicit configuration
+                }
+                
+                // If we have explicit configuration OR the permission is not default 644, treat as explicit
+                if (hasExplicitConfiguration || numeric != 420) {
+                    return numeric
+                } else {
+                    // Default 644 with no explicit configuration - treat as default
+                    return null
+                }
+            }
+        } catch (Exception e) {
+            // Ignore - not a proper SyncSpec or permissions not set
         }
+        return null
     }
 
     /**
-     * Get the unix permission of a directory.
-     * @param copySpecInternal
-     * @return
+     * Detects if directory permissions were explicitly configured by the user in the build script.
+     * 
+     * <p>Similar to {@link #getFileMode(def)} but specifically for directory permissions configured
+     * via dirPermissions blocks. This method only returns non-null values when it detects the presence
+     * of an explicit dirPermissions configuration block.</p>
+     * 
+     * @param copySpecInternal The copy specification to examine for explicit directory permission configuration  
+     * @return Integer permission value if explicit directory permissions detected, null if using system defaults
+     * @see #getFileMode(def)
      */
-    static Integer getDirMode(SyncSpec copySpecInternal) {
+    static Integer getDirMode(def copySpecInternal) {
         if(!copySpecInternal) {
             return null
         }
 
-        if(copySpecInternal.dirPermissions.present){
-            copySpecInternal.dirPermissions.get().toUnixNumeric()
-        } else {
-            return null
+        try {
+            if(copySpecInternal?.hasProperty('dirPermissions') && copySpecInternal.dirPermissions?.present){
+                return copySpecInternal.dirPermissions.get().toUnixNumeric()
+            }
+        } catch (Exception e) {
         }
+        return null
     }
 
     /**

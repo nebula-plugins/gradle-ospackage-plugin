@@ -529,4 +529,60 @@ buildRpm {
         true        | 1444
         false       | 0644
     }
+
+    def 'explicit permissions override filesystem detection'() {
+        given:
+        // Create test files with specific filesystem permissions
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        
+        // Create an executable script
+        File scriptFile = new File(srcDir, 'script.sh')
+        scriptFile.text = '#!/bin/bash\necho "Hello World"'
+        scriptFile.setExecutable(true, false)
+        
+        // Create a non-executable data file
+        File dataFile = new File(srcDir, 'data.txt')
+        dataFile.text = 'Some data content'
+        dataFile.setExecutable(false, false)
+
+        buildFile << """
+plugins {
+    id 'com.netflix.nebula.rpm'
+}
+
+version = '1.0.0'
+
+task buildRpm(type: com.netflix.gradle.plugins.rpm.Rpm) {
+    packageName = 'explicit-permissions-test'
+    from('src') {
+        // Override executable script to be non-executable  
+        include 'script.sh'
+        filePermissions {
+            unix(0644) 
+        }
+    }
+    from('src') {
+        // Override non-executable file to be executable
+        include 'data.txt'
+        filePermissions {
+            unix(0755)
+        }
+    }
+}
+"""
+
+        when:
+        runTasks('buildRpm')
+
+        then:
+        def rpmFile = file('build/distributions/explicit-permissions-test-1.0.0.noarch.rpm')
+        def scanFiles = Scanner.scan(rpmFile).files
+        def scriptEntry = scanFiles.find { it.name == './script.sh' }
+        def dataEntry = scanFiles.find { it.name == './data.txt' }
+        
+        // Explicit permissions should override filesystem detection
+        scriptEntry.permissions == 0644  // Explicitly set to non-executable
+        dataEntry.permissions == 0755    // Explicitly set to executable
+    }
 }
