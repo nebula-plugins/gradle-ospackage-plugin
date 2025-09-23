@@ -254,6 +254,52 @@ class DebPluginTest extends ProjectSpec {
 
     }
 
+    def 'explicit permissions override filesystem detection'() {
+        given:
+        File srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        
+        // Create executable file
+        def scriptFile = new File(srcDir, 'script.sh')
+        FileUtils.writeStringToFile(scriptFile, '#!/bin/bash\necho "test"')
+        scriptFile.setExecutable(true, false)
+        
+        // Create regular file 
+        def dataFile = new File(srcDir, 'data.txt')
+        FileUtils.writeStringToFile(dataFile, 'test data')
+        dataFile.setExecutable(false, false)
+
+        project.apply plugin: 'com.netflix.nebula.deb'
+
+        when:
+        Deb debTask = project.task('buildDeb', type: Deb) {
+            packageName = 'explicit-permissions-test'
+            from(srcDir) {
+                // Override executable script to be non-executable
+                include 'script.sh'
+                filePermissions {
+                    unix(0644) 
+                }
+            }
+            from(srcDir) {
+                // Override non-executable file to be executable  
+                include 'data.txt'
+                filePermissions {
+                    unix(0755)
+                }
+            }
+        }
+        debTask.copy()
+
+        then:
+        File debFile = debTask.archiveFile.get().asFile
+        def scan = new Scanner(debFile)
+        
+        // Explicit permissions should override filesystem detection
+        0644 == scan.getEntry('./script.sh').mode  // Explicitly set to non-executable
+        0755 == scan.getEntry('./data.txt').mode   // Explicitly set to executable
+    }
+
     def 'specify complete maintainer scripts'() {
         given:
         project.version = 1.0

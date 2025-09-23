@@ -150,6 +150,22 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         }
     }
 
+    /**
+     * Processes individual files during RPM package creation with priority-based permission handling.
+     * 
+     * <p>This method implements a priority system where explicitly configured file permissions 
+     * (via filePermissions blocks) always take precedence over filesystem-based permission detection.
+     * This addresses GitHub issues #471 and #472 by giving users "ultimate control over permissions".</p>
+     * 
+     * <h4>Permission Priority Logic:</h4>
+     * <ol>
+     * <li><strong>Explicit permissions</strong> - User-configured via filePermissions { unix(mode) }</li>
+     * <li><strong>Filesystem detection</strong> - Gradle 9.0 workaround for missing executable bits</li>
+     * </ol>
+     * 
+     * @param fileDetails The file being processed with metadata and permissions
+     * @param specToLookAt The copy specification containing user configuration
+     */
     @Override
     void visitFile(FileCopyDetailsInternal fileDetails, def specToLookAt) {
         logger.debug "adding file {}", fileDetails.relativePath.pathString
@@ -160,13 +176,35 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         String user = lookup(specToLookAt, 'user') ?: task.user
         String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
 
-        int fileMode =  FilePermissionUtil.getFileMode(specToLookAt) ?: FilePermissionUtil.getUnixPermission(fileDetails)
+        Integer explicitMode = FilePermissionUtil.getFileMode(specToLookAt)
+        int workaroundMode = FilePermissionUtil.getUnixPermission(fileDetails)
+        
+        logger.debug("File: ${fileDetails.relativePath.pathString}, explicitMode: ${explicitMode}, workaroundMode: ${workaroundMode}")
+        
+        int fileMode
+        if (explicitMode != null) {
+            fileMode = explicitMode
+            logger.debug("Using explicit permissions: ${explicitMode}")
+        } else {
+            fileMode = workaroundMode
+            logger.debug("No explicit permissions, using workaround: ${workaroundMode}")
+        }
         def specAddParentsDir = lookup(specToLookAt, 'addParentDirs')
         boolean addParentsDir = specAddParentsDir != null ? specAddParentsDir : task.addParentDirs
 
         rpmFileVisitorStrategy.addFile(fileDetails, inputFile, fileMode, -1, fileType, user, group, addParentsDir)
     }
 
+    /**
+     * Processes directories during RPM package creation with priority-based permission handling.
+     * 
+     * <p>Similar to {@link #visitFile(FileCopyDetailsInternal, def)} but specifically for directories.
+     * Applies the same priority system for directory permissions configured via dirPermissions blocks.</p>
+     * 
+     * @param dirDetails The directory being processed with metadata and permissions
+     * @param specToLookAt The copy specification containing user configuration
+     * @see #visitFile(FileCopyDetailsInternal, def)
+     */
     @Override
     void visitDir(FileCopyDetailsInternal dirDetails, def specToLookAt) {
         if (specToLookAt == null) {
@@ -181,7 +219,10 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
         if (createDirectoryEntry) {
             logger.debug 'adding directory {}', dirDetails.relativePath.pathString
-            int dirMode = FilePermissionUtil.getDirMode(specToLookAt) ?: FilePermissionUtil.getUnixPermission(dirDetails)
+            
+            Integer explicitDirMode = FilePermissionUtil.getDirMode(specToLookAt)
+            
+            int dirMode = explicitDirMode != null ? explicitDirMode : FilePermissionUtil.getUnixPermission(dirDetails)
             Directive directive = (Directive) lookup(specToLookAt, 'fileType') ?: task.fileType
             String user = lookup(specToLookAt, 'user') ?: task.user
             String group = lookup(specToLookAt, 'permissionGroup') ?: task.permissionGroup
