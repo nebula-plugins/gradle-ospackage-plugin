@@ -127,7 +127,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         def inputFile = extractFile(fileDetails)
 
         Directive fileType = lookup(specToLookAt, 'fileType')
-        if (fileType == 'CONFIG') {
+        if (fileType != null && (fileType.flag() & Directive.RPMFILE_CONFIG) != 0) {
             logger.debug "mark {} as configuration file", fileDetails.relativePath.pathString
             task.configurationFile(fileDetails.relativePath.pathString)
         }
