@@ -312,6 +312,8 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         File debFile = task.getArchiveFile().get().asFile
         maker.setControl(debianDir)
         maker.setDeb(debFile)
+        maker.setChangesOut(task.getChangesFile())
+        maker.setChangesEnabled(true)
         if (StringUtils.isNotBlank(task.getSigningKeyId())
                 && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
                 && task.getSigningKeyRingFile().exists()) {
