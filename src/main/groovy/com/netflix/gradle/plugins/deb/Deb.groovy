@@ -70,15 +70,15 @@ abstract class Deb extends SystemPackagingTask {
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
 
         // Could come from extension
-        mapping.map('fileType', { parentExten?.getFileType() })
-        mapping.map('uid', { parentExten?.getUid()?:0 })
-        mapping.map('gid', { (parentExten?.getGid())?:0 })
-        mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
-        mapping.map('multiArch', { parentExten?.getMultiArch() })
-        mapping.map('archStr', { parentExten?.getArchStr()?:'all'})
-        mapping.map('maintainer', { parentExten?.getMaintainer() ?: System.getProperty('user.name', '') })
-        mapping.map('uploaders', { parentExten?.getUploaders() ?: '' })
-        mapping.map('priority', { parentExten?.getPriority() ?: 'optional' })
+        mapping.map('fileType', { parentExten?.getFileType()?.getOrNull() })
+        mapping.map('uid', { parentExten?.getUid()?.getOrNull()?:0 })
+        mapping.map('gid', { (parentExten?.getGid()?.getOrNull())?:0 })
+        mapping.map('packageGroup', { parentExten?.getPackageGroup()?.getOrNull() ?: 'java' })
+        mapping.map('multiArch', { parentExten?.getMultiArch()?.getOrNull() })
+        mapping.map('archStr', { parentExten?.getArchStr()?.getOrNull()?:'all'})
+        mapping.map('maintainer', { parentExten?.getMaintainer()?.getOrNull() ?: System.getProperty('user.name', '') })
+        mapping.map('uploaders', { parentExten?.getUploaders()?.getOrNull() ?: '' })
+        mapping.map('priority', { parentExten?.getPriority()?.getOrNull() ?: 'optional' })
     }
 
     @Input @Optional

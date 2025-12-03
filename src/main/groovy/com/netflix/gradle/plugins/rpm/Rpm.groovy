@@ -77,20 +77,20 @@ abstract class Rpm extends SystemPackagingTask {
         ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
 
         // Could come from extension
-        mapping.map('fileType', { parentExten?.getFileType() })
+        mapping.map('fileType', { parentExten?.getFileType()?.getOrNull() })
         mapping.map('addParentDirs', {
             // beware the Elvis operator in Groovy - false is falsy, so we need explicit null check
-            def value = parentExten?.getAddParentDirs()
+            def value = parentExten?.getAddParentDirs()?.getOrNull()
             value != null ? value : true
-        })        
-        mapping.map('archStr', {
-            parentExten?.getArchStr()?:Architecture.NOARCH.name()
         })
-        mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
-        mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
+        mapping.map('archStr', {
+            parentExten?.getArchStr()?.getOrNull()?:Architecture.NOARCH.name()
+        })
+        mapping.map('os', { parentExten?.getOs()?.getOrNull()?:Os.UNKNOWN})
+        mapping.map('type', { parentExten?.getType()?.getOrNull()?:RpmType.BINARY })
 
         // NOTE: Believe parentExten is always null
-        mapping.map('prefixes', { parentExten?.getPrefixes()?:[] })
+        mapping.map('prefixes', { parentExten?.getPrefixes()?.getOrElse([])?:[] })
     }
 
     void prefixes(String... addPrefixes) {
