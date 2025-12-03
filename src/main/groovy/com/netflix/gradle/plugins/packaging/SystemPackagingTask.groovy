@@ -32,16 +32,17 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
 import org.redline_rpm.header.Architecture
-import org.gradle.api.provider.Property
 
+import javax.inject.Inject
 import java.util.concurrent.Callable
 
 @DisableCachingByDefault
 abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
+    @Inject
     @Internal
-    final ObjectFactory objectFactory = project.objects
+    abstract ObjectFactory getObjectFactory()
 
     @Nested
     abstract SystemPackagingExtension getExten() // Not File extension or ext list of properties, different kind of Extension
@@ -582,7 +583,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     Provider<String> determineArchiveVersion() {
         String version = sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: project.getVersion().toString())
-        Property<String> archiveVersion = objectFactory.property(String)
+        Property<String> archiveVersion = getObjectFactory().property(String)
         archiveVersion.set(version)
         return archiveVersion
     }
@@ -776,7 +777,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     @SkipWhenEmpty
     FileCollection getFakeFiles() {
-        project.files('fake')
+        getObjectFactory().fileCollection().from('fake')
     }
 
     @Override
