@@ -14,6 +14,8 @@ import org.gradle.api.file.SyncSpec
 @CompileDynamic
 class FilePermissionUtil {
 
+    private static final int DEFAULT_FILE_PERMISSION = 0644  // rw-r--r-- (420 in decimal)
+
     /**
      * Get the unix permission of a file.
      * 
@@ -102,7 +104,7 @@ class FilePermissionUtil {
                 }
                 
                 // If we have explicit configuration OR the permission is not default 644, treat as explicit
-                if (hasExplicitConfiguration || numeric != 420) {
+                if (hasExplicitConfiguration || numeric != DEFAULT_FILE_PERMISSION) {
                     return numeric
                 } else {
                     // Default 644 with no explicit configuration - treat as default
