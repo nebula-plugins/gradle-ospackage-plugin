@@ -47,7 +47,6 @@ class DaemonTemplateTask extends ConventionTask {
     File projectDirectory
 
     DaemonTemplateTask() {
-        // notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
         // Capture project directory during configuration
         projectDirectory = project.projectDir
     }

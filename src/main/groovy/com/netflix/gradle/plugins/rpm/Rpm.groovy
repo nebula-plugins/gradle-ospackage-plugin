@@ -46,7 +46,6 @@ abstract class Rpm extends SystemPackagingTask {
     Rpm(ProjectLayout projectLayout) {
         super(projectLayout)
         archiveExtension.set 'rpm'
-        // notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     @Override
