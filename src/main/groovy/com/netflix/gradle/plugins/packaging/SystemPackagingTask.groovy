@@ -159,9 +159,10 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     abstract String assembleArchiveName()
 
     Provider<RegularFile> determineArchiveFile() {
-        Property<RegularFile> regularFile = objectFactory.fileProperty()
-        regularFile.set(new DestinationFile(new File(getDestinationDirectory().get().asFile.path, assembleArchiveName())))
-        return regularFile
+        // Use map() to avoid eager .get() call - lazily compute the file when needed
+        return getDestinationDirectory().map { directory ->
+            new DestinationFile(new File(directory.asFile.path, assembleArchiveName())) as RegularFile
+        }
     }
 
     Provider<String> determineArchiveVersion() {
