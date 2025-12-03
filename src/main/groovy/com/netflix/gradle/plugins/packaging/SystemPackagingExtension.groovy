@@ -507,7 +507,7 @@ class SystemPackagingExtension {
 
     def preInstallFile(File path) {
         if(preInstallFile.isPresent()) { throw MULTIPLE_PREINSTALL_FILES }
-        if(!preInstallCommands.get().isEmpty()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(!preInstallCommands.getOrElse([]).isEmpty()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
         preInstallFile.set(path)
     }
 
@@ -533,7 +533,7 @@ class SystemPackagingExtension {
 
     def postInstallFile(File path) {
         if(postInstallFile.isPresent()) { throw MULTIPLE_POSTINSTALL_FILES }
-        if(!postInstallCommands.get().isEmpty()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(!postInstallCommands.getOrElse([]).isEmpty()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
         postInstallFile.set(path)
     }
 
@@ -559,7 +559,7 @@ class SystemPackagingExtension {
 
     def preUninstallFile(File script) {
         if(preUninstallFile.isPresent()) { throw MULTIPLE_PREUNINSTALL_FILES }
-        if(!preUninstallCommands.get().isEmpty()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(!preUninstallCommands.getOrElse([]).isEmpty()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         preUninstallFile.set(script)
     }
 
@@ -585,7 +585,7 @@ class SystemPackagingExtension {
 
     def postUninstallFile(File script) {
         if(postUninstallFile.isPresent()) { throw MULTIPLE_POSTUNINSTALL_FILES }
-        if(!postUninstallCommands.get().isEmpty()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(!postUninstallCommands.getOrElse([]).isEmpty()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         postUninstallFile.set(script)
     }
 
