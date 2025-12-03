@@ -59,8 +59,8 @@ class OspackageApplicationPlugin implements Plugin<Project> {
         // Configure packaging extension - use provider for lazy evaluation
         packagingExt.from(project.provider {
             def distributionName = extension.distribution ?: ''
-            def installTask = project.tasks.getByName("install${distributionName.capitalize()}Dist")
-            installTask.outputs.files.singleFile.parent
+            def installTask = project.tasks.named("install${distributionName.capitalize()}Dist")
+            installTask.get().outputs.files.singleFile.parent
         })
 
         packagingExt.into(project.provider { extension.getPrefix() })
