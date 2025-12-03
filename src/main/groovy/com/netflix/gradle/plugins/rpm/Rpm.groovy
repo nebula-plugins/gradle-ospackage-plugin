@@ -79,8 +79,9 @@ abstract class Rpm extends SystemPackagingTask {
         // Could come from extension
         mapping.map('fileType', { parentExten?.getFileType() })
         mapping.map('addParentDirs', {
-            // beware the Elvis operator in Groovy ...
-            parentExten?.getAddParentDirs() != null ? parentExten?.getAddParentDirs() : true
+            // beware the Elvis operator in Groovy - false is falsy, so we need explicit null check
+            def value = parentExten?.getAddParentDirs()
+            value != null ? value : true
         })        
         mapping.map('archStr', {
             parentExten?.getArchStr()?:Architecture.NOARCH.name()
