@@ -101,7 +101,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
             mapping.map('signingKeyId', { parentExten?.getSigningKeyId() ?: '' })
             mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase() ?: '' })
             mapping.map('signingKeyRingFile', {
-                File defaultFile = new File(System.getProperty('user.home').toString(), '.gnupg/secring.gpg')
+                File defaultFile = new File(System.getProperty('user.home'), '.gnupg/secring.gpg')
                 parentExten?.getSigningKeyRingFile() ?: (defaultFile.exists() ? defaultFile : null)
             })
             mapping.map('user', { parentExten?.getUser() ?: getPackager() })
@@ -275,71 +275,43 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     @Input
     @Optional
     List<Link> getAllLinks() {
-        if (parentExten) {
-            return getLinks() + parentExten.getLinks()
-        } else {
-            return getLinks()
-        }
+        return getLinks() + (parentExten?.getLinks() ?: [])
     }
 
     @Input
     @Optional
     List<Dependency> getAllDependencies() {
-        if (parentExten) {
-            return getDependencies() + parentExten.getDependencies()
-        } else {
-            return getDependencies()
-        }
+        return getDependencies() + (parentExten?.getDependencies() ?: [])
     }
 
     @Input
     @Optional
     def getAllPrefixes() {
-        if (parentExten) {
-            return (getPrefixes() + parentExten.getPrefixes()).unique()
-        } else {
-            return getPrefixes()
-        }
+        return (getPrefixes() + (parentExten?.getPrefixes() ?: [])).unique()
     }
 
     @Input
     @Optional
     List<Dependency> getAllProvides() {
-        if (parentExten) {
-            return parentExten.getProvides() + getProvides()
-        } else {
-            return getProvides()
-        }
+        return (parentExten?.getProvides() ?: []) + getProvides()
     }
 
     @Input
     @Optional
     List<Dependency> getAllObsoletes() {
-        if (parentExten) {
-            return getObsoletes() + parentExten.getObsoletes()
-        } else {
-            return getObsoletes()
-        }
+        return getObsoletes() + (parentExten?.getObsoletes() ?: [])
     }
 
     @Input
     @Optional
     List<Dependency> getAllConflicts() {
-        if (parentExten) {
-            return getConflicts() + parentExten.getConflicts()
-        } else {
-            return getConflicts()
-        }
+        return getConflicts() + (parentExten?.getConflicts() ?: [])
     }
 
     @Input
     @Optional
     List<Directory> getAllDirectories() {
-        if (parentExten) {
-            return getDirectories() + parentExten.getDirectories()
-        } else {
-            return getDirectories()
-        }
+        return getDirectories() + (parentExten?.getDirectories() ?: [])
     }
 
     @Override

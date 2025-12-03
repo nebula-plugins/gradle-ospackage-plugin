@@ -91,10 +91,10 @@ class FilePermissionUtil {
                 def hasExplicitConfiguration = false
                 try {
                     // Look for signs of explicit configuration
-                    if (copySpecInternal.hasProperty('includes') && copySpecInternal.includes?.size() > 0) {
+                    if (copySpecInternal.hasProperty('includes') && copySpecInternal.includes) {
                         hasExplicitConfiguration = true
                     }
-                    if (copySpecInternal.hasProperty('excludes') && copySpecInternal.excludes?.size() > 0) {
+                    if (copySpecInternal.hasProperty('excludes') && copySpecInternal.excludes) {
                         hasExplicitConfiguration = true
                     }
                 } catch (Exception e) {

@@ -49,7 +49,8 @@ abstract class Deb extends SystemPackagingTask {
             name += getVersion() ? "_${getVersion()}" : ''
             name += getRelease() ? "-${getRelease()}" : ''
             name += getArchString() ? "_${getArchString()}" : ''
-            name += getArchiveExtension().getOrNull() ? ".${getArchiveExtension().getOrNull()}" : ''
+            def ext = getArchiveExtension().getOrNull()
+            name += ext ? ".${ext}" : ''
         }
 
         return name;

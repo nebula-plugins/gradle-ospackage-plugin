@@ -146,7 +146,8 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                             contents {
                                 into('lib') {
                                     def jarTaskProvider = project.tasks.named(JavaPlugin.JAR_TASK_NAME)
-                                    project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).files.findAll { file ->
+                                    def runtimeClasspath = project.configurations.named(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+                                    runtimeClasspath.get().files.findAll { file ->
                                         file.getName() != jarTaskProvider.get().outputs.files.singleFile.name
                                     }.each { file ->
                                         exclude file.name

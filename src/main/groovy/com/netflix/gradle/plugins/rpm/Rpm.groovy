@@ -56,7 +56,8 @@ abstract class Rpm extends SystemPackagingTask {
             name += getVersion() ? "-${getVersion()}" : ''
             name += getRelease() ? "-${getRelease()}" : ''
             name += getArchString() ? ".${getArchString()}" : ''
-            name += getArchiveExtension().getOrNull() ? ".${getArchiveExtension().getOrNull()}" : ''
+            def ext = getArchiveExtension().getOrNull()
+            name += ext ? ".${ext}" : ''
         }
 
         return name;

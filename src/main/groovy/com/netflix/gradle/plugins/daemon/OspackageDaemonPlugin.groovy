@@ -92,7 +92,9 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 String cleanedName = daemonName.replaceAll("\\W", "").capitalize()
 
 
-                File outputDir = new File(project.layout.buildDirectory.getAsFile().get(), "daemon/${cleanedName}/${task.name}")
+                def outputDirProvider = project.layout.buildDirectory.map { dir ->
+                    new File(dir.asFile, "daemon/${cleanedName}/${task.name}")
+                }
 
                 String defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
                 Map<String, String> templatesWithFileOutput = [
@@ -101,22 +103,23 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                         'initd': defaultDefinition.initDScriptLocation ?: defaultInitDScriptLocationTemplate
                 ]
 
-                DaemonTemplateTask templateTask = project.tasks.create("${task.name}${cleanedName}Daemon".toString(), DaemonTemplateTask)
-                templateTask.conventionMapping.map('destDir') { outputDir }
-                templateTask.conventionMapping.map('templatesFolder') {  daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER  }
-                templateTask.conventionMapping.map('context') {
-                    Map<String,Object> context = toContext(defaults, definition)
-                    context.daemonName = daemonName
-                    context.isRedhat = isRedhat
-                    context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
-                    context
+                def templateTaskProvider = project.tasks.register("${task.name}${cleanedName}Daemon", DaemonTemplateTask) {
+                    it.conventionMapping.map('destDir') { outputDirProvider.get() }
+                    it.conventionMapping.map('templatesFolder') {  daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER  }
+                    it.conventionMapping.map('context') {
+                        Map<String,Object> context = toContext(defaults, definition)
+                        context.daemonName = daemonName
+                        context.isRedhat = isRedhat
+                        context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
+                        context
+                    }
+                    it.conventionMapping.map('templates') { templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE }
                 }
-                templateTask.conventionMapping.map('templates') { templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE }
 
-                task.dependsOn(templateTask)
+                task.dependsOn(templateTaskProvider)
                 templatesWithFileOutput.each { String templateName, String destPathTemplate ->
-                    File rendered = new File(outputDir, templateName) // To be created by task, ok that it's not around yet
-                    String destPath = getDestPath(destPathTemplate, templateTask)
+                    File rendered = new File(outputDirProvider.get(), templateName) // To be created by task, ok that it's not around yet
+                    String destPath = getDestPath(destPathTemplate, templateTaskProvider.get())
                     // Gradle CopySpec can't set the name of a file on the fly, we need to do a rename.
                     int slashIdx = destPath.lastIndexOf('/')
                     String destDir = destPath.substring(0,slashIdx)
@@ -125,7 +128,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 }
 
                 task.doFirst {
-                    File postInstallCommand = new File(outputDir, POST_INSTALL_TEMPLATE)
+                    File postInstallCommand = new File(outputDirProvider.get(), POST_INSTALL_TEMPLATE)
                     task.postInstall(postInstallCommand.text)
                 }
             }
