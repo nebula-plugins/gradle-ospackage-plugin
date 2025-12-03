@@ -132,12 +132,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
             // Task Specific
             if(GradleVersion.current().compareTo(GradleVersion.version("7.0.0")) >= 0) {
-                getArchiveFileName().convention(project.provider(new Callable<String>() {
-                    @Override
-                    String call() throws Exception {
-                        return assembleArchiveName()
-                    }
-                }))
+                getArchiveFileName().convention(project.provider { assembleArchiveName() })
                 getArchiveVersion().convention(determineArchiveVersion())
             } else {
                 mapping.map('archiveFile', { determineArchiveFile() })
