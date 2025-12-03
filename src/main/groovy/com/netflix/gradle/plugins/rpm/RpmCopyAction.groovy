@@ -95,19 +95,19 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             }
             builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-            if (!task.allPreInstallCommands?.empty) {
+            if (task.allPreInstallCommands) {
                 builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
             }
-            if (!task.allPostInstallCommands?.empty) {
+            if (task.allPostInstallCommands) {
                 builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
             }
-            if (!task.allPreUninstallCommands?.empty) {
+            if (task.allPreUninstallCommands) {
                 builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
             }
-            if (!task.allPostUninstallCommands?.empty) {
+            if (task.allPostUninstallCommands) {
                 builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
             }
-            if (!task.allTriggerIn?.empty) {
+            if (task.allTriggerIn) {
                 task.allTriggerIn.each { trigger ->
                     def dependencyMap = [:]
                     dependencyMap.putAt(trigger.dependency.packageName,
@@ -115,7 +115,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
                     builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERIN)
                 }
             }
-            if (!task.allTriggerUn?.empty) {
+            if (task.allTriggerUn) {
                 task.allTriggerUn.each { trigger ->
                     def dependencyMap = [:]
                     dependencyMap.putAt(trigger.dependency.packageName,
@@ -123,7 +123,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
                     builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERUN)
                 }
             }
-            if (!task.allTriggerPostUn?.empty) {
+            if (task.allTriggerPostUn) {
                 task.allTriggerPostUn.each { trigger ->
                     def dependencyMap = [:]
                     dependencyMap.putAt(trigger.dependency.packageName,
@@ -132,14 +132,14 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
                 }
             }
 
-            if (!task.allPreTransCommands?.empty) {
+            if (task.allPreTransCommands) {
                 // pretrans* scriptlets are special. They may be run in an
                 // environment where no shell exists. It's recommended that they
                 // be avoided where possible, but where not, written in Lua:
                 // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
                 builder.setPreTransScript(concat(task.allPreTransCommands))
             }
-            if (!task.allPostTransCommands?.empty) {
+            if (task.allPostTransCommands) {
                 builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
             }
 
