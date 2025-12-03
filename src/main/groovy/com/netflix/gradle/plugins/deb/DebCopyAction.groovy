@@ -303,8 +303,8 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
         maintainerScriptsGenerator.generate(toContext())
 
-        task.allSupplementaryControlFiles.each { supControl ->
-            File supControlFile = supControl instanceof File ? supControl as File : task.project.file(supControl)
+        task.allSupplementaryControlFiles.each { String supControlPath ->
+            File supControlFile = task.project.file(supControlPath)
             new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
         }
 

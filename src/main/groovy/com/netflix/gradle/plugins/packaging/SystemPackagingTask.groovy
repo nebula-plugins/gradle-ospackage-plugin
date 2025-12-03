@@ -316,33 +316,33 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<Object> getConfigurationFiles() { getExten().getConfigurationFiles().getOrElse([]) }
+    List<String> getConfigurationFiles() { getExten().getConfigurationFiles().getOrElse([]) }
     def configurationFile(String value) { getExten().configurationFile(value) }
 
     @Input
     @Optional
-    List<Object> getPreInstallCommands() { getExten().getPreInstallCommands().getOrElse([]) }
+    List<String> getPreInstallCommands() { getExten().getPreInstallCommands().getOrElse([]) }
     def preInstall(String value) { getExten().preInstall(value) }
     def preInstall(File value) { getExten().preInstall(value) }
     def preInstallFile(File value) { getExten().preInstallFile(value) }
 
     @Input
     @Optional
-    List<Object> getPostInstallCommands() { getExten().getPostInstallCommands().getOrElse([]) }
+    List<String> getPostInstallCommands() { getExten().getPostInstallCommands().getOrElse([]) }
     def postInstall(String value) { getExten().postInstall(value) }
     def postInstall(File value) { getExten().postInstall(value) }
     def postInstallFile(File value) { getExten().postInstallFile(value) }
 
     @Input
     @Optional
-    List<Object> getPreUninstallCommands() { getExten().getPreUninstallCommands().getOrElse([]) }
+    List<String> getPreUninstallCommands() { getExten().getPreUninstallCommands().getOrElse([]) }
     def preUninstall(String value) { getExten().preUninstall(value) }
     def preUninstall(File value) { getExten().preUninstall(value) }
     def preUninstallFile(File value) { getExten().preUninstallFile(value) }
 
     @Input
     @Optional
-    List<Object> getPostUninstallCommands() { getExten().getPostUninstallCommands().getOrElse([]) }
+    List<String> getPostUninstallCommands() { getExten().getPostUninstallCommands().getOrElse([]) }
     def postUninstall(String value) { getExten().postUninstall(value) }
     def postUninstall(File value) { getExten().postUninstall(value) }
     def postUninstallFile(File value) { getExten().postUninstallFile(value) }
@@ -373,25 +373,25 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<Object> getPreTransCommands() { getExten().getPreTransCommands().getOrElse([]) }
+    List<String> getPreTransCommands() { getExten().getPreTransCommands().getOrElse([]) }
     def preTrans(String value) { getExten().preTrans(value) }
     def preTrans(File value) { getExten().preTrans(value) }
 
     @Input
     @Optional
-    List<Object> getPostTransCommands() { getExten().getPostTransCommands().getOrElse([]) }
+    List<String> getPostTransCommands() { getExten().getPostTransCommands().getOrElse([]) }
     def postTrans(String value) { getExten().postTrans(value) }
     def postTrans(File value) { getExten().postTrans(value) }
 
     @Input
     @Optional
-    List<Object> getCommonCommands() { getExten().getCommonCommands().getOrElse([]) }
+    List<String> getCommonCommands() { getExten().getCommonCommands().getOrElse([]) }
     def installUtils(String value) { getExten().installUtils(value) }
     def installUtils(File value) { getExten().installUtils(value) }
 
     @Input
     @Optional
-    List<Object> getSupplementaryControlFiles() { getExten().getSupplementaryControlFiles().getOrElse([]) }
+    List<String> getSupplementaryControlFiles() { getExten().getSupplementaryControlFiles().getOrElse([]) }
     def supplementaryControl(Object value) { getExten().supplementaryControl(value) }
 
     @Input
@@ -613,31 +613,31 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<Object> getAllConfigurationFiles() {
+    List<String> getAllConfigurationFiles() {
         return getConfigurationFiles() + (parentExten?.getConfigurationFiles()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<Object> getAllPreInstallCommands() {
+    List<String> getAllPreInstallCommands() {
         return getPreInstallCommands() + (parentExten?.getPreInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<Object> getAllPostInstallCommands() {
+    List<String> getAllPostInstallCommands() {
         return getPostInstallCommands() + (parentExten?.getPostInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<Object> getAllPreUninstallCommands() {
+    List<String> getAllPreUninstallCommands() {
         return getPreUninstallCommands() + (parentExten?.getPreUninstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<Object> getAllPostUninstallCommands() {
+    List<String> getAllPostUninstallCommands() {
         return getPostUninstallCommands() + (parentExten?.getPostUninstallCommands()?.getOrElse([]) ?: [])
     }
 
@@ -661,28 +661,28 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<Object> getAllPreTransCommands() {
+    List<String> getAllPreTransCommands() {
         return getPreTransCommands() + (parentExten?.getPreTransCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<Object> getAllPostTransCommands() {
+    List<String> getAllPostTransCommands() {
         return getPostTransCommands() + (parentExten?.getPostTransCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<Object> getAllCommonCommands() {
+    List<String> getAllCommonCommands() {
         return getCommonCommands() + (parentExten?.getCommonCommands()?.getOrElse([]) ?: [])
     }
 
     /**
-     * @return supplementary control files consisting of a combination of Strings and Files
+     * @return supplementary control files consisting of Strings (file paths)
      */
     @Input
     @Optional
-    List<Object> getAllSupplementaryControlFiles() {
+    List<String> getAllSupplementaryControlFiles() {
         return getSupplementaryControlFiles() + (parentExten?.getSupplementaryControlFiles()?.getOrElse([]) ?: [])
     }
 

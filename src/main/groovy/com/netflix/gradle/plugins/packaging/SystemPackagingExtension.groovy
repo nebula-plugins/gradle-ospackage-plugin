@@ -241,23 +241,23 @@ class SystemPackagingExtension {
 
     @Input
     @Optional
-    final ListProperty<Object> configurationFiles = objects.listProperty(Object)
+    final ListProperty<String> configurationFiles = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> preInstallCommands = objects.listProperty(Object)
+    final ListProperty<String> preInstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> postInstallCommands = objects.listProperty(Object)
+    final ListProperty<String> postInstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> preUninstallCommands = objects.listProperty(Object)
+    final ListProperty<String> preUninstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> postUninstallCommands = objects.listProperty(Object)
+    final ListProperty<String> postUninstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
@@ -273,19 +273,19 @@ class SystemPackagingExtension {
 
     @Input
     @Optional
-    final ListProperty<Object> preTransCommands = objects.listProperty(Object)
+    final ListProperty<String> preTransCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> postTransCommands = objects.listProperty(Object)
+    final ListProperty<String> postTransCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> commonCommands = objects.listProperty(Object)
+    final ListProperty<String> commonCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    final ListProperty<Object> supplementaryControlFiles = objects.listProperty(Object)
+    final ListProperty<String> supplementaryControlFiles = objects.listProperty(String)
 
     @Input
     @Optional
@@ -381,18 +381,18 @@ class SystemPackagingExtension {
     Property<RpmType> getType() { type }
     Property<MultiArch> getMultiArch() { multiArch }
     ListProperty<String> getPrefixes() { prefixes }
-    ListProperty<Object> getConfigurationFiles() { configurationFiles }
-    ListProperty<Object> getPreInstallCommands() { preInstallCommands }
-    ListProperty<Object> getPostInstallCommands() { postInstallCommands }
-    ListProperty<Object> getPreUninstallCommands() { preUninstallCommands }
-    ListProperty<Object> getPostUninstallCommands() { postUninstallCommands }
+    ListProperty<String> getConfigurationFiles() { configurationFiles }
+    ListProperty<String> getPreInstallCommands() { preInstallCommands }
+    ListProperty<String> getPostInstallCommands() { postInstallCommands }
+    ListProperty<String> getPreUninstallCommands() { preUninstallCommands }
+    ListProperty<String> getPostUninstallCommands() { postUninstallCommands }
     ListProperty<Trigger> getTriggerInstallCommands() { triggerInstallCommands }
     ListProperty<Trigger> getTriggerUninstallCommands() { triggerUninstallCommands }
     ListProperty<Trigger> getTriggerPostUninstallCommands() { triggerPostUninstallCommands }
-    ListProperty<Object> getPreTransCommands() { preTransCommands }
-    ListProperty<Object> getPostTransCommands() { postTransCommands }
-    ListProperty<Object> getCommonCommands() { commonCommands }
-    ListProperty<Object> getSupplementaryControlFiles() { supplementaryControlFiles }
+    ListProperty<String> getPreTransCommands() { preTransCommands }
+    ListProperty<String> getPostTransCommands() { postTransCommands }
+    ListProperty<String> getCommonCommands() { commonCommands }
+    ListProperty<String> getSupplementaryControlFiles() { supplementaryControlFiles }
     ListProperty<Link> getLinks() { links }
     ListProperty<Dependency> getDependencies() { dependencies }
     ListProperty<Dependency> getObsoletes() { obsoletes }
@@ -450,7 +450,8 @@ class SystemPackagingExtension {
     }
 
     def supplementaryControl(Object file) {
-        supplementaryControlFiles.add(file)
+        // Convert File to path String, keep String as-is
+        supplementaryControlFiles.add(file instanceof File ? ((File)file).path : file.toString())
         return this
     }
 
@@ -468,7 +469,7 @@ class SystemPackagingExtension {
     }
 
     def installUtils(File script) {
-        commonCommands.add(script)
+        commonCommands.add(script.text)
         return this
     }
 
@@ -480,8 +481,9 @@ class SystemPackagingExtension {
         configurationFile(script)
     }
 
-    def configurationFile(String path) {
-        configurationFiles.add(path)
+    def configurationFile(Object path) {
+        // Convert File to path String, keep String as-is
+        configurationFiles.add(path instanceof File ? ((File)path).path : path.toString())
         return this
     }
 
@@ -501,7 +503,7 @@ class SystemPackagingExtension {
 
     def preInstall(File script) {
         if(preInstallFile.isPresent()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preInstallCommands.add(script)
+        preInstallCommands.add(script.text)
         return this
     }
 
@@ -527,7 +529,7 @@ class SystemPackagingExtension {
 
     def postInstall(File script) {
         if(postInstallFile.isPresent()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postInstallCommands.add(script)
+        postInstallCommands.add(script.text)
         return this
     }
 
@@ -553,7 +555,7 @@ class SystemPackagingExtension {
 
     def preUninstall(File script) {
         if(preUninstallFile.isPresent()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preUninstallCommands.add(script)
+        preUninstallCommands.add(script.text)
         return this
     }
 
@@ -579,7 +581,7 @@ class SystemPackagingExtension {
 
     def postUninstall(File script) {
         if(postUninstallFile.isPresent()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postUninstallCommands.add(script)
+        postUninstallCommands.add(script.text)
         return this
     }
 
@@ -663,7 +665,7 @@ class SystemPackagingExtension {
     }
 
     def preTrans(File script) {
-        preTransCommands.add(script)
+        preTransCommands.add(script.text)
         return this
     }
 
@@ -681,7 +683,7 @@ class SystemPackagingExtension {
     }
 
     def postTrans(File script) {
-        postTransCommands.add(script)
+        postTransCommands.add(script.text)
         return this
     }
 

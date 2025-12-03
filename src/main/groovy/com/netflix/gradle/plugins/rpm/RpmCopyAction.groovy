@@ -293,7 +293,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         return result
     }
 
-    String scriptWithUtils(List<Object> utils, List<Object> scripts) {
+    String scriptWithUtils(List<String> utils, List<String> scripts) {
         def l = []
         def stdDefines = standardScriptDefines()
         if (stdDefines) {

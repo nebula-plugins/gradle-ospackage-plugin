@@ -120,7 +120,7 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
     }
 
     @CompileDynamic
-    String concat(Collection<Object> scripts) {
+    String concat(Collection<String> scripts) {
         String shebang
         StringBuilder result = new StringBuilder();
         scripts.each { script ->
