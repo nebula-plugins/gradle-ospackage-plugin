@@ -98,7 +98,7 @@ abstract class Rpm extends SystemPackagingTask {
     }
 
     List<String> getPrefixes() {
-        exten.prefixes
+        exten.prefixes.getOrElse([])
     }
 
     public File getChangeLogFile() {

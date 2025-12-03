@@ -83,37 +83,37 @@ abstract class Deb extends SystemPackagingTask {
 
     @Input @Optional
     List<Dependency> getAllRecommends() {
-        return getRecommends() + (parentExten?.getRecommends() ?: [])
+        return getRecommends() + (parentExten?.getRecommends()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllSuggests() {
-        return getSuggests() + (parentExten?.getSuggests() ?: [])
+        return getSuggests() + (parentExten?.getSuggests()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllEnhances() {
-        return getEnhances() + (parentExten?.getEnhances() ?: [])
+        return getEnhances() + (parentExten?.getEnhances()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllPreDepends() {
-        return getPreDepends() + (parentExten?.getPreDepends() ?: [])
+        return getPreDepends() + (parentExten?.getPreDepends()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllBreaks() {
-        return getBreaks() + (parentExten?.getBreaks() ?: [])
+        return getBreaks() + (parentExten?.getBreaks()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllReplaces() {
-        return getReplaces() + (parentExten?.getReplaces() ?: [])
+        return getReplaces() + (parentExten?.getReplaces()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     Map<String, String> getAllCustomFields() {
-        return getCustomFields() + (parentExten?.getCustomFields() ?: [:])
+        return getCustomFields() + (parentExten?.getCustomFields()?.getOrElse([:]) ?: [:])
     }
 
     @OutputFile
