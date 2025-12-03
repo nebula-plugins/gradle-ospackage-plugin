@@ -22,11 +22,10 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFile
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.CopyActionExecuter
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
@@ -490,64 +489,77 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     def customField(String key, String val) { getExten().customField(key, val) }
     def customField(Map<String, String> fields) { getExten().customField(fields) }
 
-    // TODO Move outside task, since it's specific to a plugin
+    // Apply conventions to task extension properties using modern Property API
     protected void applyConventions() {
-        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
-        // to pull from the parentExten. And only then would we fallback on some other value.
-
-        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
-
-        DeprecationLoggerUtils.whileDisabled {
-            // Could come from extension
-            mapping.map('packageName', {
-                // BasePlugin defaults this to pluginConvention.getArchivesBaseName(), which in turns comes form project.name
-                parentExten?.getPackageName()?.getOrNull() ?: getArchiveBaseName().getOrNull()
-            })
-            mapping.map('release', { parentExten?.getRelease()?.getOrNull() ?: getArchiveClassifier().getOrNull() })
-            mapping.map('version', { sanitizeVersion() })
-            mapping.map('epoch', { parentExten?.getEpoch()?.getOrNull() ?: 0 })
-            mapping.map('signingKeyId', { parentExten?.getSigningKeyId()?.getOrNull() ?: '' })
-            mapping.map('signingKeyPassphrase', { parentExten?.getSigningKeyPassphrase()?.getOrNull() ?: '' })
-            mapping.map('signingKeyRingFile', {
+        // Apply default conventions FIRST (lowest priority)
+        exten.packageName.convention(getArchiveBaseName())
+        exten.release.convention(getArchiveClassifier())
+        exten.version.convention(project.provider { sanitizeVersion() })
+        exten.epoch.convention(0)
+        exten.signingKeyId.convention('')
+        exten.signingKeyPassphrase.convention('')
+        exten.signingKeyRingFile.convention(
+            project.layout.file(project.provider {
                 File defaultFile = new File(System.getProperty('user.home'), '.gnupg/secring.gpg')
-                parentExten?.getSigningKeyRingFile()?.getOrNull()?.asFile ?: (defaultFile.exists() ? defaultFile : null)
+                defaultFile.exists() ? defaultFile : null
             })
-            mapping.map('user', { parentExten?.getUser()?.getOrNull() ?: getPackager() })
-            mapping.map('maintainer', { parentExten?.getMaintainer()?.getOrNull() ?: getPackager() })
-            mapping.map('uploaders', { parentExten?.getUploaders()?.getOrNull() ?: getPackager() })
-            mapping.map('permissionGroup', { parentExten?.getPermissionGroup()?.getOrNull() ?: '' })
-            mapping.map('setgid', { parentExten?.getSetgid()?.getOrNull() ?: false })
-            mapping.map('packageGroup', { parentExten?.getPackageGroup()?.getOrNull() })
-            mapping.map('buildHost', { parentExten?.getBuildHost()?.getOrNull() ?: HOST_NAME })
-            mapping.map('summary', { parentExten?.getSummary()?.getOrNull() ?: getPackageName() })
-            mapping.map('packageDescription', {
-                String packageDescription = parentExten?.getPackageDescription()?.getOrNull() ?: project.getDescription()
-                packageDescription ?: ''
-            })
-            mapping.map('license', { parentExten?.getLicense()?.getOrNull() ?: '' })
-            mapping.map('packager', { parentExten?.getPackager()?.getOrNull() ?: System.getProperty('user.name', '') })
-            mapping.map('distribution', { parentExten?.getDistribution()?.getOrNull() ?: '' })
-            mapping.map('vendor', { parentExten?.getVendor()?.getOrNull() ?: '' })
-            mapping.map('url', { parentExten?.getUrl()?.getOrNull() ?: '' })
-            mapping.map('sourcePackage', { parentExten?.getSourcePackage()?.getOrNull() ?: '' })
-            mapping.map('createDirectoryEntry', { parentExten?.getCreateDirectoryEntry()?.getOrNull() ?: false })
-            mapping.map('priority', { parentExten?.getPriority()?.getOrNull() ?: 'optional' })
+        )
+        exten.user.convention(project.provider { getPackager() })
+        exten.maintainer.convention(project.provider { getPackager() })
+        exten.uploaders.convention(project.provider { getPackager() })
+        exten.permissionGroup.convention('')
+        exten.setgid.convention(false)
+        exten.buildHost.convention(HOST_NAME)
+        exten.summary.convention(exten.packageName)
+        exten.packageDescription.convention(project.provider {
+            project.getDescription() ?: ''
+        })
+        exten.license.convention('')
+        exten.packager.convention(System.getProperty('user.name', ''))
+        exten.distribution.convention('')
+        exten.vendor.convention('')
+        exten.url.convention('')
+        exten.sourcePackage.convention('')
+        exten.createDirectoryEntry.convention(false)
+        exten.priority.convention('optional')
 
-            mapping.map('preInstallFile', { parentExten?.getPreInstallFile()?.getOrNull()?.asFile })
-            mapping.map('postInstallFile', { parentExten?.getPostInstallFile()?.getOrNull()?.asFile })
-            mapping.map('preUninstallFile', { parentExten?.getPreUninstallFile()?.getOrNull()?.asFile })
-            mapping.map('postUninstallFile', { parentExten?.getPostUninstallFile()?.getOrNull()?.asFile })
+        // Then apply conventions from parentExten (higher priority - override defaults)
+        // Only override if parentExten has a value
+        if (parentExten) {
+            if (parentExten.packageName.isPresent()) exten.packageName.convention(parentExten.packageName)
+            if (parentExten.release.isPresent()) exten.release.convention(parentExten.release)
+            if (parentExten.version.isPresent()) exten.version.convention(parentExten.version)
+            if (parentExten.epoch.isPresent()) exten.epoch.convention(parentExten.epoch)
+            if (parentExten.signingKeyId.isPresent()) exten.signingKeyId.convention(parentExten.signingKeyId)
+            if (parentExten.signingKeyPassphrase.isPresent()) exten.signingKeyPassphrase.convention(parentExten.signingKeyPassphrase)
+            if (parentExten.signingKeyRingFile.isPresent()) exten.signingKeyRingFile.convention(parentExten.signingKeyRingFile)
+            if (parentExten.user.isPresent()) exten.user.convention(parentExten.user)
+            if (parentExten.maintainer.isPresent()) exten.maintainer.convention(parentExten.maintainer)
+            if (parentExten.uploaders.isPresent()) exten.uploaders.convention(parentExten.uploaders)
+            if (parentExten.permissionGroup.isPresent()) exten.permissionGroup.convention(parentExten.permissionGroup)
+            if (parentExten.setgid.isPresent()) exten.setgid.convention(parentExten.setgid)
+            if (parentExten.packageGroup.isPresent()) exten.packageGroup.convention(parentExten.packageGroup)
+            if (parentExten.buildHost.isPresent()) exten.buildHost.convention(parentExten.buildHost)
+            if (parentExten.summary.isPresent()) exten.summary.convention(parentExten.summary)
+            if (parentExten.packageDescription.isPresent()) exten.packageDescription.convention(parentExten.packageDescription)
+            if (parentExten.license.isPresent()) exten.license.convention(parentExten.license)
+            if (parentExten.packager.isPresent()) exten.packager.convention(parentExten.packager)
+            if (parentExten.distribution.isPresent()) exten.distribution.convention(parentExten.distribution)
+            if (parentExten.vendor.isPresent()) exten.vendor.convention(parentExten.vendor)
+            if (parentExten.url.isPresent()) exten.url.convention(parentExten.url)
+            if (parentExten.sourcePackage.isPresent()) exten.sourcePackage.convention(parentExten.sourcePackage)
+            if (parentExten.createDirectoryEntry.isPresent()) exten.createDirectoryEntry.convention(parentExten.createDirectoryEntry)
+            if (parentExten.priority.isPresent()) exten.priority.convention(parentExten.priority)
+            if (parentExten.preInstallFile.isPresent()) exten.preInstallFile.convention(parentExten.preInstallFile)
+            if (parentExten.postInstallFile.isPresent()) exten.postInstallFile.convention(parentExten.postInstallFile)
+            if (parentExten.preUninstallFile.isPresent()) exten.preUninstallFile.convention(parentExten.preUninstallFile)
+            if (parentExten.postUninstallFile.isPresent()) exten.postUninstallFile.convention(parentExten.postUninstallFile)
+        }
 
-            // Task Specific
-            if(GradleVersion.current().compareTo(GradleVersion.version("7.0.0")) >= 0) {
-                getArchiveFileName().convention(project.provider { assembleArchiveName() })
-                getArchiveVersion().convention(determineArchiveVersion())
-            } else {
-                mapping.map('archiveFile', { determineArchiveFile() })
-                mapping.map('archiveName', { assembleArchiveName() })
-                mapping.map('archivePath', { determineArchivePath() })
-                mapping.map('archiveVersion', { determineArchiveVersion() })
-            }
+        // Task-specific conventions
+        if(GradleVersion.current().compareTo(GradleVersion.version("7.0.0")) >= 0) {
+            getArchiveFileName().convention(project.provider { assembleArchiveName() })
+            getArchiveVersion().convention(determineArchiveVersion())
         }
     }
 

@@ -22,8 +22,7 @@ import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -65,20 +64,46 @@ abstract class Deb extends SystemPackagingTask {
     protected void applyConventions() {
         super.applyConventions()
 
-        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
-        // to pull from the parentExten. And only then would we fallback on some other value.
-        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+        // Apply default conventions FIRST (lowest priority)
+        exten.uid.convention(0)
+        exten.gid.convention(0)
+        exten.packageGroup.convention('java')
+        exten.archStr.convention('all')
+        exten.maintainer.convention(System.getProperty('user.name', ''))
+        exten.uploaders.convention('')
+        exten.priority.convention('optional')
 
-        // Could come from extension
-        mapping.map('fileType', { parentExten?.getFileType()?.getOrNull() })
-        mapping.map('uid', { parentExten?.getUid()?.getOrNull()?:0 })
-        mapping.map('gid', { (parentExten?.getGid()?.getOrNull())?:0 })
-        mapping.map('packageGroup', { parentExten?.getPackageGroup()?.getOrNull() ?: 'java' })
-        mapping.map('multiArch', { parentExten?.getMultiArch()?.getOrNull() })
-        mapping.map('archStr', { parentExten?.getArchStr()?.getOrNull()?:'all'})
-        mapping.map('maintainer', { parentExten?.getMaintainer()?.getOrNull() ?: System.getProperty('user.name', '') })
-        mapping.map('uploaders', { parentExten?.getUploaders()?.getOrNull() ?: '' })
-        mapping.map('priority', { parentExten?.getPriority()?.getOrNull() ?: 'optional' })
+        // Then apply conventions from parentExten (higher priority - override defaults)
+        // Only override if parentExten has a value
+        if (parentExten) {
+            if (parentExten.fileType.isPresent()) {
+                exten.fileType.convention(parentExten.fileType)
+            }
+            if (parentExten.uid.isPresent()) {
+                exten.uid.convention(parentExten.uid)
+            }
+            if (parentExten.gid.isPresent()) {
+                exten.gid.convention(parentExten.gid)
+            }
+            if (parentExten.packageGroup.isPresent()) {
+                exten.packageGroup.convention(parentExten.packageGroup)
+            }
+            if (parentExten.multiArch.isPresent()) {
+                exten.multiArch.convention(parentExten.multiArch)
+            }
+            if (parentExten.archStr.isPresent()) {
+                exten.archStr.convention(parentExten.archStr)
+            }
+            if (parentExten.maintainer.isPresent()) {
+                exten.maintainer.convention(parentExten.maintainer)
+            }
+            if (parentExten.uploaders.isPresent()) {
+                exten.uploaders.convention(parentExten.uploaders)
+            }
+            if (parentExten.priority.isPresent()) {
+                exten.priority.convention(parentExten.priority)
+            }
+        }
     }
 
     @Input @Optional
