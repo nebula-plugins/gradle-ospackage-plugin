@@ -41,7 +41,6 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     private static final String HOST_NAME = getLocalHostName()
 
     @Inject
-    @Internal
     abstract ObjectFactory getObjectFactory()
 
     @Nested
@@ -65,7 +64,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
         }
 
         configureDuplicateStrategy()
-        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+        // notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     private void configureDuplicateStrategy() {

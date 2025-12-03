@@ -92,7 +92,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             String sourcePackage = task.sourcePackage
             if (!sourcePackage) {
                 // need a source package because createrepo will assume your package is a source package without it
-                sourcePackage = builder.defaultSourcePackage
+                sourcePackage = task.packageName + "-src.rpm"
             }
             builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 

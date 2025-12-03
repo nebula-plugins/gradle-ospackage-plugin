@@ -38,7 +38,7 @@ abstract class Deb extends SystemPackagingTask {
     Deb(ProjectLayout projectLayout) {
         super(projectLayout)
         archiveExtension.set 'deb'
-        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+        // notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     @Override

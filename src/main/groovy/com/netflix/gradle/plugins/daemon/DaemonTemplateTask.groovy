@@ -31,10 +31,6 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault
 class DaemonTemplateTask extends ConventionTask {
 
-    DaemonTemplateTask() {
-        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
-    }
-
     @Internal
     Map<String, String> context
 
@@ -47,9 +43,18 @@ class DaemonTemplateTask extends ConventionTask {
     @Internal
     String templatesFolder
 
+    @Internal
+    File projectDirectory
+
+    DaemonTemplateTask() {
+        // notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+        // Capture project directory during configuration
+        projectDirectory = project.projectDir
+    }
+
     @TaskAction
     def template() {
-        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder(), project)
+        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder(), getProjectDirectory())
         getTemplates().collect { String templateName ->
             templateHelper.generateFile(templateName, getContext())
         }

@@ -17,17 +17,15 @@
 package com.netflix.gradle.plugins.daemon
 
 import nebula.test.ProjectSpec
-import org.gradle.api.Project
 
 class TemplateSyntaxSpec extends ProjectSpec {
 
     def 'each template validates'() {
         given:
-        Project p = Mock(Project)
         def plugin = new OspackageDaemonPlugin()
         plugin .defaultDefinition = new DefaultDaemonDefinitionExtension()
         def templates = ['initd', 'log-run', 'run']
-        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', p)
+        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', projectDir)
         DaemonDefinition definition = new DaemonDefinition()
         def context = plugin.toContext(plugin.getDefaultDaemonDefinition(false), definition)
         context['isRedhat'] = 'true'
@@ -45,8 +43,7 @@ class TemplateSyntaxSpec extends ProjectSpec {
     }
     def 'template fails with a null'() {
         given:
-        Project p = Mock(Project)
-        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', p)
+        def helper = new TemplateHelper(projectDir, '/com/netflix/gradle/plugins/daemon', projectDir)
 
         def context = [:]
         context['isRedhat'] = true
