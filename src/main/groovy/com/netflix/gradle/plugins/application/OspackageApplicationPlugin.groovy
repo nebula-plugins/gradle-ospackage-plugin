@@ -72,14 +72,11 @@ class OspackageApplicationPlugin implements Plugin<Project> {
 
     @CompileDynamic
     private <T extends Class> void linkInstallToPackageTasks(Project project, T type) {
-        project.tasks.withType(type).configureEach(new Action<SystemPackagingTask>() {
-            @Override
-            void execute(SystemPackagingTask task) {
-                // Use TaskProvider for type-safe lazy task dependency
-                def distributionName = extension.distribution ?: ''
-                def installTaskName = "install${distributionName.capitalize()}Dist"
-                task.dependsOn(project.tasks.named(installTaskName))
-            }
-        })
+        project.tasks.withType(type).configureEach { SystemPackagingTask task ->
+            // Use TaskProvider for type-safe lazy task dependency
+            def distributionName = extension.distribution ?: ''
+            def installTaskName = "install${distributionName.capitalize()}Dist"
+            task.dependsOn(project.tasks.named(installTaskName))
+        }
     }
 }

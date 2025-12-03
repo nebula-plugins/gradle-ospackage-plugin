@@ -20,19 +20,13 @@ class OsPackageDockerBasePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(CommonPackagingPlugin)
         // Some defaults, if not set by the user
-        project.tasks.withType(SystemPackageDockerfile).configureEach(new Action<SystemPackageDockerfile>() {
-            @Override
-            void execute(SystemPackageDockerfile systemPackageDockerfile) {
-                systemPackageDockerfile.applyConventions()
-            }
-        })
+        project.tasks.withType(SystemPackageDockerfile).configureEach { SystemPackageDockerfile systemPackageDockerfile ->
+            systemPackageDockerfile.applyConventions()
+        }
 
-        project.plugins.withType(DockerRemoteApiPlugin).configureEach(new Action<DockerRemoteApiPlugin>() {
-            @Override
-            void execute(DockerRemoteApiPlugin dockerRemoteApiPlugin) {
-                createTasks(project)
-            }
-        })
+        project.plugins.withType(DockerRemoteApiPlugin).configureEach { DockerRemoteApiPlugin dockerRemoteApiPlugin ->
+            createTasks(project)
+        }
     }
 
     private void createTasks(Project project) {
