@@ -127,10 +127,12 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     configureTask(task, rendered, destDir, destFile)
                 }
 
-                task.doFirst {
-                    File postInstallCommand = new File(outputDirProvider.get(), POST_INSTALL_TEMPLATE)
-                    task.postInstall(postInstallCommand.text)
-                }
+                // Configure postInstall using Provider to avoid property finalization issues
+                task.exten.postInstallCommands.add(
+                    outputDirProvider.map { dir ->
+                        new File(dir, POST_INSTALL_TEMPLATE).text
+                    }
+                )
             }
         }
     }
