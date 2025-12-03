@@ -41,6 +41,7 @@ import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 @CompileDynamic
 class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     static final Logger logger = LoggerFactory.getLogger(RpmCopyAction.class)
+    private static final int SETGID_BIT = 02000  // Unix setgid permission bit
 
     Builder builder
     boolean includeStandardDefines = true // candidate for being pushed up to packaging level
@@ -231,7 +232,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
                 setgid = task.setgid
             }
             if (setgid) {
-                dirMode = dirMode | 02000
+                dirMode = dirMode | SETGID_BIT
             }
             rpmFileVisitorStrategy.addDirectory(dirDetails, dirMode, directive, user, group, addParentsDir)
         }
