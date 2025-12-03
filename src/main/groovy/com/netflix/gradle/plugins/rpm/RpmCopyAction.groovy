@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
+import com.netflix.gradle.plugins.packaging.Trigger
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import com.netflix.gradle.plugins.utils.FilePermissionUtil
@@ -107,30 +108,9 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             if (task.allPostUninstallCommands) {
                 builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
             }
-            if (task.allTriggerIn) {
-                task.allTriggerIn.each { trigger ->
-                    def dependencyMap = [:]
-                    dependencyMap.putAt(trigger.dependency.packageName,
-                            new IntString(trigger.dependency.flag, trigger.dependency.version))
-                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERIN)
-                }
-            }
-            if (task.allTriggerUn) {
-                task.allTriggerUn.each { trigger ->
-                    def dependencyMap = [:]
-                    dependencyMap.putAt(trigger.dependency.packageName,
-                            new IntString(trigger.dependency.flag, trigger.dependency.version))
-                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERUN)
-                }
-            }
-            if (task.allTriggerPostUn) {
-                task.allTriggerPostUn.each { trigger ->
-                    def dependencyMap = [:]
-                    dependencyMap.putAt(trigger.dependency.packageName,
-                            new IntString(trigger.dependency.flag, trigger.dependency.version))
-                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERPOSTUN)
-                }
-            }
+            addTriggers(task.allTriggerIn, Flags.SCRIPT_TRIGGERIN)
+            addTriggers(task.allTriggerUn, Flags.SCRIPT_TRIGGERUN)
+            addTriggers(task.allTriggerPostUn, Flags.SCRIPT_TRIGGERPOSTUN)
 
             if (task.allPreTransCommands) {
                 // pretrans* scriptlets are special. They may be run in an
@@ -289,6 +269,14 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     protected Builder createBuilder() {
         return new Builder()
+    }
+
+    private void addTriggers(List<Trigger> triggers, int flagType) {
+        triggers?.each { trigger ->
+            def dependencyMap = [(trigger.dependency.packageName):
+                new IntString(trigger.dependency.flag, trigger.dependency.version)]
+            builder.addTrigger(trigger.command, null, dependencyMap, flagType)
+        }
     }
 
     String standardScriptDefines() {
