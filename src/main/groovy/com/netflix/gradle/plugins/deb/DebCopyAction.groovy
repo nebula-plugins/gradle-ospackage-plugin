@@ -254,7 +254,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
     protected String getMultiArch() {
         def archString = task.getArchString()
-        def multiArch = task.getMultiArch()
+        MultiArch multiArch = task.getMultiArch() as MultiArch
         if (('all' == archString) && (MultiArch.SAME == multiArch)) {
             throw new IllegalArgumentException('Deb packages with Architecture: all cannot declare Multi-Arch: same')
         }
