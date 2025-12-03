@@ -54,26 +54,31 @@ class OspackageApplicationPlugin implements Plugin<Project> {
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
-        project.afterEvaluate {
-            final installTask = project.tasks.getByName("install${extension.distribution.capitalize()}Dist")
-            def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
-            packagingExt.from {
-                installTask.outputs.files.singleFile.parent
-            }
+        def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
 
-            packagingExt.into(extension.getPrefix())
+        // Configure packaging extension - use provider for lazy evaluation
+        packagingExt.from(project.provider {
+            def distributionName = extension.distribution ?: ''
+            def installTask = project.tasks.getByName("install${distributionName.capitalize()}Dist")
+            installTask.outputs.files.singleFile.parent
+        })
 
-            linkInstallToPackageTask(project, Deb, installTask)
-            linkInstallToPackageTask(project, Rpm, installTask)
-        }
+        packagingExt.into(project.provider { extension.getPrefix() })
+
+        // Link install task to package tasks lazily
+        linkInstallToPackageTasks(project, Deb)
+        linkInstallToPackageTasks(project, Rpm)
     }
 
     @CompileDynamic
-    private <T extends Class> void linkInstallToPackageTask(Project project, T type, Task installTask) {
+    private <T extends Class> void linkInstallToPackageTasks(Project project, T type) {
         project.tasks.withType(type).configureEach(new Action<SystemPackagingTask>() {
             @Override
             void execute(SystemPackagingTask task) {
-                task.dependsOn(installTask)
+                // Lazily resolve install task name and create dependency
+                def distributionName = extension.distribution ?: ''
+                def installTaskName = "install${distributionName.capitalize()}Dist"
+                task.dependsOn(installTaskName)
             }
         })
     }

@@ -46,18 +46,18 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
         project.plugins.apply(OspackageApplicationPlugin)
         def ospackageApplicationExtension = project.extensions.getByType(OspackageApplicationExtension)
 
-        CreateStartScripts startScripts = (CreateStartScripts) project.tasks.getByName(ApplicationPlugin.TASK_START_SCRIPTS_NAME)
-
         project.plugins.apply(OspackageDaemonPlugin)
 
         // Mechanism for user to configure daemon further
         List<Closure> daemonConfiguration = []
         setApplicationDaemon(project, daemonConfiguration)
 
-        // TODO Convention mapping on definition instead of afterEvaluate
+        // Use tasks.named() for lazy task reference (improvement over getByName)
+        def startScriptsProvider = project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME, CreateStartScripts)
+
+        // Keep afterEvaluate for daemon creation timing, but use lazy task reference
         project.afterEvaluate {
-            // TODO Sanitize name
-            def name = startScripts.applicationName
+            def name = startScriptsProvider.get().applicationName
 
             // Add daemon to project
             DaemonExtension daemonExt = project.extensions.getByType(DaemonExtension)
