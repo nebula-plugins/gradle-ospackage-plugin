@@ -6,6 +6,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
@@ -45,10 +46,12 @@ class SystemPackagingExtension {
     static final IllegalStateException TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('TriggerPostUninstall')
 
     private final ObjectFactory objects
+    private final ProviderFactory providers
 
     @Inject
-    SystemPackagingExtension(ObjectFactory objects) {
+    SystemPackagingExtension(ObjectFactory objects, ProviderFactory providers) {
         this.objects = objects
+        this.providers = providers
     }
 
     @Internal
@@ -469,7 +472,10 @@ class SystemPackagingExtension {
     }
 
     def installUtils(File script) {
-        commonCommands.add(script.text)
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        commonCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -503,7 +509,12 @@ class SystemPackagingExtension {
 
     def preInstall(File script) {
         if(preInstallFile.isPresent()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preInstallCommands.add(script.text)
+        // Use providers.fileContents() for config-cache-safe file reading at execution time
+        // This preserves the original behavior: file read at execution, not configuration
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        preInstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -529,7 +540,10 @@ class SystemPackagingExtension {
 
     def postInstall(File script) {
         if(postInstallFile.isPresent()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postInstallCommands.add(script.text)
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        postInstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -555,7 +569,10 @@ class SystemPackagingExtension {
 
     def preUninstall(File script) {
         if(preUninstallFile.isPresent()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preUninstallCommands.add(script.text)
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        preUninstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -581,7 +598,10 @@ class SystemPackagingExtension {
 
     def postUninstall(File script) {
         if(postUninstallFile.isPresent()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postUninstallCommands.add(script.text)
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        postUninstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -665,7 +685,10 @@ class SystemPackagingExtension {
     }
 
     def preTrans(File script) {
-        preTransCommands.add(script.text)
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        preTransCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -683,7 +706,10 @@ class SystemPackagingExtension {
     }
 
     def postTrans(File script) {
-        postTransCommands.add(script.text)
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        postTransCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 

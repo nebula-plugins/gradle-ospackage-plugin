@@ -44,7 +44,7 @@ class ProjectPackagingExtension extends SystemPackagingExtension {
     // @Inject // Not supported yet.
     @CompileDynamic
     ProjectPackagingExtension(Project project) {
-        super(project.objects)
+        super(project.objects, project.providers)
         FileResolver resolver = ((ProjectInternal) project).getFileResolver();
         Instantiator instantiator = ((ProjectInternal) project).getServices().get(Instantiator.class);
          if (GradleVersion.current().baseVersion >= GradleVersion.version("8.13") || GradleVersion.current().version.startsWith('8.13')) {

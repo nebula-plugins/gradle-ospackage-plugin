@@ -123,7 +123,7 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
     String concat(Collection<String> scripts) {
         String shebang
         StringBuilder result = new StringBuilder();
-        scripts.each { script ->
+        scripts.each { String script ->
             script?.eachLine { line ->
                 if (line.matches('^#!.*$')) {
                     if (!shebang) {
