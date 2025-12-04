@@ -117,13 +117,19 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
                 task.dependsOn(templateTaskProvider)
                 templatesWithFileOutput.each { String templateName, String destPathTemplate ->
-                    File rendered = new File(outputDirProvider.get().asFile, templateName) // To be created by task, ok that it's not around yet
-                    String destPath = getDestPath(destPathTemplate, templateTaskProvider.get())
-                    // Gradle CopySpec can't set the name of a file on the fly, we need to do a rename.
-                    int slashIdx = destPath.lastIndexOf('/')
-                    String destDir = destPath.substring(0,slashIdx)
-                    String destFile = destPath.substring(slashIdx+1)
-                    configureTask(task, rendered, destDir, destFile)
+                    // Use lazy providers to avoid eager task realization
+                    def renderedFileProvider = outputDirProvider.map { dir ->
+                        new File(dir.asFile, templateName)
+                    }
+
+                    def destPathProvider = templateTaskProvider.flatMap { templateTask ->
+                        project.provider {
+                            getDestPath(destPathTemplate, templateTask)
+                        }
+                    }
+
+                    // Configure task with lazy providers
+                    configureTaskLazily(task, renderedFileProvider, destPathProvider)
                 }
 
                 // Add postInstall content from generated template
@@ -152,6 +158,25 @@ class OspackageDaemonPlugin implements Plugin<Project> {
         task.from(rendered) {
             into(destDir)
             rename('.*', destFile)
+            FilePermissionUtil.setFilePermission(it, 0555)
+            user 'root'
+        }
+    }
+
+    @CompileDynamic
+    private void configureTaskLazily(SystemPackagingTask task, def renderedFileProvider, def destPathProvider) {
+        task.from(renderedFileProvider) {
+            // Use closures for lazy evaluation during copy execution
+            into({
+                String destPath = destPathProvider.get()
+                int slashIdx = destPath.lastIndexOf('/')
+                destPath.substring(0, slashIdx)
+            })
+            rename({ String filename ->
+                String destPath = destPathProvider.get()
+                int slashIdx = destPath.lastIndexOf('/')
+                destPath.substring(slashIdx + 1)
+            })
             FilePermissionUtil.setFilePermission(it, 0555)
             user 'root'
         }
