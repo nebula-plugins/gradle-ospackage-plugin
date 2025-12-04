@@ -23,7 +23,7 @@ import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
@@ -39,7 +39,7 @@ abstract class DaemonTemplateTask extends DefaultTask {
     @Internal
     abstract ListProperty<String> getTemplates()
 
-    @Internal
+    @OutputDirectory
     abstract DirectoryProperty getDestDir()
 
     @Internal
@@ -62,13 +62,6 @@ abstract class DaemonTemplateTask extends DefaultTask {
         )
         templates.get().collect { String templateName ->
             templateHelper.generateFile(templateName, context.get())
-        }
-    }
-
-    @Internal
-    Collection<File> getTemplatesOutput() {
-        return templates.get().collect {
-            new File(destDir.get().asFile, it)
         }
     }
 }
