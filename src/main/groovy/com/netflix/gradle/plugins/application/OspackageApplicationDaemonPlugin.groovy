@@ -24,7 +24,7 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.tasks.application.CreateStartScripts
+import org.gradle.api.plugins.JavaApplication
 
 /**
  * Combine the nebula-ospackage-application with the nebula-ospackage-daemon plugin. As with the nebula-ospackage-application,
@@ -52,12 +52,11 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
         List<Closure> daemonConfiguration = []
         setApplicationDaemon(project, daemonConfiguration)
 
-        // Use tasks.named() for lazy task reference (improvement over getByName)
-        def startScriptsProvider = project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME, CreateStartScripts)
-
-        // Keep afterEvaluate for daemon creation timing, but use lazy task reference
+        // Keep afterEvaluate to wait for user configuration of applicationName
         project.afterEvaluate {
-            def name = startScriptsProvider.get().applicationName
+            // Use strongly-typed application extension instead of eager task realization
+            JavaApplication appExtension = project.extensions.getByType(JavaApplication)
+            def name = appExtension.applicationName ?: project.name
 
             // Add daemon to project
             DaemonExtension daemonExt = project.extensions.getByType(DaemonExtension)
