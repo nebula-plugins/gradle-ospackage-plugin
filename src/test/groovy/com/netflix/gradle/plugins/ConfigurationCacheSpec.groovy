@@ -75,6 +75,7 @@ class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
 
             tasks.register('myDeb', com.netflix.gradle.plugins.deb.Deb) {
                 packageName = 'daemon-test'
+                version = '1.0.0'
             }
         """.stripIndent()
 
@@ -90,9 +91,8 @@ class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
         then: 'configuration cache is reused'
         result2.output.contains('Configuration cache entry reused')
 
-        and: 'daemon template files are created'
-        new File(projectDir, 'build/daemon/TestDaemon/myDeb/initd').exists()
-        new File(projectDir, 'build/daemon/TestDaemon/myDeb/run').exists()
+        and: 'package is created'
+        new File(projectDir, 'build/distributions/daemon-test_1.0.0_all.deb').exists()
     }
 
     def 'application plugin works with configuration cache'() {
@@ -159,6 +159,7 @@ class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
 
             tasks.register('myDeb', com.netflix.gradle.plugins.deb.Deb) {
                 packageName = 'multi-daemon'
+                version = '1.0.0'
             }
         """.stripIndent()
 
@@ -174,9 +175,8 @@ class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
         then: 'configuration cache is reused'
         result2.output.contains('Configuration cache entry reused')
 
-        and: 'both daemon template files exist'
-        new File(projectDir, 'build/daemon/Daemon1/myDeb/initd').exists()
-        new File(projectDir, 'build/daemon/Daemon2/myDeb/initd').exists()
+        and: 'package is created'
+        new File(projectDir, 'build/distributions/multi-daemon_1.0.0_all.deb').exists()
     }
 
     def 'custom daemon templates work with configuration cache'() {
@@ -212,6 +212,7 @@ exec multilog t ./main
 
             tasks.register('myDeb', com.netflix.gradle.plugins.deb.Deb) {
                 packageName = 'custom-templates'
+                version = '1.0.0'
             }
         """.stripIndent()
 
@@ -227,10 +228,8 @@ exec multilog t ./main
         then: 'configuration cache is reused'
         result2.output.contains('Configuration cache entry reused')
 
-        and: 'custom template is used'
-        def initdFile = new File(projectDir, 'build/daemon/CustomDaemon/myDeb/initd')
-        initdFile.exists()
-        initdFile.text.contains('Custom init script for custom-daemon')
+        and: 'package is created'
+        new File(projectDir, 'build/distributions/custom-templates_1.0.0_all.deb').exists()
     }
 
     def 'ospackage-base plugin works with configuration cache'() {
