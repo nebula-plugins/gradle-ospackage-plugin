@@ -48,6 +48,12 @@ class SystemPackagingExtension {
     private final ObjectFactory objects
     private final ProviderFactory providers
 
+    // Track when commands are added via File (Provider) - needed for validation
+    private boolean hasPreInstallCommands = false
+    private boolean hasPostInstallCommands = false
+    private boolean hasPreUninstallCommands = false
+    private boolean hasPostUninstallCommands = false
+
     @Inject
     SystemPackagingExtension(ObjectFactory objects, ProviderFactory providers) {
         this.objects = objects
@@ -515,12 +521,13 @@ class SystemPackagingExtension {
         fileProperty.set(script)
         def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
         preInstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPreInstallCommands = true
         return this
     }
 
     def preInstallFile(File path) {
         if(preInstallFile.isPresent()) { throw MULTIPLE_PREINSTALL_FILES }
-        if(!preInstallCommands.getOrElse([]).isEmpty()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(hasPreInstallCommands || !preInstallCommands.getOrElse([]).isEmpty()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
         preInstallFile.set(path)
     }
 
@@ -544,12 +551,13 @@ class SystemPackagingExtension {
         fileProperty.set(script)
         def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
         postInstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPostInstallCommands = true
         return this
     }
 
     def postInstallFile(File path) {
         if(postInstallFile.isPresent()) { throw MULTIPLE_POSTINSTALL_FILES }
-        if(!postInstallCommands.getOrElse([]).isEmpty()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(hasPostInstallCommands || !postInstallCommands.getOrElse([]).isEmpty()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
         postInstallFile.set(path)
     }
 
@@ -573,12 +581,13 @@ class SystemPackagingExtension {
         fileProperty.set(script)
         def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
         preUninstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPreUninstallCommands = true
         return this
     }
 
     def preUninstallFile(File script) {
         if(preUninstallFile.isPresent()) { throw MULTIPLE_PREUNINSTALL_FILES }
-        if(!preUninstallCommands.getOrElse([]).isEmpty()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(hasPreUninstallCommands || !preUninstallCommands.getOrElse([]).isEmpty()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         preUninstallFile.set(script)
     }
 
@@ -602,12 +611,13 @@ class SystemPackagingExtension {
         fileProperty.set(script)
         def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
         postUninstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPostUninstallCommands = true
         return this
     }
 
     def postUninstallFile(File script) {
         if(postUninstallFile.isPresent()) { throw MULTIPLE_POSTUNINSTALL_FILES }
-        if(!postUninstallCommands.getOrElse([]).isEmpty()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        if(hasPostUninstallCommands || !postUninstallCommands.getOrElse([]).isEmpty()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
         postUninstallFile.set(script)
     }
 
