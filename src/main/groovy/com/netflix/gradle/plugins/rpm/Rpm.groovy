@@ -21,6 +21,8 @@ import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
@@ -29,8 +31,6 @@ import org.gradle.work.DisableCachingByDefault
 import org.redline_rpm.header.Architecture
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
 
 import javax.inject.Inject
 
@@ -46,7 +46,6 @@ abstract class Rpm extends SystemPackagingTask {
     Rpm(ProjectLayout projectLayout) {
         super(projectLayout)
         archiveExtension.set 'rpm'
-        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     @Override
@@ -56,7 +55,8 @@ abstract class Rpm extends SystemPackagingTask {
             name += getVersion() ? "-${getVersion()}" : ''
             name += getRelease() ? "-${getRelease()}" : ''
             name += getArchString() ? ".${getArchString()}" : ''
-            name += getArchiveExtension().getOrNull() ? ".${getArchiveExtension().getOrNull()}" : ''
+            def ext = getArchiveExtension().getOrNull()
+            name += ext ? ".${ext}" : ''
         }
 
         return name;
@@ -71,24 +71,35 @@ abstract class Rpm extends SystemPackagingTask {
     protected void applyConventions() {
         super.applyConventions()
 
-        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
-        // to pull from the parentExten. And only then would we fallback on some other value.
-        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+        // Apply default conventions FIRST (lowest priority)
+        exten.addParentDirs.convention(true)
+        exten.archStr.convention(Architecture.NOARCH.name())
+        exten.os.convention(Os.UNKNOWN)
+        exten.type.convention(RpmType.BINARY)
+        exten.prefixes.convention([])
 
-        // Could come from extension
-        mapping.map('fileType', { parentExten?.getFileType() })
-        mapping.map('addParentDirs', {
-            // beware the Elvis operator in Groovy ...
-            parentExten?.getAddParentDirs() != null ? parentExten?.getAddParentDirs() : true
-        })        
-        mapping.map('archStr', {
-            parentExten?.getArchStr()?:Architecture.NOARCH.name()
-        })
-        mapping.map('os', { parentExten?.getOs()?:Os.UNKNOWN})
-        mapping.map('type', { parentExten?.getType()?:RpmType.BINARY })
-
-        // NOTE: Believe parentExten is always null
-        mapping.map('prefixes', { parentExten?.getPrefixes()?:[] })
+        // Then apply conventions from parentExten (higher priority - override defaults)
+        // Only override if parentExten has a value
+        if (parentExten) {
+            if (parentExten.fileType.isPresent()) {
+                exten.fileType.convention(parentExten.fileType)
+            }
+            if (parentExten.addParentDirs.isPresent()) {
+                exten.addParentDirs.convention(parentExten.addParentDirs)
+            }
+            if (parentExten.archStr.isPresent()) {
+                exten.archStr.convention(parentExten.archStr)
+            }
+            if (parentExten.os.isPresent()) {
+                exten.os.convention(parentExten.os)
+            }
+            if (parentExten.type.isPresent()) {
+                exten.type.convention(parentExten.type)
+            }
+            if (parentExten.prefixes.isPresent()) {
+                exten.prefixes.convention(parentExten.prefixes)
+            }
+        }
     }
 
     void prefixes(String... addPrefixes) {
@@ -96,7 +107,7 @@ abstract class Rpm extends SystemPackagingTask {
     }
 
     List<String> getPrefixes() {
-        exten.prefixes
+        exten.prefixes.getOrElse([])
     }
 
     public File getChangeLogFile() {

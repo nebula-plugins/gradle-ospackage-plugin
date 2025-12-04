@@ -22,8 +22,7 @@ import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -39,7 +38,6 @@ abstract class Deb extends SystemPackagingTask {
     Deb(ProjectLayout projectLayout) {
         super(projectLayout)
         archiveExtension.set 'deb'
-        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
     }
 
     @Override
@@ -49,7 +47,8 @@ abstract class Deb extends SystemPackagingTask {
             name += getVersion() ? "_${getVersion()}" : ''
             name += getRelease() ? "-${getRelease()}" : ''
             name += getArchString() ? "_${getArchString()}" : ''
-            name += getArchiveExtension().getOrNull() ? ".${getArchiveExtension().getOrNull()}" : ''
+            def ext = getArchiveExtension().getOrNull()
+            name += ext ? ".${ext}" : ''
         }
 
         return name;
@@ -64,55 +63,81 @@ abstract class Deb extends SystemPackagingTask {
     protected void applyConventions() {
         super.applyConventions()
 
-        // For all mappings, we're only being called if it wasn't explicitly set on the task. In which case, we'll want
-        // to pull from the parentExten. And only then would we fallback on some other value.
-        ConventionMapping mapping = ((IConventionAware) this).getConventionMapping()
+        // Apply default conventions FIRST (lowest priority)
+        exten.uid.convention(0)
+        exten.gid.convention(0)
+        exten.packageGroup.convention('java')
+        exten.archStr.convention('all')
+        exten.maintainer.convention(System.getProperty('user.name', ''))
+        exten.uploaders.convention('')
+        exten.priority.convention('optional')
 
-        // Could come from extension
-        mapping.map('fileType', { parentExten?.getFileType() })
-        mapping.map('uid', { parentExten?.getUid()?:0 })
-        mapping.map('gid', { (parentExten?.getGid())?:0 })
-        mapping.map('packageGroup', { parentExten?.getPackageGroup() ?: 'java' })
-        mapping.map('multiArch', { parentExten?.getMultiArch() })
-        mapping.map('archStr', { parentExten?.getArchStr()?:'all'})
-        mapping.map('maintainer', { parentExten?.getMaintainer() ?: System.getProperty('user.name', '') })
-        mapping.map('uploaders', { parentExten?.getUploaders() ?: '' })
-        mapping.map('priority', { parentExten?.getPriority() ?: 'optional' })
+        // Then apply conventions from parentExten (higher priority - override defaults)
+        // Only override if parentExten has a value
+        if (parentExten) {
+            if (parentExten.fileType.isPresent()) {
+                exten.fileType.convention(parentExten.fileType)
+            }
+            if (parentExten.uid.isPresent()) {
+                exten.uid.convention(parentExten.uid)
+            }
+            if (parentExten.gid.isPresent()) {
+                exten.gid.convention(parentExten.gid)
+            }
+            if (parentExten.packageGroup.isPresent()) {
+                exten.packageGroup.convention(parentExten.packageGroup)
+            }
+            if (parentExten.multiArch.isPresent()) {
+                exten.multiArch.convention(parentExten.multiArch)
+            }
+            if (parentExten.archStr.isPresent()) {
+                exten.archStr.convention(parentExten.archStr)
+            }
+            if (parentExten.maintainer.isPresent()) {
+                exten.maintainer.convention(parentExten.maintainer)
+            }
+            if (parentExten.uploaders.isPresent()) {
+                exten.uploaders.convention(parentExten.uploaders)
+            }
+            if (parentExten.priority.isPresent()) {
+                exten.priority.convention(parentExten.priority)
+            }
+        }
     }
 
     @Input @Optional
     List<Dependency> getAllRecommends() {
-        return getRecommends() + (parentExten?.getRecommends() ?: [])
+        return getRecommends() + (parentExten?.getRecommends()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllSuggests() {
-        return getSuggests() + (parentExten?.getSuggests() ?: [])
+        return getSuggests() + (parentExten?.getSuggests()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllEnhances() {
-        return getEnhances() + (parentExten?.getEnhances() ?: [])
+        return getEnhances() + (parentExten?.getEnhances()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllPreDepends() {
-        return getPreDepends() + (parentExten?.getPreDepends() ?: [])
+        return getPreDepends() + (parentExten?.getPreDepends()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllBreaks() {
-        return getBreaks() + (parentExten?.getBreaks() ?: [])
+        return getBreaks() + (parentExten?.getBreaks()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllReplaces() {
-        return getReplaces() + (parentExten?.getReplaces() ?: [])
+        return getReplaces() + (parentExten?.getReplaces()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     Map<String, String> getAllCustomFields() {
-        return getCustomFields() + (parentExten?.getCustomFields() ?: [:])
+        return getCustomFields() + (parentExten?.getCustomFields()?.getOrElse([:]) ?: [:])
     }
 
     @OutputFile

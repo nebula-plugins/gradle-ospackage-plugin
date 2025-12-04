@@ -53,8 +53,16 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(OspackageApplicationPlugin)
 
+        // Validate Spring Boot plugin at configuration time using plugins.withId
+        // This automatically waits for plugin application
+        boolean springBootFound = false
+        project.plugins.withId("org.springframework.boot") {
+            springBootFound = true
+        }
+
+        // Only validate after other plugins have a chance to apply
         project.afterEvaluate {
-            if (!project.plugins.hasPlugin('org.springframework.boot')) {
+            if (!springBootFound) {
                 project.logger.error("The '{}' plugin requires the '{}' plugin.",
                         "com.netflix.nebula.ospackage-application-spring-boot",
                         "org.springframework.boot")
@@ -137,8 +145,10 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                         main {
                             contents {
                                 into('lib') {
-                                    project.getConfigurations().getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME).files.findAll { file ->
-                                        file.getName() != project.tasks.getByName(JavaPlugin.JAR_TASK_NAME).outputs.files.singleFile.name
+                                    def jarTaskProvider = project.tasks.named(JavaPlugin.JAR_TASK_NAME)
+                                    def runtimeClasspath = project.configurations.named(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+                                    runtimeClasspath.get().files.findAll { file ->
+                                        file.getName() != jarTaskProvider.get().outputs.files.singleFile.name
                                     }.each { file ->
                                         exclude file.name
                                     }

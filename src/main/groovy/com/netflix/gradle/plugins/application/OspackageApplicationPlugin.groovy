@@ -26,7 +26,6 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.internal.IConventionAware
 import org.gradle.api.plugins.ApplicationPlugin
 
 /**
@@ -45,36 +44,41 @@ class OspackageApplicationPlugin implements Plugin<Project> {
     OspackageApplicationExtension extension
 
     @Override
+    @CompileDynamic
     void apply(Project project) {
         extension = project.extensions.create('ospackage_application', OspackageApplicationExtension)
-        def conventionMapping = ((IConventionAware) extension).conventionMapping
-        conventionMapping.map('prefix') { '/opt' }
-        conventionMapping.map('distribution') { '' }
+
+        // Set convention (default) values using Property API
+        extension.prefix.convention('/opt')
+        extension.distribution.convention('')
 
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
-        project.afterEvaluate {
-            final installTask = project.tasks.getByName("install${extension.distribution.capitalize()}Dist")
-            def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
-            packagingExt.from {
-                installTask.outputs.files.singleFile.parent
-            }
+        def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
 
-            packagingExt.into(extension.getPrefix())
+        // Configure packaging extension - use provider for lazy evaluation
+        packagingExt.from(project.provider {
+            def distributionName = extension.distribution.getOrElse('')
+            def installTask = project.tasks.named("install${distributionName.capitalize()}Dist")
+            installTask.get().outputs.files.singleFile.parent
+        })
 
-            linkInstallToPackageTask(project, Deb, installTask)
-            linkInstallToPackageTask(project, Rpm, installTask)
-        }
+        // Pass the Property directly to into()
+        packagingExt.into(extension.prefix.map { it })
+
+        // Link install task to package tasks lazily
+        linkInstallToPackageTasks(project, Deb)
+        linkInstallToPackageTasks(project, Rpm)
     }
 
     @CompileDynamic
-    private <T extends Class> void linkInstallToPackageTask(Project project, T type, Task installTask) {
-        project.tasks.withType(type).configureEach(new Action<SystemPackagingTask>() {
-            @Override
-            void execute(SystemPackagingTask task) {
-                task.dependsOn(installTask)
-            }
-        })
+    private <T extends Class> void linkInstallToPackageTasks(Project project, T type) {
+        project.tasks.withType(type).configureEach { SystemPackagingTask task ->
+            // Use TaskProvider for type-safe lazy task dependency
+            def distributionName = extension.distribution.getOrElse('')
+            def installTaskName = "install${distributionName.capitalize()}Dist"
+            task.dependsOn(project.tasks.named(installTaskName))
+        }
     }
 }
