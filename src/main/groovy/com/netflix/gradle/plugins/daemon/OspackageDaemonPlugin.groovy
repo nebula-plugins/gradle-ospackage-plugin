@@ -92,9 +92,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 String cleanedName = daemonName.replaceAll("\\W", "").capitalize()
 
 
-                def outputDirProvider = project.layout.buildDirectory.map { dir ->
-                    new File(dir.asFile, "daemon/${cleanedName}/${task.name}")
-                }
+                def outputDirProvider = project.layout.buildDirectory.dir("daemon/${cleanedName}/${task.name}")
 
                 String defaultInitDScriptLocationTemplate = isRedhat ? "/etc/rc.d/init.d/\${daemonName}" : "/etc/init.d/\${daemonName}"
                 Map<String, String> templatesWithFileOutput = [
@@ -104,21 +102,22 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                 ]
 
                 def templateTaskProvider = project.tasks.register("${task.name}${cleanedName}Daemon", DaemonTemplateTask) {
-                    it.conventionMapping.map('destDir') { outputDirProvider.get() }
-                    it.conventionMapping.map('templatesFolder') {  daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER  }
-                    it.conventionMapping.map('context') {
+                    // Use Property API instead of conventionMapping
+                    it.destDir.convention(outputDirProvider)
+                    it.templatesFolder.convention(daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER)
+                    it.context.convention(project.provider {
                         Map<String,Object> context = toContext(defaults, definition)
                         context.daemonName = daemonName
                         context.isRedhat = isRedhat
                         context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
                         context
-                    }
-                    it.conventionMapping.map('templates') { templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE }
+                    })
+                    it.templates.convention(templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE)
                 }
 
                 task.dependsOn(templateTaskProvider)
                 templatesWithFileOutput.each { String templateName, String destPathTemplate ->
-                    File rendered = new File(outputDirProvider.get(), templateName) // To be created by task, ok that it's not around yet
+                    File rendered = new File(outputDirProvider.get().asFile, templateName) // To be created by task, ok that it's not around yet
                     String destPath = getDestPath(destPathTemplate, templateTaskProvider.get())
                     // Gradle CopySpec can't set the name of a file on the fly, we need to do a rename.
                     int slashIdx = destPath.lastIndexOf('/')
@@ -165,7 +164,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
     private String getDestPath(String destPathTemplate, DaemonTemplateTask templateTask) {
         GStringTemplateEngine engine = new GStringTemplateEngine()
-        def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext()).toString()
+        def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext().get()).toString()
         destPath
     }
 

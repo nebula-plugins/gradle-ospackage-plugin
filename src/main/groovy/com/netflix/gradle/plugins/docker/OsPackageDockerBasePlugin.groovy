@@ -34,7 +34,8 @@ class OsPackageDockerBasePlugin implements Plugin<Project> {
 
         def buildImageTaskProvider = project.tasks.register(BUILD_IMAGE_TASK_NAME, DockerBuildImage) {
             dependsOn createDockerfileTaskProvider
-            conventionMapping.inputDir = { createDockerfileTaskProvider.get().destinationDir }
+            // Use Property API instead of conventionMapping
+            it.inputDir.convention(createDockerfileTaskProvider.flatMap { task -> task.destinationDir })
         }
 
         project.tasks.register(AGGREGATION_TASK_NAME) {

@@ -38,7 +38,7 @@ class OspackageDaemonPluginSpec extends PluginProjectSpec {
         then:
         noExceptionThrown()
         project.tasks.withType(DaemonTemplateTask) {
-            assert it.context.daemonName == project.name
+            assert it.context.get().daemonName == project.name
         }
     }
 

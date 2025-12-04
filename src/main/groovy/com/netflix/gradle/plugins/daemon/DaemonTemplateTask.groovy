@@ -16,11 +16,13 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import org.gradle.api.internal.ConventionTask
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
@@ -29,40 +31,44 @@ import org.gradle.work.DisableCachingByDefault
  * Monster class that does everything.
  */
 @DisableCachingByDefault
-class DaemonTemplateTask extends ConventionTask {
+abstract class DaemonTemplateTask extends DefaultTask {
 
     @Internal
-    Map<String, String> context
+    abstract MapProperty<String, Object> getContext()
 
     @Internal
-    Collection<String> templates
+    abstract ListProperty<String> getTemplates()
 
     @Internal
-    File destDir
+    abstract DirectoryProperty getDestDir()
 
     @Internal
-    String templatesFolder
+    abstract Property<String> getTemplatesFolder()
 
     @Internal
-    File projectDirectory
+    abstract Property<File> getProjectDirectory()
 
     DaemonTemplateTask() {
         // Capture project directory during configuration
-        projectDirectory = project.projectDir
+        projectDirectory.convention(project.projectDir)
     }
 
     @TaskAction
     def template() {
-        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder(), getProjectDirectory())
-        getTemplates().collect { String templateName ->
-            templateHelper.generateFile(templateName, getContext())
+        TemplateHelper templateHelper = new TemplateHelper(
+            destDir.get().asFile,
+            templatesFolder.get(),
+            projectDirectory.get()
+        )
+        templates.get().collect { String templateName ->
+            templateHelper.generateFile(templateName, context.get())
         }
     }
 
     @Internal
     Collection<File> getTemplatesOutput() {
-        return templates.collect {
-            new File(destDir, it)
+        return templates.get().collect {
+            new File(destDir.get().asFile, it)
         }
     }
 }
