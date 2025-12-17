@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
+import com.netflix.gradle.plugins.packaging.Trigger
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import com.netflix.gradle.plugins.utils.FilePermissionUtil
@@ -41,6 +42,7 @@ import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 @CompileDynamic
 class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
     static final Logger logger = LoggerFactory.getLogger(RpmCopyAction.class)
+    private static final int SETGID_BIT = 02000  // Unix setgid permission bit
 
     Builder builder
     boolean includeStandardDefines = true // candidate for being pushed up to packaging level
@@ -90,55 +92,34 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             String sourcePackage = task.sourcePackage
             if (!sourcePackage) {
                 // need a source package because createrepo will assume your package is a source package without it
-                sourcePackage = builder.defaultSourcePackage
+                sourcePackage = task.packageName + "-src.rpm"
             }
             builder.addHeaderEntry HeaderTag.SOURCERPM, sourcePackage
 
-            if (!task.allPreInstallCommands?.empty) {
+            if (task.allPreInstallCommands) {
                 builder.setPreInstallScript(scriptWithUtils(task.allCommonCommands, task.allPreInstallCommands))
             }
-            if (!task.allPostInstallCommands?.empty) {
+            if (task.allPostInstallCommands) {
                 builder.setPostInstallScript(scriptWithUtils(task.allCommonCommands, task.allPostInstallCommands))
             }
-            if (!task.allPreUninstallCommands?.empty) {
+            if (task.allPreUninstallCommands) {
                 builder.setPreUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPreUninstallCommands))
             }
-            if (!task.allPostUninstallCommands?.empty) {
+            if (task.allPostUninstallCommands) {
                 builder.setPostUninstallScript(scriptWithUtils(task.allCommonCommands, task.allPostUninstallCommands))
             }
-            if (!task.allTriggerIn?.empty) {
-                task.allTriggerIn.each { trigger ->
-                    def dependencyMap = [:]
-                    dependencyMap.putAt(trigger.dependency.packageName,
-                            new IntString(trigger.dependency.flag, trigger.dependency.version))
-                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERIN)
-                }
-            }
-            if (!task.allTriggerUn?.empty) {
-                task.allTriggerUn.each { trigger ->
-                    def dependencyMap = [:]
-                    dependencyMap.putAt(trigger.dependency.packageName,
-                            new IntString(trigger.dependency.flag, trigger.dependency.version))
-                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERUN)
-                }
-            }
-            if (!task.allTriggerPostUn?.empty) {
-                task.allTriggerPostUn.each { trigger ->
-                    def dependencyMap = [:]
-                    dependencyMap.putAt(trigger.dependency.packageName,
-                            new IntString(trigger.dependency.flag, trigger.dependency.version))
-                    builder.addTrigger(trigger.command, null, dependencyMap, Flags.SCRIPT_TRIGGERPOSTUN)
-                }
-            }
+            addTriggers(task.allTriggerIn, Flags.SCRIPT_TRIGGERIN)
+            addTriggers(task.allTriggerUn, Flags.SCRIPT_TRIGGERUN)
+            addTriggers(task.allTriggerPostUn, Flags.SCRIPT_TRIGGERPOSTUN)
 
-            if (!task.allPreTransCommands?.empty) {
+            if (task.allPreTransCommands) {
                 // pretrans* scriptlets are special. They may be run in an
                 // environment where no shell exists. It's recommended that they
                 // be avoided where possible, but where not, written in Lua:
                 // https://fedoraproject.org/wiki/Packaging:Scriptlets#The_.25pretrans_Scriptlet
                 builder.setPreTransScript(concat(task.allPreTransCommands))
             }
-            if (!task.allPostTransCommands?.empty) {
+            if (task.allPostTransCommands) {
                 builder.setPostTransScript(scriptWithUtils(task.allCommonCommands, task.allPostTransCommands))
             }
 
@@ -231,7 +212,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
                 setgid = task.setgid
             }
             if (setgid) {
-                dirMode = dirMode | 02000
+                dirMode = dirMode | SETGID_BIT
             }
             rpmFileVisitorStrategy.addDirectory(dirDetails, dirMode, directive, user, group, addParentsDir)
         }
@@ -266,8 +247,8 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     @Override
     protected void addDirectory(Directory directory) {
-        def user = directory.user ? directory.user : task.user
-        def permissionGroup = directory.permissionGroup ? directory.permissionGroup : task.permissionGroup
+        def user = directory.user ?: task.user
+        def permissionGroup = directory.permissionGroup ?: task.permissionGroup
         builder.addDirectory(directory.path, directory.permissions, null, user, permissionGroup, directory.addParents)
     }
 
@@ -290,6 +271,14 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         return new Builder()
     }
 
+    private void addTriggers(List<Trigger> triggers, int flagType) {
+        triggers?.each { trigger ->
+            def dependencyMap = [(trigger.dependency.packageName):
+                new IntString(trigger.dependency.flag, trigger.dependency.version)]
+            builder.addTrigger(trigger.command, null, dependencyMap, flagType)
+        }
+    }
+
     String standardScriptDefines() {
         String result
         DeprecationLoggerUtils.whileDisabled {
@@ -304,7 +293,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
         return result
     }
 
-    String scriptWithUtils(List<Object> utils, List<Object> scripts) {
+    String scriptWithUtils(List<String> utils, List<String> scripts) {
         def l = []
         def stdDefines = standardScriptDefines()
         if (stdDefines) {

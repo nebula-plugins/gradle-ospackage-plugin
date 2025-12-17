@@ -21,7 +21,7 @@ plugins {
     id 'java-library'
 }
 
-description 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
+description = 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
 
 compileGroovy.groovyOptions.configurationScript = file('src/groovyCompile/groovycConfig.groovy')
 
@@ -57,7 +57,7 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    implementation 'com.bmuschko:gradle-docker-plugin:3.2.1'
+    implementation 'com.bmuschko:gradle-docker-plugin:10.0.0'
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
 }
 

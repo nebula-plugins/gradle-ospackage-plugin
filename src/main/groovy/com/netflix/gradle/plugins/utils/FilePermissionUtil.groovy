@@ -14,6 +14,11 @@ import org.gradle.api.file.SyncSpec
 @CompileDynamic
 class FilePermissionUtil {
 
+    private static final int DEFAULT_FILE_PERMISSION = 0644  // rw-r--r-- (420 in decimal)
+    private static final int EXECUTE_MASK = 0111              // Executable bits for owner, group, and others
+    private static final int OWNER_RWX_GROUP_RX_OTHER_RX = 0755  // rwxr-xr-x
+    private static final int ALL_READ_EXECUTE = 0555          // r-xr-xr-x
+
     /**
      * Get the unix permission of a file.
      * 
@@ -37,18 +42,18 @@ class FilePermissionUtil {
         int newApiMode = details.permissions.toUnixNumeric()
         
         try {
-            if (details.file?.canExecute() && (newApiMode & 0111) == 0) {
+            if (details.file?.canExecute() && (newApiMode & EXECUTE_MASK) == 0) {
                 // File is executable but new API didn't detect it - use filesystem check
                 boolean readable = details.file.canRead()
                 boolean writable = details.file.canWrite()
                 boolean executable = details.file.canExecute()
 
                 if (readable && writable && executable) {
-                    return 0755 // rwxr-xr-x
+                    return OWNER_RWX_GROUP_RX_OTHER_RX
                 } else if (readable && executable) {
-                    return 0555 // r-xr-xr-x
+                    return ALL_READ_EXECUTE
                 } else {
-                    return 0644 // rw-r--r--
+                    return DEFAULT_FILE_PERMISSION
                 }
             }
         } catch (Exception e) {
@@ -91,10 +96,10 @@ class FilePermissionUtil {
                 def hasExplicitConfiguration = false
                 try {
                     // Look for signs of explicit configuration
-                    if (copySpecInternal.hasProperty('includes') && copySpecInternal.includes?.size() > 0) {
+                    if (copySpecInternal.hasProperty('includes') && copySpecInternal.includes) {
                         hasExplicitConfiguration = true
                     }
-                    if (copySpecInternal.hasProperty('excludes') && copySpecInternal.excludes?.size() > 0) {
+                    if (copySpecInternal.hasProperty('excludes') && copySpecInternal.excludes) {
                         hasExplicitConfiguration = true
                     }
                 } catch (Exception e) {
@@ -102,7 +107,7 @@ class FilePermissionUtil {
                 }
                 
                 // If we have explicit configuration OR the permission is not default 644, treat as explicit
-                if (hasExplicitConfiguration || numeric != 420) {
+                if (hasExplicitConfiguration || numeric != DEFAULT_FILE_PERMISSION) {
                     return numeric
                 } else {
                     // Default 644 with no explicit configuration - treat as default

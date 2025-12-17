@@ -16,12 +16,14 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import org.gradle.api.internal.ConventionTask
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFiles
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
@@ -29,36 +31,37 @@ import org.gradle.work.DisableCachingByDefault
  * Monster class that does everything.
  */
 @DisableCachingByDefault
-class DaemonTemplateTask extends ConventionTask {
+abstract class DaemonTemplateTask extends DefaultTask {
+
+    @Internal
+    abstract MapProperty<String, Object> getContext()
+
+    @Internal
+    abstract ListProperty<String> getTemplates()
+
+    @OutputDirectory
+    abstract DirectoryProperty getDestDir()
+
+    @Internal
+    abstract Property<String> getTemplatesFolder()
+
+    @Internal
+    abstract Property<File> getProjectDirectory()
 
     DaemonTemplateTask() {
-        notCompatibleWithConfigurationCache("nebula.ospackage does not support configuration cache")
+        // Capture project directory during configuration
+        projectDirectory.convention(project.projectDir)
     }
-
-    @Internal
-    Map<String, String> context
-
-    @Internal
-    Collection<String> templates
-
-    @Internal
-    File destDir
-
-    @Internal
-    String templatesFolder
 
     @TaskAction
     def template() {
-        TemplateHelper templateHelper = new TemplateHelper(getDestDir(), getTemplatesFolder(), project)
-        getTemplates().collect { String templateName ->
-            templateHelper.generateFile(templateName, getContext())
-        }
-    }
-
-    @Internal
-    Collection<File> getTemplatesOutput() {
-        return templates.collect {
-            new File(destDir, it)
+        TemplateHelper templateHelper = new TemplateHelper(
+            destDir.get().asFile,
+            templatesFolder.get(),
+            projectDirectory.get()
+        )
+        templates.get().collect { String templateName ->
+            templateHelper.generateFile(templateName, context.get())
         }
     }
 }

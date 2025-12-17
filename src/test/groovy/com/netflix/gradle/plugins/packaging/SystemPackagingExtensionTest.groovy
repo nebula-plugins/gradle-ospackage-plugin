@@ -1,9 +1,10 @@
 package com.netflix.gradle.plugins.packaging
 
+import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 class SystemPackagingExtensionTest extends Specification {
-    SystemPackagingExtension extension = new SystemPackagingExtension()
+    SystemPackagingExtension extension = ProjectBuilder.builder().build().objects.newInstance(SystemPackagingExtension)
 
     def "Can define required package name without version and flag"() {
         given:
@@ -13,8 +14,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.requires(packageName)
 
         then:
-        extension.dependencies.size() == 1
-        Dependency dep = extension.dependencies[0]
+        extension.dependencies.get().size() == 1
+        Dependency dep = extension.dependencies.get()[0]
         dep.packageName == packageName
         dep.version == ''
         dep.flag == 0
@@ -28,8 +29,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.requires(packageName, '1.0.0')
 
         then:
-        extension.dependencies.size() == 1
-        Dependency dep = extension.dependencies[0]
+        extension.dependencies.get().size() == 1
+        Dependency dep = extension.dependencies.get()[0]
         dep.packageName == packageName
         dep.version == '1.0.0'
         dep.flag == 0
@@ -43,8 +44,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.requires(packageName, '1.0.0', 5)
 
         then:
-        extension.dependencies.size() == 1
-        Dependency dep = extension.dependencies[0]
+        extension.dependencies.get().size() == 1
+        Dependency dep = extension.dependencies.get()[0]
         dep.packageName == packageName
         dep.version == '1.0.0'
         dep.flag == 5
@@ -323,8 +324,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.triggerInstall(file, packageName)
 
         then:
-        extension.triggerInstallCommands.size() == 1
-        Trigger trig = extension.triggerInstallCommands[0]
+        extension.triggerInstallCommands.get().size() == 1
+        Trigger trig = extension.triggerInstallCommands.get()[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -366,8 +367,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.triggerUninstall(file, packageName)
 
         then:
-        extension.triggerUninstallCommands.size() == 1
-        Trigger trig = extension.triggerUninstallCommands[0]
+        extension.triggerUninstallCommands.get().size() == 1
+        Trigger trig = extension.triggerUninstallCommands.get()[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -409,8 +410,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.triggerPostUninstall(file, packageName)
 
         then:
-        extension.triggerPostUninstallCommands.size() == 1
-        Trigger trig = extension.triggerPostUninstallCommands[0]
+        extension.triggerPostUninstallCommands.get().size() == 1
+        Trigger trig = extension.triggerPostUninstallCommands.get()[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''

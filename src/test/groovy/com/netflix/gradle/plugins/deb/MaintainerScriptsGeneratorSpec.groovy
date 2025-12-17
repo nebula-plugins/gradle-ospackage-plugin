@@ -28,7 +28,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         generator.generate(context)
 
         then:
-        1 * fileSystemActions.copy(source, new File(destination, 'preinst'))
+        1 * fileSystemActions.copy(_ as File, new File(destination, 'preinst'))
         0 * templateHelper.generateFile('preinst', _ as Map<String, Object>)
     }
 
@@ -60,7 +60,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         generator.generate(context)
 
         then:
-        1 * fileSystemActions.copy(source, new File(destination, 'postinst'))
+        1 * fileSystemActions.copy(_ as File, new File(destination, 'postinst'))
         0 * templateHelper.generateFile('postinst', _ as Map<String, Object>)
     }
 
@@ -108,7 +108,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         generator.generate(context)
 
         then:
-        1 * fileSystemActions.copy(source, new File(destination, 'prerm'))
+        1 * fileSystemActions.copy(_ as File, new File(destination, 'prerm'))
         0 * templateHelper.generateFile('prerm', _ as Map<String, Object>)
     }
 
@@ -140,7 +140,7 @@ class MaintainerScriptsGeneratorSpec extends ProjectSpec {
         generator.generate(context)
 
         then:
-        1 * fileSystemActions.copy(source, new File(destination, 'postrm'))
+        1 * fileSystemActions.copy(_ as File, new File(destination, 'postrm'))
         0 * templateHelper.generateFile('postrm', _ as Map<String, Object>)
     }
 

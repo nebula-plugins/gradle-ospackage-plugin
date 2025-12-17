@@ -367,8 +367,6 @@ task buildRpm(type: Rpm) {
         FileUtils.forceMkdirParent(bananaFile)
         bananaFile.text = 'banana'
 
-        debug = true
-
         buildFile << """
 plugins {
     id 'com.netflix.nebula.ospackage'
