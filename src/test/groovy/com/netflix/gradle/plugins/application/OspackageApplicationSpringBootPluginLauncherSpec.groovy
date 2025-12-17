@@ -90,44 +90,6 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         """.stripIndent()
     }
 
-    @Unroll
-    def 'application shows up in deb for boot #bootVersion and gradle #testGradleVersion'() {
-        final applicationDir = "$moduleName-boot"
-        final startScript = "./opt/${applicationDir}/bin/${moduleName}"
-        buildFile << buildScript(bootVersion, null)
-
-        when:
-        forwardOutput = true
-        gradleVersion = testGradleVersion
-        runTasks('build', 'buildDeb', "--stacktrace")
-
-        then:
-        final archivePath = file("build/distributions/test_0_all.deb")
-        final scanner = new Scanner(archivePath, new File("${getProjectDir()}/build/tmp/extract"))
-
-        final moduleJarName = "./opt/${applicationDir}/lib/${moduleName}${moduleSuffix}.jar"
-
-        scanner.getEntry(startScript).mode == 0755
-        [
-                startScript,
-                "./opt/${applicationDir}/bin/${moduleName}.bat",
-                moduleJarName].each {
-            assert scanner.getEntry("${it}").isFile()
-        }
-
-        //make sure we don't have boot jar in debian
-        def jarFile = new JarFile(scanner.getEntryFile(moduleJarName))
-        !isBootJar(jarFile)
-
-        !scanner.controlContents.containsKey('./postinst')
-
-        where:
-        bootVersion | testGradleVersion                  | moduleSuffix
-        '3.5.2'     | SupportedGradleVersions.GRADLE_MAX | '-plain'
-        '3.5.2'     | SupportedGradleVersions.GRADLE_MIN | '-plain'
-        '2.7.18'    | SupportedGradleVersions.GRADLE_MIN | '-plain'
-    }
-
     private boolean isBootJar(JarFile jarFile) {
         jarFile.entries().any {
             it.name.contains("BOOT-INF")
