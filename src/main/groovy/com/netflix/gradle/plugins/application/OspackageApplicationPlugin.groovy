@@ -16,25 +16,19 @@
 
 package com.netflix.gradle.plugins.application
 
-import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
-import com.netflix.gradle.plugins.packaging.SystemPackagingTask
-import com.netflix.gradle.plugins.rpm.Rpm
-import groovy.transform.CompileDynamic
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
 import org.gradle.api.internal.IConventionAware
+import org.gradle.api.distribution.DistributionContainer
+import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
 
 /**
  * Combine the os-package with the Application plugin. Currently heavily opinionated to where
  * the code will live, though that is slightly configurable using the ospackage-application extension.
- *
- * TODO Make a base plugin, so that this plugin can require os-package
- *
+ * <p>
  * Usage:
  * <ul>
  *     <li>User has to provide a mainClassName
@@ -54,27 +48,19 @@ class OspackageApplicationPlugin implements Plugin<Project> {
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
-        project.afterEvaluate {
-            final installTask = project.tasks.getByName("install${extension.distribution.capitalize()}Dist")
-            def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
-            packagingExt.from {
-                installTask.outputs.files.singleFile.parent
-            }
-
-            packagingExt.into(extension.getPrefix())
-
-            linkInstallToPackageTask(project, Deb, installTask)
-            linkInstallToPackageTask(project, Rpm, installTask)
+        def distributions = project.getExtensions().getByType(DistributionContainer.class)
+        def mainDistribution = distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
+        def name = extension.prefix.map { prefix ->
+            String baseName = mainDistribution.getDistributionBaseName().get()
+            String classifier = mainDistribution.getDistributionClassifier().getOrNull()
+            return baseName + (classifier != null ? '-' + classifier : '')
         }
-    }
-
-    @CompileDynamic
-    private <T extends Class> void linkInstallToPackageTask(Project project, T type, Task installTask) {
-        project.tasks.withType(type).configureEach(new Action<SystemPackagingTask>() {
-            @Override
-            void execute(SystemPackagingTask task) {
-                task.dependsOn(installTask)
-            }
-        })
+        def packaging = project.extensions.getByType(ProjectPackagingExtension)
+        def copyMain = project.copySpec() {
+            with(mainDistribution.contents)
+            into(name)
+        }
+        packaging.with(copyMain)
+        packaging.into(extension.prefix.map { it })
     }
 }

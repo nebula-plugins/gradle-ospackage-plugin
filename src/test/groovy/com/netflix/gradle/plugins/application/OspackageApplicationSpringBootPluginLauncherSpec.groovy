@@ -63,7 +63,7 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
 
             repositories {
                 mavenCentral()
-                maven { url 'https://repo.spring.io/milestone' }
+                maven { url = 'https://repo.spring.io/milestone' }
             }
 
             dependencies {
