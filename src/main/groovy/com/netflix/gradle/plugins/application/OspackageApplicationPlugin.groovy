@@ -16,24 +16,19 @@
 
 package com.netflix.gradle.plugins.application
 
-import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
-import com.netflix.gradle.plugins.packaging.SystemPackagingTask
-import com.netflix.gradle.plugins.rpm.Rpm
 import groovy.transform.CompileDynamic
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.distribution.DistributionContainer
+import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
 
 /**
  * Combine the os-package with the Application plugin. Currently heavily opinionated to where
  * the code will live, though that is slightly configurable using the ospackage-application extension.
- *
- * TODO Make a base plugin, so that this plugin can require os-package
- *
+ * <p>
  * Usage:
  * <ul>
  *     <li>User has to provide a mainClassName
@@ -47,38 +42,25 @@ class OspackageApplicationPlugin implements Plugin<Project> {
     @CompileDynamic
     void apply(Project project) {
         extension = project.extensions.create('ospackage_application', OspackageApplicationExtension)
-
-        // Set convention (default) values using Property API
         extension.prefix.convention('/opt')
         extension.distribution.convention('')
 
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
-        def packagingExt = project.extensions.getByType(ProjectPackagingExtension)
-
-        // Configure packaging extension - use provider for lazy evaluation
-        packagingExt.from(project.provider {
-            def distributionName = extension.distribution.getOrElse('')
-            def installTask = project.tasks.named("install${distributionName.capitalize()}Dist")
-            installTask.get().outputs.files.singleFile.parent
-        })
-
-        // Pass the Property directly to into()
-        packagingExt.into(extension.prefix.map { it })
-
-        // Link install task to package tasks lazily
-        linkInstallToPackageTasks(project, Deb)
-        linkInstallToPackageTasks(project, Rpm)
-    }
-
-    @CompileDynamic
-    private <T extends Class> void linkInstallToPackageTasks(Project project, T type) {
-        project.tasks.withType(type).configureEach { SystemPackagingTask task ->
-            // Use TaskProvider for type-safe lazy task dependency
-            def distributionName = extension.distribution.getOrElse('')
-            def installTaskName = "install${distributionName.capitalize()}Dist"
-            task.dependsOn(project.tasks.named(installTaskName))
+        def distributions = project.getExtensions().getByType(DistributionContainer.class)
+        def mainDistribution = distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
+        def name = extension.prefix.map { prefix ->
+            String baseName = mainDistribution.getDistributionBaseName().get()
+            String classifier = mainDistribution.getDistributionClassifier().getOrNull()
+            return baseName + (classifier != null ? '-' + classifier : '')
         }
+        def packaging = project.extensions.getByType(ProjectPackagingExtension)
+        def copyMain = project.copySpec() {
+            with(mainDistribution.contents)
+            into(name)
+        }
+        packaging.with(copyMain)
+        packaging.into(extension.prefix.map { it })
     }
 }
