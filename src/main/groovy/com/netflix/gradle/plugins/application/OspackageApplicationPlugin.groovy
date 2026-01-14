@@ -50,10 +50,9 @@ class OspackageApplicationPlugin implements Plugin<Project> {
 
         def distributions = project.getExtensions().getByType(DistributionContainer.class)
         def mainDistribution = distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
-        def name = extension.prefix.map { prefix ->
-            String baseName = mainDistribution.getDistributionBaseName().get()
-            String classifier = mainDistribution.getDistributionClassifier().getOrNull()
-            return baseName + (classifier != null ? '-' + classifier : '')
+        def name = mainDistribution.getDistributionBaseName().map { baseName ->
+            def classifier = mainDistribution.getDistributionClassifier().getOrNull()
+            baseName + (classifier != null ? '-' + classifier : '')
         }
         def packaging = project.extensions.getByType(ProjectPackagingExtension)
         def copyMain = project.copySpec() {
@@ -61,6 +60,6 @@ class OspackageApplicationPlugin implements Plugin<Project> {
             into(name)
         }
         packaging.with(copyMain)
-        packaging.into(extension.prefix.map { it })
+        packaging.into(project.provider { extension.prefix })
     }
 }
