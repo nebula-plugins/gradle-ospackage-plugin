@@ -20,31 +20,26 @@ class OsPackageDockerBasePlugin implements Plugin<Project> {
     void apply(Project project) {
         project.plugins.apply(CommonPackagingPlugin)
         // Some defaults, if not set by the user
-        project.tasks.withType(SystemPackageDockerfile).configureEach(new Action<SystemPackageDockerfile>() {
-            @Override
-            void execute(SystemPackageDockerfile systemPackageDockerfile) {
-                systemPackageDockerfile.applyConventions()
-            }
-        })
+        project.tasks.withType(SystemPackageDockerfile).configureEach { SystemPackageDockerfile systemPackageDockerfile ->
+            systemPackageDockerfile.applyConventions()
+        }
 
-        project.plugins.withType(DockerRemoteApiPlugin).configureEach(new Action<DockerRemoteApiPlugin>() {
-            @Override
-            void execute(DockerRemoteApiPlugin dockerRemoteApiPlugin) {
-                createTasks(project)
-            }
-        })
+        project.plugins.withType(DockerRemoteApiPlugin).configureEach { DockerRemoteApiPlugin dockerRemoteApiPlugin ->
+            createTasks(project)
+        }
     }
 
     private void createTasks(Project project) {
-        SystemPackageDockerfile createDockerfileTask = project.task(CREATE_DOCKERFILE_TASK_NAME, type: SystemPackageDockerfile)
+        def createDockerfileTaskProvider = project.tasks.register(CREATE_DOCKERFILE_TASK_NAME, SystemPackageDockerfile)
 
-        DockerBuildImage buildImageTask = project.task(BUILD_IMAGE_TASK_NAME, type: DockerBuildImage) {
-            dependsOn createDockerfileTask
-            conventionMapping.inputDir = { createDockerfileTask.destinationDir }
+        def buildImageTaskProvider = project.tasks.register(BUILD_IMAGE_TASK_NAME, DockerBuildImage) {
+            dependsOn createDockerfileTaskProvider
+            // Use Property API instead of conventionMapping
+            it.inputDir.convention(createDockerfileTaskProvider.flatMap { task -> task.destinationDir })
         }
 
-        project.task(AGGREGATION_TASK_NAME) {
-            dependsOn buildImageTask
+        project.tasks.register(AGGREGATION_TASK_NAME) {
+            dependsOn buildImageTaskProvider
         }
     }
 }

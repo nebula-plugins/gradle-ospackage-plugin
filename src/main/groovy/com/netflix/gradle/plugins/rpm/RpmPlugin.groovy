@@ -36,18 +36,11 @@ class RpmPlugin implements Plugin<Project> {
 
         project.ext.Rpm = Rpm.class
 
-        Builder.metaClass.getDefaultSourcePackage() {
-            format.getLead().getName() + "-src.rpm"
-        }
-
         // Some defaults, if not set by the user
-        project.tasks.withType(Rpm).configureEach(new Action<Rpm>() {
-            @Override
-            void execute(Rpm rpm) {
-                RpmPlugin.applyAliases(rpm) // RPM Specific aliases
-                rpm.applyConventions()
-            }
-        })
+        project.tasks.withType(Rpm).configureEach { Rpm rpm ->
+            RpmPlugin.applyAliases(rpm) // RPM Specific aliases
+            rpm.applyConventions()
+        }
     }
 
     def static applyAliases(def dynamicObjectAware) {

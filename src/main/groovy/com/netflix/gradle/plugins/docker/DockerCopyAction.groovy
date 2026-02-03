@@ -46,6 +46,6 @@ class DockerCopyAction extends AbstractPackagingCopyAction<SystemPackageDockerfi
 
     @Override
     protected void end() {
-        dockerfileInstructionManager.create(task.archivePath)
+        dockerfileInstructionManager.create(task.archiveFile.get().asFile)
     }
 }

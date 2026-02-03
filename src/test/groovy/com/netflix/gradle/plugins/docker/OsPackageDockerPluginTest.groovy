@@ -63,8 +63,8 @@ class OsPackageDockerPluginTest extends ProjectSpec {
         task.copy()
 
         then:
-        task.archivePath.exists()
-        String dockerFileText = task.archivePath.text
+        task.archiveFile.get().asFile.exists()
+        String dockerFileText = task.archiveFile.get().asFile.text
         dockerFileText.startsWith(
 """FROM ubuntu:14.04
 MAINTAINER John Doe 'john.doe@netflix.com'
