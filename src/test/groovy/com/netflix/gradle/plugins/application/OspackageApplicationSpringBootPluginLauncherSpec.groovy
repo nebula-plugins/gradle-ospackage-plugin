@@ -232,4 +232,32 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         where:
         bootVersion << ['3.5.2']
     }
+
+    @Unroll
+    def 'developmentOnly dependencies are not present in distribution for #bootVersion'() {
+        def installDir = new File(projectDir, "build/install/$moduleName-boot")
+        final startScript = file("$installDir/bin/$moduleName")
+
+        buildFile << buildScript(bootVersion, startScript)
+        buildFile << """
+
+        dependencies {
+            developmentOnly "org.springframework.boot:spring-boot-devtools:$bootVersion"
+        }
+        """
+
+        when:
+        runTasks('installDist')
+
+        then:
+        !startScript.text.contains('spring-boot-devtools-4.0.3.jar')
+
+        def libDir = new File(installDir, 'lib')
+        !new File(libDir, 'spring-boot-devtools-4.0.3.jar').exists()
+        libDir.listFiles().size() == 21
+
+        where:
+        bootVersion << ['3.5.2']
+    }
+
 }
