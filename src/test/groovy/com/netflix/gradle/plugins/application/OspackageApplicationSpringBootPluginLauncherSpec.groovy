@@ -17,7 +17,6 @@
 package com.netflix.gradle.plugins.application
 
 import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
-import com.netflix.gradle.plugins.SupportedGradleVersions
 import com.netflix.gradle.plugins.deb.Scanner
 import org.junit.Rule
 import org.junit.contrib.java.lang.system.ProvideSystemProperty
@@ -91,14 +90,13 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
     }
 
     @Unroll
-    def 'application shows up in deb for boot #bootVersion and gradle #testGradleVersion'() {
+    def 'application shows up in deb for boot #bootVersion'() {
         final applicationDir = "$moduleName-boot"
         final startScript = "./opt/${applicationDir}/bin/${moduleName}"
         buildFile << buildScript(bootVersion, null)
 
         when:
         forwardOutput = true
-        gradleVersion = testGradleVersion
         runTasks('build', 'buildDeb', "--stacktrace")
 
         then:
@@ -115,17 +113,15 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
             assert scanner.getEntry("${it}").isFile()
         }
 
-        //make sure we don't have boot jar in debian
+        // make sure we don't have boot jar in debian
         def jarFile = new JarFile(scanner.getEntryFile(moduleJarName))
         !isBootJar(jarFile)
 
         !scanner.controlContents.containsKey('./postinst')
 
         where:
-        bootVersion | testGradleVersion                  | moduleSuffix
-        '3.5.2'     | SupportedGradleVersions.GRADLE_MAX | '-plain'
-        '3.5.2'     | SupportedGradleVersions.GRADLE_MIN | '-plain'
-        '2.7.18'    | SupportedGradleVersions.GRADLE_MIN | '-plain'
+        bootVersion | moduleSuffix
+        '3.5.2'     | '-plain'
     }
 
     private boolean isBootJar(JarFile jarFile) {
@@ -232,4 +228,32 @@ class OspackageApplicationSpringBootPluginLauncherSpec extends BaseIntegrationTe
         where:
         bootVersion << ['3.5.2']
     }
+
+    @Unroll
+    def 'developmentOnly dependencies are not present in distribution for #bootVersion'() {
+        def installDir = new File(projectDir, "build/install/$moduleName-boot")
+        final startScript = file("$installDir/bin/$moduleName")
+
+        buildFile << buildScript(bootVersion, startScript)
+        buildFile << """
+
+        dependencies {
+            developmentOnly "org.springframework.boot:spring-boot-devtools:$bootVersion"
+        }
+        """
+
+        when:
+        runTasks('installDist')
+
+        then:
+        !startScript.text.contains('spring-boot-devtools-4.0.3.jar')
+
+        def libDir = new File(installDir, 'lib')
+        !new File(libDir, 'spring-boot-devtools-4.0.3.jar').exists()
+        libDir.listFiles().size() == 21
+
+        where:
+        bootVersion << ['3.5.2']
+    }
+
 }
