@@ -20,7 +20,10 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.UnknownDomainObjectException
+import org.gradle.api.distribution.DistributionContainer
 import org.gradle.api.distribution.plugins.DistributionPlugin
+import org.gradle.api.file.FileTreeElement
 import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.application.CreateStartScripts
@@ -128,6 +131,17 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
                             }
                         }
                     }
+                }
+
+                // Reflect Spring Boot development configurations in the main distribution
+                def productionRuntimeClasspath = project.configurations.named('productionRuntimeClasspath')
+                def runtimeClasspath = project.configurations.named(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME)
+                def testOrDevelopmentOnlyFiles = runtimeClasspath.map { it.minus(productionRuntimeClasspath.get()) }
+                project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME, CreateStartScripts).configure {
+                    it.classpath = it.classpath.minus(testOrDevelopmentOnlyFiles.get())
+                }
+                project.distributions.main.contents.exclude { FileTreeElement element ->
+                    testOrDevelopmentOnlyFiles.get().contains(element.file)
                 }
             } else {
                 project.logger.info("Spring Boot 1 detected")
