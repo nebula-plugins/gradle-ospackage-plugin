@@ -59,9 +59,11 @@ dependencies {
 
     implementation 'com.bmuschko:gradle-docker-plugin:10.0.0'
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
-    testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
-    testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
+    testImplementation("org.spockframework:spock-core:2.4-groovy-4.0")
+    testImplementation("org.spockframework:spock-junit4:2.4-groovy-4.0")
 }
+
+
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
 def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
@@ -94,7 +96,7 @@ gradlePlugin {
             tags.set(['nebula', 'rpm', 'centos', 'deb', 'debian'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -107,7 +109,7 @@ gradlePlugin {
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'application'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -120,7 +122,7 @@ gradlePlugin {
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'daemon'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -133,7 +135,7 @@ gradlePlugin {
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'spring'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -146,7 +148,7 @@ gradlePlugin {
             tags.set(['nebula', 'rpm', 'centos', 'deb', 'debian'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -159,7 +161,7 @@ gradlePlugin {
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'daemon'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -172,7 +174,7 @@ gradlePlugin {
             tags.set(['nebula', 'docker'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -185,7 +187,7 @@ gradlePlugin {
             tags.set(['nebula', 'docker'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -198,7 +200,7 @@ gradlePlugin {
             tags.set(['nebula', 'deb', 'debian'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
@@ -211,7 +213,7 @@ gradlePlugin {
             tags.set(['nebula', 'rpm', 'centos'])
             compatibility {
                 features {
-                    configurationCache.set(true)
+                    configurationCache = true
                 }
             }
         }
