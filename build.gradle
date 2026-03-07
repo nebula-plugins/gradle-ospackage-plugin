@@ -17,7 +17,7 @@ import org.gradle.api.attributes.plugin.GradlePluginApiVersion
  *
  */
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '22.0.2'
+    id 'com.netflix.nebula.plugin-plugin' version '25.+'
     id 'java-library'
 }
 
@@ -59,6 +59,8 @@ dependencies {
 
     implementation 'com.bmuschko:gradle-docker-plugin:10.0.0'
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
+    testImplementation("org.spockframework:spock-core:2.3-groovy-4.0")
+    testImplementation("org.junit.vintage:junit-vintage-engine:5.+")
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
@@ -90,6 +92,11 @@ gradlePlugin {
             description = project.description
             implementationClass = 'com.netflix.gradle.plugins.packaging.SystemPackagingPlugin'
             tags.set(['nebula', 'rpm', 'centos', 'deb', 'debian'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageApplication {
@@ -98,6 +105,11 @@ gradlePlugin {
             description = 'Packages output of application plugin into a debian or rpm'
             implementationClass = 'com.netflix.gradle.plugins.application.OspackageApplicationPlugin'
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'application'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageApplicationDaemon {
@@ -106,6 +118,11 @@ gradlePlugin {
             description = 'Creates daemontools setup to run output from application plugin'
             implementationClass = 'com.netflix.gradle.plugins.application.OspackageApplicationDaemonPlugin'
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'daemon'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageApplicationSpring {
@@ -114,6 +131,11 @@ gradlePlugin {
             description = 'Packages output of application plugin into a debian or rpm'
             implementationClass = 'com.netflix.gradle.plugins.application.OspackageApplicationSpringBootPlugin'
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'application', 'spring'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageBase {
@@ -122,6 +144,11 @@ gradlePlugin {
             description = 'Setup base publishing for OS packages'
             implementationClass = 'com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin'
             tags.set(['nebula', 'rpm', 'centos', 'deb', 'debian'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageDaemon {
@@ -130,6 +157,11 @@ gradlePlugin {
             description = 'Create daemontools runner'
             implementationClass = 'com.netflix.gradle.plugins.daemon.OspackageDaemonPlugin'
             tags.set(['nebula', 'os', 'package', 'rpm', 'deb', 'daemon'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageDocker {
@@ -138,6 +170,11 @@ gradlePlugin {
             description = 'Create docker images from ospackage block'
             implementationClass = 'com.netflix.gradle.plugins.docker.OsPackageDockerPlugin'
             tags.set(['nebula', 'docker'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         ospackageDockerBase {
@@ -146,6 +183,11 @@ gradlePlugin {
             description = 'Setup base publishing for docker images'
             implementationClass = 'com.netflix.gradle.plugins.docker.OsPackageDockerBasePlugin'
             tags.set(['nebula', 'docker'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         deb {
@@ -154,6 +196,11 @@ gradlePlugin {
             description = 'Create debian system packages'
             implementationClass = 'com.netflix.gradle.plugins.deb.DebPlugin'
             tags.set(['nebula', 'deb', 'debian'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
 
         rpm {
@@ -162,6 +209,11 @@ gradlePlugin {
             description = 'Create RPM system packages'
             implementationClass = 'com.netflix.gradle.plugins.rpm.RpmPlugin'
             tags.set(['nebula', 'rpm', 'centos'])
+            compatibility {
+                features {
+                    configurationCache.set(true)
+                }
+            }
         }
     }
 }
