@@ -254,16 +254,11 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
 
     @Override
     protected void end() {
-
-        RandomAccessFile rpmFile
-        try {
-            rpmFile = new RandomAccessFile(task.getArchiveFile().get().asFile, "rw")
+        def file = task.getArchiveFile().get().asFile
+        if (file.exists()) file.delete()
+        try (def rpmFile = new RandomAccessFile(task.getArchiveFile().get().asFile, "rw")) {
             builder.build(rpmFile.getChannel())
             logger.info 'Created rpm {}', rpmFile
-        } finally {
-            if (rpmFile != null) {
-                rpmFile.close()
-            }
         }
     }
 
