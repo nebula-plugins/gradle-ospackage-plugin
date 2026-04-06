@@ -1,8 +1,15 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -11,6 +18,8 @@ import org.redline_rpm.header.Flags
 import org.redline_rpm.header.Os
 import org.redline_rpm.header.RpmType
 import org.redline_rpm.payload.Directive
+
+import javax.inject.Inject
 
 /**
  * Extension that can be used to configure both DEB and RPM.
@@ -36,18 +45,46 @@ class SystemPackagingExtension {
     static final IllegalStateException TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('TriggerUninstall')
     static final IllegalStateException TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED = conflictingDefinitions('TriggerPostUninstall')
 
-    // File name components
-    String packageName
-    String release
-    String version
-    Integer epoch
-    // Package signing data
-    String signingKeyId
-    String signingKeyPassphrase
-    File signingKeyRingFile
-    String user
-    String permissionGroup // Group is used by Gradle on tasks.
-    boolean setgid
+    private final ObjectFactory objects
+    private final ProviderFactory providers
+
+    // Track when commands are added via File (Provider) - needed for validation
+    private boolean hasPreInstallCommands = false
+    private boolean hasPostInstallCommands = false
+    private boolean hasPreUninstallCommands = false
+    private boolean hasPostUninstallCommands = false
+
+    @Inject
+    SystemPackagingExtension(ObjectFactory objects, ProviderFactory providers) {
+        this.objects = objects
+        this.providers = providers
+    }
+
+    @Internal
+    ObjectFactory getObjects() {
+        return objects
+    }
+
+    // Core String Properties
+    @Input
+    @Optional
+    final Property<String> packageName = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> release = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> version = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> user = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> permissionGroup = objects.property(String)
 
     /**
      * In Debian, this is the Section and has to be provided. Valid values are: admin, cli-mono, comm, database, debug,
@@ -57,488 +94,374 @@ class SystemPackagingExtension {
      * tex, text, utils, vcs, video, web, x11, xfce, zope. The section can be prefixed with contrib or non-free, if
      * not part of main.
      */
-    String packageGroup
-    String buildHost
-    String summary
-    String packageDescription
-    String license
-    String packager
-    String distribution
-    String vendor
-    String url
-    String sourcePackage
-    // For Backward compatibility for those that passed in a Architecture object
-    String archStr // This is what can be convention mapped and then referenced
-    Directive fileType
-    Boolean createDirectoryEntry
-    Boolean addParentDirs
-    Os os
-    RpmType type
-    List<String> prefixes = new ArrayList<String>()
-    // DEB Only
-    Integer uid
-    Integer gid
-    MultiArch multiArch
-    String maintainer
-    String uploaders
-    String priority
-    File preInstallFile
-    File postInstallFile
-    File preUninstallFile
-    File postUninstallFile
-    File triggerInstallFile
-    File triggerUninstallFile
-    File triggerPostUninstallFile
-
-    final List<Object> configurationFiles = []
-    final List<Object> preInstallCommands = []
-    final List<Object> postInstallCommands = []
-    final List<Object> preUninstallCommands = []
-    final List<Object> postUninstallCommands = []
-
-    // RPM specific
-    final List<Trigger> triggerInstallCommands = []
-    final List<Trigger> triggerUninstallCommands = []
-    final List<Trigger> triggerPostUninstallCommands = []
-    final List<Object> preTransCommands = []
-    final List<Object> postTransCommands = []
-    final List<Object> commonCommands = []
-
-    /**
-     * Can be of type String or File
-     */
-    final List<Object> supplementaryControlFiles = []
-
-    List<Link> links = new ArrayList<Link>()
-    List<Dependency> dependencies = new ArrayList<Dependency>()
-    List<Dependency> obsoletes = new ArrayList<Dependency>()
-    List<Dependency> conflicts = new ArrayList<Dependency>()
-    // Deb-specific special dependencies
-    List<Dependency> recommends = new ArrayList<Dependency>()
-    List<Dependency> suggests = new ArrayList<Dependency>()
-    List<Dependency> enhances = new ArrayList<Dependency>()
-    List<Dependency> preDepends = new ArrayList<Dependency>()
-    List<Dependency> breaks = new ArrayList<Dependency>()
-    List<Dependency> replaces = new ArrayList<Dependency>()
-    List<Dependency> provides = new ArrayList<Dependency>()
-    List<Directory> directories = new ArrayList<Directory>()
-
-    // DEB-specific user-defined fields
-    // https://www.debian.org/doc/debian-policy/ch-controlfields.html#s5.7
-    Map<String, String> customFields = [:]
+    @Input
+    @Optional
+    final Property<String> packageGroup = objects.property(String)
 
     @Input
     @Optional
-    String getPackageName() {
-        return packageName
-    }
+    final Property<String> buildHost = objects.property(String)
 
     @Input
     @Optional
-    String getRelease() {
-        return release
-    }
+    final Property<String> summary = objects.property(String)
 
     @Input
     @Optional
-    String getVersion() {
-        return version
-    }
+    final Property<String> packageDescription = objects.property(String)
 
     @Input
     @Optional
-    Integer getEpoch() {
-        return epoch
-    }
+    final Property<String> license = objects.property(String)
 
     @Input
     @Optional
-    String getSigningKeyId() {
-        return signingKeyId
-    }
+    final Property<String> packager = objects.property(String)
 
     @Input
     @Optional
-    String getSigningKeyPassphrase() {
-        return signingKeyPassphrase
-    }
+    final Property<String> distribution = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> vendor = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> url = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> sourcePackage = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> archStr = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> maintainer = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> uploaders = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> priority = objects.property(String)
+
+    // Integer Properties
+    @Input
+    @Optional
+    final Property<Integer> epoch = objects.property(Integer)
+
+    @Input
+    @Optional
+    final Property<Integer> uid = objects.property(Integer)
+
+    @Input
+    @Optional
+    final Property<Integer> gid = objects.property(Integer)
+
+    // Boolean Properties
+    @Input
+    @Optional
+    final Property<Boolean> setgid = objects.property(Boolean)
+
+    @Input
+    @Optional
+    final Property<Boolean> createDirectoryEntry = objects.property(Boolean)
+
+    @Input
+    @Optional
+    final Property<Boolean> addParentDirs = objects.property(Boolean)
+
+    // Package Signing Properties
+    @Input
+    @Optional
+    final Property<String> signingKeyId = objects.property(String)
+
+    @Input
+    @Optional
+    final Property<String> signingKeyPassphrase = objects.property(String)
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.ABSOLUTE)
-    File getSigningKeyRingFile() {
-        return signingKeyRingFile
-    }
+    final RegularFileProperty signingKeyRingFile = objects.fileProperty()
+
+    // Script Files
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty preInstallFile = objects.fileProperty()
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty postInstallFile = objects.fileProperty()
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty preUninstallFile = objects.fileProperty()
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty postUninstallFile = objects.fileProperty()
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty triggerInstallFile = objects.fileProperty()
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty triggerUninstallFile = objects.fileProperty()
+
+    @InputFile
+    @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
+    final RegularFileProperty triggerPostUninstallFile = objects.fileProperty()
+
+    // Enum Properties
+    @Input
+    @Optional
+    final Property<Directive> fileType = objects.property(Directive)
 
     @Input
     @Optional
-    String getUser() {
-        return user
-    }
+    final Property<Os> os = objects.property(Os)
 
     @Input
     @Optional
-    String getPermissionGroup() {
-        return permissionGroup
-    }
+    final Property<RpmType> type = objects.property(RpmType)
 
     @Input
     @Optional
-    Boolean getSetgid() {
-        return setgid
-    }
+    final Property<MultiArch> multiArch = objects.property(MultiArch)
+
+    // List Properties
+    @Input
+    @Optional
+    final ListProperty<String> prefixes = objects.listProperty(String)
 
     @Input
     @Optional
-    String getPackageGroup() {
-        return packageGroup
-    }
+    final ListProperty<String> configurationFiles = objects.listProperty(String)
 
     @Input
     @Optional
-    String getBuildHost() {
-        return buildHost
-    }
+    final ListProperty<String> preInstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    String getSummary() {
-        return summary
-    }
+    final ListProperty<String> postInstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    String getPackageDescription() {
-        return packageDescription
-    }
+    final ListProperty<String> preUninstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    String getLicense() {
-        return license
-    }
+    final ListProperty<String> postUninstallCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    String getPackager() {
-        return packager
-    }
+    final ListProperty<Trigger> triggerInstallCommands = objects.listProperty(Trigger)
 
     @Input
     @Optional
-    String getDistribution() {
-        return distribution
-    }
+    final ListProperty<Trigger> triggerUninstallCommands = objects.listProperty(Trigger)
 
     @Input
     @Optional
-    String getVendor() {
-        return vendor
-    }
+    final ListProperty<Trigger> triggerPostUninstallCommands = objects.listProperty(Trigger)
 
     @Input
     @Optional
-    String getUrl() {
-        return url
-    }
+    final ListProperty<String> preTransCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    String getSourcePackage() {
-        return sourcePackage
-    }
+    final ListProperty<String> postTransCommands = objects.listProperty(String)
 
     @Input
     @Optional
-    String getArchStr() {
-        return archStr
-    }
+    final ListProperty<String> commonCommands = objects.listProperty(String)
+
+    @Input
+    @Optional
+    final ListProperty<String> supplementaryControlFiles = objects.listProperty(String)
+
+    @Input
+    @Optional
+    final ListProperty<Link> links = objects.listProperty(Link)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> dependencies = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> obsoletes = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> conflicts = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> recommends = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> suggests = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> enhances = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> preDepends = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> breaks = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> replaces = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Dependency> provides = objects.listProperty(Dependency)
+
+    @Input
+    @Optional
+    final ListProperty<Directory> directories = objects.listProperty(Directory)
+
+    // Map Property
+    @Input
+    @Optional
+    final MapProperty<String, String> customFields = objects.mapProperty(String, String)
+
+    // Getter methods to maintain API compatibility
+    Property<String> getPackageName() { packageName }
+    Property<String> getRelease() { release }
+    Property<String> getVersion() { version }
+    Property<String> getUser() { user }
+    Property<String> getPermissionGroup() { permissionGroup }
+    Property<String> getPackageGroup() { packageGroup }
+    Property<String> getBuildHost() { buildHost }
+    Property<String> getSummary() { summary }
+    Property<String> getPackageDescription() { packageDescription }
+    Property<String> getLicense() { license }
+    Property<String> getPackager() { packager }
+    Property<String> getDistribution() { distribution }
+    Property<String> getVendor() { vendor }
+    Property<String> getUrl() { url }
+    Property<String> getSourcePackage() { sourcePackage }
+    Property<String> getArchStr() { archStr }
+    Property<String> getMaintainer() { maintainer }
+    Property<String> getUploaders() { uploaders }
+    Property<String> getPriority() { priority }
+    Property<Integer> getEpoch() { epoch }
+    Property<Integer> getUid() { uid }
+    Property<Integer> getGid() { gid }
+    Property<Boolean> getSetgid() { setgid }
+    Property<Boolean> getCreateDirectoryEntry() { createDirectoryEntry }
+    Property<Boolean> getAddParentDirs() { addParentDirs }
+    Property<String> getSigningKeyId() { signingKeyId }
+    Property<String> getSigningKeyPassphrase() { signingKeyPassphrase }
+    RegularFileProperty getSigningKeyRingFile() { signingKeyRingFile }
+    RegularFileProperty getPreInstallFile() { preInstallFile }
+    RegularFileProperty getPostInstallFile() { postInstallFile }
+    RegularFileProperty getPreUninstallFile() { preUninstallFile }
+    RegularFileProperty getPostUninstallFile() { postUninstallFile }
+    RegularFileProperty getTriggerInstallFile() { triggerInstallFile }
+    RegularFileProperty getTriggerUninstallFile() { triggerUninstallFile }
+    RegularFileProperty getTriggerPostUninstallFile() { triggerPostUninstallFile }
+    Property<Directive> getFileType() { fileType }
+    Property<Os> getOs() { os }
+    Property<RpmType> getType() { type }
+    Property<MultiArch> getMultiArch() { multiArch }
+    ListProperty<String> getPrefixes() { prefixes }
+    ListProperty<String> getConfigurationFiles() { configurationFiles }
+    ListProperty<String> getPreInstallCommands() { preInstallCommands }
+    ListProperty<String> getPostInstallCommands() { postInstallCommands }
+    ListProperty<String> getPreUninstallCommands() { preUninstallCommands }
+    ListProperty<String> getPostUninstallCommands() { postUninstallCommands }
+    ListProperty<Trigger> getTriggerInstallCommands() { triggerInstallCommands }
+    ListProperty<Trigger> getTriggerUninstallCommands() { triggerUninstallCommands }
+    ListProperty<Trigger> getTriggerPostUninstallCommands() { triggerPostUninstallCommands }
+    ListProperty<String> getPreTransCommands() { preTransCommands }
+    ListProperty<String> getPostTransCommands() { postTransCommands }
+    ListProperty<String> getCommonCommands() { commonCommands }
+    ListProperty<String> getSupplementaryControlFiles() { supplementaryControlFiles }
+    ListProperty<Link> getLinks() { links }
+    ListProperty<Dependency> getDependencies() { dependencies }
+    ListProperty<Dependency> getObsoletes() { obsoletes }
+    ListProperty<Dependency> getConflicts() { conflicts }
+    ListProperty<Dependency> getRecommends() { recommends }
+    ListProperty<Dependency> getSuggests() { suggests }
+    ListProperty<Dependency> getEnhances() { enhances }
+    ListProperty<Dependency> getPreDepends() { preDepends }
+    ListProperty<Dependency> getBreaks() { breaks }
+    ListProperty<Dependency> getReplaces() { replaces }
+    ListProperty<Dependency> getProvides() { provides }
+    ListProperty<Directory> getDirectories() { directories }
+    MapProperty<String, String> getCustomFields() { customFields }
+
+    // Convenience methods for backward compatibility (v13.0 recommended API design)
+
+    void packageName(String value) { packageName.set(value) }
+    void release(String value) { release.set(value) }
+    void version(String value) { version.set(value) }
+    void user(String value) { user.set(value) }
+    void permissionGroup(String value) { permissionGroup.set(value) }
+    void packageGroup(String value) { packageGroup.set(value) }
+    void buildHost(String value) { buildHost.set(value) }
+    void summary(String value) { summary.set(value) }
+    void packageDescription(String value) { packageDescription.set(value) }
+    void license(String value) { license.set(value) }
+    void packager(String value) { packager.set(value) }
+    void distribution(String value) { distribution.set(value) }
+    void vendor(String value) { vendor.set(value) }
+    void url(String value) { url.set(value) }
+    void sourcePackage(String value) { sourcePackage.set(value) }
+    void maintainer(String value) { maintainer.set(value) }
+    void uploaders(String value) { uploaders.set(value) }
+    void priority(String value) { priority.set(value) }
+    void epoch(Integer value) { epoch.set(value) }
+    void uid(Integer value) { uid.set(value) }
+    void gid(Integer value) { gid.set(value) }
+    void setgid(Boolean value) { setgid.set(value) }
+    void createDirectoryEntry(Boolean value) { createDirectoryEntry.set(value) }
+    void addParentDirs(Boolean value) { addParentDirs.set(value) }
+    void signingKeyId(String value) { signingKeyId.set(value) }
+    void signingKeyPassphrase(String value) { signingKeyPassphrase.set(value) }
+    void fileType(Object value) { fileType.set(value as Directive) }
+    void os(Object value) { os.set(value as Os) }
+    void type(Object value) { type.set(value as RpmType) }
+    void multiArch(Object value) { multiArch.set(value as MultiArch) }
 
     void setArch(Object arch) {
-        archStr = (arch instanceof Architecture) ? arch.name() : arch.toString()
+        archStr.set((arch instanceof Architecture) ? arch.name() : arch.toString())
     }
-
-    @Input
-    @Optional
-    Directive getFileType() {
-        return fileType
-    }
-
-    @Input
-    @Optional
-    Boolean getCreateDirectoryEntry() {
-        return createDirectoryEntry
-    }
-
-    @Input
-    @Optional
-    Boolean getAddParentDirs() {
-        return addParentDirs
-    }
-
-    @Input
-    @Optional
-    Os getOs() {
-        return os
-    }
-
-    @Input
-    @Optional
-    RpmType getType() {
-        return type
-    }
-
 
     def prefix(String prefixStr) {
-        prefixes << prefixStr
+        prefixes.add(prefixStr)
         return this
-    }
-
-    @Input
-    @Optional
-    List<String> getPrefixes() {
-        return prefixes
-    }
-
-    @Input
-    @Optional
-    Integer getUid() {
-        return uid
-    }
-
-    @Input
-    @Optional
-    Integer getGid() {
-        return gid
-    }
-
-    @Input
-    @Optional
-    MultiArch getMultiArch() {
-        return multiArch
-    }
-
-    @Input
-    @Optional
-    String getMaintainer() {
-        return maintainer
-    }
-
-    @Input
-    @Optional
-    String getUploaders() {
-        return uploaders
-    }
-
-    @Input
-    @Optional
-    String getPriority() {
-        return priority
-    }
-
-    @Input
-    @Optional
-    List<Object> getSupplementaryControlFiles() {
-        return supplementaryControlFiles
     }
 
     def supplementaryControl(Object file) {
-        supplementaryControlFiles << file
+        // Convert File to path String, keep String as-is
+        supplementaryControlFiles.add(file instanceof File ? ((File)file).path : file.toString())
         return this
-    }
-
-    // Scripts
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getPreInstallFile() {
-        return preInstallFile
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getPostInstallFile() {
-        return postInstallFile
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getPreUninstallFile() {
-        return preUninstallFile
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getPostUninstallFile() {
-        return postUninstallFile
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getTriggerInstallFile() {
-        return triggerInstallFile
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getTriggerUninstallFile() {
-        return triggerUninstallFile
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File getTriggerPostUninstallFile() {
-        return triggerPostUninstallFile
-    }
-
-    @Input
-    @Optional
-    List<Object> getConfigurationFiles() {
-        return configurationFiles
-    }
-
-    @Input
-    @Optional
-    List<Object> getPreInstallCommands() {
-        return preInstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Object> getPostInstallCommands() {
-        return postInstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Object> getPreUninstallCommands() {
-        return preUninstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Object> getPostUninstallCommands() {
-        return postUninstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Trigger> getTriggerInstallCommands() {
-        return triggerInstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Trigger> getTriggerUninstallCommands() {
-        return triggerUninstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Trigger> getTriggerPostUninstallCommands() {
-        return triggerPostUninstallCommands
-    }
-
-    @Input
-    @Optional
-    List<Object> getPreTransCommands() {
-        return preTransCommands
-    }
-
-    @Input
-    @Optional
-    List<Object> getPostTransCommands() {
-        return postTransCommands
-    }
-
-    @Input
-    @Optional
-    List<Object> getCommonCommands() {
-        return commonCommands
-    }
-
-    @Input
-    @Optional
-    List<Link> getLinks() {
-        return links
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getDependencies() {
-        return dependencies
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getObsoletes() {
-        return obsoletes
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getRecommends() {
-        return recommends
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getSuggests() {
-        return suggests
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getEnhances() {
-        return enhances
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getPreDepends() {
-        return preDepends
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getBreaks() {
-        return breaks
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getReplaces() {
-        return replaces
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getProvides() {
-        return provides
-    }
-
-    @Input
-    @Optional
-    List<Dependency> getConflicts() {
-        return conflicts
-    }
-
-    @Input
-    @Optional
-    List<Directory> getDirectories() {
-        return directories
-    }
-
-    @Input
-    @Optional
-    Map<String, String> getCustomFields() {
-        return customFields
     }
 
     /**
@@ -550,12 +473,15 @@ class SystemPackagingExtension {
     }
 
     def installUtils(String script) {
-        commonCommands << script
+        commonCommands.add(script)
         return this
     }
 
     def installUtils(File script) {
-        commonCommands << script
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        commonCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -567,8 +493,9 @@ class SystemPackagingExtension {
         configurationFile(script)
     }
 
-    def configurationFile(String path) {
-        configurationFiles << path
+    def configurationFile(Object path) {
+        // Convert File to path String, keep String as-is
+        configurationFiles.add(path instanceof File ? ((File)path).path : path.toString())
         return this
     }
 
@@ -581,21 +508,27 @@ class SystemPackagingExtension {
     }
 
     def preInstall(String script) {
-        if(preInstallFile) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preInstallCommands << script
+        if(preInstallFile.isPresent()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
+        preInstallCommands.add(script)
         return this
     }
 
     def preInstall(File script) {
-        if(preInstallFile) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preInstallCommands << script
+        if(preInstallFile.isPresent()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
+        // Use providers.fileContents() for config-cache-safe file reading at execution time
+        // This preserves the original behavior: file read at execution, not configuration
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        preInstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPreInstallCommands = true
         return this
     }
 
     def preInstallFile(File path) {
-        if(preInstallFile) { throw MULTIPLE_PREINSTALL_FILES }
-        if(preInstallCommands) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preInstallFile = path
+        if(preInstallFile.isPresent()) { throw MULTIPLE_PREINSTALL_FILES }
+        if(hasPreInstallCommands || !preInstallCommands.getOrElse([]).isEmpty()) { throw PREINSTALL_COMMANDS_AND_FILE_DEFINED }
+        preInstallFile.set(path)
     }
 
     /**
@@ -607,21 +540,25 @@ class SystemPackagingExtension {
     }
 
     def postInstall(String script) {
-        if(postInstallFile) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postInstallCommands << script
+        if(postInstallFile.isPresent()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
+        postInstallCommands.add(script)
         return this
     }
 
     def postInstall(File script) {
-        if(postInstallFile) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postInstallCommands << script
+        if(postInstallFile.isPresent()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        postInstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPostInstallCommands = true
         return this
     }
 
     def postInstallFile(File path) {
-        if(postInstallFile) { throw MULTIPLE_POSTINSTALL_FILES }
-        if(postInstallCommands) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postInstallFile = path
+        if(postInstallFile.isPresent()) { throw MULTIPLE_POSTINSTALL_FILES }
+        if(hasPostInstallCommands || !postInstallCommands.getOrElse([]).isEmpty()) { throw POSTINSTALL_COMMANDS_AND_FILE_DEFINED }
+        postInstallFile.set(path)
     }
 
     /**
@@ -633,21 +570,25 @@ class SystemPackagingExtension {
     }
 
     def preUninstall(String script) {
-        if(preUninstallFile) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preUninstallCommands << script
+        if(preUninstallFile.isPresent()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        preUninstallCommands.add(script)
         return this
     }
 
     def preUninstall(File script) {
-        if(preUninstallFile) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preUninstallCommands << script
+        if(preUninstallFile.isPresent()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        preUninstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPreUninstallCommands = true
         return this
     }
 
     def preUninstallFile(File script) {
-        if(preUninstallFile) { throw MULTIPLE_PREUNINSTALL_FILES }
-        if(preUninstallCommands) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        preUninstallFile = script
+        if(preUninstallFile.isPresent()) { throw MULTIPLE_PREUNINSTALL_FILES }
+        if(hasPreUninstallCommands || !preUninstallCommands.getOrElse([]).isEmpty()) { throw PREUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        preUninstallFile.set(script)
     }
 
     /**
@@ -659,21 +600,25 @@ class SystemPackagingExtension {
     }
 
     def postUninstall(String script) {
-        if(postUninstallFile) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postUninstallCommands << script
+        if(postUninstallFile.isPresent()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        postUninstallCommands.add(script)
         return this
     }
 
     def postUninstall(File script) {
-        if(postUninstallFile) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postUninstallCommands << script
+        if(postUninstallFile.isPresent()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        postUninstallCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
+        hasPostUninstallCommands = true
         return this
     }
 
     def postUninstallFile(File script) {
-        if(postUninstallFile) { throw MULTIPLE_POSTUNINSTALL_FILES }
-        if(postUninstallCommands) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        postUninstallFile = script
+        if(postUninstallFile.isPresent()) { throw MULTIPLE_POSTUNINSTALL_FILES }
+        if(hasPostUninstallCommands || !postUninstallCommands.getOrElse([]).isEmpty()) { throw POSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        postUninstallFile.set(script)
     }
 
     /**
@@ -685,15 +630,15 @@ class SystemPackagingExtension {
     }
 
     def triggerInstall(File script, String packageName, String version='', int flag=0) {
-        if(triggerInstallFile) { throw TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED }
-        triggerInstallCommands << new Trigger(new Dependency(packageName, version, flag), script)
+        if(triggerInstallFile.isPresent()) { throw TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerInstallCommands.add(new Trigger(new Dependency(packageName, version, flag), script))
         return this
     }
 
     def triggerInstallFile(File script) {
-        if(triggerInstallFile) { throw MULTIPLE_TRIGGERINSTALL_FILES }
-        if(triggerInstallCommands) { throw TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED }
-        triggerInstallFile = script
+        if(triggerInstallFile.isPresent()) { throw MULTIPLE_TRIGGERINSTALL_FILES }
+        if(!triggerInstallCommands.get().isEmpty()) { throw TRIGGERINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerInstallFile.set(script)
     }
 
     /**
@@ -705,15 +650,15 @@ class SystemPackagingExtension {
     }
 
     def triggerUninstall(File script, String packageName, String version='', int flag=0) {
-        if(triggerUninstallFile) { throw TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        triggerUninstallCommands << new Trigger(new Dependency(packageName, version, flag), script)
+        if(triggerUninstallFile.isPresent()) { throw TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerUninstallCommands.add(new Trigger(new Dependency(packageName, version, flag), script))
         return this
     }
 
     def triggerUninstallFile(File script) {
-        if(triggerUninstallFile) { throw MULTIPLE_TRIGGERUNINSTALL_FILES }
-        if(triggerUninstallCommands) { throw TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        triggerUninstallFile = script
+        if(triggerUninstallFile.isPresent()) { throw MULTIPLE_TRIGGERUNINSTALL_FILES }
+        if(!triggerUninstallCommands.get().isEmpty()) { throw TRIGGERUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerUninstallFile.set(script)
     }
 
     /**
@@ -725,15 +670,15 @@ class SystemPackagingExtension {
     }
 
     def triggerPostUninstall(File script, String packageName, String version='', int flag=0) {
-        if(triggerPostUninstallFile) { throw TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        triggerPostUninstallCommands << new Trigger(new Dependency(packageName, version, flag), script)
+        if(triggerPostUninstallFile.isPresent()) { throw TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerPostUninstallCommands.add(new Trigger(new Dependency(packageName, version, flag), script))
         return this
     }
 
     def triggerPostUninstallFile(File script) {
-        if(triggerPostUninstallFile) { throw MULTIPLE_TRIGGERPOSTUNINSTALL_FILES }
-        if(triggerUninstallCommands) { throw TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
-        triggerPostUninstallFile = script
+        if(triggerPostUninstallFile.isPresent()) { throw MULTIPLE_TRIGGERPOSTUNINSTALL_FILES }
+        if(!triggerUninstallCommands.get().isEmpty()) { throw TRIGGERPOSTUNINSTALL_COMMANDS_AND_FILE_DEFINED }
+        triggerPostUninstallFile.set(script)
     }
 
     /**
@@ -745,12 +690,15 @@ class SystemPackagingExtension {
     }
 
     def preTrans(String script) {
-        preTransCommands << script
+        preTransCommands.add(script)
         return this
     }
 
     def preTrans(File script) {
-        preTransCommands << script
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        preTransCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
@@ -763,18 +711,19 @@ class SystemPackagingExtension {
     }
 
     def postTrans(String script) {
-        postTransCommands << script
+        postTransCommands.add(script)
         return this
     }
 
     def postTrans(File script) {
-        postTransCommands << script
+        def fileProperty = objects.fileProperty()
+        fileProperty.set(script)
+        def contentProvider = providers.fileContents(fileProperty).asText.orElse('')
+        postTransCommands.addAll(contentProvider.map { content -> content ? [content] : [] })
         return this
     }
 
     // @groovy.transform.PackageScope doesn't seem to set the proper scope when going through a @Delegate
-
-
 
     Link link(String path, String target) {
         link(path, target, -1, null, null)
@@ -798,7 +747,6 @@ class SystemPackagingExtension {
         links.add(link)
         link
     }
-
 
     Dependency requires(String packageName, String version, int flag) {
         def dep = new Dependency(packageName, version, flag)
@@ -908,50 +856,49 @@ class SystemPackagingExtension {
         provides(packageName, '', 0)
     }
 
-
     Directory directory(String path) {
         Directory directory = directory(path, -1)
-        directories << directory
+        directories.add(directory)
         directory
     }
 
     Directory directory(String path, boolean addParents) {
         Directory directory = new Directory(path: path, addParents: addParents)
-        directories << directory
+        directories.add(directory)
         directory
     }
 
     Directory directory(String path, int permissions) {
         Directory directory = new Directory(path: path, permissions: permissions)
-        directories << directory
+        directories.add(directory)
         directory
     }
 
     Directory directory(String path, int permissions, boolean addParents) {
         Directory directory = new Directory(path: path, permissions: permissions, addParents: addParents)
-        directories << directory
+        directories.add(directory)
         directory
     }
 
     Directory directory(String path, int permissions, String user, String permissionGroup) {
         Directory directory = new Directory(path: path, permissions: permissions, user: user, permissionGroup: permissionGroup)
-        directories << directory
+        directories.add(directory)
         directory
     }
 
     Directory directory(String path, int permissions, String user, String permissionGroup, boolean addParents) {
         Directory directory = new Directory(path: path, permissions: permissions, user: user, permissionGroup: permissionGroup, addParents: addParents)
-        directories << directory
+        directories.add(directory)
         directory
     }
 
     def customField(String key, String val) {
-        customFields[key] = val
+        customFields.put(key, val)
         return this
     }
 
     def customField(Map<String, String> fields) {
-        customFields += fields
+        customFields.putAll(fields)
         return this
     }
 

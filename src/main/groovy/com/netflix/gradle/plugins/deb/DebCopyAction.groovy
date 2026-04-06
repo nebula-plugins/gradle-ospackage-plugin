@@ -244,17 +244,17 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
     @Override
     protected void addDirectory(Directory directory) {
-        def user = directory.user ? directory.user : task.user
-        def permissionGroup = directory.permissionGroup ? directory.permissionGroup : task.permissionGroup
+        def user = directory.user ?: task.user
+        def permissionGroup = directory.permissionGroup ?: task.permissionGroup
         dataProducers << new DataProducerPathTemplate(
-            [directory.path] as String[], null, null, 
+            [directory.path] as String[], null, null,
             [ new PermMapper(-1, -1, user, permissionGroup,
             directory.permissions, -1, 0, null) ] as Mapper[])
     }
 
     protected String getMultiArch() {
         def archString = task.getArchString()
-        def multiArch = task.getMultiArch()
+        MultiArch multiArch = task.getMultiArch() as MultiArch
         if (('all' == archString) && (MultiArch.SAME == multiArch)) {
             throw new IllegalArgumentException('Deb packages with Architecture: all cannot declare Multi-Arch: same')
         }
@@ -303,8 +303,8 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
 
         maintainerScriptsGenerator.generate(toContext())
 
-        task.allSupplementaryControlFiles.each { supControl ->
-            File supControlFile = supControl instanceof File ? supControl as File : task.project.file(supControl)
+        task.allSupplementaryControlFiles.each { String supControlPath ->
+            File supControlFile = task.projectLayout.projectDirectory.file(supControlPath).asFile
             new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
         }
 
@@ -314,7 +314,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         maker.setDeb(debFile)
         if (StringUtils.isNotBlank(task.getSigningKeyId())
                 && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
-                && task.getSigningKeyRingFile().exists()) {
+                && task.getSigningKeyRingFile()?.exists()) {
             maker.setKey(task.getSigningKeyId())
             maker.setPassphrase(task.getSigningKeyPassphrase())
             maker.setKeyring(task.getSigningKeyRingFile())

@@ -24,7 +24,7 @@ import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ApplicationPlugin
-import org.gradle.api.tasks.application.CreateStartScripts
+import org.gradle.api.plugins.JavaApplication
 
 /**
  * Combine the nebula-ospackage-application with the nebula-ospackage-daemon plugin. As with the nebula-ospackage-application,
@@ -46,24 +46,23 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
         project.plugins.apply(OspackageApplicationPlugin)
         def ospackageApplicationExtension = project.extensions.getByType(OspackageApplicationExtension)
 
-        CreateStartScripts startScripts = (CreateStartScripts) project.tasks.getByName(ApplicationPlugin.TASK_START_SCRIPTS_NAME)
-
         project.plugins.apply(OspackageDaemonPlugin)
 
         // Mechanism for user to configure daemon further
         List<Closure> daemonConfiguration = []
         setApplicationDaemon(project, daemonConfiguration)
 
-        // TODO Convention mapping on definition instead of afterEvaluate
+        // Keep afterEvaluate to wait for user configuration of applicationName
         project.afterEvaluate {
-            // TODO Sanitize name
-            def name = startScripts.applicationName
+            // Use strongly-typed application extension instead of eager task realization
+            JavaApplication appExtension = project.extensions.getByType(JavaApplication)
+            def name = appExtension.applicationName ?: project.name
 
             // Add daemon to project
             DaemonExtension daemonExt = project.extensions.getByType(DaemonExtension)
             def definition = daemonExt.daemon { DaemonDefinition daemonDefinition ->
                 daemonDefinition.setDaemonName(name)
-                daemonDefinition.setCommand("${ospackageApplicationExtension.prefix}/${name}/bin/${name}".toString())
+                daemonDefinition.setCommand("${ospackageApplicationExtension.prefix.get()}/${name}/bin/${name}".toString())
             }
 
             daemonConfiguration.each { confClosure ->

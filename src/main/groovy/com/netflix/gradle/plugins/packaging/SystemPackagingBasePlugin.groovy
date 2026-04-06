@@ -22,8 +22,6 @@ import com.netflix.gradle.plugins.docker.OsPackageDockerPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.ConventionMapping
-import org.gradle.api.internal.IConventionAware
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -51,10 +49,6 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
 
     ProjectPackagingExtension createExtension() {
         ProjectPackagingExtension extension = project.extensions.create(taskBaseName, ProjectPackagingExtension, project)
-
-        // Ensure extension is IConventionAware
-        ConventionMapping mapping = ((IConventionAware) extension).getConventionMapping()
-
         return extension
     }
 }

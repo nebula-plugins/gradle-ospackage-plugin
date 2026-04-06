@@ -1046,10 +1046,10 @@ class DebPluginTest extends ProjectSpec {
                     'Foo': 'bar',
                     'baz': 'quux'
             ])
-            customFields << [
+            customField([
                     'beep': 'boop',
                     'Blip': 'boing'
-            ]
+            ])
         })
         debTask.from(srcDir)
 

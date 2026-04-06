@@ -63,7 +63,7 @@ class MaintainerScriptsGenerator {
     private static class MaintainerScript {
         String name
         File file
-        List<Object> commands
+        List<String> commands
 
         boolean needsTemplateGeneration() {
             return commands
@@ -73,7 +73,7 @@ class MaintainerScriptsGenerator {
     private static class PostInstScript extends MaintainerScript {
         Map<String, Object> context
 
-        PostInstScript(File file, List<Object> commands, Map<String, Object> context) {
+        PostInstScript(File file, List<String> commands, Map<String, Object> context) {
             super("postinst", file, commands)
             this.context = context
         }

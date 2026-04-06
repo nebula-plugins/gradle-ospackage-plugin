@@ -18,9 +18,9 @@ package com.netflix.gradle.plugins.application
 
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.packaging.SystemPackagingPlugin
+import groovy.transform.CompileDynamic
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.internal.IConventionAware
 import org.gradle.api.distribution.DistributionContainer
 import org.gradle.api.distribution.plugins.DistributionPlugin
 import org.gradle.api.plugins.ApplicationPlugin
@@ -39,20 +39,21 @@ class OspackageApplicationPlugin implements Plugin<Project> {
     OspackageApplicationExtension extension
 
     @Override
+    @CompileDynamic
     void apply(Project project) {
         extension = project.extensions.create('ospackage_application', OspackageApplicationExtension)
-        def conventionMapping = ((IConventionAware) extension).conventionMapping
-        conventionMapping.map('prefix') { '/opt' }
-        conventionMapping.map('distribution') { '' }
+        extension.prefix.convention('/opt')
+        extension.distribution.convention('')
 
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
         def distributions = project.getExtensions().getByType(DistributionContainer.class)
         def mainDistribution = distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
-        def name = mainDistribution.getDistributionBaseName().map { baseName ->
-            def classifier = mainDistribution.getDistributionClassifier().getOrNull()
-            baseName + (classifier != null ? '-' + classifier : '')
+        def name = extension.prefix.map { prefix ->
+            String baseName = mainDistribution.getDistributionBaseName().get()
+            String classifier = mainDistribution.getDistributionClassifier().getOrNull()
+            return baseName + (classifier != null ? '-' + classifier : '')
         }
         def packaging = project.extensions.getByType(ProjectPackagingExtension)
         def copyMain = project.copySpec() {
@@ -60,6 +61,6 @@ class OspackageApplicationPlugin implements Plugin<Project> {
             into(name)
         }
         packaging.with(copyMain)
-        packaging.into(project.provider { extension.prefix })
+        packaging.into(extension.prefix.map { it })
     }
 }
