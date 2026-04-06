@@ -42,7 +42,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         project.apply plugin: 'com.netflix.nebula.ospackage-base'
 
         project.ospackage {
-            release = 3
+            release = '3'
             into '/opt/bleah'
             os = LINUX
             from(srcDir)
@@ -75,7 +75,7 @@ class SystemPackagingBasePluginTest extends ProjectSpec {
         ProjectPackagingExtension ext = project.getExtensions().getByType(ProjectPackagingExtension)
         ext.with {
             provides project.name
-            release = 3
+            release = '3'
             requires 'awesomesauce'
             url 'http://notawesome.com'
             into '/opt/bleah'
