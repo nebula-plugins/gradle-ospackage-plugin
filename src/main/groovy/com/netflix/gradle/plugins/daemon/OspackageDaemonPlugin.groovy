@@ -29,7 +29,6 @@ import org.gradle.api.Project
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     public static final String POST_INSTALL_TEMPLATE = "postInstall"
-    Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
     DefaultDaemonDefinitionExtension defaultDefinition
@@ -54,7 +53,6 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
         DomainObjectSet<DaemonDefinition> daemonsList = WrapUtil.toDomainObjectSet(DaemonDefinition)

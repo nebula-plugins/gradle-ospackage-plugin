@@ -81,7 +81,7 @@ class RpmCopyAction extends AbstractPackagingCopyAction<Rpm> {
             }
             if (StringUtils.isNotBlank(task.getSigningKeyId())
                     && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
-                    && task.getSigningKeyRingFile().exists()) {
+                    && task.getSigningKeyRingFile()?.exists()) {
                 builder.setPrivateKeyId task.getSigningKeyId()
                 builder.setPrivateKeyPassphrase task.getSigningKeyPassphrase()
                 builder.setPrivateKeyRingFile task.getSigningKeyRingFile()

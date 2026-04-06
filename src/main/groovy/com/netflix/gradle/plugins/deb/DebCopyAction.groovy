@@ -304,7 +304,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         maintainerScriptsGenerator.generate(toContext())
 
         task.allSupplementaryControlFiles.each { supControl ->
-            File supControlFile = supControl instanceof File ? supControl as File : task.project.file(supControl)
+            File supControlFile = supControl instanceof File ? supControl as File : task.projectLayout.projectDirectory.file(supControl.toString()).asFile
             new File(debianDir, supControlFile.name).bytes = supControlFile.bytes
         }
 
@@ -314,7 +314,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         maker.setDeb(debFile)
         if (StringUtils.isNotBlank(task.getSigningKeyId())
                 && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
-                && task.getSigningKeyRingFile().exists()) {
+                && task.getSigningKeyRingFile()?.exists()) {
             maker.setKey(task.getSigningKeyId())
             maker.setPassphrase(task.getSigningKeyPassphrase())
             maker.setKeyring(task.getSigningKeyRingFile())
