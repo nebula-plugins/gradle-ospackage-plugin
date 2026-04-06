@@ -60,8 +60,8 @@ abstract class Deb extends SystemPackagingTask {
     }
 
     @Override
-    protected void applyConventions() {
-        super.applyConventions()
+    protected void applyConventions(org.gradle.api.Project projectRef = project) {
+        super.applyConventions(projectRef)
 
         // Apply default conventions FIRST (lowest priority)
         exten.uid.convention(0)

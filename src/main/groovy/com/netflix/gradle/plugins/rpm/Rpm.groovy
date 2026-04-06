@@ -68,8 +68,8 @@ abstract class Rpm extends SystemPackagingTask {
     }
 
     @Override
-    protected void applyConventions() {
-        super.applyConventions()
+    protected void applyConventions(org.gradle.api.Project projectRef = project) {
+        super.applyConventions(projectRef)
 
         // Apply default conventions FIRST (lowest priority)
         exten.addParentDirs.convention(true)

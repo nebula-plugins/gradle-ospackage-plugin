@@ -39,7 +39,7 @@ class RpmPlugin implements Plugin<Project> {
         // Some defaults, if not set by the user
         project.tasks.withType(Rpm).configureEach { Rpm rpm ->
             RpmPlugin.applyAliases(rpm) // RPM Specific aliases
-            rpm.applyConventions()
+            rpm.applyConventions(project)
         }
     }
 
