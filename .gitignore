@@ -12,4 +12,5 @@ out
 *.iml
 *.iws
 .idea
-.claude/
+
+.claude/settings.local.json
