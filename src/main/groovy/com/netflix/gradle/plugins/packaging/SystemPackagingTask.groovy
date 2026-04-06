@@ -494,12 +494,12 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     def customField(Map<String, String> fields) { getExten().customField(fields) }
 
     // Apply conventions to task extension properties using modern Property API
-    protected void applyConventions(Project projectRef = project) {
+    protected void applyConventions(Project project = project) {
         // Apply default conventions FIRST (lowest priority)
         exten.packageName.convention(getArchiveBaseName())
         exten.release.convention(getArchiveClassifier())
         exten.version.convention(getProviders().provider {
-            sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: projectRef.getVersion().toString())
+            sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: project.getVersion().toString())
         })
         exten.epoch.convention(0)
         exten.signingKeyId.convention('')
@@ -517,7 +517,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
         exten.setgid.convention(false)
         exten.buildHost.convention(HOST_NAME)
         exten.summary.convention(exten.packageName)
-        exten.packageDescription.convention(getProviders().provider { projectRef.getDescription() ?: '' })
+        exten.packageDescription.convention(getProviders().provider { project.getDescription() ?: '' })
         exten.license.convention('')
         exten.packager.convention(System.getProperty('user.name', ''))
         exten.distribution.convention('')

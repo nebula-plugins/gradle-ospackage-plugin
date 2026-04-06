@@ -21,6 +21,7 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
+import org.gradle.api.Project
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -60,8 +61,8 @@ abstract class Deb extends SystemPackagingTask {
     }
 
     @Override
-    protected void applyConventions(org.gradle.api.Project projectRef = project) {
-        super.applyConventions(projectRef)
+    protected void applyConventions(Project project) {
+        super.applyConventions(project)
 
         // Apply default conventions FIRST (lowest priority)
         exten.uid.convention(0)

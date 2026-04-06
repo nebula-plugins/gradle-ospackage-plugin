@@ -29,7 +29,6 @@ import org.gradle.api.Project
 
 class OspackageDaemonPlugin implements Plugin<Project> {
     public static final String POST_INSTALL_TEMPLATE = "postInstall"
-    Project project
     DaemonExtension extension
     DaemonTemplatesConfigExtension daemonTemplatesConfigExtension
     DefaultDaemonDefinitionExtension defaultDefinition
@@ -54,7 +53,6 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        this.project = project
         project.plugins.apply(SystemPackagingBasePlugin)
 
         DomainObjectSet<DaemonDefinition> daemonsList = WrapUtil.toDomainObjectSet(DaemonDefinition)
@@ -105,7 +103,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     // Use Property API instead of conventionMapping
                     it.destDir.convention(outputDirProvider)
                     it.templatesFolder.convention(daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER)
-                    it.context.convention(project.provider {
+                    it.context.convention(project.providers.provider {
                         Map<String,Object> context = toContext(defaults, definition)
                         context.daemonName = daemonName
                         context.isRedhat = isRedhat
@@ -123,7 +121,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     }
 
                     def destPathProvider = templateTaskProvider.flatMap { templateTask ->
-                        project.provider {
+                        project.providers.provider {
                             getDestPath(destPathTemplate, templateTask)
                         }
                     }

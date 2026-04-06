@@ -124,9 +124,10 @@ class OspackageApplicationSpringBootPlugin implements Plugin<Project> {
 
                 // Workaround for https://github.com/gradle/gradle/issues/16371
                 if (GradleVersion.current().baseVersion >= GradleVersion.version('6.4').baseVersion) {
+                    def mainClass = project.application.mainClass
                     project.tasks.named(ApplicationPlugin.TASK_START_SCRIPTS_NAME).configure {
                         doFirst {
-                            if (!project.application.mainClass.isPresent()) {
+                            if (!mainClass.isPresent()) {
                                 throw new GradleException("mainClass should be configured in order to generate a valid start script. i.e. mainClass = 'com.netflix.app.MyApp'")
                             }
                         }

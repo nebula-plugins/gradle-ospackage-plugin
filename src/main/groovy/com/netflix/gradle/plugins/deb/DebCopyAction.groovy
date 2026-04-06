@@ -314,7 +314,7 @@ class DebCopyAction extends AbstractPackagingCopyAction<Deb> {
         maker.setDeb(debFile)
         if (StringUtils.isNotBlank(task.getSigningKeyId())
                 && StringUtils.isNotBlank(task.getSigningKeyPassphrase())
-                && task.getSigningKeyRingFile().exists()) {
+                && task.getSigningKeyRingFile()?.exists()) {
             maker.setKey(task.getSigningKeyId())
             maker.setPassphrase(task.getSigningKeyPassphrase())
             maker.setKeyring(task.getSigningKeyRingFile())
