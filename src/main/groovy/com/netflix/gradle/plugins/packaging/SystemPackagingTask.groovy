@@ -18,6 +18,7 @@ package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
+import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.ProjectLayout
@@ -27,6 +28,7 @@ import org.gradle.api.internal.file.copy.CopyActionExecuter
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.util.GradleVersion
@@ -42,6 +44,9 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Inject
     abstract ObjectFactory getObjectFactory()
+
+    @Inject
+    abstract ProviderFactory getProviders()
 
     @Nested
     abstract SystemPackagingExtension getExten() // Not File extension or ext list of properties, different kind of Extension
@@ -489,30 +494,30 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     def customField(Map<String, String> fields) { getExten().customField(fields) }
 
     // Apply conventions to task extension properties using modern Property API
-    protected void applyConventions() {
+    protected void applyConventions(Project project = project) {
         // Apply default conventions FIRST (lowest priority)
         exten.packageName.convention(getArchiveBaseName())
         exten.release.convention(getArchiveClassifier())
-        exten.version.convention(project.provider { sanitizeVersion() })
+        exten.version.convention(getProviders().provider {
+            sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: project.getVersion().toString())
+        })
         exten.epoch.convention(0)
         exten.signingKeyId.convention('')
         exten.signingKeyPassphrase.convention('')
         exten.signingKeyRingFile.convention(
-            project.layout.file(project.provider {
+            projectLayout.file(getProviders().provider {
                 File defaultFile = new File(System.getProperty('user.home'), '.gnupg/secring.gpg')
                 defaultFile.exists() ? defaultFile : null
             })
         )
-        exten.user.convention(project.provider { getPackager() })
-        exten.maintainer.convention(project.provider { getPackager() })
-        exten.uploaders.convention(project.provider { getPackager() })
+        exten.user.convention(getProviders().provider { getPackager() })
+        exten.maintainer.convention(getProviders().provider { getPackager() })
+        exten.uploaders.convention(getProviders().provider { getPackager() })
         exten.permissionGroup.convention('')
         exten.setgid.convention(false)
         exten.buildHost.convention(HOST_NAME)
         exten.summary.convention(exten.packageName)
-        exten.packageDescription.convention(project.provider {
-            project.getDescription() ?: ''
-        })
+        exten.packageDescription.convention(getProviders().provider { project.getDescription() ?: '' })
         exten.license.convention('')
         exten.packager.convention(System.getProperty('user.name', ''))
         exten.distribution.convention('')
@@ -557,13 +562,9 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
         // Task-specific conventions
         if(GradleVersion.current().compareTo(GradleVersion.version("7.0.0")) >= 0) {
-            getArchiveFileName().convention(project.provider { assembleArchiveName() })
+            getArchiveFileName().convention(getProviders().provider { assembleArchiveName() })
             getArchiveVersion().convention(determineArchiveVersion())
         }
-    }
-
-    private String sanitizeVersion() {
-        sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: project.getVersion().toString())
     }
 
     private String sanitizeVersion(String version) {

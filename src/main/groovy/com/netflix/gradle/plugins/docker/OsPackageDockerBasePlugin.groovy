@@ -21,7 +21,7 @@ class OsPackageDockerBasePlugin implements Plugin<Project> {
         project.plugins.apply(CommonPackagingPlugin)
         // Some defaults, if not set by the user
         project.tasks.withType(SystemPackageDockerfile).configureEach { SystemPackageDockerfile systemPackageDockerfile ->
-            systemPackageDockerfile.applyConventions()
+            systemPackageDockerfile.applyConventions(project)
         }
 
         project.plugins.withType(DockerRemoteApiPlugin).configureEach { DockerRemoteApiPlugin dockerRemoteApiPlugin ->

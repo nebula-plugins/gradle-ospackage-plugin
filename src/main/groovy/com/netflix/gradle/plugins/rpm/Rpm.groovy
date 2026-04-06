@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import groovy.transform.CompileDynamic
+import org.gradle.api.Project
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -68,8 +69,8 @@ abstract class Rpm extends SystemPackagingTask {
     }
 
     @Override
-    protected void applyConventions() {
-        super.applyConventions()
+    protected void applyConventions(Project project) {
+        super.applyConventions(project)
 
         // Apply default conventions FIRST (lowest priority)
         exten.addParentDirs.convention(true)

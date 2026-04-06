@@ -36,7 +36,7 @@ class DebPlugin implements Plugin<Project> {
         project.tasks.withType(Deb).configureEach { Deb deb ->
             RpmPlugin.applyAliases(deb) // RPM Specific aliases
             DebPlugin.applyAliases(deb) // DEB-specific aliases
-            deb.applyConventions()
+            deb.applyConventions(project)
         }
     }
 
