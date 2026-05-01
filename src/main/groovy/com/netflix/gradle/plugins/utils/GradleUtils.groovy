@@ -2,6 +2,8 @@ package com.netflix.gradle.plugins.utils
 
 import org.gradle.api.file.FileCopyDetails
 
+import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.Path
 
 final class GradleUtils {
@@ -41,6 +43,13 @@ final class GradleUtils {
             File sourceRoot = new File("/$sourceBase", sourceRelative)
             File targetRoot = new File("/$sourceBase", targetPath.substring(sourceBasePath.length()))
             Path relativeTarget = sourceRoot.isDirectory() ? sourceRoot.toPath().relativize(targetRoot.toPath()) : sourceRoot.parentFile.toPath().relativize(targetRoot.toPath())
+            println sourceBase
+            println sourceRelative
+            println Files.isSymbolicLink(sourceRoot.toPath())
+            println Files.isDirectory(sourceRoot.toPath())
+            println Files.isDirectory(sourceRoot.toPath(), LinkOption.NOFOLLOW_LINKS)
+            println sourceRoot.isDirectory()
+            println relativeTarget
             return new Tuple2(sourceRoot.path, relativeTarget.toString())
         } else {
             return null
