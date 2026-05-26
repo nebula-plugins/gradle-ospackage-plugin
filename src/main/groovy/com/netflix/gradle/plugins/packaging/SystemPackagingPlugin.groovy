@@ -25,12 +25,9 @@ import org.gradle.api.Project
  * Create implicit tasks, which will inherit from the ospackage extension.
  */
 class SystemPackagingPlugin implements Plugin<Project> {
-    Project project
+
     void apply(Project project) {
-
-        this.project = project
-
-        project.plugins.apply(SystemPackagingBasePlugin.class)
+        project.plugins.apply("com.netflix.nebula.ospackage-base")
         project.tasks.register('buildDeb', Deb)
         project.tasks.register('buildRpm', Rpm)
     }

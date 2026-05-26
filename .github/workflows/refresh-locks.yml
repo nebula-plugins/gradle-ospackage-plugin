@@ -1,23 +1,15 @@
-name: Nebula Build
-permissions:
-  contents: read
-  actions: write
+name: Refresh Dependency Locks
 on:
-  push:
-    branches:
-      - 'main'
-  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 1"
 
 jobs:
-  buildmultijdk:
+  refresh-locks:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # test against latest update of some major Java version(s), as well as specific LTS version(s)
-        java: [17, 21, 25]
-    name: Gradle Build without Publish
+    name: Refresh Dependency Locks
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Setup git user
         run: |
           git config --global user.name "Nebula Plugin Maintainers"
@@ -29,7 +21,6 @@ jobs:
           java-version: |
             17
             21
-            ${{ matrix.java }}
           java-package: jdk
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
@@ -39,6 +30,13 @@ jobs:
           build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
           build-scan-terms-of-use-agree: 'yes'
       - name: Gradle build
-        run: ./gradlew --stacktrace build
+        run: ./gradlew resolve --write-locks --refresh-dependencies --stacktrace
+      - name: Commit
+        run: |
+          git checkout -b dependency-update
+          git commit -a -m "Update dependencies"
+          git push -u origin dependency-update
+      - name: Open PR
+        run: gh pr create -B main -H dependency-update --title 'Update dependencies' --body 'Created by Github action'
         env:
-          JDK_VERSION_FOR_TESTS: ${{ matrix.java }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -17,8 +17,7 @@ import org.gradle.api.attributes.plugin.GradlePluginApiVersion
  *
  */
 plugins {
-    id 'com.netflix.nebula.plugin-plugin' version '22.0.2'
-    id 'java-library'
+    id 'com.netflix.nebula.plugin-plugin'
 }
 
 description = 'Provides a task similar to Tar and Zip for constructing RPM and DEB package files.'
@@ -30,10 +29,6 @@ contacts {
         moniker 'Nebula Plugins Maintainers'
         github 'nebula-plugins'
     }
-}
-
-dependencyLock {
-    includeTransitives = true
 }
 
 configurations.all {
@@ -59,6 +54,7 @@ dependencies {
 
     implementation 'com.bmuschko:gradle-docker-plugin:10.0.0'
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
+    testImplementation("org.spockframework:spock-junit4:2.4-groovy-4.0")
 }
 
 def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
@@ -164,4 +160,10 @@ gradlePlugin {
             tags.set(['nebula', 'rpm', 'centos'])
         }
     }
+}
+
+tasks.wrapper {
+    distributionType = Wrapper.DistributionType.BIN
+    gradleVersion = "9.5.1"
+    distributionSha256Sum = "bafc141b619ad6350fd975fc903156dd5c151998cc8b058e8c1044ab5f7b031f"
 }

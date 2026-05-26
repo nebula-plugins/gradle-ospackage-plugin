@@ -21,7 +21,6 @@ import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
 import groovy.transform.CompileDynamic
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

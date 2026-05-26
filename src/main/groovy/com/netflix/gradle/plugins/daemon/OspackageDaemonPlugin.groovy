@@ -16,17 +16,18 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.utils.FilePermissionUtil
 import com.netflix.gradle.plugins.utils.WrapUtil
 import groovy.text.GStringTemplateEngine
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.gradle.api.DomainObjectSet
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+@CompileStatic
 class OspackageDaemonPlugin implements Plugin<Project> {
     public static final String POST_INSTALL_TEMPLATE = "postInstall"
     DaemonExtension extension
@@ -53,7 +54,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        project.plugins.apply(SystemPackagingBasePlugin)
+        project.plugins.apply("com.netflix.nebula.ospackage-base")
 
         DomainObjectSet<DaemonDefinition> daemonsList = WrapUtil.toDomainObjectSet(DaemonDefinition)
         extension = project.extensions.create('daemons', DaemonExtension, daemonsList)
@@ -65,7 +66,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
             extension.daemon(closure)
         })
 
-        extension.daemons.all { DaemonDefinition definition ->
+        extension.daemons.configureEach { DaemonDefinition definition ->
             // Check existing name
             def sameName = daemonsList.any { !it.is(definition) && it.daemonName == definition.daemonName }
             if (sameName) {

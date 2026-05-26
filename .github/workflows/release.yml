@@ -35,10 +35,13 @@ jobs:
             17
             21
           java-package: jdk
-#      - name: Setup Gradle
-#        uses: gradle/actions/setup-gradle@v5
-#        with:
-#          cache-overwrite-existing: true
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+        with:
+          cache-overwrite-existing: true
+          build-scan-publish: true
+          build-scan-terms-of-use-url: 'https://gradle.com/terms-of-service'
+          build-scan-terms-of-use-agree: 'yes'
       - name: Verify plugin publication
         if: (!contains(github.ref, '-rc.'))
         run: ./gradlew  --stacktrace -Prelease.useLastTag=true final publishPlugin --validate-only -x check
