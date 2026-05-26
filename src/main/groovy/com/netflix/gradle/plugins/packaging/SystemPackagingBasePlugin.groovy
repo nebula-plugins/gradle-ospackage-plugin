@@ -17,37 +17,27 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.DebPlugin
-import com.netflix.gradle.plugins.docker.OsPackageDockerBasePlugin
-import com.netflix.gradle.plugins.docker.OsPackageDockerPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 
 class SystemPackagingBasePlugin implements Plugin<Project> {
-    private static Logger logger = Logging.getLogger(SystemPackagingBasePlugin);
-
-    Project project
     ProjectPackagingExtension extension
 
     public static final String taskBaseName = 'ospackage'
 
     void apply(Project project) {
-
-        this.project = project
-
         // Extension is created before plugins are, so tasks
-        extension = createExtension()
+        extension = createExtension(project)
         RpmPlugin.applyAliases(extension) // RPM Specific aliases
         DebPlugin.applyAliases(extension) // DEB-specific aliases
 
-        project.plugins.apply(RpmPlugin.class)
-        project.plugins.apply(DebPlugin.class)
-        project.plugins.apply(OsPackageDockerBasePlugin)
+        project.plugins.apply("com.netflix.nebula.rpm")
+        project.plugins.apply("com.netflix.nebula.deb")
+        project.plugins.apply("com.netflix.nebula.ospackage-docker-base")
     }
 
-    ProjectPackagingExtension createExtension() {
+    ProjectPackagingExtension createExtension(Project project) {
         ProjectPackagingExtension extension = project.extensions.create(taskBaseName, ProjectPackagingExtension, project)
         return extension
     }

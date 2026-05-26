@@ -1,17 +1,13 @@
 package com.netflix.gradle.plugins.docker
 
-import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
-import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
-import com.netflix.gradle.plugins.packaging.SystemPackagingBasePlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class OsPackageDockerPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
-        project.plugins.apply(SystemPackagingBasePlugin)
-        project.plugins.apply(OsPackageDockerBasePlugin)
-        project.plugins.apply(DockerRemoteApiPlugin)
+        project.plugins.apply("com.netflix.nebula.ospackage-base")
+        project.plugins.apply("com.netflix.nebula.ospackage-docker-base")
+        project.plugins.apply("com.bmuschko.docker-remote-api")
     }
 }

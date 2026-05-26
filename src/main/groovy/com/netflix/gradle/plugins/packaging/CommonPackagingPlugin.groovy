@@ -22,7 +22,7 @@ import org.gradle.api.plugins.BasePlugin
 
 class CommonPackagingPlugin implements Plugin<Project> {
     void apply(Project project) {
-        project.plugins.apply(BasePlugin.class)
+        project.plugins.apply("base")
 
         // Used to be used to add metaClass properties to CopySpec, but now it's done with CopySpecEnhancement
     }

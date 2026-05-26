@@ -43,10 +43,10 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
 
-        project.plugins.apply(OspackageApplicationPlugin)
+        project.plugins.apply("com.netflix.nebula.ospackage-application")
         def ospackageApplicationExtension = project.extensions.getByType(OspackageApplicationExtension)
 
-        project.plugins.apply(OspackageDaemonPlugin)
+        project.plugins.apply("com.netflix.nebula.ospackage-daemon")
 
         // Mechanism for user to configure daemon further
         List<Closure> daemonConfiguration = []
