@@ -20,6 +20,7 @@ package com.netflix.gradle.plugins.rpm
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
 import nebula.test.ProjectSpec
+import org.redline_rpm.payload.Directive
 import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
@@ -80,12 +81,12 @@ class RpmPluginTest extends ProjectSpec {
 
             from(srcDir.toString() + '/main/groovy') {
                 createDirectoryEntry true
-                fileType CONFIG | NOREPLACE
             }
 
             from(noParentsDir) {
                 addParentDirs false
                 into '/a/path/not/to/create'
+                fileType CONFIG | NOREPLACE
             }
 
             link('/opt/bleah/banana', '/opt/bleah/apple')
@@ -102,6 +103,13 @@ class RpmPluginTest extends ProjectSpec {
         0 == Scanner.getHeaderEntry(scan, EPOCH).values[0]
         'i386' == Scanner.getHeaderEntryString(scan, ARCH)
         'linux' == Scanner.getHeaderEntryString(scan, OS)
+
+        def confFileIndex = scan.files.findIndexOf {
+            it.name == './a/path/not/to/create/alone'
+        }
+        def configNoReplaceFlag = Directive.RPMFILE_CONFIG | Directive.RPMFILE_NOREPLACE
+        configNoReplaceFlag == Scanner.getHeaderEntry(scan, FILEFLAGS).values[confFileIndex]
+
         ['SuperSystem'] == Scanner.getHeaderEntry(scan, DISTRIBUTION).values
         scan.files*.name.every { fileName ->
             ['./a/path/not/to/create/alone', './opt/bleah',
