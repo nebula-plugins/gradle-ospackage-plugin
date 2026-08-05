@@ -23,13 +23,13 @@ class RpmFileVisitorStrategy {
             if (parentLink != null) {
                 def link = relativizeSymlink(details, parentLink)
                 if (link != null) {
-                    addLinkToBuilder(link)
+                    addLinkToBuilder(link, mode)
                     return
                 }
             } else if (JavaNIOUtils.isSymbolicLink(details.file)) {
                 def link = relativizeSymlink(details, file)
                 if (link != null) {
-                    addLinkToBuilder(link)
+                    addLinkToBuilder(link, mode)
                     return
                 }
             }
@@ -47,7 +47,7 @@ class RpmFileVisitorStrategy {
             if (JavaNIOUtils.isSymbolicLink(details.file)) {
                 def link = relativizeSymlink(details, file)
                 if (link != null) {
-                    addLinkToBuilder(link)
+                    addLinkToBuilder(link, permissions)
                     return
                 }
             }
@@ -69,9 +69,9 @@ class RpmFileVisitorStrategy {
         builder.addDirectory(getRootPath(details), permissions, directive, uname, gname, addParents)
     }
 
-    private void addLinkToBuilder(Tuple2<String, String> link) {
+    private void addLinkToBuilder(Tuple2<String, String> link, int permissions) {
         if (links.add(link)) {
-            builder.addLink(link.first, link.second)
+            builder.addLink(link.first, link.second, permissions)
         }
     }
 }
