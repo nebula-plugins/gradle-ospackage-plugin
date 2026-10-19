@@ -16,13 +16,59 @@
 
 package com.netflix.gradle.plugins
 
-import spock.lang.Ignore
+import org.gradle.api.JavaVersion
+import spock.lang.Requires
 
 /**
- * Tests that verify configuration cache support for Debian packaging.
+ * Tests that verify configuration cache support for the plugin's packaging tasks.
  * These tests run tasks twice to ensure the configuration cache is stored and reused.
  */
 class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
+
+    // Gradle 8.6 cannot run on the newer JDKs in the outer build matrix.
+    @Requires({ JavaVersion.current() <= JavaVersion.VERSION_21 })
+    def 'configuration cache works on supported Gradle #testedGradleVersion'() {
+        given:
+        gradleVersion = testedGradleVersion
+        def source = new File(projectDir, 'src/app.txt')
+        source.parentFile.mkdirs()
+        source.text = 'content'
+        buildFile << """
+            plugins {
+                id 'com.netflix.nebula.deb'
+                id 'com.netflix.nebula.rpm'
+                id 'com.netflix.nebula.ospackage-docker'
+            }
+            version = '1.2.3'
+            description = 'Supported Gradle test'
+            tasks.register('myDeb', com.netflix.gradle.plugins.deb.Deb) {
+                packageName = 'version-test'
+                from('src') { into '/opt/app' }
+            }
+            tasks.register('myRpm', com.netflix.gradle.plugins.rpm.Rpm) {
+                packageName = 'version-test'
+                from('src') { into '/opt/app' }
+            }
+            createDockerfile {
+                destinationDirectory = layout.buildDirectory.dir('docker')
+                instruction 'FROM ubuntu:22.04'
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasks('myDeb', 'myRpm', 'createDockerfile', '--configuration-cache')
+        def result2 = runTasks('myDeb', 'myRpm', 'createDockerfile', '--configuration-cache')
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/distributions/version-test_1.2.3_all.deb').exists()
+        new File(projectDir, 'build/distributions/version-test-1.2.3.noarch.rpm').exists()
+        new File(projectDir, 'build/docker/Dockerfile').text.contains('FROM ubuntu:22.04')
+
+        where:
+        testedGradleVersion << SupportedGradleVersions.ALL
+    }
 
     def 'deb plugin works with configuration cache'() {
         given:
@@ -95,6 +141,15 @@ class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
 
         and: 'package is created'
         new File(projectDir, 'build/distributions/daemon-test_1.0.0_all.deb').exists()
+
+        when: 'daemon context changes'
+        buildFile.text = buildFile.text.replace('sleep infinity', 'exit 0')
+        def result3 = runTasks('myDeb', '--configuration-cache')
+
+        then:
+        result3.output.contains('Configuration cache entry stored')
+        result3.task(':myDebTestdaemonDaemon').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        new File(projectDir, 'build/daemon/Testdaemon/myDeb/run').text.contains('exit 0')
     }
 
     def 'application plugin works with configuration cache'() {
@@ -232,6 +287,15 @@ exec multilog t ./main
 
         and: 'package is created'
         new File(projectDir, 'build/distributions/custom-templates_1.0.0_all.deb').exists()
+
+        when: 'a custom template changes while the configuration cache is reused'
+        new File(templatesDir, 'run.tpl').text = '#!/bin/sh\necho changed\n'
+        def result3 = runTasks('myDeb', '--configuration-cache')
+
+        then:
+        result3.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/daemon/Customdaemon/myDeb/run').text.contains('echo changed')
+
     }
 
     def 'ospackage-base plugin works with configuration cache'() {
@@ -590,6 +654,18 @@ exec multilog t ./main
 
         and: 'package is created'
         new File(projectDir, 'build/distributions/supplementary-test_1.0.0_all.deb').exists()
+
+        when: 'supplementary control content changes'
+        controlFile.text = 'Updated release'
+        def result3 = runTasks('myDeb', '--configuration-cache')
+
+        then:
+        result3.output.contains('Configuration cache entry reused')
+        result3.task(':myDeb').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        new com.netflix.gradle.plugins.deb.Scanner(
+            new File(projectDir, 'build/distributions/supplementary-test_1.0.0_all.deb')
+        ).getControl('./changelog') == 'Updated release'
+
     }
 
     def 'version and description derived from project work with configuration cache'() {
@@ -1005,21 +1081,66 @@ exec multilog t ./main
         new File(projectDir, 'build/distributions/permissions-test_1.0.0_all.deb').exists()
     }
 
-    /**
-     * Documents the known configuration cache limitation of OspackageApplicationSpringBootPlugin.
-     *
-     * The Spring Boot plugin uses project.distributions.main.contents.exclude { } with a closure
-     * that captures a Provider<FileCollection> derived from project configurations. While the core
-     * ospackage tasks are CC-compatible (Task.getProject() at execution time is fixed), the Spring
-     * Boot integration plugin adds configuration-time closures that may not survive CC serialization
-     * depending on the Gradle and Spring Boot versions in use.
-     *
-     * To verify Spring Boot CC support manually:
-     *   1. Create a project with `org.springframework.boot` and `com.netflix.nebula.ospackage-application-spring-boot`
-     *   2. Run: ./gradlew buildDeb --configuration-cache
-     *   3. Check for CC incompatibility problems in the output
-     */
-    @Ignore('Requires a full Spring Boot project setup with the org.springframework.boot plugin')
+    def 'dockerfile task works with configuration cache'() {
+        given:
+        buildFile << """
+            plugins {
+                id 'com.netflix.nebula.ospackage-docker'
+            }
+
+            createDockerfile {
+                destinationDirectory = layout.buildDirectory.dir('docker')
+                instruction 'FROM ubuntu:22.04'
+                from('src') { into '/opt' }
+            }
+        """.stripIndent()
+
+        def srcDir = new File(projectDir, 'src')
+        srcDir.mkdirs()
+        new File(srcDir, 'app.txt').text = 'content'
+
+        when:
+        def result1 = runTasks('createDockerfile', '--configuration-cache')
+        def result2 = runTasks('createDockerfile', '--configuration-cache')
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/docker/Dockerfile').text.contains('FROM ubuntu:22.04')
+
+        when: 'a Dockerfile instruction changes'
+        buildFile << "\ncreateDockerfile { instruction 'RUN echo changed' }\n"
+        def result3 = runTasks('createDockerfile', '--configuration-cache')
+
+        then:
+        result3.output.contains('Configuration cache entry stored')
+        result3.task(':createDockerfile').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        new File(projectDir, 'build/docker/Dockerfile').text.contains('RUN echo changed')
+    }
+
+    def 'instruction-only Dockerfile works with configuration cache'() {
+        given:
+        buildFile << """
+            plugins { id 'com.netflix.nebula.ospackage-docker' }
+            createDockerfile {
+                destinationDirectory = layout.buildDirectory.dir('docker')
+                instruction 'FROM ubuntu:22.04'
+                instruction 'RUN echo ready'
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasks('createDockerfile', '--configuration-cache')
+        def result2 = runTasks('createDockerfile', '--configuration-cache')
+
+        then:
+        result1.task(':createDockerfile').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        result2.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/docker/Dockerfile').readLines() == [
+            'FROM ubuntu:22.04', 'RUN echo ready'
+        ]
+    }
+
     def 'spring boot ospackage plugin configuration cache compatibility'() {
         given:
         buildFile << """
@@ -1033,10 +1154,56 @@ exec multilog t ./main
             }
         """.stripIndent()
 
+        def srcDir = new File(projectDir, 'src/main/java/com/example')
+        srcDir.mkdirs()
+        new File(srcDir, 'Main.java').text = '''
+            package com.example;
+            public class Main {
+                public static void main(String[] args) { System.out.println("Hello"); }
+            }
+        '''.stripIndent()
+
         when:
-        def result = runTasks('buildDeb', '--configuration-cache')
+        def result1 = runTasks('buildDeb', '--configuration-cache')
+        def result2 = runTasks('buildDeb', '--configuration-cache')
 
         then:
-        result.output.contains('Configuration cache entry stored')
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/distributions').listFiles().any { it.name.endsWith('.deb') }
+    }
+
+    def 'rpm trigger script changes rerun packaging with configuration cache'() {
+        given:
+        def script = new File(projectDir, 'scripts/trigger.sh')
+        script.parentFile.mkdirs()
+        script.text = '#!/bin/sh\necho initial\n'
+        def source = new File(projectDir, 'src/app.txt')
+        source.parentFile.mkdirs()
+        source.text = 'content'
+        buildFile << """
+            plugins { id 'com.netflix.nebula.rpm' }
+            tasks.register('myRpm', com.netflix.gradle.plugins.rpm.Rpm) {
+                packageName = 'trigger-test'
+                version = '1.0.0'
+                triggerInstall file('scripts/trigger.sh'), 'trigger-test'
+                from('src') { into '/opt' }
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasks('myRpm', '--configuration-cache')
+        def result2 = runTasks('myRpm', '--configuration-cache')
+        script.text = '#!/bin/sh\necho changed\n'
+        def result3 = runTasks('myRpm', '--configuration-cache')
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Configuration cache entry reused')
+        result3.output.contains('Configuration cache entry reused')
+        result3.task(':myRpm').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        com.netflix.gradle.plugins.rpm.Scanner.scan(
+            new File(projectDir, 'build/distributions/trigger-test-1.0.0.noarch.rpm')
+        ).format.header.entries[1065].values[0].contains('echo changed')
     }
 }

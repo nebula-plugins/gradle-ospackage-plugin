@@ -25,8 +25,11 @@ import org.gradle.api.Project
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.work.DisableCachingByDefault
 
 import javax.inject.Inject
@@ -34,6 +37,12 @@ import javax.inject.Inject
 @DisableCachingByDefault
 @CompileDynamic
 abstract class Deb extends SystemPackagingTask {
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    List<File> getSupplementaryControlInputFiles() {
+        getAllSupplementaryControlFiles().collect { String path -> projectLayout.projectDirectory.file(path).asFile }
+    }
 
     @Inject
     Deb(ProjectLayout projectLayout) {
@@ -62,7 +71,7 @@ abstract class Deb extends SystemPackagingTask {
 
     @Override
     protected void applyConventions(Project project) {
-        super.applyConventions(project)
+        applyBaseConventions(project)
 
         // Apply default conventions FIRST (lowest priority)
         exten.uid.convention(0)

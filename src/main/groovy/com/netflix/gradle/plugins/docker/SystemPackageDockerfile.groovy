@@ -3,6 +3,8 @@ package com.netflix.gradle.plugins.docker
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.tasks.Input
 import org.gradle.tooling.model.UnsupportedMethodException
 import org.gradle.work.DisableCachingByDefault
 
@@ -10,13 +12,18 @@ import javax.inject.Inject
 
 @DisableCachingByDefault
 abstract class SystemPackageDockerfile extends SystemPackagingTask {
-    private final DockerfileInstructionManager dockerfileInstructionManager
     private static final ARCHIVE_NAME = 'Dockerfile'
+
+    @Input
+    abstract ListProperty<String> getInstructions()
 
     @Inject
     SystemPackageDockerfile(ProjectLayout projectLayout) {
         super(projectLayout)
-        dockerfileInstructionManager = new DockerfileInstructionManager()
+        instructions.convention([])
+        // Copy tasks are skipped with no sources. The marker is ignored by the copy
+        // action but ensures instructions alone can generate a Dockerfile.
+        from(markerFile())
     }
 
     @Override
@@ -24,9 +31,16 @@ abstract class SystemPackageDockerfile extends SystemPackagingTask {
         ARCHIVE_NAME
     }
 
+    static File markerFile() {
+        File codeSource = new File(SystemPackageDockerfile.protectionDomain.codeSource.location.toURI())
+        codeSource.isDirectory()
+            ? new File(codeSource, 'com/netflix/gradle/plugins/docker/SystemPackageDockerfile.class')
+            : codeSource
+    }
+
     @Override
     AbstractPackagingCopyAction createCopyAction() {
-        new DockerCopyAction(this, dockerfileInstructionManager)
+        new DockerCopyAction(this, new DockerfileInstructionManager(instructions.get()))
     }
 
     @Override
@@ -35,6 +49,6 @@ abstract class SystemPackageDockerfile extends SystemPackagingTask {
     }
 
     void instruction(String instruction) {
-        dockerfileInstructionManager.addInstruction(instruction)
+        instructions.add(instruction)
     }
 }

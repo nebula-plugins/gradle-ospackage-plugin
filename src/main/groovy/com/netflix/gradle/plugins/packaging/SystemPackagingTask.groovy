@@ -494,13 +494,22 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     def customField(Map<String, String> fields) { getExten().customField(fields) }
 
     // Apply conventions to task extension properties using modern Property API
-    protected void applyConventions(Project project = project) {
+    protected void applyConventions() {
+        applyConventions(project)
+    }
+
+    protected void applyConventions(Project project) {
+        applyBaseConventions(project)
+    }
+
+    // Calling an overloaded super.applyConventions(Project) recurses on Gradle 8.6's Groovy runtime.
+    protected final void applyBaseConventions(Project project) {
+        Provider<String> projectVersion = ProjectDefaultProviders.version(project)
         // Apply default conventions FIRST (lowest priority)
         exten.packageName.convention(getArchiveBaseName())
         exten.release.convention(getArchiveClassifier())
-        exten.version.convention(getProviders().provider {
-            sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: project.getVersion().toString())
-        })
+        Provider<String> defaultVersion = parentExten ? parentExten.version.orElse(projectVersion) : projectVersion
+        exten.version.convention(defaultVersion.map { sanitizeVersion(it) })
         exten.epoch.convention(0)
         exten.signingKeyId.convention('')
         exten.signingKeyPassphrase.convention('')
@@ -517,7 +526,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
         exten.setgid.convention(false)
         exten.buildHost.convention(HOST_NAME)
         exten.summary.convention(exten.packageName)
-        exten.packageDescription.convention(getProviders().provider { project.getDescription() ?: '' })
+        exten.packageDescription.convention(ProjectDefaultProviders.description(project))
         exten.license.convention('')
         exten.packager.convention(System.getProperty('user.name', ''))
         exten.distribution.convention('')
@@ -581,10 +590,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     }
 
     Provider<String> determineArchiveVersion() {
-        String version = sanitizeVersion(parentExten?.getVersion()?.getOrNull() ?: project.getVersion().toString())
-        Property<String> archiveVersion = getObjectFactory().property(String)
-        archiveVersion.set(version)
-        return archiveVersion
+        return exten.version
     }
 
     File determineArchivePath() {
