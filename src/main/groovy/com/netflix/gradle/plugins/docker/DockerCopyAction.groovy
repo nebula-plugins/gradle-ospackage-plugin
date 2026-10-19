@@ -19,6 +19,9 @@ class DockerCopyAction extends AbstractPackagingCopyAction<SystemPackageDockerfi
 
     @Override
     protected void visitFile(FileCopyDetailsInternal fileDetails,def Object specToLookAt) {
+        if (fileDetails.file.canonicalFile == SystemPackageDockerfile.markerFile().canonicalFile) {
+            return
+        }
         logger.debug "adding file {}", fileDetails.relativePath.pathString
 
         File inputFile = extractFile(fileDetails)

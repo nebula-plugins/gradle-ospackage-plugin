@@ -71,7 +71,7 @@ abstract class Deb extends SystemPackagingTask {
 
     @Override
     protected void applyConventions(Project project) {
-        super.applyConventions(project)
+        applyBaseConventions(project)
 
         // Apply default conventions FIRST (lowest priority)
         exten.uid.convention(0)

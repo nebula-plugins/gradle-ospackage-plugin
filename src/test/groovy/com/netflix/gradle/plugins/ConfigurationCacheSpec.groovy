@@ -22,6 +22,49 @@ package com.netflix.gradle.plugins
  */
 class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
 
+    def 'configuration cache works on supported Gradle #testedGradleVersion'() {
+        given:
+        gradleVersion = testedGradleVersion
+        def source = new File(projectDir, 'src/app.txt')
+        source.parentFile.mkdirs()
+        source.text = 'content'
+        buildFile << """
+            plugins {
+                id 'com.netflix.nebula.deb'
+                id 'com.netflix.nebula.rpm'
+                id 'com.netflix.nebula.ospackage-docker'
+            }
+            version = '1.2.3'
+            description = 'Supported Gradle test'
+            tasks.register('myDeb', com.netflix.gradle.plugins.deb.Deb) {
+                packageName = 'version-test'
+                from('src') { into '/opt/app' }
+            }
+            tasks.register('myRpm', com.netflix.gradle.plugins.rpm.Rpm) {
+                packageName = 'version-test'
+                from('src') { into '/opt/app' }
+            }
+            createDockerfile {
+                destinationDirectory = layout.buildDirectory.dir('docker')
+                instruction 'FROM ubuntu:22.04'
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasks('myDeb', 'myRpm', 'createDockerfile', '--configuration-cache')
+        def result2 = runTasks('myDeb', 'myRpm', 'createDockerfile', '--configuration-cache')
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/distributions/version-test_1.2.3_all.deb').exists()
+        new File(projectDir, 'build/distributions/version-test-1.2.3.noarch.rpm').exists()
+        new File(projectDir, 'build/docker/Dockerfile').text.contains('FROM ubuntu:22.04')
+
+        where:
+        testedGradleVersion << SupportedGradleVersions.ALL
+    }
+
     def 'deb plugin works with configuration cache'() {
         given:
         buildFile << """
@@ -614,6 +657,9 @@ exec multilog t ./main
         then:
         result3.output.contains('Configuration cache entry reused')
         result3.task(':myDeb').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        new com.netflix.gradle.plugins.deb.Scanner(
+            new File(projectDir, 'build/distributions/supplementary-test_1.0.0_all.deb')
+        ).getControl('./changelog') == 'Updated release'
 
     }
 
@@ -1067,6 +1113,29 @@ exec multilog t ./main
         new File(projectDir, 'build/docker/Dockerfile').text.contains('RUN echo changed')
     }
 
+    def 'instruction-only Dockerfile works with configuration cache'() {
+        given:
+        buildFile << """
+            plugins { id 'com.netflix.nebula.ospackage-docker' }
+            createDockerfile {
+                destinationDirectory = layout.buildDirectory.dir('docker')
+                instruction 'FROM ubuntu:22.04'
+                instruction 'RUN echo ready'
+            }
+        """.stripIndent()
+
+        when:
+        def result1 = runTasks('createDockerfile', '--configuration-cache')
+        def result2 = runTasks('createDockerfile', '--configuration-cache')
+
+        then:
+        result1.task(':createDockerfile').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        result2.output.contains('Configuration cache entry reused')
+        new File(projectDir, 'build/docker/Dockerfile').readLines() == [
+            'FROM ubuntu:22.04', 'RUN echo ready'
+        ]
+    }
+
     def 'spring boot ospackage plugin configuration cache compatibility'() {
         given:
         buildFile << """
@@ -1128,5 +1197,8 @@ exec multilog t ./main
         result2.output.contains('Configuration cache entry reused')
         result3.output.contains('Configuration cache entry reused')
         result3.task(':myRpm').outcome == org.gradle.testkit.runner.TaskOutcome.SUCCESS
+        com.netflix.gradle.plugins.rpm.Scanner.scan(
+            new File(projectDir, 'build/distributions/trigger-test-1.0.0.noarch.rpm')
+        ).format.header.entries[1065].values[0].contains('echo changed')
     }
 }

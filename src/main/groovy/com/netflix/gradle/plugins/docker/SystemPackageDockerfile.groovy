@@ -21,11 +21,21 @@ abstract class SystemPackageDockerfile extends SystemPackagingTask {
     SystemPackageDockerfile(ProjectLayout projectLayout) {
         super(projectLayout)
         instructions.convention([])
+        // Copy tasks are skipped with no sources. The marker is ignored by the copy
+        // action but ensures instructions alone can generate a Dockerfile.
+        from(markerFile())
     }
 
     @Override
     String assembleArchiveName() {
         ARCHIVE_NAME
+    }
+
+    static File markerFile() {
+        File codeSource = new File(SystemPackageDockerfile.protectionDomain.codeSource.location.toURI())
+        codeSource.isDirectory()
+            ? new File(codeSource, 'com/netflix/gradle/plugins/docker/SystemPackageDockerfile.class')
+            : codeSource
     }
 
     @Override
