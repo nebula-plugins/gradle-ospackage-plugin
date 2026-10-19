@@ -13,7 +13,7 @@ been fixed. The fixes also correct ordinary Gradle up to date checking.
 
 | Former blocker | Implemented change |
 | --- | --- | --- |
-| Daemon templates and context | `DaemonTemplateTask` now tracks context, template names, folder selection, and custom template files. Built in classpath templates do not require filesystem inputs. |
+| Daemon templates and context | `DaemonTemplateTask` now tracks context, template names, folder selection, and custom template files. It obtains the project directory through injected `ProjectLayout`, so its constructor does not call `Task.project`. Built in classpath templates do not require filesystem inputs. |
 | Dockerfile instructions | `SystemPackageDockerfile` now stores DSL instructions in a lazy `ListProperty<String>` annotated `@Input`; the copy action receives their value only during execution. |
 | Debian supplementary control files | `Deb` now snapshots the resolved files with `@InputFiles`, while the existing path list still determines package entry names. |
 | RPM trigger scripts | `Rpm` now snapshots install, uninstall, and post uninstall trigger scripts with `@InputFiles`, separately from trigger metadata. |
@@ -24,6 +24,10 @@ been fixed. The fixes also correct ordinary Gradle up to date checking.
 edits daemon templates, Dockerfile instructions, Debian supplementary control
 files, and RPM trigger scripts to verify that the affected tasks rerun.
 It also covers the previously ignored Spring Boot `buildDeb` path.
+The task actions are exercised with configuration cache enabled and the
+default fail behavior for configuration cache problems. Gradle reports a
+problem if a task action calls `Task.project` or serializes a `Project` reference.
+`Project` access in plugin `apply` and task configuration remains permitted.
 
 The Docker image build uses `com.bmuschko.docker-remote-api`, and this audit
 does not establish whether that external plugin's `DockerBuildImage` task is

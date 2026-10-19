@@ -18,6 +18,7 @@ package com.netflix.gradle.plugins.daemon
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -29,6 +30,8 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
+
+import javax.inject.Inject
 
 /**
  * Monster class that does everything.
@@ -51,9 +54,9 @@ abstract class DaemonTemplateTask extends DefaultTask {
     @Internal
     abstract Property<File> getProjectDirectory()
 
-    DaemonTemplateTask() {
-        // Capture project directory during configuration
-        projectDirectory.convention(project.projectDir)
+    @Inject
+    DaemonTemplateTask(ProjectLayout projectLayout) {
+        projectDirectory.convention(projectLayout.projectDirectory.asFile)
     }
 
     @InputFiles
