@@ -74,80 +74,80 @@ abstract class Deb extends SystemPackagingTask {
         applyBaseConventions(project)
 
         // Apply default conventions FIRST (lowest priority)
-        exten.uid.convention(0)
-        exten.gid.convention(0)
-        exten.packageGroup.convention('java')
-        exten.archStr.convention('all')
-        exten.maintainer.convention(System.getProperty('user.name', ''))
-        exten.uploaders.convention('')
-        exten.priority.convention('optional')
+        exten.uidProperty.convention(0)
+        exten.gidProperty.convention(0)
+        exten.packageGroupProperty.convention('java')
+        exten.archStrProperty.convention('all')
+        exten.maintainerProperty.convention(System.getProperty('user.name', ''))
+        exten.uploadersProperty.convention('')
+        exten.priorityProperty.convention('optional')
 
         // Then apply conventions from parentExten (higher priority - override defaults)
         // Only override if parentExten has a value
         if (parentExten) {
-            if (parentExten.fileType.isPresent()) {
-                exten.fileType.convention(parentExten.fileType)
+            if (parentExten.fileTypeProperty.isPresent()) {
+                exten.fileTypeProperty.convention(parentExten.fileTypeProperty)
             }
-            if (parentExten.uid.isPresent()) {
-                exten.uid.convention(parentExten.uid)
+            if (parentExten.uidProperty.isPresent()) {
+                exten.uidProperty.convention(parentExten.uidProperty)
             }
-            if (parentExten.gid.isPresent()) {
-                exten.gid.convention(parentExten.gid)
+            if (parentExten.gidProperty.isPresent()) {
+                exten.gidProperty.convention(parentExten.gidProperty)
             }
-            if (parentExten.packageGroup.isPresent()) {
-                exten.packageGroup.convention(parentExten.packageGroup)
+            if (parentExten.packageGroupProperty.isPresent()) {
+                exten.packageGroupProperty.convention(parentExten.packageGroupProperty)
             }
-            if (parentExten.multiArch.isPresent()) {
-                exten.multiArch.convention(parentExten.multiArch)
+            if (parentExten.multiArchProperty.isPresent()) {
+                exten.multiArchProperty.convention(parentExten.multiArchProperty)
             }
-            if (parentExten.archStr.isPresent()) {
-                exten.archStr.convention(parentExten.archStr)
+            if (parentExten.archStrProperty.isPresent()) {
+                exten.archStrProperty.convention(parentExten.archStrProperty)
             }
-            if (parentExten.maintainer.isPresent()) {
-                exten.maintainer.convention(parentExten.maintainer)
+            if (parentExten.maintainerProperty.isPresent()) {
+                exten.maintainerProperty.convention(parentExten.maintainerProperty)
             }
-            if (parentExten.uploaders.isPresent()) {
-                exten.uploaders.convention(parentExten.uploaders)
+            if (parentExten.uploadersProperty.isPresent()) {
+                exten.uploadersProperty.convention(parentExten.uploadersProperty)
             }
-            if (parentExten.priority.isPresent()) {
-                exten.priority.convention(parentExten.priority)
+            if (parentExten.priorityProperty.isPresent()) {
+                exten.priorityProperty.convention(parentExten.priorityProperty)
             }
         }
     }
 
     @Input @Optional
     List<Dependency> getAllRecommends() {
-        return getRecommends() + (parentExten?.getRecommends()?.getOrElse([]) ?: [])
+        return getRecommends() + (parentExten?.getRecommendsProperty()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllSuggests() {
-        return getSuggests() + (parentExten?.getSuggests()?.getOrElse([]) ?: [])
+        return getSuggests() + (parentExten?.getSuggestsProperty()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllEnhances() {
-        return getEnhances() + (parentExten?.getEnhances()?.getOrElse([]) ?: [])
+        return getEnhances() + (parentExten?.getEnhancesProperty()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllPreDepends() {
-        return getPreDepends() + (parentExten?.getPreDepends()?.getOrElse([]) ?: [])
+        return getPreDepends() + (parentExten?.getPreDependsProperty()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllBreaks() {
-        return getBreaks() + (parentExten?.getBreaks()?.getOrElse([]) ?: [])
+        return getBreaks() + (parentExten?.getBreaksProperty()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     List<Dependency> getAllReplaces() {
-        return getReplaces() + (parentExten?.getReplaces()?.getOrElse([]) ?: [])
+        return getReplaces() + (parentExten?.getReplacesProperty()?.getOrElse([]) ?: [])
     }
 
     @Input @Optional
     Map<String, String> getAllCustomFields() {
-        return getCustomFields() + (parentExten?.getCustomFields()?.getOrElse([:]) ?: [:])
+        return getCustomFields() + (parentExten?.getCustomFieldsProperty()?.getOrElse([:]) ?: [:])
     }
 
     @OutputFile

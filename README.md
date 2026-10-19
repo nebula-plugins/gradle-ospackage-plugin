@@ -22,7 +22,7 @@ The project wiki contains the [full documentation](https://github.com/nebula-plu
 
 ## Migrating from 12.x to 13.0
 
-Version 13 changes the programmatic APIs of the packaging, application, and daemon task extensions to use Gradle's lazy properties. Most Groovy build scripts that assign values in `ospackage { ... }` or `buildDeb { ... }` can keep doing so:
+Existing value-style Groovy and Java APIs remain available. You can upgrade the plugin before changing build scripts that assign package values or use methods such as `requires(...)`:
 
 ```groovy
 ospackage {
@@ -31,27 +31,25 @@ ospackage {
 }
 ```
 
-Code that obtains an extension object and reads its values must now resolve its properties. Prefer wiring the property or a mapped provider into another Gradle property when the value is needed later.
+The packaging extension's old getters still return `String`, `File`, `List`, or `Map` values. Existing list and map mutations update the package. For new configuration, use the corresponding `*Property` accessor to wire providers lazily:
 
 ```groovy
 def packaging = extensions.getByType(com.netflix.gradle.plugins.packaging.ProjectPackagingExtension)
-
-// 12.x: String name = packaging.packageName
-String name = packaging.packageName.getOrNull()
-packaging.packageName.set(providers.provider { 'my-package' })
-
-// 12.x: packaging.preInstallFile = file('scripts/preinst')
-packaging.preInstallFile.set(layout.projectDirectory.file('scripts/preinst'))
-
-// Use the existing DSL method to add a dependency.
-packaging.requires('other-package')
+packaging.packageNameProperty.set(providers.provider { 'my-package' })
+packaging.dependenciesProperty.add(new com.netflix.gradle.plugins.packaging.Dependency('other-package', ''))
+packaging.preInstallFileProperty.set(layout.projectDirectory.file('scripts/preinst'))
 ```
 
-The same change applies to other scalar, file, list, and map properties on `SystemPackagingExtension` and `ProjectPackagingExtension`. Direct list or map mutation must use methods such as `.add(...)` or `.put(...)` on the property. Java and Kotlin callers must update their getter types from plain values to `Property`, `RegularFileProperty`, `ListProperty`, or `MapProperty`. Recompile plugins that call these APIs against 13.0.
+For example, `getPackageName()` returns a `String`, while `getPackageNameProperty()` returns a `Property<String>`. Pass providers to Gradle properties instead of calling `.get()` during configuration. The same pattern applies to file, list, and map properties. Mutating a legacy list or map reads its current value, so use the provider accessor when its source must stay lazy. `DaemonTemplateTask` also retains its value getters and exposes `contextProperty`, `templatesProperty`, `destDirProperty`, and `templatesFolderProperty` for lazy configuration. `OspackageApplicationExtension` remains a concrete class with `String` values for `prefix` and `distribution`; existing assignments and conventions continue to work.
 
-`OspackageApplicationExtension` is now an interface with `Property<String>` getters for `prefix` and `distribution`. Read `prefix.get()` when a value is required, or use `prefix.map { ... }` to keep it lazy. Configure its default with `prefix.convention('/apps')` instead of `conventionMapping.map('prefix')`.
+Two less common uses require source changes:
 
-`DaemonTemplateTask` exposes `context`, `templates`, `destDir`, and `templatesFolder` as Gradle properties. Configure them with `.set(...)` or `.convention(...)` and resolve them with `.get()` only when needed. Custom subclasses of `SystemPackagingBasePlugin` that override `createExtension()` must update the override to `createExtension(Project)`.
+| In 12.x | In 13.0 |
+| --- | --- |
+| `new SystemPackagingExtension()` | `project.objects.newInstance(SystemPackagingExtension)` |
+| `task.exten = replacement` | Configure the existing `task.exten`, such as `task.exten.packageNameProperty.set(provider)` |
+
+The no-argument `SystemPackagingBasePlugin.createExtension()` override remains supported. If you use a custom plugin subclass, you can migrate its override to `createExtension(Project)` when convenient. Use the `Project` argument only during plugin configuration; packaging tasks read their declared properties during execution.
 
 The bundled Docker Gradle plugin moves from 3.2.1 to 10.0.0; builds that configure its task types directly should review that plugin's API. The Spring Boot application integration also excludes development-only dependencies from the packaged distribution.
 

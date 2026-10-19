@@ -349,73 +349,268 @@ class SystemPackagingExtension {
     @Optional
     final MapProperty<String, String> customFields = objects.mapProperty(String, String)
 
-    // Getter methods to maintain API compatibility
-    Property<String> getPackageName() { packageName }
-    Property<String> getRelease() { release }
-    Property<String> getVersion() { version }
-    Property<String> getUser() { user }
-    Property<String> getPermissionGroup() { permissionGroup }
-    Property<String> getPackageGroup() { packageGroup }
-    Property<String> getBuildHost() { buildHost }
-    Property<String> getSummary() { summary }
-    Property<String> getPackageDescription() { packageDescription }
-    Property<String> getLicense() { license }
-    Property<String> getPackager() { packager }
-    Property<String> getDistribution() { distribution }
-    Property<String> getVendor() { vendor }
-    Property<String> getUrl() { url }
-    Property<String> getSourcePackage() { sourcePackage }
-    Property<String> getArchStr() { archStr }
-    Property<String> getMaintainer() { maintainer }
-    Property<String> getUploaders() { uploaders }
-    Property<String> getPriority() { priority }
-    Property<Integer> getEpoch() { epoch }
-    Property<Integer> getUid() { uid }
-    Property<Integer> getGid() { gid }
-    Property<Boolean> getSetgid() { setgid }
-    Property<Boolean> getCreateDirectoryEntry() { createDirectoryEntry }
-    Property<Boolean> getAddParentDirs() { addParentDirs }
-    Property<String> getSigningKeyId() { signingKeyId }
-    Property<String> getSigningKeyPassphrase() { signingKeyPassphrase }
-    RegularFileProperty getSigningKeyRingFile() { signingKeyRingFile }
-    RegularFileProperty getPreInstallFile() { preInstallFile }
-    RegularFileProperty getPostInstallFile() { postInstallFile }
-    RegularFileProperty getPreUninstallFile() { preUninstallFile }
-    RegularFileProperty getPostUninstallFile() { postUninstallFile }
-    RegularFileProperty getTriggerInstallFile() { triggerInstallFile }
-    RegularFileProperty getTriggerUninstallFile() { triggerUninstallFile }
-    RegularFileProperty getTriggerPostUninstallFile() { triggerPostUninstallFile }
-    Property<Directive> getFileType() { fileType }
-    Property<Os> getOs() { os }
-    Property<RpmType> getType() { type }
-    Property<MultiArch> getMultiArch() { multiArch }
-    ListProperty<String> getPrefixes() { prefixes }
-    ListProperty<String> getConfigurationFiles() { configurationFiles }
-    ListProperty<String> getPreInstallCommands() { preInstallCommands }
-    ListProperty<String> getPostInstallCommands() { postInstallCommands }
-    ListProperty<String> getPreUninstallCommands() { preUninstallCommands }
-    ListProperty<String> getPostUninstallCommands() { postUninstallCommands }
-    ListProperty<Trigger> getTriggerInstallCommands() { triggerInstallCommands }
-    ListProperty<Trigger> getTriggerUninstallCommands() { triggerUninstallCommands }
-    ListProperty<Trigger> getTriggerPostUninstallCommands() { triggerPostUninstallCommands }
-    ListProperty<String> getPreTransCommands() { preTransCommands }
-    ListProperty<String> getPostTransCommands() { postTransCommands }
-    ListProperty<String> getCommonCommands() { commonCommands }
-    ListProperty<String> getSupplementaryControlFiles() { supplementaryControlFiles }
-    ListProperty<Link> getLinks() { links }
-    ListProperty<Dependency> getDependencies() { dependencies }
-    ListProperty<Dependency> getObsoletes() { obsoletes }
-    ListProperty<Dependency> getConflicts() { conflicts }
-    ListProperty<Dependency> getRecommends() { recommends }
-    ListProperty<Dependency> getSuggests() { suggests }
-    ListProperty<Dependency> getEnhances() { enhances }
-    ListProperty<Dependency> getPreDepends() { preDepends }
-    ListProperty<Dependency> getBreaks() { breaks }
-    ListProperty<Dependency> getReplaces() { replaces }
-    ListProperty<Dependency> getProvides() { provides }
-    ListProperty<Directory> getDirectories() { directories }
-    MapProperty<String, String> getCustomFields() { customFields }
-
+    // Preserve the v12 getter signatures while exposing providers separately.
+    // The provider fields remain the source of truth for task inputs and conventions.
+    String getPackageName() { packageName.getOrNull() }
+    void setPackageName(String value) { packageName.set(value) }
+    @Internal
+    Property<String> getPackageNameProperty() { packageName }
+    String getRelease() { release.getOrNull() }
+    void setRelease(String value) { release.set(value) }
+    @Internal
+    Property<String> getReleaseProperty() { release }
+    String getVersion() { version.getOrNull() }
+    void setVersion(String value) { version.set(value) }
+    @Internal
+    Property<String> getVersionProperty() { version }
+    String getUser() { user.getOrNull() }
+    void setUser(String value) { user.set(value) }
+    @Internal
+    Property<String> getUserProperty() { user }
+    String getPermissionGroup() { permissionGroup.getOrNull() }
+    void setPermissionGroup(String value) { permissionGroup.set(value) }
+    @Internal
+    Property<String> getPermissionGroupProperty() { permissionGroup }
+    String getPackageGroup() { packageGroup.getOrNull() }
+    void setPackageGroup(String value) { packageGroup.set(value) }
+    @Internal
+    Property<String> getPackageGroupProperty() { packageGroup }
+    String getBuildHost() { buildHost.getOrNull() }
+    void setBuildHost(String value) { buildHost.set(value) }
+    @Internal
+    Property<String> getBuildHostProperty() { buildHost }
+    String getSummary() { summary.getOrNull() }
+    void setSummary(String value) { summary.set(value) }
+    @Internal
+    Property<String> getSummaryProperty() { summary }
+    String getPackageDescription() { packageDescription.getOrNull() }
+    void setPackageDescription(String value) { packageDescription.set(value) }
+    @Internal
+    Property<String> getPackageDescriptionProperty() { packageDescription }
+    String getLicense() { license.getOrNull() }
+    void setLicense(String value) { license.set(value) }
+    @Internal
+    Property<String> getLicenseProperty() { license }
+    String getPackager() { packager.getOrNull() }
+    void setPackager(String value) { packager.set(value) }
+    @Internal
+    Property<String> getPackagerProperty() { packager }
+    String getDistribution() { distribution.getOrNull() }
+    void setDistribution(String value) { distribution.set(value) }
+    @Internal
+    Property<String> getDistributionProperty() { distribution }
+    String getVendor() { vendor.getOrNull() }
+    void setVendor(String value) { vendor.set(value) }
+    @Internal
+    Property<String> getVendorProperty() { vendor }
+    String getUrl() { url.getOrNull() }
+    void setUrl(String value) { url.set(value) }
+    @Internal
+    Property<String> getUrlProperty() { url }
+    String getSourcePackage() { sourcePackage.getOrNull() }
+    void setSourcePackage(String value) { sourcePackage.set(value) }
+    @Internal
+    Property<String> getSourcePackageProperty() { sourcePackage }
+    String getArchStr() { archStr.getOrNull() }
+    void setArchStr(String value) { archStr.set(value) }
+    @Internal
+    Property<String> getArchStrProperty() { archStr }
+    String getMaintainer() { maintainer.getOrNull() }
+    void setMaintainer(String value) { maintainer.set(value) }
+    @Internal
+    Property<String> getMaintainerProperty() { maintainer }
+    String getUploaders() { uploaders.getOrNull() }
+    void setUploaders(String value) { uploaders.set(value) }
+    @Internal
+    Property<String> getUploadersProperty() { uploaders }
+    String getPriority() { priority.getOrNull() }
+    void setPriority(String value) { priority.set(value) }
+    @Internal
+    Property<String> getPriorityProperty() { priority }
+    String getSigningKeyId() { signingKeyId.getOrNull() }
+    void setSigningKeyId(String value) { signingKeyId.set(value) }
+    @Internal
+    Property<String> getSigningKeyIdProperty() { signingKeyId }
+    String getSigningKeyPassphrase() { signingKeyPassphrase.getOrNull() }
+    void setSigningKeyPassphrase(String value) { signingKeyPassphrase.set(value) }
+    @Internal
+    Property<String> getSigningKeyPassphraseProperty() { signingKeyPassphrase }
+    Integer getEpoch() { epoch.getOrNull() }
+    void setEpoch(Integer value) { epoch.set(value) }
+    @Internal
+    Property<Integer> getEpochProperty() { epoch }
+    Integer getUid() { uid.getOrNull() }
+    void setUid(Integer value) { uid.set(value) }
+    @Internal
+    Property<Integer> getUidProperty() { uid }
+    Integer getGid() { gid.getOrNull() }
+    void setGid(Integer value) { gid.set(value) }
+    @Internal
+    Property<Integer> getGidProperty() { gid }
+    Boolean getSetgid() { setgid.getOrNull() }
+    void setSetgid(boolean value) { setgid.set(value) }
+    @Internal
+    Property<Boolean> getSetgidProperty() { setgid }
+    Boolean getCreateDirectoryEntry() { createDirectoryEntry.getOrNull() }
+    void setCreateDirectoryEntry(Boolean value) { createDirectoryEntry.set(value) }
+    @Internal
+    Property<Boolean> getCreateDirectoryEntryProperty() { createDirectoryEntry }
+    Boolean getAddParentDirs() { addParentDirs.getOrNull() }
+    void setAddParentDirs(Boolean value) { addParentDirs.set(value) }
+    @Internal
+    Property<Boolean> getAddParentDirsProperty() { addParentDirs }
+    Directive getFileType() { fileType.getOrNull() }
+    void setFileType(Directive value) { fileType.set(value) }
+    @Internal
+    Property<Directive> getFileTypeProperty() { fileType }
+    Os getOs() { os.getOrNull() }
+    void setOs(Os value) { os.set(value) }
+    @Internal
+    Property<Os> getOsProperty() { os }
+    RpmType getType() { type.getOrNull() }
+    void setType(RpmType value) { type.set(value) }
+    @Internal
+    Property<RpmType> getTypeProperty() { type }
+    MultiArch getMultiArch() { multiArch.getOrNull() }
+    void setMultiArch(MultiArch value) { multiArch.set(value) }
+    @Internal
+    Property<MultiArch> getMultiArchProperty() { multiArch }
+    File getSigningKeyRingFile() { signingKeyRingFile.getOrNull()?.asFile }
+    void setSigningKeyRingFile(File value) { signingKeyRingFile.set(value) }
+    @Internal
+    RegularFileProperty getSigningKeyRingFileProperty() { signingKeyRingFile }
+    File getPreInstallFile() { preInstallFile.getOrNull()?.asFile }
+    void setPreInstallFile(File value) { preInstallFile.set(value) }
+    @Internal
+    RegularFileProperty getPreInstallFileProperty() { preInstallFile }
+    File getPostInstallFile() { postInstallFile.getOrNull()?.asFile }
+    void setPostInstallFile(File value) { postInstallFile.set(value) }
+    @Internal
+    RegularFileProperty getPostInstallFileProperty() { postInstallFile }
+    File getPreUninstallFile() { preUninstallFile.getOrNull()?.asFile }
+    void setPreUninstallFile(File value) { preUninstallFile.set(value) }
+    @Internal
+    RegularFileProperty getPreUninstallFileProperty() { preUninstallFile }
+    File getPostUninstallFile() { postUninstallFile.getOrNull()?.asFile }
+    void setPostUninstallFile(File value) { postUninstallFile.set(value) }
+    @Internal
+    RegularFileProperty getPostUninstallFileProperty() { postUninstallFile }
+    File getTriggerInstallFile() { triggerInstallFile.getOrNull()?.asFile }
+    void setTriggerInstallFile(File value) { triggerInstallFile.set(value) }
+    @Internal
+    RegularFileProperty getTriggerInstallFileProperty() { triggerInstallFile }
+    File getTriggerUninstallFile() { triggerUninstallFile.getOrNull()?.asFile }
+    void setTriggerUninstallFile(File value) { triggerUninstallFile.set(value) }
+    @Internal
+    RegularFileProperty getTriggerUninstallFileProperty() { triggerUninstallFile }
+    File getTriggerPostUninstallFile() { triggerPostUninstallFile.getOrNull()?.asFile }
+    void setTriggerPostUninstallFile(File value) { triggerPostUninstallFile.set(value) }
+    @Internal
+    RegularFileProperty getTriggerPostUninstallFileProperty() { triggerPostUninstallFile }
+    List<String> getPrefixes() { new MutableListPropertyView<String>(prefixes) }
+    void setPrefixes(List<String> value) { prefixes.set(value) }
+    @Internal
+    ListProperty<String> getPrefixesProperty() { prefixes }
+    List<String> getConfigurationFiles() { new MutableListPropertyView<String>(configurationFiles) }
+    void setConfigurationFiles(List<String> value) { configurationFiles.set(value) }
+    @Internal
+    ListProperty<String> getConfigurationFilesProperty() { configurationFiles }
+    List<String> getPreInstallCommands() { new MutableListPropertyView<String>(preInstallCommands) }
+    void setPreInstallCommands(List<String> value) { preInstallCommands.set(value) }
+    @Internal
+    ListProperty<String> getPreInstallCommandsProperty() { preInstallCommands }
+    List<String> getPostInstallCommands() { new MutableListPropertyView<String>(postInstallCommands) }
+    void setPostInstallCommands(List<String> value) { postInstallCommands.set(value) }
+    @Internal
+    ListProperty<String> getPostInstallCommandsProperty() { postInstallCommands }
+    List<String> getPreUninstallCommands() { new MutableListPropertyView<String>(preUninstallCommands) }
+    void setPreUninstallCommands(List<String> value) { preUninstallCommands.set(value) }
+    @Internal
+    ListProperty<String> getPreUninstallCommandsProperty() { preUninstallCommands }
+    List<String> getPostUninstallCommands() { new MutableListPropertyView<String>(postUninstallCommands) }
+    void setPostUninstallCommands(List<String> value) { postUninstallCommands.set(value) }
+    @Internal
+    ListProperty<String> getPostUninstallCommandsProperty() { postUninstallCommands }
+    List<String> getPreTransCommands() { new MutableListPropertyView<String>(preTransCommands) }
+    void setPreTransCommands(List<String> value) { preTransCommands.set(value) }
+    @Internal
+    ListProperty<String> getPreTransCommandsProperty() { preTransCommands }
+    List<String> getPostTransCommands() { new MutableListPropertyView<String>(postTransCommands) }
+    void setPostTransCommands(List<String> value) { postTransCommands.set(value) }
+    @Internal
+    ListProperty<String> getPostTransCommandsProperty() { postTransCommands }
+    List<String> getCommonCommands() { new MutableListPropertyView<String>(commonCommands) }
+    void setCommonCommands(List<String> value) { commonCommands.set(value) }
+    @Internal
+    ListProperty<String> getCommonCommandsProperty() { commonCommands }
+    List<String> getSupplementaryControlFiles() { new MutableListPropertyView<String>(supplementaryControlFiles) }
+    void setSupplementaryControlFiles(List<String> value) { supplementaryControlFiles.set(value) }
+    @Internal
+    ListProperty<String> getSupplementaryControlFilesProperty() { supplementaryControlFiles }
+    List<Trigger> getTriggerInstallCommands() { new MutableListPropertyView<Trigger>(triggerInstallCommands) }
+    void setTriggerInstallCommands(List<Trigger> value) { triggerInstallCommands.set(value) }
+    @Internal
+    ListProperty<Trigger> getTriggerInstallCommandsProperty() { triggerInstallCommands }
+    List<Trigger> getTriggerUninstallCommands() { new MutableListPropertyView<Trigger>(triggerUninstallCommands) }
+    void setTriggerUninstallCommands(List<Trigger> value) { triggerUninstallCommands.set(value) }
+    @Internal
+    ListProperty<Trigger> getTriggerUninstallCommandsProperty() { triggerUninstallCommands }
+    List<Trigger> getTriggerPostUninstallCommands() { new MutableListPropertyView<Trigger>(triggerPostUninstallCommands) }
+    void setTriggerPostUninstallCommands(List<Trigger> value) { triggerPostUninstallCommands.set(value) }
+    @Internal
+    ListProperty<Trigger> getTriggerPostUninstallCommandsProperty() { triggerPostUninstallCommands }
+    List<Link> getLinks() { new MutableListPropertyView<Link>(links) }
+    void setLinks(List<Link> value) { links.set(value) }
+    @Internal
+    ListProperty<Link> getLinksProperty() { links }
+    List<Dependency> getDependencies() { new MutableListPropertyView<Dependency>(dependencies) }
+    void setDependencies(List<Dependency> value) { dependencies.set(value) }
+    @Internal
+    ListProperty<Dependency> getDependenciesProperty() { dependencies }
+    List<Dependency> getObsoletes() { new MutableListPropertyView<Dependency>(obsoletes) }
+    void setObsoletes(List<Dependency> value) { obsoletes.set(value) }
+    @Internal
+    ListProperty<Dependency> getObsoletesProperty() { obsoletes }
+    List<Dependency> getConflicts() { new MutableListPropertyView<Dependency>(conflicts) }
+    void setConflicts(List<Dependency> value) { conflicts.set(value) }
+    @Internal
+    ListProperty<Dependency> getConflictsProperty() { conflicts }
+    List<Dependency> getRecommends() { new MutableListPropertyView<Dependency>(recommends) }
+    void setRecommends(List<Dependency> value) { recommends.set(value) }
+    @Internal
+    ListProperty<Dependency> getRecommendsProperty() { recommends }
+    List<Dependency> getSuggests() { new MutableListPropertyView<Dependency>(suggests) }
+    void setSuggests(List<Dependency> value) { suggests.set(value) }
+    @Internal
+    ListProperty<Dependency> getSuggestsProperty() { suggests }
+    List<Dependency> getEnhances() { new MutableListPropertyView<Dependency>(enhances) }
+    void setEnhances(List<Dependency> value) { enhances.set(value) }
+    @Internal
+    ListProperty<Dependency> getEnhancesProperty() { enhances }
+    List<Dependency> getPreDepends() { new MutableListPropertyView<Dependency>(preDepends) }
+    void setPreDepends(List<Dependency> value) { preDepends.set(value) }
+    @Internal
+    ListProperty<Dependency> getPreDependsProperty() { preDepends }
+    List<Dependency> getBreaks() { new MutableListPropertyView<Dependency>(breaks) }
+    void setBreaks(List<Dependency> value) { breaks.set(value) }
+    @Internal
+    ListProperty<Dependency> getBreaksProperty() { breaks }
+    List<Dependency> getReplaces() { new MutableListPropertyView<Dependency>(replaces) }
+    void setReplaces(List<Dependency> value) { replaces.set(value) }
+    @Internal
+    ListProperty<Dependency> getReplacesProperty() { replaces }
+    List<Dependency> getProvides() { new MutableListPropertyView<Dependency>(provides) }
+    void setProvides(List<Dependency> value) { provides.set(value) }
+    @Internal
+    ListProperty<Dependency> getProvidesProperty() { provides }
+    List<Directory> getDirectories() { new MutableListPropertyView<Directory>(directories) }
+    void setDirectories(List<Directory> value) { directories.set(value) }
+    @Internal
+    ListProperty<Directory> getDirectoriesProperty() { directories }
+    Map<String, String> getCustomFields() { new MutableMapPropertyView<String, String>(customFields) }
+    void setCustomFields(Map<String, String> value) { customFields.set(value) }
+    @Internal
+    MapProperty<String, String> getCustomFieldsProperty() { customFields }
     // Convenience methods for backward compatibility (v13.0 recommended API design)
 
     void packageName(String value) { packageName.set(value) }
@@ -496,6 +691,11 @@ class SystemPackagingExtension {
     def configurationFile(Object path) {
         // Convert File to path String, keep String as-is
         configurationFiles.add(path instanceof File ? ((File)path).path : path.toString())
+        return this
+    }
+
+    def configurationFile(String path) {
+        configurationFiles.add(path)
         return this
     }
 

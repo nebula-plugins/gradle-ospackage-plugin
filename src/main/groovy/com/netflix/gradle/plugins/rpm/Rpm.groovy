@@ -80,42 +80,42 @@ abstract class Rpm extends SystemPackagingTask {
         applyBaseConventions(project)
 
         // Apply default conventions FIRST (lowest priority)
-        exten.addParentDirs.convention(true)
-        exten.archStr.convention(Architecture.NOARCH.name())
-        exten.os.convention(Os.UNKNOWN)
-        exten.type.convention(RpmType.BINARY)
-        exten.prefixes.convention([])
+        exten.addParentDirsProperty.convention(true)
+        exten.archStrProperty.convention(Architecture.NOARCH.name())
+        exten.osProperty.convention(Os.UNKNOWN)
+        exten.typeProperty.convention(RpmType.BINARY)
+        exten.prefixesProperty.convention([])
 
         // Then apply conventions from parentExten (higher priority - override defaults)
         // Only override if parentExten has a value
         if (parentExten) {
-            if (parentExten.fileType.isPresent()) {
-                exten.fileType.convention(parentExten.fileType)
+            if (parentExten.fileTypeProperty.isPresent()) {
+                exten.fileTypeProperty.convention(parentExten.fileTypeProperty)
             }
-            if (parentExten.addParentDirs.isPresent()) {
-                exten.addParentDirs.convention(parentExten.addParentDirs)
+            if (parentExten.addParentDirsProperty.isPresent()) {
+                exten.addParentDirsProperty.convention(parentExten.addParentDirsProperty)
             }
-            if (parentExten.archStr.isPresent()) {
-                exten.archStr.convention(parentExten.archStr)
+            if (parentExten.archStrProperty.isPresent()) {
+                exten.archStrProperty.convention(parentExten.archStrProperty)
             }
-            if (parentExten.os.isPresent()) {
-                exten.os.convention(parentExten.os)
+            if (parentExten.osProperty.isPresent()) {
+                exten.osProperty.convention(parentExten.osProperty)
             }
-            if (parentExten.type.isPresent()) {
-                exten.type.convention(parentExten.type)
+            if (parentExten.typeProperty.isPresent()) {
+                exten.typeProperty.convention(parentExten.typeProperty)
             }
-            if (parentExten.prefixes.isPresent()) {
-                exten.prefixes.convention(parentExten.prefixes)
+            if (parentExten.prefixesProperty.isPresent()) {
+                exten.prefixesProperty.convention(parentExten.prefixesProperty)
             }
         }
     }
 
     void prefixes(String... addPrefixes) {
-        exten.prefixes.addAll(addPrefixes)
+        exten.prefixesProperty.addAll(addPrefixes)
     }
 
     List<String> getPrefixes() {
-        exten.prefixes.getOrElse([])
+        exten.getPrefixes()
     }
 
     public File getChangeLogFile() {

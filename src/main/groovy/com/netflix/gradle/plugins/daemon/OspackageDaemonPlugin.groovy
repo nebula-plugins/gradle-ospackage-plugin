@@ -102,16 +102,16 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
                 def templateTaskProvider = project.tasks.register("${task.name}${cleanedName}Daemon", DaemonTemplateTask) {
                     // Use Property API instead of conventionMapping
-                    it.destDir.convention(outputDirProvider)
-                    it.templatesFolder.convention(daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER)
-                    it.context.convention(project.providers.provider {
+                    it.destDirProperty.convention(outputDirProvider)
+                    it.templatesFolderProperty.convention(daemonTemplatesConfigExtension.folder ?: DEFAULT_TEMPLATES_FOLDER)
+                    it.contextProperty.convention(project.providers.provider {
                         Map<String,Object> context = toContext(defaults, definition)
                         context.daemonName = daemonName
                         context.isRedhat = isRedhat
                         context.installCmd = definition.installCmd ?: LegacyInstallCmd.create(context)
                         context
                     })
-                    it.templates.convention(templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE)
+                    it.templatesProperty.convention(templatesWithFileOutput.keySet() + POST_INSTALL_TEMPLATE)
                 }
 
                 task.dependsOn(templateTaskProvider)
@@ -143,7 +143,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     .orElse('')
 
                 // Add the file content to postInstallCommands
-                task.exten.postInstallCommands.addAll(
+                task.exten.postInstallCommandsProperty.addAll(
                     postInstallContentProvider.map { String content ->
                         content?.trim() ? [content] : []
                     }
@@ -188,7 +188,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
 
     private String getDestPath(String destPathTemplate, DaemonTemplateTask templateTask) {
         GStringTemplateEngine engine = new GStringTemplateEngine()
-        def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext().get()).toString()
+        def destPath = engine.createTemplate(destPathTemplate).make(templateTask.getContext()).toString()
         destPath
     }
 

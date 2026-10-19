@@ -22,11 +22,14 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class SystemPackagingBasePlugin implements Plugin<Project> {
+    // Used only while the plugin is being configured; tasks do not retain this instance.
+    Project project
     ProjectPackagingExtension extension
 
     public static final String taskBaseName = 'ospackage'
 
     void apply(Project project) {
+        this.project = project
         // Extension is created before plugins are, so tasks
         extension = createExtension(project)
         RpmPlugin.applyAliases(extension) // RPM Specific aliases
@@ -38,6 +41,11 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
     }
 
     ProjectPackagingExtension createExtension(Project project) {
+        return createExtension()
+    }
+
+    /** Retained so subclasses compiled against 12.x still intercept extension creation. */
+    ProjectPackagingExtension createExtension() {
         ProjectPackagingExtension extension = project.extensions.create(taskBaseName, ProjectPackagingExtension, project)
         return extension
     }

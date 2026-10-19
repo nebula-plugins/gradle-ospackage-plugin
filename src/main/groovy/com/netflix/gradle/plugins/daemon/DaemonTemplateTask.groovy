@@ -16,7 +16,9 @@
 
 package com.netflix.gradle.plugins.daemon
 
-import org.gradle.api.DefaultTask
+import com.netflix.gradle.plugins.packaging.MutableListPropertyView
+import com.netflix.gradle.plugins.packaging.MutableMapPropertyView
+import org.gradle.api.internal.ConventionTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
@@ -37,34 +39,57 @@ import javax.inject.Inject
  * Monster class that does everything.
  */
 @DisableCachingByDefault
-abstract class DaemonTemplateTask extends DefaultTask {
+abstract class DaemonTemplateTask extends ConventionTask {
 
     @Input
-    abstract MapProperty<String, Object> getContext()
+    abstract MapProperty<String, Object> getContextProperty()
 
     @Input
-    abstract ListProperty<String> getTemplates()
+    abstract ListProperty<String> getTemplatesProperty()
 
     @OutputDirectory
-    abstract DirectoryProperty getDestDir()
+    abstract DirectoryProperty getDestDirProperty()
 
     @Input
-    abstract Property<String> getTemplatesFolder()
+    abstract Property<String> getTemplatesFolderProperty()
 
     @Internal
     abstract Property<File> getProjectDirectory()
 
     @Inject
-    DaemonTemplateTask(ProjectLayout projectLayout) {
+    abstract ProjectLayout getProjectLayout()
+
+    DaemonTemplateTask() {
         projectDirectory.convention(projectLayout.projectDirectory.asFile)
+    }
+
+    @Internal
+    Map<String, Object> getContext() { new MutableMapPropertyView<String, Object>(contextProperty) }
+    void setContext(Map<String, Object> value) { contextProperty.set(value) }
+
+    @Internal
+    Collection<String> getTemplates() { new MutableListPropertyView<String>(templatesProperty) }
+    void setTemplates(Collection<String> value) { templatesProperty.set(value) }
+
+    @Internal
+    File getDestDir() { destDirProperty.getOrNull()?.asFile }
+    void setDestDir(File value) { destDirProperty.set(value) }
+
+    @Internal
+    String getTemplatesFolder() { templatesFolderProperty.getOrNull() }
+    void setTemplatesFolder(String value) { templatesFolderProperty.set(value) }
+
+    @Internal
+    Collection<File> getTemplatesOutput() {
+        templates.collect { String name -> new File(destDir, name) }
     }
 
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     List<File> getTemplateFiles() {
-        String folder = templatesFolder.get()
+        String folder = templatesFolderProperty.get()
         File baseDir = projectDirectory.get()
-        templates.get().collect { String templateName ->
+        templatesProperty.get().collect { String templateName ->
             String path = folder ? "${folder}/${templateName}.tpl" : "${templateName}.tpl"
             if (TemplateHelper.class.getResource(path)) {
                 return null
@@ -76,12 +101,12 @@ abstract class DaemonTemplateTask extends DefaultTask {
     @TaskAction
     def template() {
         TemplateHelper templateHelper = new TemplateHelper(
-            destDir.get().asFile,
-            templatesFolder.get(),
+            destDirProperty.get().asFile,
+            templatesFolderProperty.get(),
             projectDirectory.get()
         )
-        Map<String, Object> templateContext = context.get()
-        templates.get().each { String templateName ->
+        Map<String, Object> templateContext = contextProperty.get()
+        templatesProperty.get().each { String templateName ->
             templateHelper.generateFile(templateName, templateContext)
         }
     }

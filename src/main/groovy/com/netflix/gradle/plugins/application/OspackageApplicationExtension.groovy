@@ -16,9 +16,7 @@
 
 package com.netflix.gradle.plugins.application
 
-import org.gradle.api.provider.Property
-
-interface OspackageApplicationExtension {
-    Property<String> getPrefix()
-    Property<String> getDistribution()
+class OspackageApplicationExtension {
+    String prefix
+    String distribution
 }
