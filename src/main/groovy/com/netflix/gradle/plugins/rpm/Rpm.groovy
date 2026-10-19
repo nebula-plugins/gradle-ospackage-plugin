@@ -25,6 +25,7 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -38,6 +39,12 @@ import javax.inject.Inject
 @DisableCachingByDefault
 @CompileDynamic
 abstract class Rpm extends SystemPackagingTask {
+
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    List<File> getTriggerScriptFiles() {
+        (getAllTriggerIn() + getAllTriggerUn() + getAllTriggerPostUn())*.command
+    }
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.NONE)

@@ -22,8 +22,11 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
@@ -33,16 +36,16 @@ import org.gradle.work.DisableCachingByDefault
 @DisableCachingByDefault
 abstract class DaemonTemplateTask extends DefaultTask {
 
-    @Internal
+    @Input
     abstract MapProperty<String, Object> getContext()
 
-    @Internal
+    @Input
     abstract ListProperty<String> getTemplates()
 
     @OutputDirectory
     abstract DirectoryProperty getDestDir()
 
-    @Internal
+    @Input
     abstract Property<String> getTemplatesFolder()
 
     @Internal
@@ -53,6 +56,20 @@ abstract class DaemonTemplateTask extends DefaultTask {
         projectDirectory.convention(project.projectDir)
     }
 
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
+    List<File> getTemplateFiles() {
+        String folder = templatesFolder.get()
+        File baseDir = projectDirectory.get()
+        templates.get().collect { String templateName ->
+            String path = folder ? "${folder}/${templateName}.tpl" : "${templateName}.tpl"
+            if (TemplateHelper.class.getResource(path)) {
+                return null
+            }
+            (folder && new File(folder).isAbsolute()) ? new File(path) : new File(baseDir, path)
+        }.findAll { it != null }
+    }
+
     @TaskAction
     def template() {
         TemplateHelper templateHelper = new TemplateHelper(
@@ -60,8 +77,9 @@ abstract class DaemonTemplateTask extends DefaultTask {
             templatesFolder.get(),
             projectDirectory.get()
         )
-        templates.get().collect { String templateName ->
-            templateHelper.generateFile(templateName, context.get())
+        Map<String, Object> templateContext = context.get()
+        templates.get().each { String templateName ->
+            templateHelper.generateFile(templateName, templateContext)
         }
     }
 }
