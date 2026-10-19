@@ -16,12 +16,17 @@
 
 package com.netflix.gradle.plugins
 
+import org.gradle.api.JavaVersion
+import spock.lang.Requires
+
 /**
  * Tests that verify configuration cache support for the plugin's packaging tasks.
  * These tests run tasks twice to ensure the configuration cache is stored and reused.
  */
 class ConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
 
+    // Gradle 8.6 cannot run on the newer JDKs in the outer build matrix.
+    @Requires({ JavaVersion.current() <= JavaVersion.VERSION_21 })
     def 'configuration cache works on supported Gradle #testedGradleVersion'() {
         given:
         gradleVersion = testedGradleVersion
