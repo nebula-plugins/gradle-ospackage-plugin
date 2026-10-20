@@ -41,7 +41,9 @@ abstract class Deb extends SystemPackagingTask {
     @InputFiles
     @PathSensitive(PathSensitivity.RELATIVE)
     List<File> getSupplementaryControlInputFiles() {
-        getAllSupplementaryControlFiles().collect { String path -> projectLayout.projectDirectory.file(path).asFile }
+        getAllSupplementaryControlFiles().collect { Object path ->
+            path instanceof File ? path : projectLayout.projectDirectory.file(path.toString()).asFile
+        }
     }
 
     @Inject

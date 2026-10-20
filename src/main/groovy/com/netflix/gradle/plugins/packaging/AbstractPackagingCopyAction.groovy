@@ -120,10 +120,10 @@ abstract class AbstractPackagingCopyAction<T extends SystemPackagingTask> implem
     }
 
     @CompileDynamic
-    String concat(Collection<String> scripts) {
+    String concat(Collection<Object> scripts) {
         String shebang
         StringBuilder result = new StringBuilder();
-        scripts.each { String script ->
+        scripts.each { Object script ->
             script?.eachLine { line ->
                 if (line.matches('^#!.*$')) {
                     if (!shebang) {

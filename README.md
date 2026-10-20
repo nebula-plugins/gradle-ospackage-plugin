@@ -47,6 +47,8 @@ packaging.requires('other-package')
 
 The same `options` view covers other scalar, file, list, and map values on `SystemPackagingExtension` and `ProjectPackagingExtension`. Use `.add(...)` and `.put(...)` on the corresponding Gradle properties. The legacy list and map getters remain mutable views backed by those properties. Java and Kotlin callers that obtain Gradle-created extensions can keep their 12.x getter types or migrate to `getOptions()`; new code should use `getOptions()`. Direct construction of `SystemPackagingExtension` is outside this bridge.
 
+Script command and control-file lists still accept both `String` and `File`; their provider-backed form is `ListProperty<Object>`.
+
 The 12.x helper methods and mutable collection getters on `buildDeb` and `buildRpm` tasks also remain available. New plugin code should use `task.exten.options` to wire providers into packaging task settings. The old task `setExten(...)` setter is unavailable because Gradle now creates `exten` as a managed nested object; configure that object instead of replacing it.
 
 `OspackageApplicationExtension` remains a class with `String` getters for `prefix` and `distribution`. Use `options.prefix.get()` when a value is required, or `options.prefix.map { ... }` to keep it lazy. Configure its default with `options.prefix.convention('/apps')` instead of `conventionMapping.map('prefix')`.

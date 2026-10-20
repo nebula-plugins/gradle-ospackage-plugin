@@ -83,4 +83,21 @@ class SystemPackagingPluginTest extends ProjectSpec {
         SystemPackagingTask.getMethod('setSetgid', boolean).returnType == void
     }
 
+    def 'legacy task collection getters retain their 12.x element types'() {
+        expect:
+        [
+            (Trigger): ['TriggerInstallCommands', 'TriggerUninstallCommands', 'TriggerPostUninstallCommands'],
+            (Link): ['Links'],
+            (Dependency): ['Dependencies', 'Obsoletes', 'Conflicts', 'Recommends', 'Suggests',
+                           'Enhances', 'PreDepends', 'Breaks', 'Replaces', 'Provides'],
+            (Directory): ['Directories']
+        ].each { Class elementType, List<String> propertyNames ->
+            propertyNames.each { String propertyName ->
+                assert SystemPackagingTask.getMethod("get${propertyName}").genericReturnType.actualTypeArguments[0] == elementType
+            }
+        }
+        SystemPackagingTask.getMethod('setDependencies', List).genericParameterTypes[0] == List
+        SystemPackagingTask.getMethod('setCustomFields', Map).genericParameterTypes[0] == Map
+    }
+
 }

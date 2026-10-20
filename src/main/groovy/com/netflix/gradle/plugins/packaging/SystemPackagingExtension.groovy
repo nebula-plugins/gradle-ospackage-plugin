@@ -318,23 +318,23 @@ class SystemPackagingExtension {
 
     @Input
     @Optional
-    final ListProperty<String> configurationFiles = objects.listProperty(String)
+    final ListProperty<Object> configurationFiles = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> preInstallCommands = objects.listProperty(String)
+    final ListProperty<Object> preInstallCommands = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> postInstallCommands = objects.listProperty(String)
+    final ListProperty<Object> postInstallCommands = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> preUninstallCommands = objects.listProperty(String)
+    final ListProperty<Object> preUninstallCommands = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> postUninstallCommands = objects.listProperty(String)
+    final ListProperty<Object> postUninstallCommands = objects.listProperty(Object)
 
     @Input
     @Optional
@@ -350,19 +350,19 @@ class SystemPackagingExtension {
 
     @Input
     @Optional
-    final ListProperty<String> preTransCommands = objects.listProperty(String)
+    final ListProperty<Object> preTransCommands = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> postTransCommands = objects.listProperty(String)
+    final ListProperty<Object> postTransCommands = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> commonCommands = objects.listProperty(String)
+    final ListProperty<Object> commonCommands = objects.listProperty(Object)
 
     @Input
     @Optional
-    final ListProperty<String> supplementaryControlFiles = objects.listProperty(String)
+    final ListProperty<Object> supplementaryControlFiles = objects.listProperty(Object)
 
     @Input
     @Optional
@@ -503,15 +503,15 @@ class SystemPackagingExtension {
     @Deprecated
     List<String> getPrefixes() { new PropertyBackedList<>(prefixes) }
     @Deprecated
-    List<String> getConfigurationFiles() { new PropertyBackedList<>(configurationFiles) }
+    List<Object> getConfigurationFiles() { new PropertyBackedList<>(configurationFiles) }
     @Deprecated
-    List<String> getPreInstallCommands() { new PropertyBackedList<>(preInstallCommands) }
+    List<Object> getPreInstallCommands() { new PropertyBackedList<>(preInstallCommands) }
     @Deprecated
-    List<String> getPostInstallCommands() { new PropertyBackedList<>(postInstallCommands) }
+    List<Object> getPostInstallCommands() { new PropertyBackedList<>(postInstallCommands) }
     @Deprecated
-    List<String> getPreUninstallCommands() { new PropertyBackedList<>(preUninstallCommands) }
+    List<Object> getPreUninstallCommands() { new PropertyBackedList<>(preUninstallCommands) }
     @Deprecated
-    List<String> getPostUninstallCommands() { new PropertyBackedList<>(postUninstallCommands) }
+    List<Object> getPostUninstallCommands() { new PropertyBackedList<>(postUninstallCommands) }
     @Deprecated
     List<Trigger> getTriggerInstallCommands() { new PropertyBackedList<>(triggerInstallCommands) }
     @Deprecated
@@ -519,13 +519,13 @@ class SystemPackagingExtension {
     @Deprecated
     List<Trigger> getTriggerPostUninstallCommands() { new PropertyBackedList<>(triggerPostUninstallCommands) }
     @Deprecated
-    List<String> getPreTransCommands() { new PropertyBackedList<>(preTransCommands) }
+    List<Object> getPreTransCommands() { new PropertyBackedList<>(preTransCommands) }
     @Deprecated
-    List<String> getPostTransCommands() { new PropertyBackedList<>(postTransCommands) }
+    List<Object> getPostTransCommands() { new PropertyBackedList<>(postTransCommands) }
     @Deprecated
-    List<String> getCommonCommands() { new PropertyBackedList<>(commonCommands) }
+    List<Object> getCommonCommands() { new PropertyBackedList<>(commonCommands) }
     @Deprecated
-    List<String> getSupplementaryControlFiles() { new PropertyBackedList<>(supplementaryControlFiles) }
+    List<Object> getSupplementaryControlFiles() { new PropertyBackedList<>(supplementaryControlFiles) }
     @Deprecated
     List<Link> getLinks() { new PropertyBackedList<>(links) }
     @Deprecated
@@ -594,18 +594,18 @@ class SystemPackagingExtension {
     void setType(RpmType value) { type.set(value) }
     void setMultiArch(MultiArch value) { multiArch.set(value) }
     void setPrefixes(List<String> value) { prefixes.set(value) }
-    void setConfigurationFiles(List<String> value) { configurationFiles.set(value) }
-    void setPreInstallCommands(List<String> value) { preInstallCommands.set(value) }
-    void setPostInstallCommands(List<String> value) { postInstallCommands.set(value) }
-    void setPreUninstallCommands(List<String> value) { preUninstallCommands.set(value) }
-    void setPostUninstallCommands(List<String> value) { postUninstallCommands.set(value) }
+    void setConfigurationFiles(List<Object> value) { configurationFiles.set(value) }
+    void setPreInstallCommands(List<Object> value) { preInstallCommands.set(value) }
+    void setPostInstallCommands(List<Object> value) { postInstallCommands.set(value) }
+    void setPreUninstallCommands(List<Object> value) { preUninstallCommands.set(value) }
+    void setPostUninstallCommands(List<Object> value) { postUninstallCommands.set(value) }
     void setTriggerInstallCommands(List<Trigger> value) { triggerInstallCommands.set(value) }
     void setTriggerUninstallCommands(List<Trigger> value) { triggerUninstallCommands.set(value) }
     void setTriggerPostUninstallCommands(List<Trigger> value) { triggerPostUninstallCommands.set(value) }
-    void setPreTransCommands(List<String> value) { preTransCommands.set(value) }
-    void setPostTransCommands(List<String> value) { postTransCommands.set(value) }
-    void setCommonCommands(List<String> value) { commonCommands.set(value) }
-    void setSupplementaryControlFiles(List<String> value) { supplementaryControlFiles.set(value) }
+    void setPreTransCommands(List<Object> value) { preTransCommands.set(value) }
+    void setPostTransCommands(List<Object> value) { postTransCommands.set(value) }
+    void setCommonCommands(List<Object> value) { commonCommands.set(value) }
+    void setSupplementaryControlFiles(List<Object> value) { supplementaryControlFiles.set(value) }
     void setLinks(List<Link> value) { links.set(value) }
     void setDependencies(List<Dependency> value) { dependencies.set(value) }
     void setObsoletes(List<Dependency> value) { obsoletes.set(value) }

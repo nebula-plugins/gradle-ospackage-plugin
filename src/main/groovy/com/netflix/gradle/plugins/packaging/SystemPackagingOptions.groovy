@@ -57,18 +57,18 @@ class SystemPackagingOptions {
     Property<RpmType> getType() { (Property<RpmType>) properties.get('type') }
     Property<MultiArch> getMultiArch() { (Property<MultiArch>) properties.get('multiArch') }
     ListProperty<String> getPrefixes() { (ListProperty<String>) properties.get('prefixes') }
-    ListProperty<String> getConfigurationFiles() { (ListProperty<String>) properties.get('configurationFiles') }
-    ListProperty<String> getPreInstallCommands() { (ListProperty<String>) properties.get('preInstallCommands') }
-    ListProperty<String> getPostInstallCommands() { (ListProperty<String>) properties.get('postInstallCommands') }
-    ListProperty<String> getPreUninstallCommands() { (ListProperty<String>) properties.get('preUninstallCommands') }
-    ListProperty<String> getPostUninstallCommands() { (ListProperty<String>) properties.get('postUninstallCommands') }
+    ListProperty<Object> getConfigurationFiles() { (ListProperty<Object>) properties.get('configurationFiles') }
+    ListProperty<Object> getPreInstallCommands() { (ListProperty<Object>) properties.get('preInstallCommands') }
+    ListProperty<Object> getPostInstallCommands() { (ListProperty<Object>) properties.get('postInstallCommands') }
+    ListProperty<Object> getPreUninstallCommands() { (ListProperty<Object>) properties.get('preUninstallCommands') }
+    ListProperty<Object> getPostUninstallCommands() { (ListProperty<Object>) properties.get('postUninstallCommands') }
     ListProperty<Trigger> getTriggerInstallCommands() { (ListProperty<Trigger>) properties.get('triggerInstallCommands') }
     ListProperty<Trigger> getTriggerUninstallCommands() { (ListProperty<Trigger>) properties.get('triggerUninstallCommands') }
     ListProperty<Trigger> getTriggerPostUninstallCommands() { (ListProperty<Trigger>) properties.get('triggerPostUninstallCommands') }
-    ListProperty<String> getPreTransCommands() { (ListProperty<String>) properties.get('preTransCommands') }
-    ListProperty<String> getPostTransCommands() { (ListProperty<String>) properties.get('postTransCommands') }
-    ListProperty<String> getCommonCommands() { (ListProperty<String>) properties.get('commonCommands') }
-    ListProperty<String> getSupplementaryControlFiles() { (ListProperty<String>) properties.get('supplementaryControlFiles') }
+    ListProperty<Object> getPreTransCommands() { (ListProperty<Object>) properties.get('preTransCommands') }
+    ListProperty<Object> getPostTransCommands() { (ListProperty<Object>) properties.get('postTransCommands') }
+    ListProperty<Object> getCommonCommands() { (ListProperty<Object>) properties.get('commonCommands') }
+    ListProperty<Object> getSupplementaryControlFiles() { (ListProperty<Object>) properties.get('supplementaryControlFiles') }
     ListProperty<Link> getLinks() { (ListProperty<Link>) properties.get('links') }
     ListProperty<Dependency> getDependencies() { (ListProperty<Dependency>) properties.get('dependencies') }
     ListProperty<Dependency> getObsoletes() { (ListProperty<Dependency>) properties.get('obsoletes') }

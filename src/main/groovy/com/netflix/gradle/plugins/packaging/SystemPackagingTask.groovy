@@ -326,40 +326,40 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<String> getConfigurationFiles() { getExten().getConfigurationFiles() }
+    List<Object> getConfigurationFiles() { getExten().getConfigurationFiles() }
     def configurationFile(String value) { getExten().configurationFile(value) }
 
     @Input
     @Optional
-    List<String> getPreInstallCommands() { getExten().getPreInstallCommands() }
+    List<Object> getPreInstallCommands() { getExten().getPreInstallCommands() }
     def preInstall(String value) { getExten().preInstall(value) }
     def preInstall(File value) { getExten().preInstall(value) }
     def preInstallFile(File value) { getExten().preInstallFile(value) }
 
     @Input
     @Optional
-    List<String> getPostInstallCommands() { getExten().getPostInstallCommands() }
+    List<Object> getPostInstallCommands() { getExten().getPostInstallCommands() }
     def postInstall(String value) { getExten().postInstall(value) }
     def postInstall(File value) { getExten().postInstall(value) }
     def postInstallFile(File value) { getExten().postInstallFile(value) }
 
     @Input
     @Optional
-    List<String> getPreUninstallCommands() { getExten().getPreUninstallCommands() }
+    List<Object> getPreUninstallCommands() { getExten().getPreUninstallCommands() }
     def preUninstall(String value) { getExten().preUninstall(value) }
     def preUninstall(File value) { getExten().preUninstall(value) }
     def preUninstallFile(File value) { getExten().preUninstallFile(value) }
 
     @Input
     @Optional
-    List<String> getPostUninstallCommands() { getExten().getPostUninstallCommands() }
+    List<Object> getPostUninstallCommands() { getExten().getPostUninstallCommands() }
     def postUninstall(String value) { getExten().postUninstall(value) }
     def postUninstall(File value) { getExten().postUninstall(value) }
     def postUninstallFile(File value) { getExten().postUninstallFile(value) }
 
     @Input
     @Optional
-    List getTriggerInstallCommands() { getExten().getTriggerInstallCommands() }
+    List<Trigger> getTriggerInstallCommands() { getExten().getTriggerInstallCommands() }
     def triggerInstall(File script, String packageName, String version='', int flag=0) {
         getExten().triggerInstall(script, packageName, version, flag)
     }
@@ -367,7 +367,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List getTriggerUninstallCommands() { getExten().getTriggerUninstallCommands() }
+    List<Trigger> getTriggerUninstallCommands() { getExten().getTriggerUninstallCommands() }
     def triggerUninstall(File script, String packageName, String version='', int flag=0) {
         getExten().triggerUninstall(script, packageName, version, flag)
     }
@@ -375,7 +375,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List getTriggerPostUninstallCommands() { getExten().getTriggerPostUninstallCommands() }
+    List<Trigger> getTriggerPostUninstallCommands() { getExten().getTriggerPostUninstallCommands() }
     def triggerPostUninstall(File script, String packageName, String version='', int flag=0) {
         getExten().triggerPostUninstall(script, packageName, version, flag)
     }
@@ -383,30 +383,30 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<String> getPreTransCommands() { getExten().getPreTransCommands() }
+    List<Object> getPreTransCommands() { getExten().getPreTransCommands() }
     def preTrans(String value) { getExten().preTrans(value) }
     def preTrans(File value) { getExten().preTrans(value) }
 
     @Input
     @Optional
-    List<String> getPostTransCommands() { getExten().getPostTransCommands() }
+    List<Object> getPostTransCommands() { getExten().getPostTransCommands() }
     def postTrans(String value) { getExten().postTrans(value) }
     def postTrans(File value) { getExten().postTrans(value) }
 
     @Input
     @Optional
-    List<String> getCommonCommands() { getExten().getCommonCommands() }
+    List<Object> getCommonCommands() { getExten().getCommonCommands() }
     def installUtils(String value) { getExten().installUtils(value) }
     def installUtils(File value) { getExten().installUtils(value) }
 
     @Input
     @Optional
-    List<String> getSupplementaryControlFiles() { getExten().getSupplementaryControlFiles() }
+    List<Object> getSupplementaryControlFiles() { getExten().getSupplementaryControlFiles() }
     def supplementaryControl(Object value) { getExten().supplementaryControl(value) }
 
     @Input
     @Optional
-    List getLinks() { getExten().getLinks() }
+    List<Link> getLinks() { getExten().getLinks() }
     Link link(String path, String target) { getExten().link(path, target) }
     Link link(String path, String target, int permissions) { getExten().link(path, target, permissions) }
     Link link(String path, String target, String user, String permissionGroup) {
@@ -418,69 +418,69 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List getDependencies() { getExten().getDependencies() }
+    List<Dependency> getDependencies() { getExten().getDependencies() }
     Dependency requires(String packageName) { getExten().requires(packageName) }
     Dependency requires(String packageName, String version) { getExten().requires(packageName, version) }
     Dependency requires(String packageName, String version, int flag) { getExten().requires(packageName, version, flag) }
 
     @Input
     @Optional
-    List getObsoletes() { getExten().getObsoletes() }
+    List<Dependency> getObsoletes() { getExten().getObsoletes() }
     Dependency obsoletes(String packageName) { getExten().obsoletes(packageName) }
     Dependency obsoletes(String packageName, String version, int flag) { getExten().obsoletes(packageName, version, flag) }
 
     @Input
     @Optional
-    List getConflicts() { getExten().getConflicts() }
+    List<Dependency> getConflicts() { getExten().getConflicts() }
     Dependency conflicts(String packageName) { getExten().conflicts(packageName) }
     Dependency conflicts(String packageName, String version, int flag) { getExten().conflicts(packageName, version, flag) }
 
     @Input
     @Optional
-    List getRecommends() { getExten().getRecommends() }
+    List<Dependency> getRecommends() { getExten().getRecommends() }
     Dependency recommends(String packageName) { getExten().recommends(packageName) }
     Dependency recommends(String packageName, String version, int flag) { getExten().recommends(packageName, version, flag) }
 
     @Input
     @Optional
-    List getSuggests() { getExten().getSuggests() }
+    List<Dependency> getSuggests() { getExten().getSuggests() }
     Dependency suggests(String packageName) { getExten().suggests(packageName) }
     Dependency suggests(String packageName, String version, int flag) { getExten().suggests(packageName, version, flag) }
 
     @Input
     @Optional
-    List getEnhances() { getExten().getEnhances() }
+    List<Dependency> getEnhances() { getExten().getEnhances() }
     Dependency enhances(String packageName) { getExten().enhances(packageName) }
     Dependency enhances(String packageName, String version, int flag) { getExten().enhances(packageName, version, flag) }
 
     @Input
     @Optional
-    List getPreDepends() { getExten().getPreDepends() }
+    List<Dependency> getPreDepends() { getExten().getPreDepends() }
     Dependency preDepends(String packageName) { getExten().preDepends(packageName) }
     Dependency preDepends(String packageName, String version, int flag) { getExten().preDepends(packageName, version, flag) }
 
     @Input
     @Optional
-    List getBreaks() { getExten().getBreaks() }
+    List<Dependency> getBreaks() { getExten().getBreaks() }
     Dependency breaks(String packageName) { getExten().breaks(packageName) }
     Dependency breaks(String packageName, String version, int flag) { getExten().breaks(packageName, version, flag) }
 
     @Input
     @Optional
-    List getReplaces() { getExten().getReplaces() }
+    List<Dependency> getReplaces() { getExten().getReplaces() }
     Dependency replaces(String packageName) { getExten().replaces(packageName) }
     Dependency replaces(String packageName, String version, int flag) { getExten().replaces(packageName, version, flag) }
 
     @Input
     @Optional
-    List getProvides() { getExten().getProvides() }
+    List<Dependency> getProvides() { getExten().getProvides() }
     Dependency provides(String packageName) { getExten().provides(packageName) }
     Dependency provides(String packageName, String version) { getExten().provides(packageName, version) }
     Dependency provides(String packageName, String version, int flag) { getExten().provides(packageName, version, flag) }
 
     @Input
     @Optional
-    List getDirectories() { getExten().getDirectories() }
+    List<Directory> getDirectories() { getExten().getDirectories() }
     Directory directory(String path) { getExten().directory(path) }
     Directory directory(String path, boolean addParents) { getExten().directory(path, addParents) }
     Directory directory(String path, int permissions) { getExten().directory(path, permissions) }
@@ -518,20 +518,20 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     def setPreTrans(File value) { getExten().setPreTrans(value) }
     def setPostTrans(File value) { getExten().setPostTrans(value) }
 
-    void setPrefixes(List<String> value) { getExten().setPrefixes(value) }
-    void setLinks(List<Link> value) { getExten().setLinks(value) }
-    void setDependencies(List<Dependency> value) { getExten().setDependencies(value) }
-    void setObsoletes(List<Dependency> value) { getExten().setObsoletes(value) }
-    void setConflicts(List<Dependency> value) { getExten().setConflicts(value) }
-    void setRecommends(List<Dependency> value) { getExten().setRecommends(value) }
-    void setSuggests(List<Dependency> value) { getExten().setSuggests(value) }
-    void setEnhances(List<Dependency> value) { getExten().setEnhances(value) }
-    void setPreDepends(List<Dependency> value) { getExten().setPreDepends(value) }
-    void setBreaks(List<Dependency> value) { getExten().setBreaks(value) }
-    void setReplaces(List<Dependency> value) { getExten().setReplaces(value) }
-    void setProvides(List<Dependency> value) { getExten().setProvides(value) }
-    void setDirectories(List<Directory> value) { getExten().setDirectories(value) }
-    void setCustomFields(Map<String, String> value) { getExten().setCustomFields(value) }
+    void setPrefixes(List value) { getExten().setPrefixes(value) }
+    void setLinks(List value) { getExten().setLinks(value) }
+    void setDependencies(List value) { getExten().setDependencies(value) }
+    void setObsoletes(List value) { getExten().setObsoletes(value) }
+    void setConflicts(List value) { getExten().setConflicts(value) }
+    void setRecommends(List value) { getExten().setRecommends(value) }
+    void setSuggests(List value) { getExten().setSuggests(value) }
+    void setEnhances(List value) { getExten().setEnhances(value) }
+    void setPreDepends(List value) { getExten().setPreDepends(value) }
+    void setBreaks(List value) { getExten().setBreaks(value) }
+    void setReplaces(List value) { getExten().setReplaces(value) }
+    void setProvides(List value) { getExten().setProvides(value) }
+    void setDirectories(List value) { getExten().setDirectories(value) }
+    void setCustomFields(Map value) { getExten().setCustomFields(value) }
 
     // Apply conventions to task extension properties using modern Property API
     protected void applyConventions() {
@@ -660,31 +660,31 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<String> getAllConfigurationFiles() {
+    List<Object> getAllConfigurationFiles() {
         return getConfigurationFiles() + (parentExten?.options?.getConfigurationFiles()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<String> getAllPreInstallCommands() {
+    List<Object> getAllPreInstallCommands() {
         return getPreInstallCommands() + (parentExten?.options?.getPreInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<String> getAllPostInstallCommands() {
+    List<Object> getAllPostInstallCommands() {
         return getPostInstallCommands() + (parentExten?.options?.getPostInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<String> getAllPreUninstallCommands() {
+    List<Object> getAllPreUninstallCommands() {
         return getPreUninstallCommands() + (parentExten?.options?.getPreUninstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<String> getAllPostUninstallCommands() {
+    List<Object> getAllPostUninstallCommands() {
         return getPostUninstallCommands() + (parentExten?.options?.getPostUninstallCommands()?.getOrElse([]) ?: [])
     }
 
@@ -708,19 +708,19 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<String> getAllPreTransCommands() {
+    List<Object> getAllPreTransCommands() {
         return getPreTransCommands() + (parentExten?.options?.getPreTransCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<String> getAllPostTransCommands() {
+    List<Object> getAllPostTransCommands() {
         return getPostTransCommands() + (parentExten?.options?.getPostTransCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
-    List<String> getAllCommonCommands() {
+    List<Object> getAllCommonCommands() {
         return getCommonCommands() + (parentExten?.options?.getCommonCommands()?.getOrElse([]) ?: [])
     }
 
@@ -729,7 +729,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
      */
     @Input
     @Optional
-    List<String> getAllSupplementaryControlFiles() {
+    List<Object> getAllSupplementaryControlFiles() {
         return getSupplementaryControlFiles() + (parentExten?.options?.getSupplementaryControlFiles()?.getOrElse([]) ?: [])
     }
 

@@ -37,9 +37,16 @@ deprecated in 13.x. They may be removed only in a later major release after
 downstream usage is checked. The provider-based API will not be renamed when
 that happens.
 
+The nine script and control-file lists were `List<Object>` in 12.x because they
+accept both `String` and `File`. Their legacy getters retain that source type,
+and their options use `ListProperty<Object>`. Direct legacy list edits keep
+`File` values; existing helper methods that accept a `File` can still supply
+file contents through a provider.
+
 Packaging tasks keep the public methods that 12.x generated through Groovy
 delegation, including typed results for `requires(...)` and `link(...)`, legacy
-value setters, and mutable list and map getters. The old generated
+value setters, and mutable list and map getters with their original element
+types. The old generated
 `setExten(SystemPackagingExtension)` setter cannot coexist with Gradle's
 managed `@Nested getExten()` getter. Consumers that replaced the task's entire
 extension must configure `task.exten.options` instead.
@@ -57,6 +64,12 @@ extension must configure `task.exten.options` instead.
   do not capture `Project` through the compatibility layer.
 
 ## Verification and rollout
+
+The published 12.3.0 JAR exposes 65 domain getters on
+`SystemPackagingExtension` and two on `OspackageApplicationExtension`. Every
+one has a matching getter on the corresponding `options` view. The additional
+`ProjectPackagingExtension` getters belong to its existing `CopySpec` API and
+remain available there.
 
 1. Compare public JVM method descriptors against the published 12.3.0 JAR and
    run representative old-style extension and task calls, including application

@@ -44,6 +44,7 @@ class SystemPackagingExtensionTest extends Specification {
         SystemPackagingExtension.getMethod('getDependencies').returnType == List
         SystemPackagingExtension.getMethod('getCustomFields').returnType == Map
         SystemPackagingExtension.getMethod('getPreInstallFile').returnType == File
+        SystemPackagingExtension.getMethod('getPreInstallCommands').genericReturnType.typeName == 'java.util.List<java.lang.Object>'
         SystemPackagingExtension.getMethod('setSetgid', boolean).returnType == void
         SystemPackagingExtension.getMethod('configurationFile', String).returnType == Object
         extension.setgid == false
