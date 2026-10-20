@@ -19,6 +19,30 @@ package com.netflix.gradle.plugins.application
 import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 
 class OspackageApplicationPluginLauncherSpec extends BaseIntegrationTestKitSpec {
+    def 'legacy convention mapping configures provider-backed application prefix'() {
+        writeHelloWorld('nebula.test')
+        buildFile << """
+            plugins {
+                id 'com.netflix.nebula.ospackage-application'
+            }
+            application {
+                mainClass = 'nebula.test.HelloWorld'
+            }
+            extensions.getByType(com.netflix.gradle.plugins.application.OspackageApplicationExtension)
+                .conventionMapping.map('prefix') { '/apps' }
+        """.stripIndent()
+
+        when:
+        runTasks('buildDeb', '--configuration-cache')
+        def second = runTasks('buildDeb', '--configuration-cache')
+
+        then:
+        second.output.contains('Configuration cache entry reused')
+        def archivePath = file("build/distributions/${moduleName}_0_all.deb")
+        def scan = new com.netflix.gradle.plugins.deb.Scanner(archivePath)
+        scan.getEntry("./apps/${moduleName}/bin/${moduleName}").isFile()
+    }
+
     def 'application shows up in deb'() {
         writeHelloWorld('nebula.test')
         buildFile << """

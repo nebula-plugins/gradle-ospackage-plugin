@@ -44,6 +44,14 @@ class OspackageApplicationPlugin implements Plugin<Project> {
         extension = project.extensions.create('ospackage_application', OspackageApplicationExtension, project.objects)
         extension.options.prefix.convention('/opt')
         extension.options.distribution.convention('')
+        project.afterEvaluate {
+            // 12.x consumers can still register defaults through conventionMapping.
+            // Adopt those defaults before the provider-backed packaging specs resolve.
+            def legacyPrefix = extension.conventionMapping.getConventionValue(null, 'prefix', false)
+            def legacyDistribution = extension.conventionMapping.getConventionValue(null, 'distribution', false)
+            if (legacyPrefix != null) extension.options.prefix.convention(legacyPrefix.toString())
+            if (legacyDistribution != null) extension.options.distribution.convention(legacyDistribution.toString())
+        }
 
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)

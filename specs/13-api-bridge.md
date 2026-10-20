@@ -37,6 +37,10 @@ deprecated in 13.x. They may be removed only in a later major release after
 downstream usage is checked. The provider-based API will not be renamed when
 that happens.
 
+The application plugin adopts legacy `conventionMapping` defaults for `prefix`
+and `distribution` after configuration, so existing callers still influence the
+provider-backed package paths. New callers set conventions on `options` directly.
+
 The nine script and control-file lists were `List<Object>` in 12.x because they
 accept both `String` and `File`. Their legacy getters retain that source type,
 and their options use `ListProperty<Object>`. Direct legacy list edits keep

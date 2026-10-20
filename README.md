@@ -51,7 +51,7 @@ Script command and control-file lists still accept both `String` and `File`; the
 
 The 12.x helper methods and mutable collection getters on `buildDeb` and `buildRpm` tasks also remain available. New plugin code should use `task.exten.options` to wire providers into packaging task settings. The old task `setExten(...)` setter is unavailable because Gradle now creates `exten` as a managed nested object; configure that object instead of replacing it.
 
-`OspackageApplicationExtension` remains a class with `String` getters for `prefix` and `distribution`. Use `options.prefix.get()` when a value is required, or `options.prefix.map { ... }` to keep it lazy. Configure its default with `options.prefix.convention('/apps')` instead of `conventionMapping.map('prefix')`.
+`OspackageApplicationExtension` remains a class with `String` getters for `prefix` and `distribution`. Use `options.prefix.get()` when a value is required, or `options.prefix.map { ... }` to keep it lazy. Existing `conventionMapping.map('prefix')` defaults are honored; migrate them to `options.prefix.convention('/apps')` when updating the caller.
 
 `DaemonTemplateTask` exposes `context`, `templates`, `destDir`, and `templatesFolder` as Gradle properties. Configure them with `.set(...)` or `.convention(...)` and resolve them with `.get()` only when needed. Custom subclasses of `SystemPackagingBasePlugin` that override `createExtension()` must update the override to `createExtension(Project)`.
 
