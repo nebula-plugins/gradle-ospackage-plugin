@@ -16,9 +16,47 @@
 
 package com.netflix.gradle.plugins.application
 
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
-interface OspackageApplicationExtension {
-    Property<String> getPrefix()
-    Property<String> getDistribution()
+import javax.inject.Inject
+
+/** The plain 12.x getters and the provider-backed options share one value. */
+class OspackageApplicationExtension {
+    private String legacyPrefix
+    private String legacyDistribution
+    private final Options options
+
+    /** Retained for consumers that construct the 12.x extension directly. */
+    OspackageApplicationExtension() {
+        options = null
+    }
+
+    @Inject
+    OspackageApplicationExtension(ObjectFactory objects) {
+        options = objects.newInstance(Options)
+    }
+
+    Options getOptions() { options }
+
+    @Deprecated
+    String getPrefix() { options == null ? legacyPrefix : options.prefix.getOrNull() }
+
+    void setPrefix(String value) {
+        if (options == null) legacyPrefix = value
+        else options.prefix.set(value)
+    }
+
+    @Deprecated
+    String getDistribution() { options == null ? legacyDistribution : options.distribution.getOrNull() }
+
+    void setDistribution(String value) {
+        if (options == null) legacyDistribution = value
+        else options.distribution.set(value)
+    }
+
+    static abstract class Options {
+        abstract Property<String> getPrefix()
+        abstract Property<String> getDistribution()
+    }
 }

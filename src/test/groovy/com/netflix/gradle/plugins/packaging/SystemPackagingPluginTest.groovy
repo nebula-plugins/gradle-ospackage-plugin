@@ -64,4 +64,23 @@ class SystemPackagingPluginTest extends ProjectSpec {
         debTask.outputs.hasOutput
 
     }
+
+    def 'legacy task methods retain their typed results and live collections'() {
+        given:
+        project.apply plugin: 'com.netflix.nebula.ospackage'
+        Deb deb = project.tasks.getByName('buildDeb')
+
+        when:
+        Dependency required = deb.requires('first')
+        deb.dependencies.add(new Dependency('second', '', 0))
+        deb.setSetgid(true)
+
+        then:
+        required.packageName == 'first'
+        deb.exten.options.dependencies.get()*.packageName == ['first', 'second']
+        deb.setgid
+        SystemPackagingTask.getMethod('requires', String).returnType == Dependency
+        SystemPackagingTask.getMethod('setSetgid', boolean).returnType == void
+    }
+
 }

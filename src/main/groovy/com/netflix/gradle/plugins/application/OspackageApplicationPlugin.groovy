@@ -41,16 +41,16 @@ class OspackageApplicationPlugin implements Plugin<Project> {
     @Override
     @CompileDynamic
     void apply(Project project) {
-        extension = project.extensions.create('ospackage_application', OspackageApplicationExtension)
-        extension.prefix.convention('/opt')
-        extension.distribution.convention('')
+        extension = project.extensions.create('ospackage_application', OspackageApplicationExtension, project.objects)
+        extension.options.prefix.convention('/opt')
+        extension.options.distribution.convention('')
 
         project.plugins.apply(ApplicationPlugin)
         project.plugins.apply(SystemPackagingPlugin)
 
         def distributions = project.getExtensions().getByType(DistributionContainer.class)
         def mainDistribution = distributions.getByName(DistributionPlugin.MAIN_DISTRIBUTION_NAME)
-        def name = extension.prefix.map { prefix ->
+        def name = extension.options.prefix.map { prefix ->
             String baseName = mainDistribution.getDistributionBaseName().get()
             String classifier = mainDistribution.getDistributionClassifier().getOrNull()
             return baseName + (classifier != null ? '-' + classifier : '')
@@ -61,6 +61,6 @@ class OspackageApplicationPlugin implements Plugin<Project> {
             into(name)
         }
         packaging.with(copyMain)
-        packaging.into(extension.prefix.map { it })
+        packaging.into(extension.options.prefix.map { it })
     }
 }

@@ -47,6 +47,7 @@ class SystemPackagingExtension {
 
     private final ObjectFactory objects
     private final ProviderFactory providers
+    private final SystemPackagingOptions options
 
     // Track when commands are added via File (Provider) - needed for validation
     private boolean hasPreInstallCommands = false
@@ -58,6 +59,73 @@ class SystemPackagingExtension {
     SystemPackagingExtension(ObjectFactory objects, ProviderFactory providers) {
         this.objects = objects
         this.providers = providers
+        this.options = new SystemPackagingOptions([
+            packageName: packageName,
+            release: release,
+            version: version,
+            user: user,
+            permissionGroup: permissionGroup,
+            packageGroup: packageGroup,
+            buildHost: buildHost,
+            summary: summary,
+            packageDescription: packageDescription,
+            license: license,
+            packager: packager,
+            distribution: distribution,
+            vendor: vendor,
+            url: url,
+            sourcePackage: sourcePackage,
+            archStr: archStr,
+            maintainer: maintainer,
+            uploaders: uploaders,
+            priority: priority,
+            epoch: epoch,
+            uid: uid,
+            gid: gid,
+            setgid: setgid,
+            createDirectoryEntry: createDirectoryEntry,
+            addParentDirs: addParentDirs,
+            signingKeyId: signingKeyId,
+            signingKeyPassphrase: signingKeyPassphrase,
+            signingKeyRingFile: signingKeyRingFile,
+            preInstallFile: preInstallFile,
+            postInstallFile: postInstallFile,
+            preUninstallFile: preUninstallFile,
+            postUninstallFile: postUninstallFile,
+            triggerInstallFile: triggerInstallFile,
+            triggerUninstallFile: triggerUninstallFile,
+            triggerPostUninstallFile: triggerPostUninstallFile,
+            fileType: fileType,
+            os: os,
+            type: type,
+            multiArch: multiArch,
+            prefixes: prefixes,
+            configurationFiles: configurationFiles,
+            preInstallCommands: preInstallCommands,
+            postInstallCommands: postInstallCommands,
+            preUninstallCommands: preUninstallCommands,
+            postUninstallCommands: postUninstallCommands,
+            triggerInstallCommands: triggerInstallCommands,
+            triggerUninstallCommands: triggerUninstallCommands,
+            triggerPostUninstallCommands: triggerPostUninstallCommands,
+            preTransCommands: preTransCommands,
+            postTransCommands: postTransCommands,
+            commonCommands: commonCommands,
+            supplementaryControlFiles: supplementaryControlFiles,
+            links: links,
+            dependencies: dependencies,
+            obsoletes: obsoletes,
+            conflicts: conflicts,
+            recommends: recommends,
+            suggests: suggests,
+            enhances: enhances,
+            preDepends: preDepends,
+            breaks: breaks,
+            replaces: replaces,
+            provides: provides,
+            directories: directories,
+            customFields: customFields
+        ])
     }
 
     @Internal
@@ -349,72 +417,208 @@ class SystemPackagingExtension {
     @Optional
     final MapProperty<String, String> customFields = objects.mapProperty(String, String)
 
-    // Getter methods to maintain API compatibility
-    Property<String> getPackageName() { packageName }
-    Property<String> getRelease() { release }
-    Property<String> getVersion() { version }
-    Property<String> getUser() { user }
-    Property<String> getPermissionGroup() { permissionGroup }
-    Property<String> getPackageGroup() { packageGroup }
-    Property<String> getBuildHost() { buildHost }
-    Property<String> getSummary() { summary }
-    Property<String> getPackageDescription() { packageDescription }
-    Property<String> getLicense() { license }
-    Property<String> getPackager() { packager }
-    Property<String> getDistribution() { distribution }
-    Property<String> getVendor() { vendor }
-    Property<String> getUrl() { url }
-    Property<String> getSourcePackage() { sourcePackage }
-    Property<String> getArchStr() { archStr }
-    Property<String> getMaintainer() { maintainer }
-    Property<String> getUploaders() { uploaders }
-    Property<String> getPriority() { priority }
-    Property<Integer> getEpoch() { epoch }
-    Property<Integer> getUid() { uid }
-    Property<Integer> getGid() { gid }
-    Property<Boolean> getSetgid() { setgid }
-    Property<Boolean> getCreateDirectoryEntry() { createDirectoryEntry }
-    Property<Boolean> getAddParentDirs() { addParentDirs }
-    Property<String> getSigningKeyId() { signingKeyId }
-    Property<String> getSigningKeyPassphrase() { signingKeyPassphrase }
-    RegularFileProperty getSigningKeyRingFile() { signingKeyRingFile }
-    RegularFileProperty getPreInstallFile() { preInstallFile }
-    RegularFileProperty getPostInstallFile() { postInstallFile }
-    RegularFileProperty getPreUninstallFile() { preUninstallFile }
-    RegularFileProperty getPostUninstallFile() { postUninstallFile }
-    RegularFileProperty getTriggerInstallFile() { triggerInstallFile }
-    RegularFileProperty getTriggerUninstallFile() { triggerUninstallFile }
-    RegularFileProperty getTriggerPostUninstallFile() { triggerPostUninstallFile }
-    Property<Directive> getFileType() { fileType }
-    Property<Os> getOs() { os }
-    Property<RpmType> getType() { type }
-    Property<MultiArch> getMultiArch() { multiArch }
-    ListProperty<String> getPrefixes() { prefixes }
-    ListProperty<String> getConfigurationFiles() { configurationFiles }
-    ListProperty<String> getPreInstallCommands() { preInstallCommands }
-    ListProperty<String> getPostInstallCommands() { postInstallCommands }
-    ListProperty<String> getPreUninstallCommands() { preUninstallCommands }
-    ListProperty<String> getPostUninstallCommands() { postUninstallCommands }
-    ListProperty<Trigger> getTriggerInstallCommands() { triggerInstallCommands }
-    ListProperty<Trigger> getTriggerUninstallCommands() { triggerUninstallCommands }
-    ListProperty<Trigger> getTriggerPostUninstallCommands() { triggerPostUninstallCommands }
-    ListProperty<String> getPreTransCommands() { preTransCommands }
-    ListProperty<String> getPostTransCommands() { postTransCommands }
-    ListProperty<String> getCommonCommands() { commonCommands }
-    ListProperty<String> getSupplementaryControlFiles() { supplementaryControlFiles }
-    ListProperty<Link> getLinks() { links }
-    ListProperty<Dependency> getDependencies() { dependencies }
-    ListProperty<Dependency> getObsoletes() { obsoletes }
-    ListProperty<Dependency> getConflicts() { conflicts }
-    ListProperty<Dependency> getRecommends() { recommends }
-    ListProperty<Dependency> getSuggests() { suggests }
-    ListProperty<Dependency> getEnhances() { enhances }
-    ListProperty<Dependency> getPreDepends() { preDepends }
-    ListProperty<Dependency> getBreaks() { breaks }
-    ListProperty<Dependency> getReplaces() { replaces }
-    ListProperty<Dependency> getProvides() { provides }
-    ListProperty<Directory> getDirectories() { directories }
-    MapProperty<String, String> getCustomFields() { customFields }
+    /** Provider-backed values; use this view from new plugin code. */
+    @Internal
+    SystemPackagingOptions getOptions() { options }
+
+    // Plain 12.x accessors remain binary-compatible during the bridge release.
+    @Deprecated
+    String getPackageName() { packageName.getOrNull() }
+    @Deprecated
+    String getRelease() { release.getOrNull() }
+    @Deprecated
+    String getVersion() { version.getOrNull() }
+    @Deprecated
+    String getUser() { user.getOrNull() }
+    @Deprecated
+    String getPermissionGroup() { permissionGroup.getOrNull() }
+    @Deprecated
+    String getPackageGroup() { packageGroup.getOrNull() }
+    @Deprecated
+    String getBuildHost() { buildHost.getOrNull() }
+    @Deprecated
+    String getSummary() { summary.getOrNull() }
+    @Deprecated
+    String getPackageDescription() { packageDescription.getOrNull() }
+    @Deprecated
+    String getLicense() { license.getOrNull() }
+    @Deprecated
+    String getPackager() { packager.getOrNull() }
+    @Deprecated
+    String getDistribution() { distribution.getOrNull() }
+    @Deprecated
+    String getVendor() { vendor.getOrNull() }
+    @Deprecated
+    String getUrl() { url.getOrNull() }
+    @Deprecated
+    String getSourcePackage() { sourcePackage.getOrNull() }
+    @Deprecated
+    String getArchStr() { archStr.getOrNull() }
+    @Deprecated
+    String getMaintainer() { maintainer.getOrNull() }
+    @Deprecated
+    String getUploaders() { uploaders.getOrNull() }
+    @Deprecated
+    String getPriority() { priority.getOrNull() }
+    @Deprecated
+    Integer getEpoch() { epoch.getOrNull() }
+    @Deprecated
+    Integer getUid() { uid.getOrNull() }
+    @Deprecated
+    Integer getGid() { gid.getOrNull() }
+    @Deprecated
+    Boolean getSetgid() { setgid.getOrElse(false) }
+    @Deprecated
+    Boolean getCreateDirectoryEntry() { createDirectoryEntry.getOrNull() }
+    @Deprecated
+    Boolean getAddParentDirs() { addParentDirs.getOrNull() }
+    @Deprecated
+    String getSigningKeyId() { signingKeyId.getOrNull() }
+    @Deprecated
+    String getSigningKeyPassphrase() { signingKeyPassphrase.getOrNull() }
+    @Deprecated
+    File getSigningKeyRingFile() { signingKeyRingFile.getOrNull()?.asFile }
+    @Deprecated
+    File getPreInstallFile() { preInstallFile.getOrNull()?.asFile }
+    @Deprecated
+    File getPostInstallFile() { postInstallFile.getOrNull()?.asFile }
+    @Deprecated
+    File getPreUninstallFile() { preUninstallFile.getOrNull()?.asFile }
+    @Deprecated
+    File getPostUninstallFile() { postUninstallFile.getOrNull()?.asFile }
+    @Deprecated
+    File getTriggerInstallFile() { triggerInstallFile.getOrNull()?.asFile }
+    @Deprecated
+    File getTriggerUninstallFile() { triggerUninstallFile.getOrNull()?.asFile }
+    @Deprecated
+    File getTriggerPostUninstallFile() { triggerPostUninstallFile.getOrNull()?.asFile }
+    @Deprecated
+    Directive getFileType() { fileType.getOrNull() }
+    @Deprecated
+    Os getOs() { os.getOrNull() }
+    @Deprecated
+    RpmType getType() { type.getOrNull() }
+    @Deprecated
+    MultiArch getMultiArch() { multiArch.getOrNull() }
+    @Deprecated
+    List<String> getPrefixes() { new PropertyBackedList<>(prefixes) }
+    @Deprecated
+    List<String> getConfigurationFiles() { new PropertyBackedList<>(configurationFiles) }
+    @Deprecated
+    List<String> getPreInstallCommands() { new PropertyBackedList<>(preInstallCommands) }
+    @Deprecated
+    List<String> getPostInstallCommands() { new PropertyBackedList<>(postInstallCommands) }
+    @Deprecated
+    List<String> getPreUninstallCommands() { new PropertyBackedList<>(preUninstallCommands) }
+    @Deprecated
+    List<String> getPostUninstallCommands() { new PropertyBackedList<>(postUninstallCommands) }
+    @Deprecated
+    List<Trigger> getTriggerInstallCommands() { new PropertyBackedList<>(triggerInstallCommands) }
+    @Deprecated
+    List<Trigger> getTriggerUninstallCommands() { new PropertyBackedList<>(triggerUninstallCommands) }
+    @Deprecated
+    List<Trigger> getTriggerPostUninstallCommands() { new PropertyBackedList<>(triggerPostUninstallCommands) }
+    @Deprecated
+    List<String> getPreTransCommands() { new PropertyBackedList<>(preTransCommands) }
+    @Deprecated
+    List<String> getPostTransCommands() { new PropertyBackedList<>(postTransCommands) }
+    @Deprecated
+    List<String> getCommonCommands() { new PropertyBackedList<>(commonCommands) }
+    @Deprecated
+    List<String> getSupplementaryControlFiles() { new PropertyBackedList<>(supplementaryControlFiles) }
+    @Deprecated
+    List<Link> getLinks() { new PropertyBackedList<>(links) }
+    @Deprecated
+    List<Dependency> getDependencies() { new PropertyBackedList<>(dependencies) }
+    @Deprecated
+    List<Dependency> getObsoletes() { new PropertyBackedList<>(obsoletes) }
+    @Deprecated
+    List<Dependency> getConflicts() { new PropertyBackedList<>(conflicts) }
+    @Deprecated
+    List<Dependency> getRecommends() { new PropertyBackedList<>(recommends) }
+    @Deprecated
+    List<Dependency> getSuggests() { new PropertyBackedList<>(suggests) }
+    @Deprecated
+    List<Dependency> getEnhances() { new PropertyBackedList<>(enhances) }
+    @Deprecated
+    List<Dependency> getPreDepends() { new PropertyBackedList<>(preDepends) }
+    @Deprecated
+    List<Dependency> getBreaks() { new PropertyBackedList<>(breaks) }
+    @Deprecated
+    List<Dependency> getReplaces() { new PropertyBackedList<>(replaces) }
+    @Deprecated
+    List<Dependency> getProvides() { new PropertyBackedList<>(provides) }
+    @Deprecated
+    List<Directory> getDirectories() { new PropertyBackedList<>(directories) }
+    @Deprecated
+    Map<String, String> getCustomFields() { new PropertyBackedMap<>(customFields) }
+
+    void setPackageName(String value) { packageName.set(value) }
+    void setRelease(String value) { release.set(value) }
+    void setVersion(String value) { version.set(value) }
+    void setUser(String value) { user.set(value) }
+    void setPermissionGroup(String value) { permissionGroup.set(value) }
+    void setPackageGroup(String value) { packageGroup.set(value) }
+    void setBuildHost(String value) { buildHost.set(value) }
+    void setSummary(String value) { summary.set(value) }
+    void setPackageDescription(String value) { packageDescription.set(value) }
+    void setLicense(String value) { license.set(value) }
+    void setPackager(String value) { packager.set(value) }
+    void setDistribution(String value) { distribution.set(value) }
+    void setVendor(String value) { vendor.set(value) }
+    void setUrl(String value) { url.set(value) }
+    void setSourcePackage(String value) { sourcePackage.set(value) }
+    void setArchStr(String value) { archStr.set(value) }
+    void setMaintainer(String value) { maintainer.set(value) }
+    void setUploaders(String value) { uploaders.set(value) }
+    void setPriority(String value) { priority.set(value) }
+    void setEpoch(Integer value) { epoch.set(value) }
+    void setUid(Integer value) { uid.set(value) }
+    void setGid(Integer value) { gid.set(value) }
+    void setSetgid(Boolean value) { setgid.set(value) }
+    void setSetgid(boolean value) { setgid.set(value) }
+    void setCreateDirectoryEntry(Boolean value) { createDirectoryEntry.set(value) }
+    void setAddParentDirs(Boolean value) { addParentDirs.set(value) }
+    void setSigningKeyId(String value) { signingKeyId.set(value) }
+    void setSigningKeyPassphrase(String value) { signingKeyPassphrase.set(value) }
+    void setSigningKeyRingFile(File value) { signingKeyRingFile.fileValue(value) }
+    void setPreInstallFile(File value) { preInstallFile.fileValue(value) }
+    void setPostInstallFile(File value) { postInstallFile.fileValue(value) }
+    void setPreUninstallFile(File value) { preUninstallFile.fileValue(value) }
+    void setPostUninstallFile(File value) { postUninstallFile.fileValue(value) }
+    void setTriggerInstallFile(File value) { triggerInstallFile.fileValue(value) }
+    void setTriggerUninstallFile(File value) { triggerUninstallFile.fileValue(value) }
+    void setTriggerPostUninstallFile(File value) { triggerPostUninstallFile.fileValue(value) }
+    void setFileType(Directive value) { fileType.set(value) }
+    void setOs(Os value) { os.set(value) }
+    void setType(RpmType value) { type.set(value) }
+    void setMultiArch(MultiArch value) { multiArch.set(value) }
+    void setPrefixes(List<String> value) { prefixes.set(value) }
+    void setConfigurationFiles(List<String> value) { configurationFiles.set(value) }
+    void setPreInstallCommands(List<String> value) { preInstallCommands.set(value) }
+    void setPostInstallCommands(List<String> value) { postInstallCommands.set(value) }
+    void setPreUninstallCommands(List<String> value) { preUninstallCommands.set(value) }
+    void setPostUninstallCommands(List<String> value) { postUninstallCommands.set(value) }
+    void setTriggerInstallCommands(List<Trigger> value) { triggerInstallCommands.set(value) }
+    void setTriggerUninstallCommands(List<Trigger> value) { triggerUninstallCommands.set(value) }
+    void setTriggerPostUninstallCommands(List<Trigger> value) { triggerPostUninstallCommands.set(value) }
+    void setPreTransCommands(List<String> value) { preTransCommands.set(value) }
+    void setPostTransCommands(List<String> value) { postTransCommands.set(value) }
+    void setCommonCommands(List<String> value) { commonCommands.set(value) }
+    void setSupplementaryControlFiles(List<String> value) { supplementaryControlFiles.set(value) }
+    void setLinks(List<Link> value) { links.set(value) }
+    void setDependencies(List<Dependency> value) { dependencies.set(value) }
+    void setObsoletes(List<Dependency> value) { obsoletes.set(value) }
+    void setConflicts(List<Dependency> value) { conflicts.set(value) }
+    void setRecommends(List<Dependency> value) { recommends.set(value) }
+    void setSuggests(List<Dependency> value) { suggests.set(value) }
+    void setEnhances(List<Dependency> value) { enhances.set(value) }
+    void setPreDepends(List<Dependency> value) { preDepends.set(value) }
+    void setBreaks(List<Dependency> value) { breaks.set(value) }
+    void setReplaces(List<Dependency> value) { replaces.set(value) }
+    void setProvides(List<Dependency> value) { provides.set(value) }
+    void setDirectories(List<Directory> value) { directories.set(value) }
+    void setCustomFields(Map<String, String> value) { customFields.set(value) }
 
     // Convenience methods for backward compatibility (v13.0 recommended API design)
 
@@ -439,7 +643,6 @@ class SystemPackagingExtension {
     void epoch(Integer value) { epoch.set(value) }
     void uid(Integer value) { uid.set(value) }
     void gid(Integer value) { gid.set(value) }
-    void setgid(Boolean value) { setgid.set(value) }
     void createDirectoryEntry(Boolean value) { createDirectoryEntry.set(value) }
     void addParentDirs(Boolean value) { addParentDirs.set(value) }
     void signingKeyId(String value) { signingKeyId.set(value) }
@@ -491,6 +694,10 @@ class SystemPackagingExtension {
      */
     def setConfigurationFile(String script) {
         configurationFile(script)
+    }
+
+    def configurationFile(String path) {
+        configurationFile((Object) path)
     }
 
     def configurationFile(Object path) {

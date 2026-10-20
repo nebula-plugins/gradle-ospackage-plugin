@@ -1,10 +1,53 @@
 package com.netflix.gradle.plugins.packaging
 
 import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.api.provider.Provider
 import spock.lang.Specification
 
 class SystemPackagingExtensionTest extends Specification {
     SystemPackagingExtension extension = ProjectBuilder.builder().build().objects.newInstance(SystemPackagingExtension)
+
+    def "legacy accessors and options share the same packaging values"() {
+        when:
+        extension.packageName = 'legacy-name'
+        extension.options.dependencies.add(new Dependency('first', '', 0))
+        extension.dependencies.add(new Dependency('second', '', 0))
+        extension.customFields.put('Section', 'java')
+        extension.options.packageName.set('modern-name')
+
+        then:
+        extension.packageName == 'modern-name'
+        extension.options.packageName.get() == 'modern-name'
+        extension.options.dependencies.get()*.packageName == ['first', 'second']
+        extension.dependencies*.packageName == ['first', 'second']
+        extension.options.customFields.get() == [Section: 'java']
+
+        when:
+        extension.customFields.entrySet().first().setValue('admin')
+        extension.dependencies.remove(0)
+
+        then:
+        extension.options.customFields.get() == [Section: 'admin']
+        extension.options.dependencies.get()*.packageName == ['second']
+    }
+
+    def "every option exposes its backing Gradle provider"() {
+        expect:
+        SystemPackagingOptions.declaredMethods.findAll { it.name.startsWith('get') && it.name != 'getMetaClass' }.every { method ->
+            method.invoke(extension.options) instanceof Provider
+        }
+    }
+
+    def "legacy packaging getters retain their 12.x binary return types"() {
+        expect:
+        SystemPackagingExtension.getMethod('getPackageName').returnType == String
+        SystemPackagingExtension.getMethod('getDependencies').returnType == List
+        SystemPackagingExtension.getMethod('getCustomFields').returnType == Map
+        SystemPackagingExtension.getMethod('getPreInstallFile').returnType == File
+        SystemPackagingExtension.getMethod('setSetgid', boolean).returnType == void
+        SystemPackagingExtension.getMethod('configurationFile', String).returnType == Object
+        extension.setgid == false
+    }
 
     def "Can define required package name without version and flag"() {
         given:
@@ -14,8 +57,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.requires(packageName)
 
         then:
-        extension.dependencies.get().size() == 1
-        Dependency dep = extension.dependencies.get()[0]
+        extension.options.dependencies.get().size() == 1
+        Dependency dep = extension.options.dependencies.get()[0]
         dep.packageName == packageName
         dep.version == ''
         dep.flag == 0
@@ -29,8 +72,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.requires(packageName, '1.0.0')
 
         then:
-        extension.dependencies.get().size() == 1
-        Dependency dep = extension.dependencies.get()[0]
+        extension.options.dependencies.get().size() == 1
+        Dependency dep = extension.options.dependencies.get()[0]
         dep.packageName == packageName
         dep.version == '1.0.0'
         dep.flag == 0
@@ -44,8 +87,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.requires(packageName, '1.0.0', 5)
 
         then:
-        extension.dependencies.get().size() == 1
-        Dependency dep = extension.dependencies.get()[0]
+        extension.options.dependencies.get().size() == 1
+        Dependency dep = extension.options.dependencies.get()[0]
         dep.packageName == packageName
         dep.version == '1.0.0'
         dep.flag == 5
@@ -324,8 +367,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.triggerInstall(file, packageName)
 
         then:
-        extension.triggerInstallCommands.get().size() == 1
-        Trigger trig = extension.triggerInstallCommands.get()[0]
+        extension.options.triggerInstallCommands.get().size() == 1
+        Trigger trig = extension.options.triggerInstallCommands.get()[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -367,8 +410,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.triggerUninstall(file, packageName)
 
         then:
-        extension.triggerUninstallCommands.get().size() == 1
-        Trigger trig = extension.triggerUninstallCommands.get()[0]
+        extension.options.triggerUninstallCommands.get().size() == 1
+        Trigger trig = extension.options.triggerUninstallCommands.get()[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''
@@ -410,8 +453,8 @@ class SystemPackagingExtensionTest extends Specification {
         extension.triggerPostUninstall(file, packageName)
 
         then:
-        extension.triggerPostUninstallCommands.get().size() == 1
-        Trigger trig = extension.triggerPostUninstallCommands.get()[0]
+        extension.options.triggerPostUninstallCommands.get().size() == 1
+        Trigger trig = extension.options.triggerPostUninstallCommands.get()[0]
         trig.command == file
         trig.dependency.packageName == packageName
         trig.dependency.version == ''

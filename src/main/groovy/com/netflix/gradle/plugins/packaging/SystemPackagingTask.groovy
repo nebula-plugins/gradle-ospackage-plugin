@@ -17,6 +17,7 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+import com.netflix.gradle.plugins.deb.control.MultiArch
 import groovy.transform.CompileDynamic
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
@@ -34,6 +35,9 @@ import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
 import org.redline_rpm.header.Architecture
+import org.redline_rpm.header.Os
+import org.redline_rpm.header.RpmType
+import org.redline_rpm.payload.Directive
 
 import javax.inject.Inject
 import java.util.concurrent.Callable
@@ -82,98 +86,98 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    String getPackageName() { getExten().getPackageName().getOrNull() }
+    String getPackageName() { getExten().options.getPackageName().getOrNull() }
     void setPackageName(String value) { getExten().packageName(value) }
     void packageName(String value) { setPackageName(value) }
 
     @Input
     @Optional
-    String getRelease() { getExten().getRelease().getOrNull() }
+    String getRelease() { getExten().options.getRelease().getOrNull() }
     void setRelease(String value) { getExten().release(value) }
     void release(String value) { setRelease(value) }
 
     @Input
     @Optional
-    String getVersion() { getExten().getVersion().getOrNull() }
+    String getVersion() { getExten().options.getVersion().getOrNull() }
     void setVersion(String value) { getExten().version(value) }
     void version(String value) { setVersion(value) }
 
     @Input
     @Optional
-    String getUser() { getExten().getUser().getOrNull() }
+    String getUser() { getExten().options.getUser().getOrNull() }
     void setUser(String value) { getExten().user(value) }
     void user(String value) { setUser(value) }
 
     @Input
     @Optional
-    String getPermissionGroup() { getExten().getPermissionGroup().getOrNull() }
+    String getPermissionGroup() { getExten().options.getPermissionGroup().getOrNull() }
     void setPermissionGroup(String value) { getExten().permissionGroup(value) }
     void permissionGroup(String value) { setPermissionGroup(value) }
 
     @Input
     @Optional
-    String getPackageGroup() { getExten().getPackageGroup().getOrNull() }
+    String getPackageGroup() { getExten().options.getPackageGroup().getOrNull() }
     void setPackageGroup(String value) { getExten().packageGroup(value) }
     void packageGroup(String value) { setPackageGroup(value) }
 
     @Input
     @Optional
-    String getBuildHost() { getExten().getBuildHost().getOrNull() }
+    String getBuildHost() { getExten().options.getBuildHost().getOrNull() }
     void setBuildHost(String value) { getExten().buildHost(value) }
     void buildHost(String value) { setBuildHost(value) }
 
     @Input
     @Optional
-    String getSummary() { getExten().getSummary().getOrNull() }
+    String getSummary() { getExten().options.getSummary().getOrNull() }
     void setSummary(String value) { getExten().summary(value) }
     void summary(String value) { setSummary(value) }
 
     @Input
     @Optional
-    String getPackageDescription() { getExten().getPackageDescription().getOrNull() }
+    String getPackageDescription() { getExten().options.getPackageDescription().getOrNull() }
     void setPackageDescription(String value) { getExten().packageDescription(value) }
     void packageDescription(String value) { setPackageDescription(value) }
 
     @Input
     @Optional
-    String getLicense() { getExten().getLicense().getOrNull() }
+    String getLicense() { getExten().options.getLicense().getOrNull() }
     void setLicense(String value) { getExten().license(value) }
     void license(String value) { setLicense(value) }
 
     @Input
     @Optional
-    String getPackager() { getExten().getPackager().getOrNull() }
+    String getPackager() { getExten().options.getPackager().getOrNull() }
     void setPackager(String value) { getExten().packager(value) }
     void packager(String value) { setPackager(value) }
 
     @Input
     @Optional
-    String getDistribution() { getExten().getDistribution().getOrNull() }
+    String getDistribution() { getExten().options.getDistribution().getOrNull() }
     void setDistribution(String value) { getExten().distribution(value) }
     void distribution(String value) { setDistribution(value) }
 
     @Input
     @Optional
-    String getVendor() { getExten().getVendor().getOrNull() }
+    String getVendor() { getExten().options.getVendor().getOrNull() }
     void setVendor(String value) { getExten().vendor(value) }
     void vendor(String value) { setVendor(value) }
 
     @Input
     @Optional
-    String getUrl() { getExten().getUrl().getOrNull() }
+    String getUrl() { getExten().options.getUrl().getOrNull() }
     void setUrl(String value) { getExten().url(value) }
     void url(String value) { setUrl(value) }
 
     @Input
     @Optional
-    String getSourcePackage() { getExten().getSourcePackage().getOrNull() }
+    String getSourcePackage() { getExten().options.getSourcePackage().getOrNull() }
     void setSourcePackage(String value) { getExten().sourcePackage(value) }
     void sourcePackage(String value) { setSourcePackage(value) }
 
     @Input
     @Optional
-    String getArchStr() { getExten().getArchStr().getOrNull() }
-    void setArchStr(String value) { getExten().getArchStr().set(value) }
+    String getArchStr() { getExten().options.getArchStr().getOrNull() }
+    void setArchStr(String value) { getExten().options.getArchStr().set(value) }
 
     void setArch(Object arch) {
         setArchStr((arch instanceof Architecture) ? arch.name() : arch.toString())
@@ -181,180 +185,181 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    String getMaintainer() { getExten().getMaintainer().getOrNull() }
+    String getMaintainer() { getExten().options.getMaintainer().getOrNull() }
     void setMaintainer(String value) { getExten().maintainer(value) }
     void maintainer(String value) { setMaintainer(value) }
 
     @Input
     @Optional
-    String getUploaders() { getExten().getUploaders().getOrNull() }
+    String getUploaders() { getExten().options.getUploaders().getOrNull() }
     void setUploaders(String value) { getExten().uploaders(value) }
     void uploaders(String value) { setUploaders(value) }
 
     @Input
     @Optional
-    String getPriority() { getExten().getPriority().getOrNull() }
+    String getPriority() { getExten().options.getPriority().getOrNull() }
     void setPriority(String value) { getExten().priority(value) }
     void priority(String value) { setPriority(value) }
 
     @Input
     @Optional
-    Integer getEpoch() { getExten().getEpoch().getOrNull() }
+    Integer getEpoch() { getExten().options.getEpoch().getOrNull() }
     void setEpoch(Integer value) { getExten().epoch(value) }
     void epoch(Integer value) { setEpoch(value) }
 
     @Input
     @Optional
-    Integer getUid() { getExten().getUid().getOrNull() }
+    Integer getUid() { getExten().options.getUid().getOrNull() }
     void setUid(Integer value) { getExten().uid(value) }
     void uid(Integer value) { setUid(value) }
 
     @Input
     @Optional
-    Integer getGid() { getExten().getGid().getOrNull() }
+    Integer getGid() { getExten().options.getGid().getOrNull() }
     void setGid(Integer value) { getExten().gid(value) }
     void gid(Integer value) { setGid(value) }
 
     @Input
     @Optional
-    Boolean getSetgid() { getExten().getSetgid().getOrNull() }
-    void setSetgid(Boolean value) { getExten().setgid(value) }
+    Boolean getSetgid() { getExten().options.getSetgid().getOrNull() }
+    void setSetgid(Boolean value) { getExten().options.setgid.set(value) }
+    void setSetgid(boolean value) { getExten().options.setgid.set(value) }
     // Note: No convenience method due to naming collision with setter
 
     @Input
     @Optional
-    Boolean getCreateDirectoryEntry() { getExten().getCreateDirectoryEntry().getOrNull() }
+    Boolean getCreateDirectoryEntry() { getExten().options.getCreateDirectoryEntry().getOrNull() }
     void setCreateDirectoryEntry(Boolean value) { getExten().createDirectoryEntry(value) }
     void createDirectoryEntry(Boolean value) { setCreateDirectoryEntry(value) }
 
     @Input
     @Optional
-    Boolean getAddParentDirs() { getExten().getAddParentDirs().getOrNull() }
+    Boolean getAddParentDirs() { getExten().options.getAddParentDirs().getOrNull() }
     void setAddParentDirs(Boolean value) { getExten().addParentDirs(value) }
     void addParentDirs(Boolean value) { setAddParentDirs(value) }
 
     @Input
     @Optional
-    String getSigningKeyId() { getExten().getSigningKeyId().getOrNull() }
+    String getSigningKeyId() { getExten().options.getSigningKeyId().getOrNull() }
     void setSigningKeyId(String value) { getExten().signingKeyId(value) }
     void signingKeyId(String value) { setSigningKeyId(value) }
 
     @Input
     @Optional
-    String getSigningKeyPassphrase() { getExten().getSigningKeyPassphrase().getOrNull() }
+    String getSigningKeyPassphrase() { getExten().options.getSigningKeyPassphrase().getOrNull() }
     void setSigningKeyPassphrase(String value) { getExten().signingKeyPassphrase(value) }
     void signingKeyPassphrase(String value) { setSigningKeyPassphrase(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.ABSOLUTE)
-    File getSigningKeyRingFile() { getExten().getSigningKeyRingFile().getOrNull()?.asFile }
-    void setSigningKeyRingFile(File value) { getExten().getSigningKeyRingFile().set(value) }
+    File getSigningKeyRingFile() { getExten().options.getSigningKeyRingFile().getOrNull()?.asFile }
+    void setSigningKeyRingFile(File value) { getExten().options.getSigningKeyRingFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getPreInstallFile() { getExten().getPreInstallFile().getOrNull()?.asFile }
-    void setPreInstallFile(File value) { getExten().getPreInstallFile().set(value) }
+    File getPreInstallFile() { getExten().options.getPreInstallFile().getOrNull()?.asFile }
+    void setPreInstallFile(File value) { getExten().options.getPreInstallFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getPostInstallFile() { getExten().getPostInstallFile().getOrNull()?.asFile }
-    void setPostInstallFile(File value) { getExten().getPostInstallFile().set(value) }
+    File getPostInstallFile() { getExten().options.getPostInstallFile().getOrNull()?.asFile }
+    void setPostInstallFile(File value) { getExten().options.getPostInstallFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getPreUninstallFile() { getExten().getPreUninstallFile().getOrNull()?.asFile }
-    void setPreUninstallFile(File value) { getExten().getPreUninstallFile().set(value) }
+    File getPreUninstallFile() { getExten().options.getPreUninstallFile().getOrNull()?.asFile }
+    void setPreUninstallFile(File value) { getExten().options.getPreUninstallFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getPostUninstallFile() { getExten().getPostUninstallFile().getOrNull()?.asFile }
-    void setPostUninstallFile(File value) { getExten().getPostUninstallFile().set(value) }
+    File getPostUninstallFile() { getExten().options.getPostUninstallFile().getOrNull()?.asFile }
+    void setPostUninstallFile(File value) { getExten().options.getPostUninstallFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getTriggerInstallFile() { getExten().getTriggerInstallFile().getOrNull()?.asFile }
-    void setTriggerInstallFile(File value) { getExten().getTriggerInstallFile().set(value) }
+    File getTriggerInstallFile() { getExten().options.getTriggerInstallFile().getOrNull()?.asFile }
+    void setTriggerInstallFile(File value) { getExten().options.getTriggerInstallFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getTriggerUninstallFile() { getExten().getTriggerUninstallFile().getOrNull()?.asFile }
-    void setTriggerUninstallFile(File value) { getExten().getTriggerUninstallFile().set(value) }
+    File getTriggerUninstallFile() { getExten().options.getTriggerUninstallFile().getOrNull()?.asFile }
+    void setTriggerUninstallFile(File value) { getExten().options.getTriggerUninstallFile().set(value) }
 
     @InputFile
     @Optional
     @PathSensitive(PathSensitivity.RELATIVE)
-    File getTriggerPostUninstallFile() { getExten().getTriggerPostUninstallFile().getOrNull()?.asFile }
-    void setTriggerPostUninstallFile(File value) { getExten().getTriggerPostUninstallFile().set(value) }
+    File getTriggerPostUninstallFile() { getExten().options.getTriggerPostUninstallFile().getOrNull()?.asFile }
+    void setTriggerPostUninstallFile(File value) { getExten().options.getTriggerPostUninstallFile().set(value) }
 
     @Input
     @Optional
-    def getFileType() { getExten().getFileType().getOrNull() }
-    void setFileType(def value) { getExten().fileType(value) }
+    Directive getFileType() { getExten().options.getFileType().getOrNull() }
+    void setFileType(Directive value) { getExten().options.fileType.set(value) }
 
     @Input
     @Optional
-    def getOs() { getExten().getOs().getOrNull() }
-    void setOs(def value) { getExten().os(value) }
+    Os getOs() { getExten().options.getOs().getOrNull() }
+    void setOs(Os value) { getExten().options.os.set(value) }
 
     @Input
     @Optional
-    def getType() { getExten().getType().getOrNull() }
-    void setType(def value) { getExten().type(value) }
+    RpmType getType() { getExten().options.getType().getOrNull() }
+    void setType(RpmType value) { getExten().options.type.set(value) }
 
     @Input
     @Optional
-    def getMultiArch() { getExten().getMultiArch().getOrNull() }
-    void setMultiArch(def value) { getExten().multiArch(value) }
+    MultiArch getMultiArch() { getExten().options.getMultiArch().getOrNull() }
+    void setMultiArch(MultiArch value) { getExten().options.multiArch.set(value) }
 
     // List properties - return List for backward compatibility
     @Input
     @Optional
-    List<String> getPrefixes() { getExten().getPrefixes().getOrElse([]) }
+    List<String> getPrefixes() { getExten().getPrefixes() }
     def prefix(String value) { getExten().prefix(value) }
 
     @Input
     @Optional
-    List<String> getConfigurationFiles() { getExten().getConfigurationFiles().getOrElse([]) }
+    List<String> getConfigurationFiles() { getExten().getConfigurationFiles() }
     def configurationFile(String value) { getExten().configurationFile(value) }
 
     @Input
     @Optional
-    List<String> getPreInstallCommands() { getExten().getPreInstallCommands().getOrElse([]) }
+    List<String> getPreInstallCommands() { getExten().getPreInstallCommands() }
     def preInstall(String value) { getExten().preInstall(value) }
     def preInstall(File value) { getExten().preInstall(value) }
     def preInstallFile(File value) { getExten().preInstallFile(value) }
 
     @Input
     @Optional
-    List<String> getPostInstallCommands() { getExten().getPostInstallCommands().getOrElse([]) }
+    List<String> getPostInstallCommands() { getExten().getPostInstallCommands() }
     def postInstall(String value) { getExten().postInstall(value) }
     def postInstall(File value) { getExten().postInstall(value) }
     def postInstallFile(File value) { getExten().postInstallFile(value) }
 
     @Input
     @Optional
-    List<String> getPreUninstallCommands() { getExten().getPreUninstallCommands().getOrElse([]) }
+    List<String> getPreUninstallCommands() { getExten().getPreUninstallCommands() }
     def preUninstall(String value) { getExten().preUninstall(value) }
     def preUninstall(File value) { getExten().preUninstall(value) }
     def preUninstallFile(File value) { getExten().preUninstallFile(value) }
 
     @Input
     @Optional
-    List<String> getPostUninstallCommands() { getExten().getPostUninstallCommands().getOrElse([]) }
+    List<String> getPostUninstallCommands() { getExten().getPostUninstallCommands() }
     def postUninstall(String value) { getExten().postUninstall(value) }
     def postUninstall(File value) { getExten().postUninstall(value) }
     def postUninstallFile(File value) { getExten().postUninstallFile(value) }
 
     @Input
     @Optional
-    List getTriggerInstallCommands() { getExten().getTriggerInstallCommands().getOrElse([]) }
+    List getTriggerInstallCommands() { getExten().getTriggerInstallCommands() }
     def triggerInstall(File script, String packageName, String version='', int flag=0) {
         getExten().triggerInstall(script, packageName, version, flag)
     }
@@ -362,7 +367,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List getTriggerUninstallCommands() { getExten().getTriggerUninstallCommands().getOrElse([]) }
+    List getTriggerUninstallCommands() { getExten().getTriggerUninstallCommands() }
     def triggerUninstall(File script, String packageName, String version='', int flag=0) {
         getExten().triggerUninstall(script, packageName, version, flag)
     }
@@ -370,7 +375,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List getTriggerPostUninstallCommands() { getExten().getTriggerPostUninstallCommands().getOrElse([]) }
+    List getTriggerPostUninstallCommands() { getExten().getTriggerPostUninstallCommands() }
     def triggerPostUninstall(File script, String packageName, String version='', int flag=0) {
         getExten().triggerPostUninstall(script, packageName, version, flag)
     }
@@ -378,120 +383,155 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
 
     @Input
     @Optional
-    List<String> getPreTransCommands() { getExten().getPreTransCommands().getOrElse([]) }
+    List<String> getPreTransCommands() { getExten().getPreTransCommands() }
     def preTrans(String value) { getExten().preTrans(value) }
     def preTrans(File value) { getExten().preTrans(value) }
 
     @Input
     @Optional
-    List<String> getPostTransCommands() { getExten().getPostTransCommands().getOrElse([]) }
+    List<String> getPostTransCommands() { getExten().getPostTransCommands() }
     def postTrans(String value) { getExten().postTrans(value) }
     def postTrans(File value) { getExten().postTrans(value) }
 
     @Input
     @Optional
-    List<String> getCommonCommands() { getExten().getCommonCommands().getOrElse([]) }
+    List<String> getCommonCommands() { getExten().getCommonCommands() }
     def installUtils(String value) { getExten().installUtils(value) }
     def installUtils(File value) { getExten().installUtils(value) }
 
     @Input
     @Optional
-    List<String> getSupplementaryControlFiles() { getExten().getSupplementaryControlFiles().getOrElse([]) }
+    List<String> getSupplementaryControlFiles() { getExten().getSupplementaryControlFiles() }
     def supplementaryControl(Object value) { getExten().supplementaryControl(value) }
 
     @Input
     @Optional
-    List getLinks() { getExten().getLinks().getOrElse([]) }
-    def link(String path, String target) { getExten().link(path, target) }
-    def link(String path, String target, int permissions) { getExten().link(path, target, permissions) }
-    def link(String path, String target, String user, String permissionGroup) {
+    List getLinks() { getExten().getLinks() }
+    Link link(String path, String target) { getExten().link(path, target) }
+    Link link(String path, String target, int permissions) { getExten().link(path, target, permissions) }
+    Link link(String path, String target, String user, String permissionGroup) {
         getExten().link(path, target, user, permissionGroup)
     }
-    def link(String path, String target, int permissions, String user, String permissionGroup) {
+    Link link(String path, String target, int permissions, String user, String permissionGroup) {
         getExten().link(path, target, permissions, user, permissionGroup)
     }
 
     @Input
     @Optional
-    List getDependencies() { getExten().getDependencies().getOrElse([]) }
-    def requires(String packageName) { getExten().requires(packageName) }
-    def requires(String packageName, String version) { getExten().requires(packageName, version) }
-    def requires(String packageName, String version, int flag) { getExten().requires(packageName, version, flag) }
+    List getDependencies() { getExten().getDependencies() }
+    Dependency requires(String packageName) { getExten().requires(packageName) }
+    Dependency requires(String packageName, String version) { getExten().requires(packageName, version) }
+    Dependency requires(String packageName, String version, int flag) { getExten().requires(packageName, version, flag) }
 
     @Input
     @Optional
-    List getObsoletes() { getExten().getObsoletes().getOrElse([]) }
-    def obsoletes(String packageName) { getExten().obsoletes(packageName) }
-    def obsoletes(String packageName, String version, int flag) { getExten().obsoletes(packageName, version, flag) }
+    List getObsoletes() { getExten().getObsoletes() }
+    Dependency obsoletes(String packageName) { getExten().obsoletes(packageName) }
+    Dependency obsoletes(String packageName, String version, int flag) { getExten().obsoletes(packageName, version, flag) }
 
     @Input
     @Optional
-    List getConflicts() { getExten().getConflicts().getOrElse([]) }
-    def conflicts(String packageName) { getExten().conflicts(packageName) }
-    def conflicts(String packageName, String version, int flag) { getExten().conflicts(packageName, version, flag) }
+    List getConflicts() { getExten().getConflicts() }
+    Dependency conflicts(String packageName) { getExten().conflicts(packageName) }
+    Dependency conflicts(String packageName, String version, int flag) { getExten().conflicts(packageName, version, flag) }
 
     @Input
     @Optional
-    List getRecommends() { getExten().getRecommends().getOrElse([]) }
-    def recommends(String packageName) { getExten().recommends(packageName) }
-    def recommends(String packageName, String version, int flag) { getExten().recommends(packageName, version, flag) }
+    List getRecommends() { getExten().getRecommends() }
+    Dependency recommends(String packageName) { getExten().recommends(packageName) }
+    Dependency recommends(String packageName, String version, int flag) { getExten().recommends(packageName, version, flag) }
 
     @Input
     @Optional
-    List getSuggests() { getExten().getSuggests().getOrElse([]) }
-    def suggests(String packageName) { getExten().suggests(packageName) }
-    def suggests(String packageName, String version, int flag) { getExten().suggests(packageName, version, flag) }
+    List getSuggests() { getExten().getSuggests() }
+    Dependency suggests(String packageName) { getExten().suggests(packageName) }
+    Dependency suggests(String packageName, String version, int flag) { getExten().suggests(packageName, version, flag) }
 
     @Input
     @Optional
-    List getEnhances() { getExten().getEnhances().getOrElse([]) }
-    def enhances(String packageName) { getExten().enhances(packageName) }
-    def enhances(String packageName, String version, int flag) { getExten().enhances(packageName, version, flag) }
+    List getEnhances() { getExten().getEnhances() }
+    Dependency enhances(String packageName) { getExten().enhances(packageName) }
+    Dependency enhances(String packageName, String version, int flag) { getExten().enhances(packageName, version, flag) }
 
     @Input
     @Optional
-    List getPreDepends() { getExten().getPreDepends().getOrElse([]) }
-    def preDepends(String packageName) { getExten().preDepends(packageName) }
-    def preDepends(String packageName, String version, int flag) { getExten().preDepends(packageName, version, flag) }
+    List getPreDepends() { getExten().getPreDepends() }
+    Dependency preDepends(String packageName) { getExten().preDepends(packageName) }
+    Dependency preDepends(String packageName, String version, int flag) { getExten().preDepends(packageName, version, flag) }
 
     @Input
     @Optional
-    List getBreaks() { getExten().getBreaks().getOrElse([]) }
-    def breaks(String packageName) { getExten().breaks(packageName) }
-    def breaks(String packageName, String version, int flag) { getExten().breaks(packageName, version, flag) }
+    List getBreaks() { getExten().getBreaks() }
+    Dependency breaks(String packageName) { getExten().breaks(packageName) }
+    Dependency breaks(String packageName, String version, int flag) { getExten().breaks(packageName, version, flag) }
 
     @Input
     @Optional
-    List getReplaces() { getExten().getReplaces().getOrElse([]) }
-    def replaces(String packageName) { getExten().replaces(packageName) }
-    def replaces(String packageName, String version, int flag) { getExten().replaces(packageName, version, flag) }
+    List getReplaces() { getExten().getReplaces() }
+    Dependency replaces(String packageName) { getExten().replaces(packageName) }
+    Dependency replaces(String packageName, String version, int flag) { getExten().replaces(packageName, version, flag) }
 
     @Input
     @Optional
-    List getProvides() { getExten().getProvides().getOrElse([]) }
-    def provides(String packageName) { getExten().provides(packageName) }
-    def provides(String packageName, String version) { getExten().provides(packageName, version) }
-    def provides(String packageName, String version, int flag) { getExten().provides(packageName, version, flag) }
+    List getProvides() { getExten().getProvides() }
+    Dependency provides(String packageName) { getExten().provides(packageName) }
+    Dependency provides(String packageName, String version) { getExten().provides(packageName, version) }
+    Dependency provides(String packageName, String version, int flag) { getExten().provides(packageName, version, flag) }
 
     @Input
     @Optional
-    List getDirectories() { getExten().getDirectories().getOrElse([]) }
-    def directory(String path) { getExten().directory(path) }
-    def directory(String path, boolean addParents) { getExten().directory(path, addParents) }
-    def directory(String path, int permissions) { getExten().directory(path, permissions) }
-    def directory(String path, int permissions, boolean addParents) { getExten().directory(path, permissions, addParents) }
-    def directory(String path, int permissions, String user, String permissionGroup) {
+    List getDirectories() { getExten().getDirectories() }
+    Directory directory(String path) { getExten().directory(path) }
+    Directory directory(String path, boolean addParents) { getExten().directory(path, addParents) }
+    Directory directory(String path, int permissions) { getExten().directory(path, permissions) }
+    Directory directory(String path, int permissions, boolean addParents) { getExten().directory(path, permissions, addParents) }
+    Directory directory(String path, int permissions, String user, String permissionGroup) {
         getExten().directory(path, permissions, user, permissionGroup)
     }
-    def directory(String path, int permissions, String user, String permissionGroup, boolean addParents) {
+    Directory directory(String path, int permissions, String user, String permissionGroup, boolean addParents) {
         getExten().directory(path, permissions, user, permissionGroup, addParents)
     }
 
     @Input
     @Optional
-    Map<String, String> getCustomFields() { getExten().getCustomFields().getOrElse([:]) }
+    Map<String, String> getCustomFields() { getExten().getCustomFields() }
     def customField(String key, String val) { getExten().customField(key, val) }
     def customField(Map<String, String> fields) { getExten().customField(fields) }
+
+    // Entry points generated by @Delegate in 12.x. Keep their JVM signatures for
+    // plugins compiled against that release, without retaining the old task field.
+    def setInstallUtils(File value) { getExten().setInstallUtils(value) }
+    def setConfigurationFile(String value) { getExten().setConfigurationFile(value) }
+    def setPreInstall(File value) { getExten().setPreInstall(value) }
+    def setPostInstall(File value) { getExten().setPostInstall(value) }
+    def setPreUninstall(File value) { getExten().setPreUninstall(value) }
+    def setPostUninstall(File value) { getExten().setPostUninstall(value) }
+    def setTriggerInstall(File script, String packageName, String version='', int flag=0) {
+        getExten().setTriggerInstall(script, packageName, version, flag)
+    }
+    def setTriggerUninstall(File script, String packageName, String version='', int flag=0) {
+        getExten().setTriggerUninstall(script, packageName, version, flag)
+    }
+    def setTriggerPostUninstall(File script, String packageName, String version='', int flag=0) {
+        getExten().setTriggerPostUninstall(script, packageName, version, flag)
+    }
+    def setPreTrans(File value) { getExten().setPreTrans(value) }
+    def setPostTrans(File value) { getExten().setPostTrans(value) }
+
+    void setPrefixes(List<String> value) { getExten().setPrefixes(value) }
+    void setLinks(List<Link> value) { getExten().setLinks(value) }
+    void setDependencies(List<Dependency> value) { getExten().setDependencies(value) }
+    void setObsoletes(List<Dependency> value) { getExten().setObsoletes(value) }
+    void setConflicts(List<Dependency> value) { getExten().setConflicts(value) }
+    void setRecommends(List<Dependency> value) { getExten().setRecommends(value) }
+    void setSuggests(List<Dependency> value) { getExten().setSuggests(value) }
+    void setEnhances(List<Dependency> value) { getExten().setEnhances(value) }
+    void setPreDepends(List<Dependency> value) { getExten().setPreDepends(value) }
+    void setBreaks(List<Dependency> value) { getExten().setBreaks(value) }
+    void setReplaces(List<Dependency> value) { getExten().setReplaces(value) }
+    void setProvides(List<Dependency> value) { getExten().setProvides(value) }
+    void setDirectories(List<Directory> value) { getExten().setDirectories(value) }
+    void setCustomFields(Map<String, String> value) { getExten().setCustomFields(value) }
 
     // Apply conventions to task extension properties using modern Property API
     protected void applyConventions() {
@@ -506,67 +546,67 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     protected final void applyBaseConventions(Project project) {
         Provider<String> projectVersion = ProjectDefaultProviders.version(project)
         // Apply default conventions FIRST (lowest priority)
-        exten.packageName.convention(getArchiveBaseName())
-        exten.release.convention(getArchiveClassifier())
-        Provider<String> defaultVersion = parentExten ? parentExten.version.orElse(projectVersion) : projectVersion
-        exten.version.convention(defaultVersion.map { sanitizeVersion(it) })
-        exten.epoch.convention(0)
-        exten.signingKeyId.convention('')
-        exten.signingKeyPassphrase.convention('')
-        exten.signingKeyRingFile.convention(
+        exten.options.packageName.convention(getArchiveBaseName())
+        exten.options.release.convention(getArchiveClassifier())
+        Provider<String> defaultVersion = parentExten ? parentExten.options.version.orElse(projectVersion) : projectVersion
+        exten.options.version.convention(defaultVersion.map { sanitizeVersion(it) })
+        exten.options.epoch.convention(0)
+        exten.options.signingKeyId.convention('')
+        exten.options.signingKeyPassphrase.convention('')
+        exten.options.signingKeyRingFile.convention(
             projectLayout.file(getProviders().provider {
                 File defaultFile = new File(System.getProperty('user.home'), '.gnupg/secring.gpg')
                 defaultFile.exists() ? defaultFile : null
             })
         )
-        exten.user.convention(getProviders().provider { getPackager() })
-        exten.maintainer.convention(getProviders().provider { getPackager() })
-        exten.uploaders.convention(getProviders().provider { getPackager() })
-        exten.permissionGroup.convention('')
-        exten.setgid.convention(false)
-        exten.buildHost.convention(HOST_NAME)
-        exten.summary.convention(exten.packageName)
-        exten.packageDescription.convention(ProjectDefaultProviders.description(project))
-        exten.license.convention('')
-        exten.packager.convention(System.getProperty('user.name', ''))
-        exten.distribution.convention('')
-        exten.vendor.convention('')
-        exten.url.convention('')
-        exten.sourcePackage.convention('')
-        exten.createDirectoryEntry.convention(false)
-        exten.priority.convention('optional')
+        exten.options.user.convention(getProviders().provider { getPackager() })
+        exten.options.maintainer.convention(getProviders().provider { getPackager() })
+        exten.options.uploaders.convention(getProviders().provider { getPackager() })
+        exten.options.permissionGroup.convention('')
+        exten.options.setgid.convention(false)
+        exten.options.buildHost.convention(HOST_NAME)
+        exten.options.summary.convention(exten.options.packageName)
+        exten.options.packageDescription.convention(ProjectDefaultProviders.description(project))
+        exten.options.license.convention('')
+        exten.options.packager.convention(System.getProperty('user.name', ''))
+        exten.options.distribution.convention('')
+        exten.options.vendor.convention('')
+        exten.options.url.convention('')
+        exten.options.sourcePackage.convention('')
+        exten.options.createDirectoryEntry.convention(false)
+        exten.options.priority.convention('optional')
 
         // Then apply conventions from parentExten (higher priority - override defaults)
         // Only override if parentExten has a value
         if (parentExten) {
-            if (parentExten.packageName.isPresent()) exten.packageName.convention(parentExten.packageName)
-            if (parentExten.release.isPresent()) exten.release.convention(parentExten.release)
-            if (parentExten.version.isPresent()) exten.version.convention(parentExten.version)
-            if (parentExten.epoch.isPresent()) exten.epoch.convention(parentExten.epoch)
-            if (parentExten.signingKeyId.isPresent()) exten.signingKeyId.convention(parentExten.signingKeyId)
-            if (parentExten.signingKeyPassphrase.isPresent()) exten.signingKeyPassphrase.convention(parentExten.signingKeyPassphrase)
-            if (parentExten.signingKeyRingFile.isPresent()) exten.signingKeyRingFile.convention(parentExten.signingKeyRingFile)
-            if (parentExten.user.isPresent()) exten.user.convention(parentExten.user)
-            if (parentExten.maintainer.isPresent()) exten.maintainer.convention(parentExten.maintainer)
-            if (parentExten.uploaders.isPresent()) exten.uploaders.convention(parentExten.uploaders)
-            if (parentExten.permissionGroup.isPresent()) exten.permissionGroup.convention(parentExten.permissionGroup)
-            if (parentExten.setgid.isPresent()) exten.setgid.convention(parentExten.setgid)
-            if (parentExten.packageGroup.isPresent()) exten.packageGroup.convention(parentExten.packageGroup)
-            if (parentExten.buildHost.isPresent()) exten.buildHost.convention(parentExten.buildHost)
-            if (parentExten.summary.isPresent()) exten.summary.convention(parentExten.summary)
-            if (parentExten.packageDescription.isPresent()) exten.packageDescription.convention(parentExten.packageDescription)
-            if (parentExten.license.isPresent()) exten.license.convention(parentExten.license)
-            if (parentExten.packager.isPresent()) exten.packager.convention(parentExten.packager)
-            if (parentExten.distribution.isPresent()) exten.distribution.convention(parentExten.distribution)
-            if (parentExten.vendor.isPresent()) exten.vendor.convention(parentExten.vendor)
-            if (parentExten.url.isPresent()) exten.url.convention(parentExten.url)
-            if (parentExten.sourcePackage.isPresent()) exten.sourcePackage.convention(parentExten.sourcePackage)
-            if (parentExten.createDirectoryEntry.isPresent()) exten.createDirectoryEntry.convention(parentExten.createDirectoryEntry)
-            if (parentExten.priority.isPresent()) exten.priority.convention(parentExten.priority)
-            if (parentExten.preInstallFile.isPresent()) exten.preInstallFile.convention(parentExten.preInstallFile)
-            if (parentExten.postInstallFile.isPresent()) exten.postInstallFile.convention(parentExten.postInstallFile)
-            if (parentExten.preUninstallFile.isPresent()) exten.preUninstallFile.convention(parentExten.preUninstallFile)
-            if (parentExten.postUninstallFile.isPresent()) exten.postUninstallFile.convention(parentExten.postUninstallFile)
+            if (parentExten.options.packageName.isPresent()) exten.options.packageName.convention(parentExten.options.packageName)
+            if (parentExten.options.release.isPresent()) exten.options.release.convention(parentExten.options.release)
+            if (parentExten.options.version.isPresent()) exten.options.version.convention(parentExten.options.version)
+            if (parentExten.options.epoch.isPresent()) exten.options.epoch.convention(parentExten.options.epoch)
+            if (parentExten.options.signingKeyId.isPresent()) exten.options.signingKeyId.convention(parentExten.options.signingKeyId)
+            if (parentExten.options.signingKeyPassphrase.isPresent()) exten.options.signingKeyPassphrase.convention(parentExten.options.signingKeyPassphrase)
+            if (parentExten.options.signingKeyRingFile.isPresent()) exten.options.signingKeyRingFile.convention(parentExten.options.signingKeyRingFile)
+            if (parentExten.options.user.isPresent()) exten.options.user.convention(parentExten.options.user)
+            if (parentExten.options.maintainer.isPresent()) exten.options.maintainer.convention(parentExten.options.maintainer)
+            if (parentExten.options.uploaders.isPresent()) exten.options.uploaders.convention(parentExten.options.uploaders)
+            if (parentExten.options.permissionGroup.isPresent()) exten.options.permissionGroup.convention(parentExten.options.permissionGroup)
+            if (parentExten.options.setgid.isPresent()) exten.options.setgid.convention(parentExten.options.setgid)
+            if (parentExten.options.packageGroup.isPresent()) exten.options.packageGroup.convention(parentExten.options.packageGroup)
+            if (parentExten.options.buildHost.isPresent()) exten.options.buildHost.convention(parentExten.options.buildHost)
+            if (parentExten.options.summary.isPresent()) exten.options.summary.convention(parentExten.options.summary)
+            if (parentExten.options.packageDescription.isPresent()) exten.options.packageDescription.convention(parentExten.options.packageDescription)
+            if (parentExten.options.license.isPresent()) exten.options.license.convention(parentExten.options.license)
+            if (parentExten.options.packager.isPresent()) exten.options.packager.convention(parentExten.options.packager)
+            if (parentExten.options.distribution.isPresent()) exten.options.distribution.convention(parentExten.options.distribution)
+            if (parentExten.options.vendor.isPresent()) exten.options.vendor.convention(parentExten.options.vendor)
+            if (parentExten.options.url.isPresent()) exten.options.url.convention(parentExten.options.url)
+            if (parentExten.options.sourcePackage.isPresent()) exten.options.sourcePackage.convention(parentExten.options.sourcePackage)
+            if (parentExten.options.createDirectoryEntry.isPresent()) exten.options.createDirectoryEntry.convention(parentExten.options.createDirectoryEntry)
+            if (parentExten.options.priority.isPresent()) exten.options.priority.convention(parentExten.options.priority)
+            if (parentExten.options.preInstallFile.isPresent()) exten.options.preInstallFile.convention(parentExten.options.preInstallFile)
+            if (parentExten.options.postInstallFile.isPresent()) exten.options.postInstallFile.convention(parentExten.options.postInstallFile)
+            if (parentExten.options.preUninstallFile.isPresent()) exten.options.preUninstallFile.convention(parentExten.options.preUninstallFile)
+            if (parentExten.options.postUninstallFile.isPresent()) exten.options.postUninstallFile.convention(parentExten.options.postUninstallFile)
         }
 
         // Task-specific conventions
@@ -590,7 +630,7 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     }
 
     Provider<String> determineArchiveVersion() {
-        return exten.version
+        return exten.options.version
     }
 
     File determineArchivePath() {
@@ -621,67 +661,67 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     @Input
     @Optional
     List<String> getAllConfigurationFiles() {
-        return getConfigurationFiles() + (parentExten?.getConfigurationFiles()?.getOrElse([]) ?: [])
+        return getConfigurationFiles() + (parentExten?.options?.getConfigurationFiles()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllPreInstallCommands() {
-        return getPreInstallCommands() + (parentExten?.getPreInstallCommands()?.getOrElse([]) ?: [])
+        return getPreInstallCommands() + (parentExten?.options?.getPreInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllPostInstallCommands() {
-        return getPostInstallCommands() + (parentExten?.getPostInstallCommands()?.getOrElse([]) ?: [])
+        return getPostInstallCommands() + (parentExten?.options?.getPostInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllPreUninstallCommands() {
-        return getPreUninstallCommands() + (parentExten?.getPreUninstallCommands()?.getOrElse([]) ?: [])
+        return getPreUninstallCommands() + (parentExten?.options?.getPreUninstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllPostUninstallCommands() {
-        return getPostUninstallCommands() + (parentExten?.getPostUninstallCommands()?.getOrElse([]) ?: [])
+        return getPostUninstallCommands() + (parentExten?.options?.getPostUninstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Trigger> getAllTriggerIn() {
-        return getTriggerInstallCommands() + (parentExten?.getTriggerInstallCommands()?.getOrElse([]) ?: [])
+        return getTriggerInstallCommands() + (parentExten?.options?.getTriggerInstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Trigger> getAllTriggerUn() {
-        return getTriggerUninstallCommands() + (parentExten?.getTriggerUninstallCommands()?.getOrElse([]) ?: [])
+        return getTriggerUninstallCommands() + (parentExten?.options?.getTriggerUninstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Trigger> getAllTriggerPostUn() {
-        return getTriggerPostUninstallCommands() + (parentExten?.getTriggerPostUninstallCommands()?.getOrElse([]) ?: [])
+        return getTriggerPostUninstallCommands() + (parentExten?.options?.getTriggerPostUninstallCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllPreTransCommands() {
-        return getPreTransCommands() + (parentExten?.getPreTransCommands()?.getOrElse([]) ?: [])
+        return getPreTransCommands() + (parentExten?.options?.getPreTransCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllPostTransCommands() {
-        return getPostTransCommands() + (parentExten?.getPostTransCommands()?.getOrElse([]) ?: [])
+        return getPostTransCommands() + (parentExten?.options?.getPostTransCommands()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<String> getAllCommonCommands() {
-        return getCommonCommands() + (parentExten?.getCommonCommands()?.getOrElse([]) ?: [])
+        return getCommonCommands() + (parentExten?.options?.getCommonCommands()?.getOrElse([]) ?: [])
     }
 
     /**
@@ -690,49 +730,49 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     @Input
     @Optional
     List<String> getAllSupplementaryControlFiles() {
-        return getSupplementaryControlFiles() + (parentExten?.getSupplementaryControlFiles()?.getOrElse([]) ?: [])
+        return getSupplementaryControlFiles() + (parentExten?.options?.getSupplementaryControlFiles()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Link> getAllLinks() {
-        return getLinks() + (parentExten?.getLinks()?.getOrElse([]) ?: [])
+        return getLinks() + (parentExten?.options?.getLinks()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Dependency> getAllDependencies() {
-        return getDependencies() + (parentExten?.getDependencies()?.getOrElse([]) ?: [])
+        return getDependencies() + (parentExten?.options?.getDependencies()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     def getAllPrefixes() {
-        return (getPrefixes() + (parentExten?.getPrefixes()?.getOrElse([]) ?: [])).unique()
+        return (getPrefixes() + (parentExten?.options?.getPrefixes()?.getOrElse([]) ?: [])).unique()
     }
 
     @Input
     @Optional
     List<Dependency> getAllProvides() {
-        return getProvides() + (parentExten?.getProvides()?.getOrElse([]) ?: [])
+        return getProvides() + (parentExten?.options?.getProvides()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Dependency> getAllObsoletes() {
-        return getObsoletes() + (parentExten?.getObsoletes()?.getOrElse([]) ?: [])
+        return getObsoletes() + (parentExten?.options?.getObsoletes()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Dependency> getAllConflicts() {
-        return getConflicts() + (parentExten?.getConflicts()?.getOrElse([]) ?: [])
+        return getConflicts() + (parentExten?.options?.getConflicts()?.getOrElse([]) ?: [])
     }
 
     @Input
     @Optional
     List<Directory> getAllDirectories() {
-        return getDirectories() + (parentExten?.getDirectories()?.getOrElse([]) ?: [])
+        return getDirectories() + (parentExten?.options?.getDirectories()?.getOrElse([]) ?: [])
     }
 
     @Override

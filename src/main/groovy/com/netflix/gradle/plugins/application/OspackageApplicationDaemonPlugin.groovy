@@ -62,7 +62,7 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
             DaemonExtension daemonExt = project.extensions.getByType(DaemonExtension)
             def definition = daemonExt.daemon { DaemonDefinition daemonDefinition ->
                 daemonDefinition.setDaemonName(name)
-                daemonDefinition.setCommand("${ospackageApplicationExtension.prefix.get()}/${name}/bin/${name}".toString())
+                daemonDefinition.setCommand("${ospackageApplicationExtension.options.prefix.get()}/${name}/bin/${name}".toString())
             }
 
             daemonConfiguration.each { confClosure ->
