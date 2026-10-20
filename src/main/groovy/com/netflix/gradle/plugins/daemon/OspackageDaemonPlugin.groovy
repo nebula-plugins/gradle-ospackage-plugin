@@ -143,7 +143,7 @@ class OspackageDaemonPlugin implements Plugin<Project> {
                     .orElse('')
 
                 // Add the file content to postInstallCommands
-                task.exten.postInstallCommands.addAll(
+                task.exten.options.postInstallCommands.addAll(
                     postInstallContentProvider.map { String content ->
                         content?.trim() ? [content] : []
                     }

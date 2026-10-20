@@ -14,6 +14,32 @@ import static org.redline_rpm.header.Header.HeaderTag.NAME
 import static org.redline_rpm.payload.CpioHeader.*
 
 class RpmPluginIntegrationTest extends BaseIntegrationTestKitSpec {
+    def 'legacy File values in script lists produce RPM scriptlets'() {
+        given:
+        writeHelloWorld('nebula.test')
+        new File(projectDir, 'src/pretrans-script').text = 'echo legacy rpm'
+        buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
+            version = '1.0.0'
+            ospackage {
+                from('src')
+                preTransCommands.add(file('src/pretrans-script'))
+            }
+        '''.stripIndent()
+
+        when:
+        def first = runTasks('buildRpm', '--configuration-cache')
+        def second = runTasks('buildRpm', '--configuration-cache')
+
+        then:
+        first.task(':buildRpm').outcome == TaskOutcome.SUCCESS
+        second.output.contains('Configuration cache entry reused')
+        def archive = new File(projectDir, 'build/distributions').listFiles().find { it.name.endsWith('.rpm') }
+        Scanner.scan(archive).format.header.entries[1151].values[0].contains('echo legacy rpm')
+    }
+
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/82")
     def "rpm task is marked up-to-date when setting arch or os property"() {
 

@@ -22,7 +22,7 @@ The project wiki contains the [full documentation](https://github.com/nebula-plu
 
 ## Migrating from 12.x to 13.0
 
-Version 13 changes the programmatic APIs of the packaging, application, and daemon task extensions to use Gradle's lazy properties. Most Groovy build scripts that assign values in `ospackage { ... }` or `buildDeb { ... }` can keep doing so:
+Version 13 adds a provider-backed `options` view to the packaging and application extensions while retaining their 12.x plain-value getters during migration. Most Groovy build scripts that assign values in `ospackage { ... }` or `buildDeb { ... }` can keep doing so:
 
 ```groovy
 ospackage {
@@ -31,25 +31,27 @@ ospackage {
 }
 ```
 
-Code that obtains an extension object and reads its values must now resolve its properties. Prefer wiring the property or a mapped provider into another Gradle property when the value is needed later.
+Code that needs lazy values should use `options`. Prefer wiring a property or a mapped provider into another Gradle property when the value is needed later. Plain-value getters remain available for existing consumers but are deprecated.
 
 ```groovy
 def packaging = extensions.getByType(com.netflix.gradle.plugins.packaging.ProjectPackagingExtension)
 
-// 12.x: String name = packaging.packageName
-String name = packaging.packageName.getOrNull()
-packaging.packageName.set(providers.provider { 'my-package' })
+String name = packaging.packageName // legacy, eagerly reads the value
+packaging.options.packageName.set(providers.provider { 'my-package' })
 
-// 12.x: packaging.preInstallFile = file('scripts/preinst')
-packaging.preInstallFile.set(layout.projectDirectory.file('scripts/preinst'))
+packaging.options.preInstallFile.set(layout.projectDirectory.file('scripts/preinst'))
 
 // Use the existing DSL method to add a dependency.
 packaging.requires('other-package')
 ```
 
-The same change applies to other scalar, file, list, and map properties on `SystemPackagingExtension` and `ProjectPackagingExtension`. Direct list or map mutation must use methods such as `.add(...)` or `.put(...)` on the property. Java and Kotlin callers must update their getter types from plain values to `Property`, `RegularFileProperty`, `ListProperty`, or `MapProperty`. Recompile plugins that call these APIs against 13.0.
+The same `options` view covers other scalar, file, list, and map values on `SystemPackagingExtension` and `ProjectPackagingExtension`. Use `.add(...)` and `.put(...)` on the corresponding Gradle properties. The legacy list and map getters remain mutable views backed by those properties. Java and Kotlin callers that obtain Gradle-created extensions can keep their 12.x getter types or migrate to `getOptions()`; new code should use `getOptions()`. Direct construction of `SystemPackagingExtension` is outside this bridge.
 
-`OspackageApplicationExtension` is now an interface with `Property<String>` getters for `prefix` and `distribution`. Read `prefix.get()` when a value is required, or use `prefix.map { ... }` to keep it lazy. Configure its default with `prefix.convention('/apps')` instead of `conventionMapping.map('prefix')`.
+Script command and control-file lists still accept both `String` and `File`; their provider-backed form is `ListProperty<Object>`.
+
+The 12.x helper methods and mutable collection getters on `buildDeb` and `buildRpm` tasks also remain available. New plugin code should use `task.exten.options` to wire providers into packaging task settings. The old task `setExten(...)` setter is unavailable because Gradle now creates `exten` as a managed nested object; configure that object instead of replacing it.
+
+`OspackageApplicationExtension` remains a class with `String` getters for `prefix` and `distribution`. Use `options.prefix.get()` when a value is required, or `options.prefix.map { ... }` to keep it lazy. Existing `conventionMapping.map('prefix')` defaults are honored; migrate them to `options.prefix.convention('/apps')` when updating the caller.
 
 `DaemonTemplateTask` exposes `context`, `templates`, `destDir`, and `templatesFolder` as Gradle properties. Configure them with `.set(...)` or `.convention(...)` and resolve them with `.get()` only when needed. Custom subclasses of `SystemPackagingBasePlugin` that override `createExtension()` must update the override to `createExtension(Project)`.
 

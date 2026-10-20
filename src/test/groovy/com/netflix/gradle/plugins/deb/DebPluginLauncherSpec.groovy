@@ -7,6 +7,99 @@ import spock.lang.Issue
 import spock.lang.Unroll
 
 class DebPluginLauncherSpec extends BaseIntegrationTestKitSpec {
+    def 'legacy file values in mutable lists produce debian control files'() {
+        given:
+        writeHelloWorld('nebula.test')
+        new File(projectDir, 'src/preinst-script').text = 'echo legacy install'
+        new File(projectDir, 'src/control-extra').text = 'legacy control'
+        buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
+            version = '1.0.0'
+            ospackage {
+                from('src')
+                preInstallCommands.add(file('src/preinst-script'))
+                supplementaryControlFiles.add(file('src/control-extra'))
+            }
+        '''.stripIndent()
+
+        when:
+        def first = runTasks('buildDeb', '--configuration-cache')
+        def second = runTasks('buildDeb', '--configuration-cache')
+
+        then:
+        first.task(':buildDeb').outcome == TaskOutcome.SUCCESS
+        second.output.contains('Configuration cache entry reused')
+        def archive = new File(projectDir, 'build/distributions').listFiles().find { it.name.endsWith('.deb') }
+        def control = new Scanner(archive).controlContents
+        control['./preinst'].contains('echo legacy install')
+        control['./control-extra'].contains('legacy control')
+    }
+
+    def 'legacy dependency changes made before packaging appear in the deb'() {
+        given:
+        writeHelloWorld('nebula.test')
+        buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
+            version = '1.0.0'
+            ospackage {
+                from('src')
+                requires('versioned-dependency')
+            }
+            def packaging = extensions.getByType(com.netflix.gradle.plugins.packaging.ProjectPackagingExtension)
+            tasks.named('buildDeb') {
+                doFirst {
+                    packaging.requires('late-dependency')
+                    packaging.dependencies.find { it.packageName == 'versioned-dependency' }.version = '2.0.0'
+                }
+            }
+        '''.stripIndent()
+
+        when:
+        def result = runTasks('buildDeb', '--no-configuration-cache')
+
+        then:
+        result.task(':buildDeb').outcome == TaskOutcome.SUCCESS
+        def archive = new File(projectDir, 'build/distributions').listFiles().find { it.name.endsWith('.deb') }
+        archive.exists()
+        def dependencies = new Scanner(archive).getHeaderEntry('Depends')
+        dependencies.contains('late-dependency')
+        dependencies.contains('versioned-dependency (2.0.0)')
+    }
+
+    def 'legacy and provider-backed extension views shape the same deb package'() {
+        given:
+        writeHelloWorld('nebula.test')
+        buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage'
+            }
+            version = '1.0.0'
+            ospackage {
+                from('src')
+                options.packageName.set(providers.provider { 'bridge-package' })
+                options.dependencies.add(new com.netflix.gradle.plugins.packaging.Dependency('modern-dependency', '', 0))
+                dependencies.add(new com.netflix.gradle.plugins.packaging.Dependency('legacy-dependency', '', 0))
+            }
+        '''.stripIndent()
+
+        when:
+        def first = runTasks('buildDeb', '--configuration-cache')
+        def second = runTasks('buildDeb', '--configuration-cache')
+
+        then:
+        first.task(':buildDeb').outcome == TaskOutcome.SUCCESS
+        second.output.contains('Configuration cache entry reused')
+        def archive = new File(projectDir, 'build/distributions/bridge-package_1.0.0_all.deb')
+        archive.exists()
+        def dependencies = new Scanner(archive).getHeaderEntry('Depends')
+        dependencies.contains('modern-dependency')
+        dependencies.contains('legacy-dependency')
+    }
+
     def 'not up-to-date when specifying any value'() {
         when:
         writeHelloWorld('nebula.test')
