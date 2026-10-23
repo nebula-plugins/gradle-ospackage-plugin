@@ -86,27 +86,14 @@ abstract class Rpm extends SystemPackagingTask {
         exten.options.type.convention(RpmType.BINARY)
         exten.options.prefixes.convention([])
 
-        // Then apply conventions from parentExten (higher priority - override defaults)
-        // Only override if parentExten has a value
+        // Parent defaults may be supplied after this task is configured.
         if (parentExten) {
-            if (parentExten.options.fileType.isPresent()) {
-                exten.options.fileType.convention(parentExten.options.fileType)
-            }
-            if (parentExten.options.addParentDirs.isPresent()) {
-                exten.options.addParentDirs.convention(parentExten.options.addParentDirs)
-            }
-            if (parentExten.options.archStr.isPresent()) {
-                exten.options.archStr.convention(parentExten.options.archStr)
-            }
-            if (parentExten.options.os.isPresent()) {
-                exten.options.os.convention(parentExten.options.os)
-            }
-            if (parentExten.options.type.isPresent()) {
-                exten.options.type.convention(parentExten.options.type)
-            }
-            if (parentExten.options.prefixes.isPresent()) {
-                exten.options.prefixes.convention(parentExten.options.prefixes)
-            }
+            exten.options.fileType.convention(parentExten.options.fileType)
+            exten.options.addParentDirs.convention(parentExten.options.addParentDirs.orElse(true))
+            exten.options.archStr.convention(parentExten.options.archStr.orElse(Architecture.NOARCH.name()))
+            exten.options.os.convention(parentExten.options.os.orElse(Os.UNKNOWN))
+            exten.options.type.convention(parentExten.options.type.orElse(RpmType.BINARY))
+            exten.options.prefixes.convention(parentExten.options.prefixes.orElse([]))
         }
     }
 

@@ -20,6 +20,7 @@ import com.netflix.gradle.plugins.deb.DebPlugin
 import com.netflix.gradle.plugins.rpm.RpmPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.internal.IConventionAware
 
 class SystemPackagingBasePlugin implements Plugin<Project> {
     ProjectPackagingExtension extension
@@ -29,6 +30,10 @@ class SystemPackagingBasePlugin implements Plugin<Project> {
     void apply(Project project) {
         // Extension is created before plugins are, so tasks
         extension = createExtension(project)
+        project.gradle.projectsEvaluated {
+            // Wait for consumer afterEvaluate callbacks before resolving legacy defaults.
+            extension.options.adoptLegacyConventions(((IConventionAware) extension).conventionMapping, project.objects)
+        }
         RpmPlugin.applyAliases(extension) // RPM Specific aliases
         DebPlugin.applyAliases(extension) // DEB-specific aliases
 

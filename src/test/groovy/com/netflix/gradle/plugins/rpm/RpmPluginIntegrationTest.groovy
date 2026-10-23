@@ -2,7 +2,9 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.utils.GradleUtils
+import nebula.test.dependencies.Coordinate
 import nebula.test.dependencies.DependencyGraph
+import nebula.test.dependencies.DependencyGraphNode
 import nebula.test.dependencies.GradleDependencyGenerator
 import org.vafer.jdeb.shaded.commons.io.FileUtils
 import org.gradle.testkit.runner.TaskOutcome
@@ -280,8 +282,12 @@ task buildRpm(type: Rpm) {
     @Issue("https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/48")
     def "Does not throw UnsupportedOperationException when copying external artifact with createDirectoryEntry option"() {
         given:
-        String testCoordinates = 'com.netflix.nebula:a:1.0.0'
-        DependencyGraph graph = new DependencyGraph([testCoordinates])
+        def coordinate = new Coordinate(group: 'com.netflix.nebula', artifact: 'a', version: '1.0.0')
+        String testCoordinates = coordinate.toString()
+        // The generator defaults to JDK 8, which is not installed in CI.
+        DependencyGraph graph = new DependencyGraph(nodes: [
+                new DependencyGraphNode(coordinate: coordinate, targetCompatibility: 17)
+        ])
         File reposRootDir = directory('build/repos')
         GradleDependencyGenerator generator = new GradleDependencyGenerator(graph, reposRootDir.absolutePath)
         generator.generateTestMavenRepo()
@@ -319,6 +325,8 @@ task buildRpm(type: Rpm) {
 
         then:
         runTasks('buildRpm')
+        def archive = new File(projectDir, 'build/distributions').listFiles().find { it.name.endsWith('.rpm') }
+        Scanner.scan(archive).files*.name.contains('./root/lib/a-1.0.0.jar')
     }
 
 

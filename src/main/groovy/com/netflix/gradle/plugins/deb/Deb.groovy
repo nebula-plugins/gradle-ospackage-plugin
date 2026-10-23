@@ -84,36 +84,17 @@ abstract class Deb extends SystemPackagingTask {
         exten.options.uploaders.convention('')
         exten.options.priority.convention('optional')
 
-        // Then apply conventions from parentExten (higher priority - override defaults)
-        // Only override if parentExten has a value
+        // Parent defaults may be supplied after this task is configured.
         if (parentExten) {
-            if (parentExten.options.fileType.isPresent()) {
-                exten.options.fileType.convention(parentExten.options.fileType)
-            }
-            if (parentExten.options.uid.isPresent()) {
-                exten.options.uid.convention(parentExten.options.uid)
-            }
-            if (parentExten.options.gid.isPresent()) {
-                exten.options.gid.convention(parentExten.options.gid)
-            }
-            if (parentExten.options.packageGroup.isPresent()) {
-                exten.options.packageGroup.convention(parentExten.options.packageGroup)
-            }
-            if (parentExten.options.multiArch.isPresent()) {
-                exten.options.multiArch.convention(parentExten.options.multiArch)
-            }
-            if (parentExten.options.archStr.isPresent()) {
-                exten.options.archStr.convention(parentExten.options.archStr)
-            }
-            if (parentExten.options.maintainer.isPresent()) {
-                exten.options.maintainer.convention(parentExten.options.maintainer)
-            }
-            if (parentExten.options.uploaders.isPresent()) {
-                exten.options.uploaders.convention(parentExten.options.uploaders)
-            }
-            if (parentExten.options.priority.isPresent()) {
-                exten.options.priority.convention(parentExten.options.priority)
-            }
+            exten.options.fileType.convention(parentExten.options.fileType)
+            exten.options.uid.convention(parentExten.options.uid.orElse(0))
+            exten.options.gid.convention(parentExten.options.gid.orElse(0))
+            exten.options.packageGroup.convention(parentExten.options.packageGroup.orElse('java'))
+            exten.options.multiArch.convention(parentExten.options.multiArch)
+            exten.options.archStr.convention(parentExten.options.archStr.orElse('all'))
+            exten.options.maintainer.convention(parentExten.options.maintainer.orElse(System.getProperty('user.name', '')))
+            exten.options.uploaders.convention(parentExten.options.uploaders.orElse(''))
+            exten.options.priority.convention(parentExten.options.priority.orElse('optional'))
         }
     }
 

@@ -1,7 +1,11 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
+import groovy.transform.CompileDynamic
+import groovy.transform.PackageScope
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.ConventionMapping
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -15,6 +19,34 @@ class SystemPackagingOptions {
 
     SystemPackagingOptions(Map<String, Object> properties) {
         this.properties = properties
+    }
+
+    /** Resolve legacy closures during configuration, without retaining them in task state. */
+    @PackageScope
+    @CompileDynamic
+    void adoptLegacyConventions(ConventionMapping mapping, ObjectFactory objects) {
+        properties.each { String name, Object property ->
+            def value = mapping.getConventionValue(null, name, false)
+            if (value != null) {
+                if (property instanceof RegularFileProperty && value instanceof File) {
+                    property.convention(objects.fileProperty().fileValue(value))
+                } else {
+                    property.convention(value)
+                }
+            }
+            // Gradle's decorated getter still consults conventionMapping, even when
+            // options was explicitly set. Redirect it to the same backing property.
+            mapping.map(name) { legacyValue(name, property) }
+        }
+    }
+
+    @CompileDynamic
+    private static Object legacyValue(String name, Object property) {
+        if (property instanceof RegularFileProperty) return property.getOrNull()?.asFile
+        if (property instanceof ListProperty) return new PropertyBackedList(property)
+        if (property instanceof MapProperty) return new PropertyBackedMap(property)
+        if (name == 'setgid') return property.getOrElse(false)
+        return property.getOrNull()
     }
 
     Property<String> getPackageName() { (Property<String>) properties.get('packageName') }

@@ -39,7 +39,8 @@ that happens.
 
 The application plugin adopts legacy `conventionMapping` defaults for `prefix`
 and `distribution` after configuration, so existing callers still influence the
-provider-backed package paths. New callers set conventions on `options` directly.
+provider-backed package paths. Its legacy getters also observe overrides through
+`options`. New callers set conventions on `options` directly.
 
 The nine script and control-file lists were `List<Object>` in 12.x because they
 accept both `String` and `File`. Their legacy getters retain that source type,
@@ -58,7 +59,7 @@ extension must configure `task.exten.options` instead.
 ## Behavior
 
 - The options and legacy getters share the same Gradle properties. There is no
-  second state store or eager synchronization step.
+  second state store.
 - Legacy list and map getters are mutable live views: mutations update the
   backing Gradle property. Reading a legacy getter may realize that property;
   ospackage's own configuration uses the options view to stay lazy.
@@ -66,6 +67,16 @@ extension must configure `task.exten.options` instead.
   to configure the same backing properties.
 - Packaging task inputs still read the provider-backed state, and task actions
   do not capture `Project` through the compatibility layer.
+- Legacy `conventionMapping` defaults on the project packaging extension are
+  adopted after all projects finish configuration, including consumer
+  `afterEvaluate` callbacks. This preserves CI release suffixes such as
+  `h11145.6fa5b01` and local suffixes such as `LOCAL`. Packaging tasks keep live
+  provider links to the extension so early task realization does not lose these
+  defaults. Explicit values from either API take precedence. Legacy mapping
+  closures are resolved during configuration and are not stored in task state;
+  decorated legacy getters are redirected to the backing properties so they
+  also observe subsequent `options` changes. New callers should use conventions
+  on `options` directly.
 
 ## Verification and rollout
 
@@ -79,7 +90,9 @@ remain available there.
    run representative old-style extension and task calls, including application
    extension type lookup.
 2. Test both directions of state sharing, legacy collection mutation, package
-   contents, and provider-backed configuration without early realization.
+   contents, and provider-backed configuration without early realization. Check
+   legacy convention adoption for all 65 packaging properties, with explicit
+   overrides for each property type, including zero, false, and empty collections.
 3. Run the plugin's configuration-cache tests twice and run the full build.
 4. Publish a 13.x candidate before changing an upstream version constraint.
    Roll back by restoring the previous 12.x lock if a canary exposes an

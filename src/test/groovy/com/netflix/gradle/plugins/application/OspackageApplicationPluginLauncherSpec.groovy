@@ -43,6 +43,39 @@ class OspackageApplicationPluginLauncherSpec extends BaseIntegrationTestKitSpec 
         scan.getEntry("./apps/${moduleName}/bin/${moduleName}").isFile()
     }
 
+    def 'application getters observe provider overrides of legacy defaults'() {
+        given:
+        writeHelloWorld('nebula.test')
+        buildFile << '''
+            plugins {
+                id 'com.netflix.nebula.ospackage-application'
+            }
+            application {
+                mainClass = 'nebula.test.HelloWorld'
+            }
+            def app = extensions.getByType(com.netflix.gradle.plugins.application.OspackageApplicationExtension)
+            app.conventionMapping.map('prefix') { '/apps' }
+            app.conventionMapping.map('distribution') { 'legacy' }
+            app.options.prefix.set('/custom')
+            app.options.distribution.set('custom')
+            afterEvaluate {
+                assert app.prefix == '/custom'
+                assert app.distribution == 'custom'
+            }
+        '''.stripIndent()
+
+        when:
+        runTasks('buildDeb', '--configuration-cache')
+        def second = runTasks('buildDeb', '--configuration-cache')
+
+        then:
+        second.output.contains('Configuration cache entry reused')
+        def archive = new File(projectDir, "build/distributions/${moduleName}_0_all.deb")
+        archive.exists()
+        def scan = new com.netflix.gradle.plugins.deb.Scanner(archive)
+        scan.getEntry("./custom/${moduleName}/bin/${moduleName}").isFile()
+    }
+
     def 'application shows up in deb'() {
         writeHelloWorld('nebula.test')
         buildFile << """
