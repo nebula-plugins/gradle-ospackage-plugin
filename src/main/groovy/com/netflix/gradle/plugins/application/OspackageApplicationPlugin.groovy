@@ -51,6 +51,8 @@ class OspackageApplicationPlugin implements Plugin<Project> {
             def legacyDistribution = extension.conventionMapping.getConventionValue(null, 'distribution', false)
             if (legacyPrefix != null) extension.options.prefix.convention(legacyPrefix.toString())
             if (legacyDistribution != null) extension.options.distribution.convention(legacyDistribution.toString())
+            extension.conventionMapping.map('prefix') { extension.options.prefix.getOrNull() }
+            extension.conventionMapping.map('distribution') { extension.options.distribution.getOrNull() }
         }
 
         project.plugins.apply(ApplicationPlugin)
