@@ -81,6 +81,11 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
         mainSpec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
     }
 
+    @Input
+    Map<String, Map<String, Object>> getCopySpecSettings() {
+        CopySpecEnhancement.snapshotSettings(getRootSpec())
+    }
+
     // Explicit delegation methods (replacing @Delegate)
     // These provide backward-compatible plain value access while using Property API internally
 

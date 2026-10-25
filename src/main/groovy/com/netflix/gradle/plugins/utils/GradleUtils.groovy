@@ -1,5 +1,7 @@
 package com.netflix.gradle.plugins.utils
 
+import com.netflix.gradle.plugins.packaging.CopySpecEnhancement
+import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileCopyDetails
 
 import java.nio.file.Path
@@ -12,6 +14,12 @@ final class GradleUtils {
     }
 
     static <T> T lookup(def specToLookAt, String propertyName) {
+        if (specToLookAt instanceof CopySpec) {
+            Map<String, Object> settings = CopySpecEnhancement.getSettings((CopySpec) specToLookAt)
+            if (settings.containsKey(propertyName)) {
+                return settings.get(propertyName) as T
+            }
+        }
         if (specToLookAt?.metaClass?.hasProperty(specToLookAt, propertyName) != null) {
             def prop = specToLookAt.metaClass.getProperty(specToLookAt, propertyName)
             if (prop instanceof MetaBeanProperty) {
