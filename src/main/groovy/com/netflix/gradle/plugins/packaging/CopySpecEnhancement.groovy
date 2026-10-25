@@ -2,45 +2,87 @@ package com.netflix.gradle.plugins.packaging
 
 import groovy.transform.CompileDynamic
 import org.apache.commons.lang3.reflect.FieldUtils
+import org.gradle.api.Action
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.FileCopyDetails
 import org.redline_rpm.payload.Directive
 import org.gradle.api.file.CopySpec
 import org.gradle.api.internal.file.copy.CopySpecWrapper
+import org.gradle.api.internal.file.copy.CopySpecInternal
+import org.gradle.api.internal.file.copy.DefaultCopySpec
 
 import java.util.logging.Logger
 
 /**
- * Try to mark up CopySpec
+ * Adds packaging settings to Gradle-created copy specs. Settings travel with the spec's
+ * copy actions, which Gradle preserves when storing and loading the configuration cache.
  */
 @Category(CopySpec)
-/**
- * CopySpec will nest in into(CopySpec spec, ) blocks, and Gradle will instantiate DefaultCopySpec itself, we have no ability to inject
- * our own. When appending another copy spec to the task, it'll be created a WrapperCopySpec. In 1.8, there's a slight
- * possibility that we override addChild so we can provide our own instances, or we mod the instantiator.
- *
- * Support some additional properties on CopySpecs. Using CopySpecInternal since its the parent of both DefaultCopySpec
- * and RelativizedCopySpec. The old way used the metaClass on the Class, which effected all CopySpecs in the build. This
- * limits the scope to just without our from/into/rename methods. This style also gives us type safety.
- *
- * It's implemented so that either format of setting is supported, e.g. the Gradle "name value" form or the typical
- * assignment form "name = value".
- *
- */
 @CompileDynamic
 class CopySpecEnhancement {
     private static final Logger LOGGER = Logger.getLogger(CopySpecEnhancement.getName())
 
     static void appendFieldToCopySpec(CopySpec spec, String fieldName, Object value) {
-        def directSpec = spec
-        if (spec instanceof CopySpecWrapper) {
-            def delegateField = FieldUtils.getField(CopySpecWrapper, 'delegate', true)
-            directSpec = delegateField.get(spec)
+        CopySpec directSpec = unwrap(spec)
+        SpecSettingsAction settings = findSettings(directSpec)
+        if (settings == null) {
+            settings = new SpecSettingsAction()
+            // The task declares these values as inputs; the action itself does no work.
+            ((CopySpecInternal) directSpec).appendCachingSafeCopyAction(settings)
         }
+        settings.values.put(fieldName, value)
 
         LOGGER.info("Adding $fieldName to ${directSpec}")
+        // Retain configuration-time property reads for existing Groovy consumers.
         directSpec.metaClass["get${fieldName.capitalize()}"] = { value }
         spec.setDuplicatesStrategy(DuplicatesStrategy.INCLUDE)
     }
+
+    static Map<String, Object> getSettings(CopySpec spec) {
+        findSettings(unwrap(spec))?.values ?: Collections.emptyMap()
+    }
+
+    static Map<String, Map<String, Object>> snapshotSettings(CopySpecInternal root) {
+        Map<String, Map<String, Object>> result = new LinkedHashMap<>()
+        collectSettings(root, 'root', result)
+        result
+    }
+
+    private static void collectSettings(CopySpecInternal spec, String path,
+                                        Map<String, Map<String, Object>> result) {
+        Map<String, Object> settings = getSettings(spec)
+        if (!settings.isEmpty()) {
+            result.put(path, settings.collectEntries { String name, Object value ->
+                [(name): value instanceof Directive ? value.flag() : value]
+            })
+        }
+        int index = 0
+        spec.children.each { CopySpecInternal child ->
+            collectSettings(child, "${path}/${index++}".toString(), result)
+        }
+    }
+
+    private static CopySpec unwrap(CopySpec spec) {
+        while (spec instanceof CopySpecWrapper) {
+            def delegateField = FieldUtils.getField(CopySpecWrapper, 'delegate', true)
+            spec = (CopySpec) delegateField.get(spec)
+        }
+        spec
+    }
+
+    private static SpecSettingsAction findSettings(CopySpec spec) {
+        spec instanceof DefaultCopySpec ? spec.copyActions.find { it instanceof SpecSettingsAction } : null
+    }
+
+    private static class SpecSettingsAction implements Action<FileCopyDetails>, Serializable {
+        final Map<String, Object> values = new LinkedHashMap<>()
+
+        @Override
+        void execute(FileCopyDetails details) {
+            // A serializable carrier for per-spec metadata, including directory settings.
+        }
+    }
+
     static void user(CopySpec spec, String user) {
         appendFieldToCopySpec(spec, 'user', user)
     }
