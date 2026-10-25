@@ -2,6 +2,7 @@ package com.netflix.gradle.plugins
 
 import com.netflix.gradle.plugins.deb.Scanner as DebScanner
 import com.netflix.gradle.plugins.rpm.Scanner as RpmScanner
+import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
 import spock.lang.Issue
@@ -94,7 +95,10 @@ class CopySpecConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
         assertPackageMetadata()
 
         where:
-        testedGradleVersion << ['8.6', GradleVersion.current().version, '9.8.2'].unique()
+        // Gradle 8.6 can run on at most JDK 21; keep newer Gradle coverage on JDK 25.
+        testedGradleVersion << ['8.6', GradleVersion.current().version, '9.8.2'].unique().findAll {
+            it != '8.6' || JavaVersion.current() <= JavaVersion.VERSION_21
+        }
     }
 
     def 'changing only child metadata reruns packaging and unchanged metadata stays up to date'() {
