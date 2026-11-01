@@ -31,18 +31,11 @@ contacts {
     }
 }
 
-configurations.all {
-    resolutionStrategy {
-        force 'org.bouncycastle:bcpg-jdk15on:1.62'
-    }
-}
-
 dependencies {
     implementation 'org.apache.commons:commons-lang3:3.9'
-    api('org.redline-rpm:redline:1.2.10') {
-        // Where logging goes is a runtime decision
-        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    }
+    api 'org.bouncycastle:bcpg-jdk18on:1.86'
+    implementation 'org.apache.commons:commons-compress:1.26.2'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
     api('org.vafer:jdeb:1.14') {
         // Individual listing so that they translate into the pom file
         exclude group: 'org.apache.maven', module: 'maven-core'

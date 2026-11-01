@@ -18,8 +18,15 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
+import com.netflix.gradle.plugins.rpm.core.header.Architecture
+import com.netflix.gradle.plugins.rpm.core.header.Os
+import com.netflix.gradle.plugins.rpm.core.header.RpmType
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+
 import groovy.transform.CompileDynamic
+
+import javax.inject.Inject
+
 import org.gradle.api.Project
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
@@ -30,11 +37,6 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.work.DisableCachingByDefault
-import org.redline_rpm.header.Architecture
-import org.redline_rpm.header.Os
-import org.redline_rpm.header.RpmType
-
-import javax.inject.Inject
 
 @DisableCachingByDefault
 @CompileDynamic

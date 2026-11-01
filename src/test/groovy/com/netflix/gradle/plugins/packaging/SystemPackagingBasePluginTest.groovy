@@ -3,12 +3,14 @@ package com.netflix.gradle.plugins.packaging
 import com.netflix.gradle.plugins.deb.Deb
 import com.netflix.gradle.plugins.rpm.Rpm
 import com.netflix.gradle.plugins.rpm.Scanner
-import nebula.test.ProjectSpec
+import com.netflix.gradle.plugins.rpm.core.header.Os
+
 import org.vafer.jdeb.shaded.commons.io.FileUtils
-import org.redline_rpm.header.Os
+
+import nebula.test.ProjectSpec
 import spock.lang.Issue
 
-import static org.redline_rpm.header.Header.HeaderTag.*
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.*
 
 class SystemPackagingBasePluginTest extends ProjectSpec {
     def 'callExtensionDynamically'() {

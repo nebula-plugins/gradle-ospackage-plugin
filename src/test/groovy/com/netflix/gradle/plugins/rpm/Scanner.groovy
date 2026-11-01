@@ -1,11 +1,11 @@
 package com.netflix.gradle.plugins.rpm
 
+import com.netflix.gradle.plugins.rpm.core.ReadableChannelWrapper
+import com.netflix.gradle.plugins.rpm.core.Util
+import com.netflix.gradle.plugins.rpm.core.header.Format
+import com.netflix.gradle.plugins.rpm.core.payload.CpioHeader
+
 import groovy.transform.Canonical
-import org.redline_rpm.ReadableChannelWrapper
-import org.redline_rpm.Util
-import org.redline_rpm.header.Format
-import org.redline_rpm.payload.CpioHeader
-import org.spockframework.util.Nullable
 
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
@@ -13,12 +13,14 @@ import java.nio.channels.Channels
 import java.nio.charset.Charset
 import java.util.zip.GZIPInputStream
 
-import static org.redline_rpm.header.Header.HeaderTag.HEADERIMMUTABLE
-import static org.redline_rpm.header.Signature.SignatureTag.SIGNATURES
+import org.spockframework.util.Nullable
+
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.HEADERIMMUTABLE
+import static com.netflix.gradle.plugins.rpm.core.header.Signature.SignatureTag.SIGNATURES
 import static org.junit.Assert.assertEquals
 
 /**
- * Based on {@link org.redline_rpm.Scanner}, but modified to return scanned information for
+ * Based on {@link com.netflix.gradle.plugins.rpm.core.Scanner}, but modified to return scanned information for
  * programmatic verification.
  */
 class Scanner {

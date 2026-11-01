@@ -1,17 +1,19 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
-import nebula.test.ProjectSpec
+import com.netflix.gradle.plugins.rpm.core.header.Os
+import com.netflix.gradle.plugins.rpm.core.header.RpmType
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
+
+import java.beans.Introspector
+
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.IConventionAware
 import org.gradle.api.provider.Provider
-import org.redline_rpm.header.Os
-import org.redline_rpm.header.RpmType
-import org.redline_rpm.payload.Directive
-import spock.lang.Unroll
 
-import java.beans.Introspector
+import nebula.test.ProjectSpec
+import spock.lang.Unroll
 
 class LegacyPackagingConventionsTest extends ProjectSpec {
     ProjectPackagingExtension extension

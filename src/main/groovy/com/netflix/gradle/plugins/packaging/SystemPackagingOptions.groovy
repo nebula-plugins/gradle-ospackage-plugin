@@ -1,17 +1,19 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
+import com.netflix.gradle.plugins.rpm.core.header.Os
+import com.netflix.gradle.plugins.rpm.core.header.RpmType
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
+
 import groovy.transform.CompileDynamic
 import groovy.transform.PackageScope
+
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.internal.ConventionMapping
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
-import org.redline_rpm.header.Os
-import org.redline_rpm.header.RpmType
-import org.redline_rpm.payload.Directive
 
 /** The permanent provider-backed view of a packaging extension. */
 class SystemPackagingOptions {

@@ -16,17 +16,19 @@
 
 package com.netflix.gradle.plugins.deb
 
+import com.netflix.gradle.plugins.rpm.core.header.Flags
+
+import java.nio.file.Path
+
+import org.vafer.jdeb.shaded.commons.io.FileUtils
+
 import nebula.test.ProjectSpec
 import nebula.test.dependencies.Coordinate
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.DependencyGraphNode
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.vafer.jdeb.shaded.commons.io.FileUtils
-import org.redline_rpm.header.Flags
 import spock.lang.Issue
 import spock.lang.Unroll
-
-import java.nio.file.Path
 
 class DebPluginTest extends ProjectSpec {
     def 'minimal config'() {

@@ -21,19 +21,21 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import com.netflix.gradle.plugins.packaging.Trigger
+import com.netflix.gradle.plugins.rpm.core.Builder
+import com.netflix.gradle.plugins.rpm.core.IntString
+import com.netflix.gradle.plugins.rpm.core.header.Architecture
+import com.netflix.gradle.plugins.rpm.core.header.Flags
+import com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
 import com.netflix.gradle.plugins.rpm.validation.RpmTaskPropertiesValidator
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import com.netflix.gradle.plugins.utils.FilePermissionUtil
+
 import groovy.transform.CompileDynamic
+
 import org.apache.commons.lang3.StringUtils
 import org.gradle.api.internal.file.copy.CopyAction
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
-import org.redline_rpm.Builder
-import org.redline_rpm.IntString
-import org.redline_rpm.header.Architecture
-import org.redline_rpm.header.Flags
-import org.redline_rpm.header.Header.HeaderTag
-import org.redline_rpm.payload.Directive
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 

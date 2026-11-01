@@ -18,24 +18,26 @@ package com.netflix.gradle.plugins.rpm
 
 
 import com.netflix.gradle.plugins.packaging.ProjectPackagingExtension
+import com.netflix.gradle.plugins.rpm.core.header.Header
+import com.netflix.gradle.plugins.rpm.core.header.Signature
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
-import nebula.test.ProjectSpec
-import org.vafer.jdeb.shaded.commons.io.FileUtils
+
 import org.apache.commons.lang3.JavaVersion
 import org.apache.commons.lang3.SystemUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.testfixtures.ProjectBuilder
-import org.redline_rpm.header.Header
-import org.redline_rpm.header.Signature
+import org.vafer.jdeb.shaded.commons.io.FileUtils
+
+import nebula.test.ProjectSpec
 import spock.lang.Ignore
 import spock.lang.IgnoreIf
 import spock.lang.Issue
 import spock.lang.Unroll
 
-import static org.redline_rpm.header.Flags.*
-import static org.redline_rpm.header.Header.HeaderTag.*
-import static org.redline_rpm.payload.CpioHeader.*
+import static com.netflix.gradle.plugins.rpm.core.header.Flags.*
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.*
+import static com.netflix.gradle.plugins.rpm.core.payload.CpioHeader.*
 
 @Ignore
 class RpmPluginTest extends ProjectSpec {

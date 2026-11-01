@@ -2,12 +2,14 @@ package com.netflix.gradle.plugins
 
 import com.netflix.gradle.plugins.deb.Scanner as DebScanner
 import com.netflix.gradle.plugins.rpm.Scanner as RpmScanner
+
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
+
 import spock.lang.Issue
 
-import static org.redline_rpm.header.Header.HeaderTag.*
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.*
 
 @Issue('https://github.com/nebula-plugins/gradle-ospackage-plugin/issues/503')
 class CopySpecConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
@@ -40,7 +42,7 @@ class CopySpecConfigurationCacheSpec extends BaseIntegrationTestKitSpec {
                         setgid true
                         createDirectoryEntry true
                         addParentDirs false
-                        fileType new org.redline_rpm.payload.Directive(17) // CONFIG | NOREPLACE
+                        fileType new com.netflix.gradle.plugins.rpm.core.payload.Directive(17) // CONFIG | NOREPLACE
                         filePermissions { unix(0750) }
                         dirPermissions { unix(0750) }
                     }

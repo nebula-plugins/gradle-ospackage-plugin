@@ -2,15 +2,17 @@ package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.deb.Scanner
+
 import org.gradle.api.JavaVersion
 import org.gradle.testkit.runner.TaskOutcome
 import org.gradle.util.GradleVersion
+
 import spock.lang.Requires
 import spock.lang.Unroll
 
-import static org.redline_rpm.header.Header.HeaderTag.DISTRIBUTION
-import static org.redline_rpm.header.Header.HeaderTag.RELEASE
-import static org.redline_rpm.header.Header.HeaderTag.SUMMARY
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.DISTRIBUTION
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.RELEASE
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.SUMMARY
 
 class LegacyPackagingConventionsLauncherSpec extends BaseIntegrationTestKitSpec {
     @Requires({ JavaVersion.current() <= JavaVersion.VERSION_21 })
