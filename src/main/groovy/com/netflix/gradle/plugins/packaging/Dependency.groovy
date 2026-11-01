@@ -16,8 +16,9 @@
 
 package com.netflix.gradle.plugins.packaging
 
+import com.netflix.gradle.plugins.rpm.core.header.Flags
+
 import groovy.transform.EqualsAndHashCode
-import org.redline_rpm.header.Flags
 
 @EqualsAndHashCode
 class Dependency implements Serializable {

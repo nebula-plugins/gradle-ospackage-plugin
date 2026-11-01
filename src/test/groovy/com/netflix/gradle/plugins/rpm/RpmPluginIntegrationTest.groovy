@@ -2,18 +2,20 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.BaseIntegrationTestKitSpec
 import com.netflix.gradle.plugins.utils.GradleUtils
+
+import org.gradle.testkit.runner.TaskOutcome
+import org.vafer.jdeb.shaded.commons.io.FileUtils
+
 import nebula.test.dependencies.Coordinate
 import nebula.test.dependencies.DependencyGraph
 import nebula.test.dependencies.DependencyGraphNode
 import nebula.test.dependencies.GradleDependencyGenerator
-import org.vafer.jdeb.shaded.commons.io.FileUtils
-import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Issue
 import spock.lang.Unroll
 
-import static org.redline_rpm.header.Header.HeaderTag.DESCRIPTION
-import static org.redline_rpm.header.Header.HeaderTag.NAME
-import static org.redline_rpm.payload.CpioHeader.*
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.DESCRIPTION
+import static com.netflix.gradle.plugins.rpm.core.header.Header.HeaderTag.NAME
+import static com.netflix.gradle.plugins.rpm.core.payload.CpioHeader.*
 
 class RpmPluginIntegrationTest extends BaseIntegrationTestKitSpec {
     def 'legacy File values in script lists produce RPM scriptlets'() {

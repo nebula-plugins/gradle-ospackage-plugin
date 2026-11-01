@@ -22,10 +22,13 @@ import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
 import com.netflix.gradle.plugins.utils.ApacheCommonsFileSystemActions
 import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import com.netflix.gradle.plugins.utils.FilePermissionUtil
+
 import groovy.transform.Canonical
+
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.time.DateFormatUtils
 import org.gradle.api.GradleException
@@ -42,7 +45,6 @@ import org.vafer.jdeb.mapping.Mapper
 import org.vafer.jdeb.mapping.PermMapper
 import org.vafer.jdeb.producers.DataProducerLink
 import org.vafer.jdeb.producers.DataProducerPathTemplate
-import org.redline_rpm.payload.Directive
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.lookup
 /**

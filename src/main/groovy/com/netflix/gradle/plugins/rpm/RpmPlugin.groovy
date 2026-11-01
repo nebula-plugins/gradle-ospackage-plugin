@@ -18,14 +18,16 @@ package com.netflix.gradle.plugins.rpm
 
 import com.netflix.gradle.plugins.packaging.AliasHelper
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
+import com.netflix.gradle.plugins.rpm.core.Builder
+import com.netflix.gradle.plugins.rpm.core.header.Architecture
+import com.netflix.gradle.plugins.rpm.core.header.Flags
+import com.netflix.gradle.plugins.rpm.core.header.Os
+import com.netflix.gradle.plugins.rpm.core.header.RpmType
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
+
 import groovy.transform.CompileDynamic
+
 import org.gradle.api.Action
-import org.redline_rpm.Builder
-import org.redline_rpm.header.Architecture
-import org.redline_rpm.header.Flags
-import org.redline_rpm.header.Os
-import org.redline_rpm.header.RpmType
-import org.redline_rpm.payload.Directive
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

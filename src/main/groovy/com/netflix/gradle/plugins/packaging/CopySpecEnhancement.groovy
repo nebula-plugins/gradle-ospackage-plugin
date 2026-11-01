@@ -1,17 +1,19 @@
 package com.netflix.gradle.plugins.packaging
 
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
+
 import groovy.transform.CompileDynamic
-import org.apache.commons.lang3.reflect.FieldUtils
-import org.gradle.api.Action
-import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.api.file.FileCopyDetails
-import org.redline_rpm.payload.Directive
-import org.gradle.api.file.CopySpec
-import org.gradle.api.internal.file.copy.CopySpecWrapper
-import org.gradle.api.internal.file.copy.CopySpecInternal
-import org.gradle.api.internal.file.copy.DefaultCopySpec
 
 import java.util.logging.Logger
+
+import org.apache.commons.lang3.reflect.FieldUtils
+import org.gradle.api.Action
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.FileCopyDetails
+import org.gradle.api.internal.file.copy.CopySpecInternal
+import org.gradle.api.internal.file.copy.CopySpecWrapper
+import org.gradle.api.internal.file.copy.DefaultCopySpec
 
 /**
  * Adds packaging settings to Gradle-created copy specs. Settings travel with the spec's

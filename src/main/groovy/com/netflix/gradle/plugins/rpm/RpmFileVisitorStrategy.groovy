@@ -1,9 +1,10 @@
 package com.netflix.gradle.plugins.rpm
 
+import com.netflix.gradle.plugins.rpm.core.Builder
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
 import com.netflix.gradle.plugins.utils.JavaNIOUtils
+
 import org.gradle.api.file.FileCopyDetails
-import org.redline_rpm.Builder
-import org.redline_rpm.payload.Directive
 
 import static com.netflix.gradle.plugins.utils.GradleUtils.getRootPath
 import static com.netflix.gradle.plugins.utils.GradleUtils.relativizeSymlink

@@ -1,6 +1,14 @@
 package com.netflix.gradle.plugins.packaging
 
 import com.netflix.gradle.plugins.deb.control.MultiArch
+import com.netflix.gradle.plugins.rpm.core.header.Architecture
+import com.netflix.gradle.plugins.rpm.core.header.Flags
+import com.netflix.gradle.plugins.rpm.core.header.Os
+import com.netflix.gradle.plugins.rpm.core.header.RpmType
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
+
+import javax.inject.Inject
+
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -13,13 +21,6 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.redline_rpm.header.Architecture
-import org.redline_rpm.header.Flags
-import org.redline_rpm.header.Os
-import org.redline_rpm.header.RpmType
-import org.redline_rpm.payload.Directive
-
-import javax.inject.Inject
 
 /**
  * Extension that can be used to configure both DEB and RPM.

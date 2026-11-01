@@ -16,9 +16,19 @@
 
 package com.netflix.gradle.plugins.packaging
 
-import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
 import com.netflix.gradle.plugins.deb.control.MultiArch
+import com.netflix.gradle.plugins.rpm.core.header.Architecture
+import com.netflix.gradle.plugins.rpm.core.header.Os
+import com.netflix.gradle.plugins.rpm.core.header.RpmType
+import com.netflix.gradle.plugins.rpm.core.payload.Directive
+import com.netflix.gradle.plugins.utils.DeprecationLoggerUtils
+
 import groovy.transform.CompileDynamic
+
+import java.util.concurrent.Callable
+
+import javax.inject.Inject
+
 import org.gradle.api.Project
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.FileCollection
@@ -34,13 +44,6 @@ import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
-import org.redline_rpm.header.Architecture
-import org.redline_rpm.header.Os
-import org.redline_rpm.header.RpmType
-import org.redline_rpm.payload.Directive
-
-import javax.inject.Inject
-import java.util.concurrent.Callable
 
 @DisableCachingByDefault
 abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
