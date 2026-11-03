@@ -70,8 +70,46 @@ class OsPackageDockerPluginTest extends ProjectSpec {
 MAINTAINER John Doe 'john.doe@netflix.com'
 WORKDIR /tmp
 """)
-        dockerFileText.contains('ADD apple.jar /opt/apple.jar')
-        dockerFileText.contains('ADD banana.zip /opt/banana.zip')
+        dockerFileText.contains('ADD [".ospackage/opt/apple.jar","/opt/apple.jar"]')
+        dockerFileText.contains('ADD [".ospackage/opt/banana.zip","/opt/banana.zip"]')
+        new File(destDir, '.ospackage/opt/apple.jar').text == 'apple'
+        new File(destDir, '.ospackage/opt/banana.zip').text == 'banana'
+    }
+
+    def "context staging preserves filters and distinct destinations and removes stale files"() {
+        given:
+        File first = new File(projectDir, 'first/same.txt')
+        File second = new File(projectDir, 'second/same.txt')
+        first.parentFile.mkdirs()
+        second.parentFile.mkdirs()
+        first.text = 'first token'
+        second.text = 'second content'
+        project.apply plugin: 'com.netflix.nebula.ospackage-docker'
+        SystemPackageDockerfile task = project.tasks.getByName('createDockerfile')
+        File context = project.file('build/context')
+        task.destinationDirectory.set(context)
+        task.instruction('FROM scratch')
+        task.from(first) {
+            into '/first folder'
+            filter { String line -> line.replace('token', 'filtered') }
+        }
+        task.from(second) { into '/second' }
+
+        when:
+        task.copy()
+
+        then:
+        new File(context, '.ospackage/first folder/same.txt').text.trim() == 'first filtered'
+        new File(context, '.ospackage/second/same.txt').text == 'second content'
+        task.archiveFile.get().asFile.text.contains('ADD [".ospackage/first folder/same.txt","/first folder/same.txt"]')
+
+        when:
+        second.delete()
+        task.copy()
+
+        then:
+        !new File(context, '.ospackage/second/same.txt').exists()
+        !task.archiveFile.get().asFile.text.contains('/second/same.txt')
     }
 
     private File createDir(File dir) {

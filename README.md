@@ -59,6 +59,13 @@ The 12.x helper methods and mutable collection getters on `buildDeb` and `buildR
 
 The bundled Docker Gradle plugin moves from 3.2.1 to 10.0.0; builds that configure its task types directly should review that plugin's API. The Spring Boot application integration also excludes development-only dependencies from the packaged distribution.
 
+## Unreleased Docker integration
+
+The next major Docker integration runs image building in a separate JVM and
+removes the bundled bmuschko plugin from the consumer's plugin classpath. It
+uses an ospackage-owned `DockerBuildImage` task and `ospackageDocker` extension. See
+the [Docker guide and migration instructions](docs/docker-process-isolation.md).
+
 LICENSE
 =======
 

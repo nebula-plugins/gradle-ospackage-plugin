@@ -52,22 +52,39 @@ dependencies {
         exclude group: 'org.codehaus.plexus', module: 'plexus-utils'
     }
 
-    implementation 'com.bmuschko:gradle-docker-plugin:10.0.0'
+    // Only the process-isolated Docker worker loads these at runtime.
+    def dockerWorker = new Properties()
+    file('src/main/resources/com/netflix/gradle/plugins/docker/docker-worker.properties').withInputStream {
+        dockerWorker.load(it)
+    }
+    compileOnly "com.github.docker-java:docker-java-core:${dockerWorker.version}"
+    compileOnly "com.github.docker-java:docker-java-transport-httpclient5:${dockerWorker.version}"
     testImplementation 'com.github.stefanbirkner:system-rules:1.19.0'
     testImplementation("org.spockframework:spock-junit4:2.4-groovy-4.0")
 }
 
-def javaApiUrl = 'http://docs.oracle.com/javase/1.6.0/docs/api/'
-def groovyApiUrl = 'http://groovy.codehaus.org/gapi/'
+def javaApiUrl = 'https://docs.oracle.com/en/java/javase/17/docs/api/'
 
 tasks.withType(Javadoc) {
-    options.links(javaApiUrl, groovyApiUrl)
+    options.links(javaApiUrl)
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+// Exercise the shipped JAR and metadata, without TestKit's injected plugin classloader.
+tasks.named('test') {
+    dependsOn tasks.named('jar'), 'generatePomFileForNebulaPublication',
+        'generateMetadataFileForNebulaPublication', 'generatePomFileForPluginMavenPublication',
+        'generateMetadataFileForPluginMavenPublication',
+        'generatePomFileForOspackagePluginMarkerMavenPublication',
+        'generatePomFileForOspackageDockerPluginMarkerMavenPublication'
+    systemProperty 'dockerTest.pluginJar', tasks.named('jar').get().archiveFile.get().asFile.absolutePath
+    systemProperty 'dockerTest.publications', layout.buildDirectory.dir('publications').get().asFile.absolutePath
+    systemProperty 'dockerTest.version', project.version.toString()
 }
 
 configurations.named("runtimeClasspath") {

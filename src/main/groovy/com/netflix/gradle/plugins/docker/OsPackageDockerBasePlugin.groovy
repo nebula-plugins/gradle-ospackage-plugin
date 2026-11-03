@@ -1,12 +1,7 @@
 package com.netflix.gradle.plugins.docker
 
-import com.bmuschko.gradle.docker.DockerRemoteApiPlugin
-import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.netflix.gradle.plugins.packaging.CommonPackagingPlugin
-import com.netflix.gradle.plugins.rpm.Rpm
-import com.netflix.gradle.plugins.rpm.RpmPlugin
 import groovy.transform.CompileDynamic
-import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -24,22 +19,5 @@ class OsPackageDockerBasePlugin implements Plugin<Project> {
             systemPackageDockerfile.applyConventions(project)
         }
 
-        project.plugins.withType(DockerRemoteApiPlugin).configureEach { DockerRemoteApiPlugin dockerRemoteApiPlugin ->
-            createTasks(project)
-        }
-    }
-
-    private void createTasks(Project project) {
-        def createDockerfileTaskProvider = project.tasks.register(CREATE_DOCKERFILE_TASK_NAME, SystemPackageDockerfile)
-
-        def buildImageTaskProvider = project.tasks.register(BUILD_IMAGE_TASK_NAME, DockerBuildImage) {
-            dependsOn createDockerfileTaskProvider
-            // Use Property API instead of conventionMapping
-            it.inputDir.convention(createDockerfileTaskProvider.flatMap { task -> task.destinationDir })
-        }
-
-        project.tasks.register(AGGREGATION_TASK_NAME) {
-            dependsOn buildImageTaskProvider
-        }
     }
 }
