@@ -16,10 +16,10 @@ class OsPackageDockerBasePluginTest extends ProjectSpec {
         !project.tasks.findByName(OsPackageDockerBasePlugin.AGGREGATION_TASK_NAME)
     }
 
-    def "with docker plugin, tasks created"() {
+    def "with explicit ospackage docker plugin, tasks created"() {
         when:
         project.apply plugin: 'com.netflix.nebula.ospackage-docker-base'
-        project.apply plugin: 'com.bmuschko.docker-remote-api'
+        project.apply plugin: 'com.netflix.nebula.ospackage-docker'
 
         then:
         project.tasks.findByName(OsPackageDockerBasePlugin.CREATE_DOCKERFILE_TASK_NAME)

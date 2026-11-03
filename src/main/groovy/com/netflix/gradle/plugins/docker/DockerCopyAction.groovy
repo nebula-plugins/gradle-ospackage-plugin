@@ -5,6 +5,8 @@ import com.netflix.gradle.plugins.packaging.Dependency
 import com.netflix.gradle.plugins.packaging.Directory
 import com.netflix.gradle.plugins.packaging.Link
 import org.gradle.api.internal.file.copy.FileCopyDetailsInternal
+import org.gradle.api.internal.file.copy.CopyAction
+import groovy.json.JsonOutput
 
 class DockerCopyAction extends AbstractPackagingCopyAction<SystemPackageDockerfile> {
     private final DockerfileInstructionManager dockerfileInstructionManager
@@ -15,18 +17,29 @@ class DockerCopyAction extends AbstractPackagingCopyAction<SystemPackageDockerfi
     }
 
     @Override
+    void startVisit(CopyAction action) {
+        super.startVisit(action)
+        task.fileSystemOperations.delete { spec -> spec.delete(task.contextFilesDirectory) }
+        task.contextFilesDirectory.get().asFile.mkdirs()
+    }
+
+    @Override
     protected void visitDir(FileCopyDetailsInternal dirDetails,def Object specToLookAt) {}
 
     @Override
     protected void visitFile(FileCopyDetailsInternal fileDetails,def Object specToLookAt) {
-        if (fileDetails.file.canonicalFile == SystemPackageDockerfile.markerFile().canonicalFile) {
-            return
-        }
         logger.debug "adding file {}", fileDetails.relativePath.pathString
 
-        File inputFile = extractFile(fileDetails)
         String targetFile = "/$fileDetails.path"
-        dockerfileInstructionManager.addInstruction("ADD $inputFile.name $targetFile")
+        File staging = task.contextFilesDirectory.get().asFile
+        File contextFile = new File(staging, fileDetails.path)
+        if (!contextFile.toPath().normalize().startsWith(staging.toPath().normalize())) {
+            throw new IllegalArgumentException('Docker context paths must stay within the context directory')
+        }
+        contextFile.parentFile.mkdirs()
+        fileDetails.copyTo(contextFile)
+        String sourcePath = ".ospackage/$fileDetails.path"
+        dockerfileInstructionManager.addInstruction('ADD ' + JsonOutput.toJson([sourcePath, targetFile]))
     }
 
     @Override

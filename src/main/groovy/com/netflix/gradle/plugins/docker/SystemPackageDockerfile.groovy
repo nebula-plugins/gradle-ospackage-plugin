@@ -3,8 +3,14 @@ package com.netflix.gradle.plugins.docker
 import com.netflix.gradle.plugins.packaging.AbstractPackagingCopyAction
 import com.netflix.gradle.plugins.packaging.SystemPackagingTask
 import org.gradle.api.file.ProjectLayout
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.FileCopyDetails
+import org.gradle.api.file.Directory
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.tooling.model.UnsupportedMethodException
 import org.gradle.work.DisableCachingByDefault
 
@@ -17,13 +23,23 @@ abstract class SystemPackageDockerfile extends SystemPackagingTask {
     @Input
     abstract ListProperty<String> getInstructions()
 
+    @OutputDirectory
+    Provider<Directory> getContextFilesDirectory() {
+        destinationDirectory.dir('.ospackage')
+    }
+
+    @Inject
+    abstract FileSystemOperations getFileSystemOperations()
+
     @Inject
     SystemPackageDockerfile(ProjectLayout projectLayout) {
         super(projectLayout)
         instructions.convention([])
-        // Copy tasks are skipped with no sources. The marker is ignored by the copy
-        // action but ensures instructions alone can generate a Dockerfile.
-        from(markerFile())
+        // Keep a source for instruction-only builds, but exclude it during copy
+        // processing so global content filters never need to read the marker.
+        from(markerFile()) { CopySpec spec ->
+            spec.eachFile { FileCopyDetails details -> details.exclude() }
+        }
     }
 
     @Override
