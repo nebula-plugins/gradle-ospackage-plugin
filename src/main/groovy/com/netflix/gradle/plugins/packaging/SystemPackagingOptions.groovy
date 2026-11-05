@@ -16,9 +16,11 @@ import org.redline_rpm.payload.Directive
 /** The permanent provider-backed view of a packaging extension. */
 class SystemPackagingOptions {
     private final Map<String, Object> properties
+    private final Map<String, Runnable> listChanges
 
-    SystemPackagingOptions(Map<String, Object> properties) {
+    SystemPackagingOptions(Map<String, Object> properties, Map<String, Runnable> listChanges = [:]) {
         this.properties = properties
+        this.listChanges = listChanges
     }
 
     /** Resolve legacy closures during configuration, without retaining them in task state. */
@@ -41,12 +43,17 @@ class SystemPackagingOptions {
     }
 
     @CompileDynamic
-    private static Object legacyValue(String name, Object property) {
+    private Object legacyValue(String name, Object property) {
         if (property instanceof RegularFileProperty) return property.getOrNull()?.asFile
-        if (property instanceof ListProperty) return new PropertyBackedList(property)
+        if (property instanceof ListProperty) return legacyList(name)
         if (property instanceof MapProperty) return new PropertyBackedMap(property)
         if (name == 'setgid') return property.getOrElse(false)
         return property.getOrNull()
+    }
+
+    @PackageScope
+    <T> List<T> legacyList(String name) {
+        new PropertyBackedList<T>((ListProperty<T>) properties.get(name), listChanges.get(name))
     }
 
     Property<String> getPackageName() { (Property<String>) properties.get('packageName') }

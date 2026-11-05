@@ -3,9 +3,89 @@ package com.netflix.gradle.plugins.packaging
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.api.provider.Provider
 import spock.lang.Specification
+import spock.lang.TempDir
+import spock.lang.Unroll
 
 class SystemPackagingExtensionTest extends Specification {
     SystemPackagingExtension extension = ProjectBuilder.builder().build().objects.newInstance(SystemPackagingExtension)
+    @TempDir File scriptsDir
+
+    @Unroll
+    def 'clearing #phase #source commands with #operation permits selecting a script file'() {
+        given:
+        def inherited = new File(scriptsDir, 'inherited.sh')
+        inherited.text = 'echo inherited file command'
+        def selected = new File(scriptsDir, 'selected.sh')
+        extension."${phase}"(source == 'file' ? inherited : 'echo inherited string command')
+        extension."${phase}"('echo another inherited command')
+        def commands = extension."${phase}Commands"
+
+        when:
+        switch (operation) {
+            case 'clear': commands.clear(); break
+            case 'removeRange': commands.removeRange(0, commands.size); break
+            case 'assignment': extension."${phase}Commands" = []; break
+        }
+
+        then:
+        commands == []
+        extension.options."${phase}Commands".get() == []
+
+        when:
+        extension."${phase}File"(selected)
+
+        then:
+        extension."${phase}File" == selected
+
+        when:
+        extension."${phase}"('echo conflicting command')
+
+        then:
+        thrown(IllegalStateException)
+        commands == []
+
+        where:
+        [phase, source, operation] << [
+            ['preInstall', 'postInstall', 'preUninstall', 'postUninstall'],
+            ['string', 'file'],
+            ['clear', 'removeRange', 'assignment']
+        ].combinations()
+    }
+
+    @Unroll
+    def 'partially removing #phase commands preserves the script file conflict'() {
+        given:
+        def inherited = new File(scriptsDir, 'inherited.sh')
+        inherited.text = 'echo inherited file command'
+        extension."${phase}"(inherited)
+        extension."${phase}"('echo retained command')
+
+        when:
+        extension."${phase}Commands".removeRange(0, 1)
+        extension."${phase}File"(new File(scriptsDir, 'selected.sh'))
+
+        then:
+        thrown(IllegalStateException)
+        extension."${phase}Commands" == ['echo retained command']
+        extension.options."${phase}Commands".get() == ['echo retained command']
+        extension."${phase}File" == null
+
+        where:
+        phase << ['preInstall', 'postInstall', 'preUninstall', 'postUninstall']
+    }
+
+    def 'clearing unresolved file commands removes their conflict without reading the file'() {
+        given:
+        extension.postInstall(new File(scriptsDir, 'missing.sh'))
+
+        when:
+        extension.postInstallCommands.clear()
+        extension.postInstallFile(new File(scriptsDir, 'selected.sh'))
+
+        then:
+        extension.postInstallCommands == []
+        extension.postInstallFile.name == 'selected.sh'
+    }
 
     def "legacy accessors and options share the same packaging values"() {
         when:

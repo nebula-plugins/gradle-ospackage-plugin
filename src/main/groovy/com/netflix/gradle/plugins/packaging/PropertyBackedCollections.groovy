@@ -6,8 +6,12 @@ import org.gradle.api.provider.MapProperty
 /** Mutable 12.x collection views backed by the 13.x Gradle properties. */
 final class PropertyBackedList<T> extends AbstractList<T> {
     private final ListProperty<T> property
+    private final Runnable onChange
 
-    PropertyBackedList(ListProperty<T> property) { this.property = property }
+    PropertyBackedList(ListProperty<T> property, Runnable onChange = null) {
+        this.property = property
+        this.onChange = onChange
+    }
 
     @Override
     T get(int index) { property.getOrElse([]).get(index) }
@@ -15,11 +19,14 @@ final class PropertyBackedList<T> extends AbstractList<T> {
     @Override
     int size() { property.getOrElse([]).size() }
 
+    // Without a bean getter, Groovy treats list.size as a spread over the elements.
+    int getSize() { size() }
+
     @Override
     void add(int index, T value) {
         def values = new ArrayList<T>(property.getOrElse([]))
         values.add(index, value)
-        property.set(values)
+        replace(values)
         modCount++
     }
 
@@ -27,7 +34,7 @@ final class PropertyBackedList<T> extends AbstractList<T> {
     T set(int index, T value) {
         def values = new ArrayList<T>(property.getOrElse([]))
         T previous = values.set(index, value)
-        property.set(values)
+        replace(values)
         previous
     }
 
@@ -35,9 +42,28 @@ final class PropertyBackedList<T> extends AbstractList<T> {
     T remove(int index) {
         def values = new ArrayList<T>(property.getOrElse([]))
         T previous = values.remove(index)
-        property.set(values)
+        replace(values)
         modCount++
         previous
+    }
+
+    @Override
+    void clear() {
+        replace([])
+        modCount++
+    }
+
+    @Override
+    public void removeRange(int fromIndex, int toIndex) {
+        def values = new ArrayList<T>(property.getOrElse([]))
+        values.subList(fromIndex, toIndex).clear()
+        replace(values)
+        modCount++
+    }
+
+    private void replace(List<T> values) {
+        property.set(values)
+        onChange?.run()
     }
 }
 

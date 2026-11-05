@@ -125,6 +125,12 @@ class SystemPackagingExtension {
             provides: provides,
             directories: directories,
             customFields: customFields
+        ], [
+            // A legacy mutation replaces deferred file contents with an explicit list.
+            preInstallCommands: { hasPreInstallCommands = false } as Runnable,
+            postInstallCommands: { hasPostInstallCommands = false } as Runnable,
+            preUninstallCommands: { hasPreUninstallCommands = false } as Runnable,
+            postUninstallCommands: { hasPostUninstallCommands = false } as Runnable
         ])
     }
 
@@ -505,13 +511,13 @@ class SystemPackagingExtension {
     @Deprecated
     List<Object> getConfigurationFiles() { new PropertyBackedList<>(configurationFiles) }
     @Deprecated
-    List<Object> getPreInstallCommands() { new PropertyBackedList<>(preInstallCommands) }
+    List<Object> getPreInstallCommands() { options.legacyList('preInstallCommands') }
     @Deprecated
-    List<Object> getPostInstallCommands() { new PropertyBackedList<>(postInstallCommands) }
+    List<Object> getPostInstallCommands() { options.legacyList('postInstallCommands') }
     @Deprecated
-    List<Object> getPreUninstallCommands() { new PropertyBackedList<>(preUninstallCommands) }
+    List<Object> getPreUninstallCommands() { options.legacyList('preUninstallCommands') }
     @Deprecated
-    List<Object> getPostUninstallCommands() { new PropertyBackedList<>(postUninstallCommands) }
+    List<Object> getPostUninstallCommands() { options.legacyList('postUninstallCommands') }
     @Deprecated
     List<Trigger> getTriggerInstallCommands() { new PropertyBackedList<>(triggerInstallCommands) }
     @Deprecated
@@ -595,10 +601,10 @@ class SystemPackagingExtension {
     void setMultiArch(MultiArch value) { multiArch.set(value) }
     void setPrefixes(List<String> value) { prefixes.set(value) }
     void setConfigurationFiles(List<Object> value) { configurationFiles.set(value) }
-    void setPreInstallCommands(List<Object> value) { preInstallCommands.set(value) }
-    void setPostInstallCommands(List<Object> value) { postInstallCommands.set(value) }
-    void setPreUninstallCommands(List<Object> value) { preUninstallCommands.set(value) }
-    void setPostUninstallCommands(List<Object> value) { postUninstallCommands.set(value) }
+    void setPreInstallCommands(List<Object> value) { preInstallCommands.set(value); hasPreInstallCommands = false }
+    void setPostInstallCommands(List<Object> value) { postInstallCommands.set(value); hasPostInstallCommands = false }
+    void setPreUninstallCommands(List<Object> value) { preUninstallCommands.set(value); hasPreUninstallCommands = false }
+    void setPostUninstallCommands(List<Object> value) { postUninstallCommands.set(value); hasPostUninstallCommands = false }
     void setTriggerInstallCommands(List<Trigger> value) { triggerInstallCommands.set(value) }
     void setTriggerUninstallCommands(List<Trigger> value) { triggerUninstallCommands.set(value) }
     void setTriggerPostUninstallCommands(List<Trigger> value) { triggerPostUninstallCommands.set(value) }
