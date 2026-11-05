@@ -76,5 +76,12 @@ class OspackageApplicationDaemonPlugin implements Plugin<Project> {
         project.ext.applicationdaemon = { Closure closure ->
             daemonConfiguration << closure
         }
+        // Forward to the current extra property so consumer replacement Closures work too.
+        def extras = project.extensions.extraProperties
+        if (!project.metaClass.respondsTo(project, 'applicationdaemon', Closure)) {
+            project.metaClass.applicationdaemon = { Closure configure ->
+                extras.get('applicationdaemon').call(configure)
+            }
+        }
     }
 }
