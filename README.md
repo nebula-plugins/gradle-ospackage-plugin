@@ -20,6 +20,9 @@ Refer to the [Gradle Plugin Portal](https://plugins.gradle.org/plugin/com.netfli
 
 The project wiki contains the [full documentation](https://github.com/nebula-plugins/gradle-ospackage-plugin/wiki) for the plugin.
 
+See the [daemon DSL Isolated Projects guide](docs/isolated-projects.md) for the
+verified Gradle versions, callback compatibility, and Maven publishing limits.
+
 ## Migrating from 12.x to 13.0
 
 Version 13 adds a provider-backed `options` view to the packaging and application extensions while retaining their 12.x plain-value getters during migration. Most Groovy build scripts that assign values in `ospackage { ... }` or `buildDeb { ... }` can keep doing so:

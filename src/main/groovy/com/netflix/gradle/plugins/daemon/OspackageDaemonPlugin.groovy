@@ -184,6 +184,14 @@ class OspackageDaemonPlugin implements Plugin<Project> {
     @CompileDynamic
     private void addDaemonToProject(Project project, Closure closure) {
         project.ext.daemon = closure
+        // Extra-property method lookup searches parents before invoking the Closure.
+        // A local method avoids that search, while property access and .call stay intact.
+        def extras = project.extensions.extraProperties
+        if (!project.metaClass.respondsTo(project, 'daemon', Closure)) {
+            project.metaClass.daemon = { Closure configure ->
+                extras.get('daemon').call(configure)
+            }
+        }
     }
 
     private String getDestPath(String destPathTemplate, DaemonTemplateTask templateTask) {
