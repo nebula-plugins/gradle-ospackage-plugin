@@ -64,6 +64,8 @@ abstract class SystemPackagingTask extends OsPackageAbstractArchiveTask {
     // TODO Add conventions to pull from extension
     SystemPackagingTask(ProjectLayout projectLayout) {
         super()
+        // Packages use the source file mode when the copy spec has no explicit mode.
+        filePermissions.set(providers.provider { null })
         // exten is now an abstract getter - Gradle will instantiate it
         this.projectLayout = projectLayout
         // I have no idea where Project came from

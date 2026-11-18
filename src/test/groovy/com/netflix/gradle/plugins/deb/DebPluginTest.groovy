@@ -276,9 +276,8 @@ class DebPluginTest extends ProjectSpec {
         when:
         Deb debTask = project.task('buildDeb', type: Deb) {
             packageName = 'explicit-permissions-test'
-            from(srcDir) {
+            from(scriptFile) {
                 // Override executable script to be non-executable
-                include 'script.sh'
                 filePermissions {
                     unix(0644) 
                 }

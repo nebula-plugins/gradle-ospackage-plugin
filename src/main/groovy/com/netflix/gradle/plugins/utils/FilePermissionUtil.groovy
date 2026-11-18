@@ -64,58 +64,11 @@ class FilePermissionUtil {
     }
 
     /**
-     * Detects if file permissions were explicitly configured by the user in the build script.
-     * 
-     * <p>This method distinguishes between truly explicit permissions (set by user in filePermissions blocks)
-     * and system default permissions (644) that may have the same numeric value. It uses heuristics to detect
-     * explicit configuration:</p>
-     * 
-     * <ul>
-     * <li><strong>Include/exclude patterns:</strong> Presence indicates explicit copySpec configuration</li>
-     * <li><strong>Non-default values:</strong> Any permission other than 644 (420 decimal) is considered explicit</li>
-     * <li><strong>Explicit configuration blocks:</strong> Detection of filePermissions { } usage</li>
-     * </ul>
-     * 
-     * <p>Explicit permissions always take precedence over
-     * filesystem-based workarounds, giving users "ultimate control over permissions in packages".</p>
-     * 
-     * @param copySpecInternal The copy specification to examine for explicit permission configuration
-     * @return Integer permission value if explicit permissions detected, null if using system defaults
+     * Return the file permissions configured on this copy spec, if any.
      */
     static Integer getFileMode(def copySpecInternal) {
-        if(!copySpecInternal) {
-            return null
-        }
-
-        try {
-            if(copySpecInternal?.hasProperty('filePermissions') && copySpecInternal.filePermissions?.present) {
-                def permissions = copySpecInternal.filePermissions.get()
-                def numeric = permissions.toUnixNumeric()
-                
-                // Try to detect if this copySpec has explicit configuration (includes, excludes, etc.)
-                def hasExplicitConfiguration = false
-                try {
-                    // Look for signs of explicit configuration
-                    if (copySpecInternal.hasProperty('includes') && copySpecInternal.includes) {
-                        hasExplicitConfiguration = true
-                    }
-                    if (copySpecInternal.hasProperty('excludes') && copySpecInternal.excludes) {
-                        hasExplicitConfiguration = true
-                    }
-                } catch (Exception e) {
-                    // Ignore - could not check explicit configuration
-                }
-                
-                // If we have explicit configuration OR the permission is not default 644, treat as explicit
-                if (hasExplicitConfiguration || numeric != DEFAULT_FILE_PERMISSION) {
-                    return numeric
-                } else {
-                    // Default 644 with no explicit configuration - treat as default
-                    return null
-                }
-            }
-        } catch (Exception e) {
-            // Ignore - not a proper SyncSpec or permissions not set
+        if (copySpecInternal?.hasProperty('filePermissions')) {
+            return copySpecInternal.filePermissions?.orNull?.toUnixNumeric()
         }
         return null
     }
