@@ -587,9 +587,8 @@ version = '1.0.0'
 
 task buildRpm(type: com.netflix.gradle.plugins.rpm.Rpm) {
     packageName = 'explicit-permissions-test'
-    from('src') {
-        // Override executable script to be non-executable  
-        include 'script.sh'
+    from('src/script.sh') {
+        // Override executable script to be non-executable
         filePermissions {
             unix(0644) 
         }
